@@ -8,4 +8,4 @@ ninja run_tests
 lcov --directory . --capture --output-file aws-lc-combined.info
 genhtml  aws-lc-combined.info
 ```
-Open the the report at build/index.html in a browser.
+Open the report at build/index.html in a browser.
