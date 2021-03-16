@@ -119,7 +119,7 @@ function images_pushed_to_ecr() {
   # Every 5 min, this function checks if the target docker img is created.
   # Normally, docker img build can take up to 1 hour. Here, we wait up to 30 * 5 min.
   for i in {1..30}; do
-    images_in_ecr=$(aws ecr describe-images --repository-name ${repo_name})
+    images_in_ecr=$(aws ecr describe-images --repository-name "${repo_name}")
     images_pushed=0
     for target_image in "${target_images[@]}"; do
       if [[ ${images_in_ecr} != *"${target_image}"* ]]; then

@@ -1,4 +1,5 @@
-#!/bin/bash -ex
+#!/bin/bash
+set -exuo pipefail
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
@@ -22,7 +23,7 @@ run_build -DBUILD_SHARED_LIBS=1 -DCMAKE_BUILD_TYPE=Release
 if [[  "${AWSLC_FIPS}" == "1" ]]; then
   echo "Testing AWS-LC in FIPS release mode."
   build_and_test -DFIPS=1 -DCMAKE_BUILD_TYPE=Release
-  ./test_build_dir/util/fipstools/cavp/test_fips
+  ./${BUILD_ROOT}/util/fipstools/cavp/test_fips
 fi
 
 if [[ "${AWSLC_C99_TEST}" == "1" ]]; then
