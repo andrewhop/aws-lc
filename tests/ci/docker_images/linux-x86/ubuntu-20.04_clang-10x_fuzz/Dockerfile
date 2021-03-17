@@ -6,8 +6,7 @@ FROM ubuntu-20.04:clang-10x
 RUN set -ex && \
     apt-get update && \
     apt-get -y --no-install-recommends install \
-    awscli \
-    ca-certificates && \
+    awscli && \
     apt-get autoremove --purge -y && \
     apt-get clean && \
     apt-get autoclean && \
