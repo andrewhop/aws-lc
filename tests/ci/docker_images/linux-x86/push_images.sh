@@ -53,6 +53,11 @@ docker tag ubuntu-20.04:clang-10x ${ECS_REPO}:ubuntu-20.04_clang-10x_latest
 docker push ${ECS_REPO}:ubuntu-20.04_clang-10x_latest
 docker push ${ECS_REPO}:ubuntu-20.04_clang-10x_`date +%Y-%m-%d`
 
+docker tag ubuntu-20.04:fuzz ${ECS_REPO}:ubuntu-20.04_clang-10x_fuzz_`date +%Y-%m-%d`
+docker tag ubuntu-20.04:fuzz ${ECS_REPO}:ubuntu-20.04_clang-10x_fuzz_latest
+docker push ${ECS_REPO}:ubuntu-20.04_clang-10x_fuzz_latest
+docker push ${ECS_REPO}:ubuntu-20.04_clang-10x_fuzz_`date +%Y-%m-%d`
+
 docker tag centos-7:gcc-4x ${ECS_REPO}:centos-7_gcc-4x_`date +%Y-%m-%d`
 docker tag centos-7:gcc-4x ${ECS_REPO}:centos-7_gcc-4x_latest
 docker push ${ECS_REPO}:centos-7_gcc-4x_latest
