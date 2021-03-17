@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-if [ -z ${CODEBUILD_SRC_DIR+x} ]; then
-  SRC_ROOT="${CODEBUILD_SRC_DIR}"
+if [ -v CODEBUILD_SRC_DIR ]; then
+  SRC_ROOT="$CODEBUILD_SRC_DIR"
 else
   SRC_ROOT=$(pwd)
 fi
@@ -21,7 +21,7 @@ function run_build {
   mkdir -p "$BUILD_ROOT"
   cd "$BUILD_ROOT" || exit 1
 
-  if [[ "${AWSLC_32BIT}" == "1" ]]; then
+  if [[ -v AWSLC_32BIT && "${AWSLC_32BIT}" == "1" ]]; then
     cflags+=("-DCMAKE_TOOLCHAIN_FILE=../util/32-bit-toolchain.cmake")
   fi
 
