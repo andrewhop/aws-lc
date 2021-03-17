@@ -74,3 +74,6 @@ for FUZZ_TEST in $FUZZ_TESTS;do
   echo "${FUZZ_NAME} starting shared ${ORIGINAL_SHARED_CORPUS_FILE_COUNT} final shared ${FINAL_SHARED_CORPUS_FILE_COUNT} new files ${NEW_FUZZ_FILES} total test count ${TEST_COUNT} test rate ${TESTS_PER_SECOND} code coverage ${BLOCK_COVERAGE} feature coverage ${FEATURE_COVERAGE}"
 
 done
+
+# If we got here the run was successful and can be cleaned up, all the valuable new data has been merged into the corpus
+rm -rf  "$RUN_ROOT"
