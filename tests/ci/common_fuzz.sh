@@ -17,3 +17,16 @@ else
   BUILD_ID=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
 fi
 echo "$BUILD_ID"
+
+function put_metric_count {
+  put_metric --unit Count "$@"
+}
+
+function put_metric {
+  local METRIC_NAME="$1"
+
+  aws --region us-west-2 cloudwatch put-metric-data \
+    --namespace AWS-LC-Fuzz \
+    "$@"
+
+}
