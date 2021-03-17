@@ -29,6 +29,7 @@ tag_and_push_img 'amazonlinux-2:gcc-7x-intel-sde' "${ECS_REPO}:amazonlinux-2_gcc
 tag_and_push_img 'fedora-31:clang-9x' "${ECS_REPO}:fedora-31_clang-9x"
 tag_and_push_img 'integration:s2n' "${ECS_REPO}:s2n_integration_clang-9x"
 tag_and_push_img 'ubuntu-20.04:clang-10x_formal-verification' "${ECS_REPO}:ubuntu-20.04_clang-10x_formal-verification"
+tag_and_push_img 'ubuntu-20.04:fuzz' "${ECS_REPO}:ubuntu-20.04_clang-10x_fuzz"
 
 #################################
 # Push images used by aws-c-cal #
