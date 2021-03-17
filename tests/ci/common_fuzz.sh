@@ -23,10 +23,7 @@ function put_metric_count {
 }
 
 function put_metric {
-  local METRIC_NAME="$1"
-
   aws --region us-west-2 cloudwatch put-metric-data \
     --namespace AWS-LC-Fuzz \
     "$@"
-
 }

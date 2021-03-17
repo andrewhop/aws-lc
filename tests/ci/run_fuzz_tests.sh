@@ -6,7 +6,7 @@ set -exuo pipefail
 source tests/ci/common_fuzz.sh
 
 echo "Building fuzz tests."
-run_build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFUZZ=1
+run_build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFUZZ=1 -DASAN=1
 
 PLATFORM=$(uname -m)
 DATE_NOW="$(date +%Y-%m-%d)"
@@ -20,45 +20,48 @@ NUM_FUZZ_TESTS=$(echo "$FUZZ_TESTS" | wc -l)
 # ~8 minutes for merging files
 TOTAL_FUZZ_TEST_TIME=3000
 TIME_FOR_EACH_FUZZ=$((TOTAL_FUZZ_TEST_TIME/NUM_FUZZ_TESTS))
+#TIME_FOR_EACH_FUZZ=200
+
+ACTUAL_TEST_FAILURE=0
+
 for FUZZ_TEST in $FUZZ_TESTS;do
   FUZZ_NAME=$(basename "$FUZZ_TEST")
 
   SRC_CORPUS="${SRC_ROOT}/fuzz/${FUZZ_NAME}_corpus"
   SHARED_CORPUS="${CORPUS_ROOT}/shared_corpus/${FUZZ_NAME}/shared_corpus"
-  FUZZ_TEST_CORPUS="${RUN_ROOT}/${FUZZ_NAME}/run_corpus"
+  FUZZ_RUN_CORPUS="${RUN_ROOT}/${FUZZ_NAME}/run_corpus"
   LOG_FOLDER="${RUN_ROOT}/${FUZZ_NAME}/logs"
   SUMMARY_LOG="${LOG_FOLDER}/summary.log"
-  mkdir -p "$SHARED_CORPUS" "$FUZZ_TEST_CORPUS" "$LOG_FOLDER"
+  mkdir -p "$SHARED_CORPUS" "$FUZZ_RUN_CORPUS" "$LOG_FOLDER"
 
   # Calculate starting metrics and post to CloudWatch
   ORIGINAL_SHARED_CORPUS_FILE_COUNT=$(find "$SHARED_CORPUS" -type f | wc -l)
   put_metric_count --metric-name SharedCorpusFileCount --value "$ORIGINAL_SHARED_CORPUS_FILE_COUNT" --dimensions "FuzzTest=$FUZZ_NAME"
 
   # Perform the actual fuzzing!
-  # Step 1 merge any new files from GitHub into the shared corpus
-  time ${FUZZ_TEST} -merge=1 "$SHARED_CORPUS" "$SRC_CORPUS"
-
-  # Step 2 run each fuzz test for the determined time
-  # This will use the existing shared corpus and write new files to the temporary run corpus
+  # Step 1 run each fuzz test for the determined time
+  # This will use the existing shared corpus and any files checked into the GitHub corpus. It will write new files to
+  # the temporary run corpus.
   # https://llvm.org/docs/LibFuzzer.html#options
   #
-  # Run with NUM_CPU_THREADS which will be physical cores on ARM and virualized cores on x86 with hyper threading.
-  # Looking at the overall system fuzz rate running 1:1 with virtualized cores provides a noticeable speed up.
-  time ${FUZZ_TEST} -timeout=5 -print_final_stats=1 -jobs="$NUM_CPU_THREADS" -workers="$NUM_CPU_THREADS" \
-    -max_total_time="$TIME_FOR_EACH_FUZZ" "$FUZZ_TEST_CORPUS" "$SHARED_CORPUS" 2>&1 | tee "$SUMMARY_LOG"
+  # Run with NUM_CPU_THREADS which will be physical cores on ARM and virtualized cores on x86 with hyper threading.
+  # Looking at the overall system fuzz rate running 1:1 with virtualized cores provides a noticeable speed up. This
+  # is slightly different than libfuzzer's recomendation of #cores/2.
+  time ${FUZZ_TEST} -print_final_stats=1 -timeout=5 -max_total_time="$TIME_FOR_EACH_FUZZ" \
+    -jobs="$NUM_CPU_THREADS" -workers="$NUM_CPU_THREADS" \
+    "$FUZZ_RUN_CORPUS" "$SHARED_CORPUS" "$SRC_CORPUS" 2>&1 | tee "$SUMMARY_LOG"
 
   # The libfuzzer logs are written to the current working directory and need to be moved after the test is done
   mv ./*.log  "${LOG_FOLDER}/."
 
-  # Step 3 merge any new coverage from the run corpus into the shared corpus
-  time ${FUZZ_TEST} -merge=1 "$SHARED_CORPUS" "$FUZZ_TEST_CORPUS"
-
+  # Step 2 merge any new coverage from the run corpus and GitHub src corpus into the shared corpus
+  time ${FUZZ_TEST} -merge=1 "$SHARED_CORPUS" "$FUZZ_RUN_CORPUS" "$SRC_CORPUS"
 
   # Calculate interesting metrics and post results to CloudWatch
   FINAL_SHARED_CORPUS_FILE_COUNT=$(find "$SHARED_CORPUS" -type f | wc -l)
   put_metric_count --metric-name SharedCorpusFileCount --value "$FINAL_SHARED_CORPUS_FILE_COUNT" --dimensions "FuzzTest=$FUZZ_NAME"
 
-  NEW_FUZZ_FILES=$(find "$FUZZ_TEST_CORPUS" -type f | wc -l)
+  NEW_FUZZ_FILES=$(find "$FUZZ_RUN_CORPUS" -type f | wc -l)
   put_metric_count --metric-name RunCorpusFileCount --value "$NEW_FUZZ_FILES" --dimensions "FuzzTest=$FUZZ_NAME,Platform=$PLATFORM"
 
   TEST_COUNT=$(grep -o "stat::number_of_executed_units: [0-9]*" "$SUMMARY_LOG" | awk '{test_count += $2} END {print test_count}')
@@ -77,6 +80,4 @@ for FUZZ_TEST in $FUZZ_TESTS;do
 done
 
 # If we got here the run was successful and can be cleaned up, all the valuable new data has been merged into the corpus
-#time rm -rf  "$RUN_ROOT"
-mkdir empty_dir
-time rsync -a --delete empty_dir/ "$RUN_ROOT"
+time rm -rf  "$RUN_ROOT"
