@@ -14,7 +14,6 @@ echo "$BUILD_ROOT"
 
 NUM_CPU_THREADS=$(nproc)
 
-
 function run_build {
   local cflags=("$@")
   rm -rf "$BUILD_ROOT"

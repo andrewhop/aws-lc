@@ -20,7 +20,6 @@ NUM_FUZZ_TESTS=$(echo "$FUZZ_TESTS" | wc -l)
 # ~8 minutes for merging files
 TOTAL_FUZZ_TEST_TIME=3000
 TIME_FOR_EACH_FUZZ=$((TOTAL_FUZZ_TEST_TIME/NUM_FUZZ_TESTS))
-#TIME_FOR_EACH_FUZZ=20
 for FUZZ_TEST in $FUZZ_TESTS;do
   FUZZ_NAME=$(basename "$FUZZ_TEST")
 
@@ -42,6 +41,9 @@ for FUZZ_TEST in $FUZZ_TESTS;do
   # Step 2 run each fuzz test for the determined time
   # This will use the existing shared corpus and write new files to the temporary run corpus
   # https://llvm.org/docs/LibFuzzer.html#options
+  #
+  # Run with NUM_CPU_THREADS which will be physical cores on ARM and virualized cores on x86 with hyper threading.
+  # Looking at the overall system fuzz rate running 1:1 with virtualized cores provides a noticeable speed up.
   time ${FUZZ_TEST} -timeout=5 -print_final_stats=1 -jobs="$NUM_CPU_THREADS" -workers="$NUM_CPU_THREADS" \
     -max_total_time="$TIME_FOR_EACH_FUZZ" "$FUZZ_TEST_CORPUS" "$SHARED_CORPUS" 2>&1 | tee "$SUMMARY_LOG"
 
@@ -72,8 +74,9 @@ for FUZZ_TEST in $FUZZ_TESTS;do
   put_metric_count --metric-name BlockCoverage --value "$BLOCK_COVERAGE" --dimensions "FuzzTest=$FUZZ_NAME,Platform=$PLATFORM"
 
   echo "${FUZZ_NAME} starting shared ${ORIGINAL_SHARED_CORPUS_FILE_COUNT} final shared ${FINAL_SHARED_CORPUS_FILE_COUNT} new files ${NEW_FUZZ_FILES} total test count ${TEST_COUNT} test rate ${TESTS_PER_SECOND} code coverage ${BLOCK_COVERAGE} feature coverage ${FEATURE_COVERAGE}"
-
 done
 
 # If we got here the run was successful and can be cleaned up, all the valuable new data has been merged into the corpus
-time rm -rf  "$RUN_ROOT"
+#time rm -rf  "$RUN_ROOT"
+mkdir empty_dir
+time rsync -a --delete empty_dir/ "$RUN_ROOT"
