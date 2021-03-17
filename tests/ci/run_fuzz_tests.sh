@@ -76,4 +76,4 @@ for FUZZ_TEST in $FUZZ_TESTS;do
 done
 
 # If we got here the run was successful and can be cleaned up, all the valuable new data has been merged into the corpus
-rm -rf  "$RUN_ROOT"
+time rm -rf  "$RUN_ROOT"
