@@ -10,14 +10,16 @@ run_build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFUZZ=1 -DASAN=1
 
 PLATFORM=$(uname -m)
 DATE_NOW="$(date +%Y-%m-%d)"
-RUN_ROOT="${CORPUS_ROOT}/runs/${DATE_NOW}/${BUILD_ID}"
+FAILURE_ROOT="${CORPUS_ROOT}/runs/${DATE_NOW}/${BUILD_ID}"
+RUN_ROOT="${BUILD_ROOT}/fuzzing_root"
 
 FUZZ_TESTS=$(find test_build_dir/fuzz -type f -executable)
 NUM_FUZZ_TESTS=$(echo "$FUZZ_TESTS" | wc -l)
 # We want our CI to take about an hour:
 # ~2 minutes to build AWS-LC
 # ~50 minutes (3000 seconds) for all fuzzing
-# ~8 minutes for merging files
+# ~2 minutes for merging files
+# ~3 minutes for cleanup
 TOTAL_FUZZ_TEST_TIME=3000
 TIME_FOR_EACH_FUZZ=$((TOTAL_FUZZ_TEST_TIME/NUM_FUZZ_TESTS))
 #TIME_FOR_EACH_FUZZ=200
@@ -31,6 +33,7 @@ for FUZZ_TEST in $FUZZ_TESTS;do
   SHARED_CORPUS="${CORPUS_ROOT}/shared_corpus/${FUZZ_NAME}/shared_corpus"
   FUZZ_RUN_CORPUS="${RUN_ROOT}/${FUZZ_NAME}/run_corpus"
   LOG_FOLDER="${RUN_ROOT}/${FUZZ_NAME}/logs"
+  ARTIFACTS_FOLDER="${RUN_ROOT}/${FUZZ_NAME}/artifacts"
   SUMMARY_LOG="${LOG_FOLDER}/summary.log"
   mkdir -p "$SHARED_CORPUS" "$FUZZ_RUN_CORPUS" "$LOG_FOLDER"
 
@@ -49,6 +52,7 @@ for FUZZ_TEST in $FUZZ_TESTS;do
   # is slightly different than libfuzzer's recomendation of #cores/2.
   time ${FUZZ_TEST} -print_final_stats=1 -timeout=5 -max_total_time="$TIME_FOR_EACH_FUZZ" \
     -jobs="$NUM_CPU_THREADS" -workers="$NUM_CPU_THREADS" \
+    -artifact_prefix="$ARTIFACTS_FOLDER/"
     "$FUZZ_RUN_CORPUS" "$SHARED_CORPUS" "$SRC_CORPUS" 2>&1 | tee "$SUMMARY_LOG"
 
   # The libfuzzer logs are written to the current working directory and need to be moved after the test is done
@@ -80,4 +84,4 @@ for FUZZ_TEST in $FUZZ_TESTS;do
 done
 
 # If we got here the run was successful and can be cleaned up, all the valuable new data has been merged into the corpus
-time rm -rf  "$RUN_ROOT"
+#time rm -rf  "$RUN_ROOT"
