@@ -51,10 +51,13 @@ class AwsLcGitHubFuzzCIStack(core.Stack):
         public_subnet = ec2.SubnetConfiguration(name="PublicFuzzingSubnet", subnet_type=ec2.SubnetType.PUBLIC)
         private_subnet = ec2.SubnetConfiguration(name="PrivateFuzzingSubnet", subnet_type=ec2.SubnetType.PRIVATE)
 
+        # Create a VPC with a single public and private subnet in a single AZ. This is to avoid the elastic IP limit
+        # being used up by a bunch of idle NAT gateways
         fuzz_vpc = ec2.Vpc(
             scope=self,
             id="FuzzingVPC",
-            subnet_configuration=[public_subnet, private_subnet]
+            subnet_configuration=[public_subnet, private_subnet],
+            max_azs=1
         )
         build_security_group = ec2.SecurityGroup(
             scope=self,
