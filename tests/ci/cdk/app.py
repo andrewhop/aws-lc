@@ -6,6 +6,7 @@
 from aws_cdk import core
 
 from cdk.aws_lc_github_ci_stack import AwsLcGitHubCIStack
+from cdk.aws_lc_github_fuzz_ci_stack import  AwsLcGitHubFuzzCIStack
 from cdk.linux_docker_image_batch_build_stack import LinuxDockerImageBatchBuildStack
 from cdk.windows_docker_image_build_stack import WindowsDockerImageBuildStack
 from cdk.ecr_stack import EcrStack

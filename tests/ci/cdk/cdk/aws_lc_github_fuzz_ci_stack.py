@@ -37,7 +37,7 @@ class AwsLcGitHubFuzzCIStack(core.Stack):
             code_build_batch_policy_in_json([id])
         )
         ecr_pull_only_policy = iam.PolicyDocument.from_json(
-            ecr_pull_only_policy_in_json(x86_ecr_repo_name, arm_ecr_repo_name)
+            ecr_pull_only_policy_in_json([x86_ecr_repo_name, arm_ecr_repo_name])
         )
         inline_policies = {"code_build_batch_policy": code_build_batch_policy,
                            "ecr_pull_only_policy": ecr_pull_only_policy,
@@ -47,40 +47,11 @@ class AwsLcGitHubFuzzCIStack(core.Stack):
                         assumed_by=iam.ServicePrincipal("codebuild.amazonaws.com"),
                         inline_policies=inline_policies)
 
-        # Create build spec.
-        placeholder_map = {"AWS_ACCOUNT_ID_PLACEHOLDER": AWS_ACCOUNT, "AWS_REGION_PLACEHOLDER": AWS_REGION,
-                           "X86_ECR_REPO_PLACEHOLDER": x86_ecr_repo_name, "ARM_ECR_REPO_PLACEHOLDER": arm_ecr_repo_name}
-        build_spec_content = YmlLoader.load(spec_file_path, placeholder_map)
-
-        # Define CodeBuild.
-        project = codebuild.Project(
-            scope=self,
-            id=id,
-            project_name=id,
-            source=git_hub_source,
-            role=role,
-            timeout=core.Duration.minutes(120),
-            environment=codebuild.BuildEnvironment(compute_type=codebuild.ecr_pull_only_policy.LARGE,
-                                                   privileged=True,
-                                                   build_image=codebuild.LinuxBuildImage.STANDARD_4_0),
-            build_spec=codebuild.BuildSpec.from_object(build_spec_content))
-
-        # TODO: add build type BUILD_BATCH when CFN finishes the feature release. See CryptoAlg-575.
-
-        # Add 'BuildBatchConfig' property, which is not supported in CDK.
-        # CDK raw overrides: https://docs.aws.amazon.com/cdk/latest/guide/cfn_layer.html#cfn_layer_raw
-        # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-codebuild-project.html#aws-resource-codebuild-project-properties
-        cfn_build = project.node.default_child
-        cfn_build.add_override("Properties.BuildBatchConfig", {
-            "ServiceRole": role.role_arn,
-            "TimeoutInMins": 120
-        })
-
         # Create the VPC for EFS and CodeBuild
         public_subnet = ec2.SubnetConfiguration(name="PublicFuzzingSubnet", subnet_type=ec2.SubnetType.PUBLIC)
         private_subnet = ec2.SubnetConfiguration(name="PrivateFuzzingSubnet", subnet_type=ec2.SubnetType.PRIVATE)
 
-        build_vpc = ec2.Vpc(
+        fuzz_vpc = ec2.Vpc(
             scope=self,
             id="FuzzingVPC",
             subnet_configuration=[public_subnet, private_subnet]
@@ -88,23 +59,60 @@ class AwsLcGitHubFuzzCIStack(core.Stack):
         build_security_group = ec2.SecurityGroup(
             scope=self,
             id="FuzzingSecurityGroup",
-            vpc=build_vpc.vpc_id
+            vpc=fuzz_vpc
         )
+
+        efs_subnet_selection = ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE)
 
         # Create the EFS to store the corpus and logs
-        filesystem = efs.FileSystem(
+        fuzz_filesystem = efs.FileSystem(
             scope=self,
             id="FuzzingEFS",
+            file_system_name="AWS-LC-Fuzz-Corpus",
             enable_automatic_backups=True,
-            securyty_group=build_security_group,
-            vpc_subnets=private_subnet
+            encrypted=True,
+            security_group=build_security_group,
+            vpc=fuzz_vpc,
+            vpc_subnets=efs_subnet_selection
         )
 
-        # Add EFS configuration
-        # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-codebuild-project-projectfilesystemlocation.html
-        cfn_build.add_override("Properties.ProjectFileSystemLocation", {
-          "Identifier" : "fuzzing_root",
-          "Location" : filesystem.file_system_id,
-          "MountPoint" : "/efs_fuzzing_root",
-          "Type" : "EFS"
+        # Create build spec.
+        placeholder_map = {"AWS_ACCOUNT_ID_PLACEHOLDER": AWS_ACCOUNT, "AWS_REGION_PLACEHOLDER": AWS_REGION,
+                           "X86_ECR_REPO_PLACEHOLDER": x86_ecr_repo_name, "ARM_ECR_REPO_PLACEHOLDER": arm_ecr_repo_name}
+        build_spec_content = YmlLoader.load(spec_file_path, placeholder_map)
+
+        # Define CodeBuild.
+        fuzz_codebuild = codebuild.Project(
+            scope=self,
+            id="FuzzingCodeBuild",
+            project_name=id,
+            source=git_hub_source,
+            role=role,
+            timeout=core.Duration.minutes(120),
+            environment=codebuild.BuildEnvironment(compute_type=codebuild.ComputeType.LARGE,
+                                                   privileged=True,
+                                                   build_image=codebuild.LinuxBuildImage.STANDARD_4_0),
+            build_spec=codebuild.BuildSpec.from_object(build_spec_content),
+            vpc=fuzz_vpc)
+
+        # TODO: add build type BUILD_BATCH when CFN finishes the feature release. See CryptoAlg-575.
+
+        # Add 'BuildBatchConfig' property, which is not supported in CDK.
+        # CDK raw overrides: https://docs.aws.amazon.com/cdk/latest/guide/cfn_layer.html#cfn_layer_raw
+        # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-codebuild-project.html#aws-resource-codebuild-project-properties
+        cfn_codebuild = fuzz_codebuild.node.default_child
+        cfn_codebuild.add_override("Properties.BuildBatchConfig", {
+            "ServiceRole": role.role_arn,
+            "TimeoutInMins": 120
         })
+
+        # The EFS identifier needs to match tests/ci/common_fuzz.sh, CodeBuild defines an environment variable named
+        # codebuild_$identifier.
+        # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-codebuild-project-projectfilesystemlocation.html
+        # TODO: add this to the CDK project above when it supports EfsFileSystemLocation
+        cfn_codebuild.add_override("Properties.FileSystemLocations", [{
+          "Identifier": "fuzzing_root",
+          "Location": "%s.efs.%s.amazonaws.com:/" % (fuzz_filesystem.file_system_id, AWS_REGION),
+          "MountPoint": "/efs_fuzzing_root",
+          "Type": "EFS"
+        }])
