@@ -3,10 +3,10 @@
 
 source tests/ci/common_posix_setup.sh
 
-if [ -v CODEBUILD_CORPUS_REPOSITORY ]; then
-  CORPUS_ROOT="${CODEBUILD_CORPUS_REPOSITORY}/fuzzing"
+if [ -v CODEBUILD_FUZZING_ROOT ]; then
+  CORPUS_ROOT="${CODEBUILD_FUZZING_ROOT}/fuzzing"
 else
-  CORPUS_ROOT="${BUILD_ROOT}/efs/fuzzing"
+  CORPUS_ROOT="${BUILD_ROOT}/mock_efs/fuzzing"
 fi
 echo "$CORPUS_ROOT"
 

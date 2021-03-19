@@ -30,6 +30,33 @@ def code_build_batch_policy_in_json(project_ids):
         ]
     }
 
+def code_build_fuzz_policy_in_json():
+    """
+    Define an IAM policy with the required permissions for our fuzz tests. This includes access to the EFS volume
+    and publishing CloudWatch Metrics.
+
+    CloudWatch metrics does not offer any authorization context keys, so the best we can do is limit permission to a
+    single region.
+    """
+    return {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": "cloudwatch:PutMetricData",
+                "Resource": "*",
+                "Condition": {
+                    "StringEquals": {
+                        "aws:RequestedRegion": [
+                            AWS_REGION
+                        ]
+                    }
+                }
+            }
+        ]
+    }
+
+
 
 def s3_read_write_policy_in_json(s3_bucket_name):
     """
@@ -107,14 +134,17 @@ def ecr_power_user_policy_in_json(ecr_repo_names):
     }
 
 
-def ecr_pull_only_policy_in_json(ecr_repo_name):
+def ecr_pull_only_policy_in_json(ecr_repo_names):
     """
     Define an AWS-LC specific IAM policy statement used to pull Docker images from ECR repo.
     Reference:
       https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazonelasticcontainerregistry.html
-    :param ecr_repo_name: repository name.
+    :param ecr_repo_names: repository names
     :return: an IAM policy statement in json.
     """
+    ecr_arns = []
+    for ecr_repo_name in ecr_repo_names:
+        ecr_arns.append(ecr_repo_arn(ecr_repo_name))
     return {
         "Version": "2012-10-17",
         "Statement": [
@@ -125,7 +155,7 @@ def ecr_pull_only_policy_in_json(ecr_repo_name):
                     "ecr:GetDownloadUrlForLayer",
                     "ecr:BatchGetImage",
                 ],
-                "Resource": ecr_repo_arn(ecr_repo_name)
+                "Resource": ecr_arns
             }
         ]
     }

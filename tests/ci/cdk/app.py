@@ -37,5 +37,7 @@ arm_build_spec_file = "./cdk/codebuild/github_ci_linux_arm_omnibus.yaml"
 AwsLcGitHubCIStack(app, "aws-lc-ci-linux-arm", LINUX_AARCH_ECR_REPO, arm_build_spec_file, env=env)
 win_x86_build_spec_file = "./cdk/codebuild/github_ci_windows_x86_omnibus.yaml"
 AwsLcGitHubCIStack(app, "aws-lc-ci-windows-x86", WINDOWS_X86_ECR_REPO, win_x86_build_spec_file, env=env)
+fuzz_build_spec_file = "./cdk/codebuild/github_ci_fuzz_omnibus.yaml"
+AwsLcGitHubFuzzCIStack(app, "aws-lc-ci-fuzzing", LINUX_X86_ECR_REPO, LINUX_AARCH_ECR_REPO, fuzz_build_spec_file, env=env)
 
 app.synth()
