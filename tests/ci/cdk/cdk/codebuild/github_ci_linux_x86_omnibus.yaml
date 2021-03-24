@@ -38,14 +38,6 @@ batch:
         compute-type: BUILD_GENERAL1_LARGE
         image: ECR_REPO_PLACEHOLDER:ubuntu-18.04_gcc-7x_latest
 
-    - identifier: ubuntu1910_clang9x_x86_64
-      buildspec: ./tests/ci/codebuild/linux-x86/ubuntu-19.10_clang-9x.yml
-      env:
-        type: LINUX_CONTAINER
-        privileged-mode: true
-        compute-type: BUILD_GENERAL1_LARGE
-        image: ECR_REPO_PLACEHOLDER:ubuntu-19.10_clang-9x_latest
-
     - identifier: ubuntu2004_clang10x_x86_64
       buildspec: ./tests/ci/codebuild/linux-x86/ubuntu-20.04_clang-10x.yml
       env:
@@ -53,22 +45,6 @@ batch:
         privileged-mode: true
         compute-type: BUILD_GENERAL1_LARGE
         image: ECR_REPO_PLACEHOLDER:ubuntu-20.04_clang-10x_latest
-
-    - identifier: ubuntu1904_gcc8x_x86_64
-      buildspec: ./tests/ci/codebuild/linux-x86/ubuntu-19.04_gcc-8x.yml
-      env:
-        type: LINUX_CONTAINER
-        privileged-mode: true
-        compute-type: BUILD_GENERAL1_LARGE
-        image: ECR_REPO_PLACEHOLDER:ubuntu-19.04_gcc-8x_latest
-
-    - identifier: ubuntu1904_clang8x_x86_64
-      buildspec: ./tests/ci/codebuild/linux-x86/ubuntu-19.04_clang-8x.yml
-      env:
-        type: LINUX_CONTAINER
-        privileged-mode: true
-        compute-type: BUILD_GENERAL1_LARGE
-        image: ECR_REPO_PLACEHOLDER:ubuntu-19.04_clang-8x_latest
 
     - identifier: centos7_gcc4x_x86
       buildspec: ./tests/ci/codebuild/linux-x86/centos-7_gcc-4x-32-bits.yml
@@ -125,14 +101,6 @@ batch:
         privileged-mode: true
         compute-type: BUILD_GENERAL1_LARGE
         image: ECR_REPO_PLACEHOLDER:fedora-31_clang-9x_latest
-
-    - identifier: ubuntu1910_clang9x_x86_64_sanitizer
-      buildspec: ./tests/ci/codebuild/linux-x86/ubuntu-19.10_clang-9x_sanitizer.yml
-      env:
-        type: LINUX_CONTAINER
-        privileged-mode: true
-        compute-type: BUILD_GENERAL1_LARGE
-        image: ECR_REPO_PLACEHOLDER:ubuntu-19.10_clang-9x_sanitizer_latest
 
     # When no SELECTCHECK env variable is undefined, formal verification is executed with a few parameters.
     # SAW does not support thread level parallelism.

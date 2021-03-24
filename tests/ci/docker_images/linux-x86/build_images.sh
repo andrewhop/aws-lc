@@ -9,10 +9,6 @@
 docker build -t ubuntu-16.04:gcc-5x ubuntu-16.04_gcc-5x
 docker build -t ubuntu-18.04:gcc-7x ubuntu-18.04_gcc-7x
 docker build -t ubuntu-18.04:clang-6x ubuntu-18.04_clang-6x
-docker build -t ubuntu-19.04:gcc-8x ubuntu-19.04_gcc-8x
-docker build -t ubuntu-19.04:clang-8x ubuntu-19.04_clang-8x
-docker build -t ubuntu-19.10:clang-9x ubuntu-19.10_clang-9x
-docker build -t ubuntu-19.10:sanitizer ubuntu-19.10_clang-9x_sanitizer
 docker build -t centos-7:gcc-4x centos-7_gcc-4x
 docker build -t amazonlinux-2:gcc-7x amazonlinux-2_gcc-7x
 docker build -t amazonlinux-2:gcc-7x-intel-sde amazonlinux-2_gcc-7x-intel-sde

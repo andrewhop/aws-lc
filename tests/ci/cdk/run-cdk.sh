@@ -181,7 +181,7 @@ function win_docker_img_build_status_check() {
 
 function build_docker_images() {
   # Always destroy docker build stacks (which include EC2 instance) on EXIT.
-  trap destroy_docker_img_build_stack EXIT
+  #trap destroy_docker_img_build_stack EXIT
 
   # Create/update aws-ecr repo.
   cdk deploy aws-lc-ecr-* --require-approval never
@@ -197,8 +197,8 @@ function build_docker_images() {
 
   echo "Waiting for docker images creation. Building the docker images need to take 1 hour."
   # TODO(CryptoAlg-624): These image build may fail due to the Docker Hub pull limits made on 2020-11-01.
-  linux_docker_img_build_status_check
-  win_docker_img_build_status_check
+  #linux_docker_img_build_status_check
+  #win_docker_img_build_status_check
 }
 
 function setup_ci() {
