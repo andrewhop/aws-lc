@@ -1143,18 +1143,47 @@ OPENSSL_EXPORT int ASN1_item_sign_ctx(const ASN1_ITEM *it, X509_ALGOR *algor1,
                                       ASN1_BIT_STRING *signature, void *asn,
                                       EVP_MD_CTX *ctx);
 
-OPENSSL_EXPORT ASN1_INTEGER *X509_get_serialNumber(X509 *x);
-OPENSSL_EXPORT int X509_set_issuer_name(X509 *x, X509_NAME *name);
-OPENSSL_EXPORT X509_NAME *X509_get_issuer_name(const X509 *a);
-OPENSSL_EXPORT int X509_set_subject_name(X509 *x, X509_NAME *name);
-OPENSSL_EXPORT X509_NAME *X509_get_subject_name(const X509 *a);
-OPENSSL_EXPORT int X509_set_pubkey(X509 *x, EVP_PKEY *pkey);
-OPENSSL_EXPORT EVP_PKEY *X509_get_pubkey(X509 *x);
-OPENSSL_EXPORT ASN1_BIT_STRING *X509_get0_pubkey_bitstr(const X509 *x);
+// X509_get_serialNumber returns a mutable pointer to |x509|'s serial number.
+// Prefer |X509_get0_serialNumber|.
+OPENSSL_EXPORT ASN1_INTEGER *X509_get_serialNumber(X509 *x509);
 
-// X509_get0_extensions returns |x|'s extension list, or NULL if |x| omits it.
+// X509_set_issuer_name sets |x509|'s issuer to a copy of |name|. It returns one
+// on success and zero on error.
+OPENSSL_EXPORT int X509_set_issuer_name(X509 *x509, X509_NAME *name);
+
+// X509_get_issuer_name returns |x509|'s issuer.
+OPENSSL_EXPORT X509_NAME *X509_get_issuer_name(const X509 *x509);
+
+// X509_set_subject_name sets |x509|'s subject to a copy of |name|. It returns
+// one on success and zero on error.
+OPENSSL_EXPORT int X509_set_subject_name(X509 *x509, X509_NAME *name);
+
+// X509_get_issuer_name returns |x509|'s subject.
+OPENSSL_EXPORT X509_NAME *X509_get_subject_name(const X509 *x509);
+
+// X509_set_pubkey sets |x509|'s public key to |pkey|. It returns one on success
+// and zero on error. This function does not take ownership of |pkey| and
+// internally copies and updates reference counts as needed.
+OPENSSL_EXPORT int X509_set_pubkey(X509 *x509, EVP_PKEY *pkey);
+
+// X509_get_pubkey returns |x509|'s public key as an |EVP_PKEY|, or NULL if the
+// public key was unsupported or could not be decoded. This function returns a
+// reference to the |EVP_PKEY|. The caller must release the result with
+// |EVP_PKEY_free| when done.
+OPENSSL_EXPORT EVP_PKEY *X509_get_pubkey(X509 *x509);
+
+// X509_get0_pubkey_bitstr returns the BIT STRING portion of |x509|'s public
+// key. Note this does not contain the AlgorithmIdentifier portion.
+//
+// WARNING: This function returns a non-const pointer for OpenSSL compatibility,
+// but the caller must not modify the resulting object. Doing so will break
+// internal invariants in |x509|.
+OPENSSL_EXPORT ASN1_BIT_STRING *X509_get0_pubkey_bitstr(const X509 *x509);
+
+// X509_get0_extensions returns |x509|'s extension list, or NULL if |x509| omits
+// it.
 OPENSSL_EXPORT const STACK_OF(X509_EXTENSION) *X509_get0_extensions(
-    const X509 *x);
+    const X509 *x509);
 
 // X509_get0_tbs_sigalg returns the signature algorithm in |x509|'s
 // TBSCertificate. For the outer signature algorithm, see |X509_get0_signature|.
@@ -1168,6 +1197,9 @@ OPENSSL_EXPORT const X509_ALGOR *X509_get0_tbs_sigalg(const X509 *x509);
 //
 // Note no versions other than |X509V1_VERSION| are defined for CSRs.
 OPENSSL_EXPORT int X509_REQ_set_version(X509_REQ *req, long version);
+
+// X509_REQ_set_subject_name sets |req|'s subject to a copy of |name|. It
+// returns one on success and zero on error.
 OPENSSL_EXPORT int X509_REQ_set_subject_name(X509_REQ *req, X509_NAME *name);
 
 // X509_REQ_get0_signature sets |*out_sig| and |*out_alg| to the signature and
@@ -1182,18 +1214,56 @@ OPENSSL_EXPORT void X509_REQ_get0_signature(const X509_REQ *req,
 // a known NID.
 OPENSSL_EXPORT int X509_REQ_get_signature_nid(const X509_REQ *req);
 
-OPENSSL_EXPORT int i2d_re_X509_REQ_tbs(X509_REQ *req, unsigned char **pp);
-OPENSSL_EXPORT int X509_REQ_set_pubkey(X509_REQ *x, EVP_PKEY *pkey);
+// i2d_re_X509_REQ_tbs serializes the CertificationRequestInfo (see RFC2986)
+// portion of |req|. If |outp| is NULL, nothing is written. Otherwise, if
+// |*outp| is not NULL, the result is written to |*outp|, which must have enough
+// space available, and |*outp| is advanced just past the output. If |outp| is
+// non-NULL and |*outp| is NULL, it sets |*outp| to a newly-allocated buffer
+// containing the result. The caller is responsible for releasing the buffer
+// with |OPENSSL_free|. In all cases, this function returns the number of bytes
+// in the result, whether written or not, or a negative value on error.
+//
+// This function re-encodes the CertificationRequestInfo and may not reflect
+// |req|'s original encoding. It may be used to manually generate a signature
+// for a new certificate request.
+OPENSSL_EXPORT int i2d_re_X509_REQ_tbs(X509_REQ *req, uint8_t **outp);
+
+// X509_REQ_set_pubkey sets |req|'s public key to |pkey|. It returns one on
+// success and zero on error. This function does not take ownership of |pkey|
+// and internally copies and updates reference counts as needed.
+OPENSSL_EXPORT int X509_REQ_set_pubkey(X509_REQ *req, EVP_PKEY *pkey);
+
+// X509_REQ_get_pubkey returns |req|'s public key as an |EVP_PKEY|, or NULL if
+// the public key was unsupported or could not be decoded. This function returns
+// a reference to the |EVP_PKEY|. The caller must release the result with
+// |EVP_PKEY_free| when done.
 OPENSSL_EXPORT EVP_PKEY *X509_REQ_get_pubkey(X509_REQ *req);
+
+// X509_REQ_extension_nid returns one if |nid| is a supported CSR attribute type
+// for carrying extensions and zero otherwise. The supported types are
+// |NID_ext_req| (pkcs-9-at-extensionRequest from RFC2985) and |NID_ms_ext_req|
+// (a Microsoft szOID_CERT_EXTENSIONS variant).
 OPENSSL_EXPORT int X509_REQ_extension_nid(int nid);
-OPENSSL_EXPORT const int *X509_REQ_get_extension_nids(void);
-OPENSSL_EXPORT void X509_REQ_set_extension_nids(const int *nids);
+
+// X509_REQ_get_extensions decodes the list of requested extensions in |req| and
+// returns a newly-allocated |STACK_OF(X509_EXTENSION)| containing the result.
+// It returns NULL on error, or if |req| did not request extensions.
+//
+// This function supports both pkcs-9-at-extensionRequest from RFC2985 and the
+// Microsoft szOID_CERT_EXTENSIONS variant.
 OPENSSL_EXPORT STACK_OF(X509_EXTENSION) *X509_REQ_get_extensions(X509_REQ *req);
-OPENSSL_EXPORT int X509_REQ_add_extensions_nid(X509_REQ *req,
-                                               STACK_OF(X509_EXTENSION) *exts,
-                                               int nid);
-OPENSSL_EXPORT int X509_REQ_add_extensions(X509_REQ *req,
-                                           STACK_OF(X509_EXTENSION) *exts);
+
+// X509_REQ_add_extensions_nid adds an attribute to |req| of type |nid|, to
+// request the certificate extensions in |exts|. It returns one on success and
+// zero on error. |nid| should be |NID_ext_req| or |NID_ms_ext_req|.
+OPENSSL_EXPORT int X509_REQ_add_extensions_nid(
+    X509_REQ *req, const STACK_OF(X509_EXTENSION) *exts, int nid);
+
+// X509_REQ_add_extensions behaves like |X509_REQ_add_extensions_nid|, using the
+// standard |NID_ext_req| for the attribute type.
+OPENSSL_EXPORT int X509_REQ_add_extensions(
+    X509_REQ *req, const STACK_OF(X509_EXTENSION) *exts);
+
 OPENSSL_EXPORT int X509_REQ_get_attr_count(const X509_REQ *req);
 OPENSSL_EXPORT int X509_REQ_get_attr_by_NID(const X509_REQ *req, int nid,
                                             int lastpos);
@@ -1221,7 +1291,11 @@ OPENSSL_EXPORT int X509_REQ_add1_attr_by_txt(X509_REQ *req,
 // If unsure, use |X509V2_VERSION|. Note |X509V3_VERSION| is not defined for
 // CRLs.
 OPENSSL_EXPORT int X509_CRL_set_version(X509_CRL *crl, long version);
-OPENSSL_EXPORT int X509_CRL_set_issuer_name(X509_CRL *x, X509_NAME *name);
+
+// X509_CRL_set_issuer_name sets |crl|'s issuer to a copy of |name|. It returns
+// one on success and zero on error.
+OPENSSL_EXPORT int X509_CRL_set_issuer_name(X509_CRL *crl, X509_NAME *name);
+
 OPENSSL_EXPORT int X509_CRL_sort(X509_CRL *crl);
 
 // X509_CRL_up_ref adds one to the reference count of |crl| and returns one.
@@ -1560,7 +1634,7 @@ OPENSSL_EXPORT int X509_ATTRIBUTE_set1_object(X509_ATTRIBUTE *attr,
 OPENSSL_EXPORT int X509_ATTRIBUTE_set1_data(X509_ATTRIBUTE *attr, int attrtype,
                                             const void *data, int len);
 OPENSSL_EXPORT void *X509_ATTRIBUTE_get0_data(X509_ATTRIBUTE *attr, int idx,
-                                              int atrtype, void *data);
+                                              int atrtype, void *unused);
 OPENSSL_EXPORT int X509_ATTRIBUTE_count(X509_ATTRIBUTE *attr);
 OPENSSL_EXPORT ASN1_OBJECT *X509_ATTRIBUTE_get0_object(X509_ATTRIBUTE *attr);
 OPENSSL_EXPORT ASN1_TYPE *X509_ATTRIBUTE_get0_type(X509_ATTRIBUTE *attr,
@@ -1604,11 +1678,20 @@ OPENSSL_EXPORT int X509_PUBKEY_set0_param(X509_PUBKEY *pub, ASN1_OBJECT *obj,
 // is not NULL, it sets |*out_obj| to AlgorithmIdentifier's OID. If |out_key|
 // is not NULL, it sets |*out_key| and |*out_key_len| to the encoded public key.
 // If |out_alg| is not NULL, it sets |*out_alg| to the AlgorithmIdentifier.
+//
+// Note: X.509 SubjectPublicKeyInfo structures store the encoded public key as a
+// BIT STRING. |*out_key| and |*out_key_len| will silently pad the key with zero
+// bits if |pub| did not contain a whole number of bytes. Use
+// |X509_PUBKEY_get0_public_key| to preserve this information.
 OPENSSL_EXPORT int X509_PUBKEY_get0_param(ASN1_OBJECT **out_obj,
                                           const uint8_t **out_key,
                                           int *out_key_len,
                                           X509_ALGOR **out_alg,
                                           X509_PUBKEY *pub);
+
+// X509_PUBKEY_get0_public_key returns |pub|'s encoded public key.
+OPENSSL_EXPORT const ASN1_BIT_STRING *X509_PUBKEY_get0_public_key(
+    const X509_PUBKEY *pub);
 
 OPENSSL_EXPORT int X509_check_trust(X509 *x, int id, int flags);
 OPENSSL_EXPORT int X509_TRUST_get_count(void);
