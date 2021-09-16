@@ -497,7 +497,7 @@ if(NOT WIN32 AND NOT ANDROID)
   target_link_libraries(crypto pthread)
 endif()
 
-if(JITTER_ENTROPY)
+if(FIPS)
   target_link_libraries(crypto jitterentropy)
 endif()
 
@@ -579,6 +579,7 @@ if(BUILD_TESTING)
     fipsmodule/md5/md5_test.cc
     fipsmodule/modes/gcm_test.cc
     fipsmodule/rand/ctrdrbg_test.cc
+    fipsmodule/rand/cpu_jitter_test.cc
     fipsmodule/rand/fork_detect_test.cc
     fipsmodule/service_indicator/service_indicator_test.cc
     fipsmodule/sha/sha_test.cc
@@ -618,6 +619,10 @@ if(BUILD_TESTING)
   add_dependencies(crypto_test global_target)
 
   target_link_libraries(crypto_test test_support_lib boringssl_gtest crypto)
+  if(FIPS)
+    target_link_libraries(crypto_test jitterentropy)
+    add_dependencies(crypto_test jitterentropy)
+  endif()
   if(WIN32)
     target_link_libraries(crypto_test ws2_32)
   endif()
