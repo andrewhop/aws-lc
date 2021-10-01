@@ -363,7 +363,6 @@ add_library(
   rand_extra/deterministic.c
   rand_extra/forkunsafe.c
   rand_extra/fuchsia.c
-  rand_extra/passive.c
   rand_extra/rand_extra.c
   rand_extra/windows.c
   rc4/rc4.c
@@ -498,6 +497,10 @@ if(NOT WIN32 AND NOT ANDROID)
   target_link_libraries(crypto pthread)
 endif()
 
+if(FIPS)
+  target_link_libraries(crypto jitterentropy)
+endif()
+
 # Every target depends on crypto, so we add libcxx as a dependency here to
 # simplify injecting it everywhere.
 if(USE_CUSTOM_LIBCXX)
@@ -524,6 +527,13 @@ if(BUILD_TESTING)
 
     fipsmodule/rand/urandom_test.cc
   )
+
+  # When using CPU Jitter as the entropy source (only in FIPS build)
+  # urandom_test should not be performed so we pass the compilation flag
+  # and handle it in urandom_test.cc
+  if(JITTER_ENTROPY)
+    target_compile_options(urandom_test PUBLIC -DJITTER_ENTROPY)
+  endif()
 
   target_link_libraries(urandom_test test_support_lib boringssl_gtest crypto)
 
@@ -569,6 +579,7 @@ if(BUILD_TESTING)
     fipsmodule/md5/md5_test.cc
     fipsmodule/modes/gcm_test.cc
     fipsmodule/rand/ctrdrbg_test.cc
+    fipsmodule/rand/cpu_jitter_test.cc
     fipsmodule/rand/fork_detect_test.cc
     fipsmodule/service_indicator/service_indicator_test.cc
     fipsmodule/sha/sha_test.cc
@@ -608,6 +619,10 @@ if(BUILD_TESTING)
   add_dependencies(crypto_test global_target)
 
   target_link_libraries(crypto_test test_support_lib boringssl_gtest crypto)
+  if(FIPS)
+    target_link_libraries(crypto_test jitterentropy)
+    add_dependencies(crypto_test jitterentropy)
+  endif()
   if(WIN32)
     target_link_libraries(crypto_test ws2_32)
   endif()
