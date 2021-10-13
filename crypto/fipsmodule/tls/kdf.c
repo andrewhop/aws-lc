@@ -55,10 +55,9 @@
 #include <openssl/digest.h>
 #include <openssl/hmac.h>
 #include <openssl/mem.h>
+#include <openssl/tls_prf.h>
 
-#include "internal.h"
 #include "../../internal.h"
-
 
 // tls1_P_hash computes the TLS P_<hash> function as described in RFC 5246,
 // section 5. It XORs |out_len| bytes to |out|, using |md| as the hash and
