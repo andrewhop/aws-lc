@@ -46,7 +46,7 @@ static uint64_t jent_loop_shuffle(struct rand_data *ec,
 	(void)ec;
 	(void)bits;
 
-	return (1U<<min);
+	return (1ULL<<min);
 
 #else /* JENT_CONF_DISABLE_LOOP_SHUFFLE */
 
