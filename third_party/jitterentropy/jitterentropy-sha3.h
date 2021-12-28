@@ -40,9 +40,18 @@ struct sha_ctx {
 	uint8_t partial[SHA3_MAX_SIZE_BLOCK];
 };
 
-#define aligned(val)	__attribute__((aligned(val)))
+#if defined(_MSC_VER)
+#define alignas(x) __declspec(align(x))
+// There is a subtle difference in this version compared to below. MSVC alignas
+// only allows power of two values and nothing else including the result of
+// sizeof, see https://docs.microsoft.com/en-us/cpp/cpp/align-cpp
 #define ALIGNED_BUFFER(name, size, type)				       \
-	type name[(size + sizeof(type)-1) / sizeof(type)] aligned(sizeof(type));
+	alignas(8) type name[(size + sizeof(type)-1) / sizeof(type)];
+#else
+#define alignas(x) __attribute__ ((aligned (x)))
+#define ALIGNED_BUFFER(name, size, type)				       \
+	type name[(size + sizeof(type)-1) / sizeof(type)] alignas(sizeof(type));
+#endif
 
 /* CTX size allows any hash type up to SHA3-224 */
 #define SHA_MAX_CTX_SIZE	368

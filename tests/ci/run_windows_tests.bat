@@ -31,7 +31,6 @@ call :build %1 %2 || goto error
 call :test %1 %2 || goto error
 exit /b 0
 
-
 @rem Use the same parameters as build_and_test
 :build
 @echo on

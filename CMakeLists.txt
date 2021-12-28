@@ -350,6 +350,7 @@ elseif(MSVC)
       "C5027" # move assignment operator was implicitly defined as deleted
       "C5045" # Compiler will insert Spectre mitigation for memory load if
               # /Qspectre switch specified
+      "C4255" # no function prototype given: converting '()' to '(void)'
       )
   set(MSVC_LEVEL4_WARNINGS_LIST
       # See https://connect.microsoft.com/VisualStudio/feedback/details/1217660/warning-c4265-when-using-functional-header

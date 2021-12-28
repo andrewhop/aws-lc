@@ -16,7 +16,13 @@ set(JITTER_SOURCES
 
 include_directories(../../include)
 
-set(JITTER_COMPILE_FLAGS "-DAWSLC_FIPS -fwrapv --param ssp-buffer-size=4 -fvisibility=hidden -fPIE -Wcast-align -Wmissing-field-initializers -Wshadow -Wswitch-enum -Wextra -Wall -pedantic -fPIC -O0 -fwrapv -Wconversion")
+set(JITTER_COMPILE_FLAGS "${CMAKE_C_FLAGS} -DAWSLC_FIPS")
+
+# Enable timer-less support on systems that supports POSIX threads, see jitterentropy.h for more details.
+if(NOT MSVC)
+    set(JITTER_COMPILE_FLAGS "${JITTER_COMPILE_FLAGS} -DJENT_CONF_ENABLE_INTERNAL_TIMER")
+endif()
+
 set_source_files_properties(${JITTER_SOURCES} PROPERTIES COMPILE_FLAGS ${JITTER_COMPILE_FLAGS})
 add_library(jitterentropy STATIC ${JITTER_SOURCES})
 
