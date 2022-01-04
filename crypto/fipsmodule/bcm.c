@@ -176,8 +176,6 @@ static void BORINGSSL_maybe_set_module_text_permissions(int permission) {
     perror("BoringSSL: mprotect");
   }
 }
-#else
-static void BORINGSSL_maybe_set_module_text_permissions(int permission) {}
 #endif  // !ANDROID
 
 #endif  // !ASAN
@@ -244,7 +242,9 @@ BORINGSSL_bcm_power_on_self_test(void) {
     goto err;
   }
 
+#if defined(OPENSSL_ANDROID) && defined(OPENSSL_AARCH64)
   BORINGSSL_maybe_set_module_text_permissions(PROT_READ | PROT_EXEC);
+#endif
 #if defined(BORINGSSL_SHARED_LIBRARY)
   uint64_t length = end - start;
   HMAC_Update(&hmac_ctx, (const uint8_t *) &length, sizeof(length));
@@ -256,8 +256,9 @@ BORINGSSL_bcm_power_on_self_test(void) {
 #else
   HMAC_Update(&hmac_ctx, start, end - start);
 #endif
+#if defined(OPENSSL_ANDROID) && defined(OPENSSL_AARCH64)
   BORINGSSL_maybe_set_module_text_permissions(PROT_EXEC);
-
+#endif
   if (!HMAC_Final(&hmac_ctx, result, &result_len) ||
       result_len != sizeof(result)) {
     fprintf(stderr, "HMAC failed.\n");

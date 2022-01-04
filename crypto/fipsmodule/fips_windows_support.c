@@ -1,9 +1,11 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+#include <openssl/base.h>
+
 #if defined(BORINGSSL_FIPS) && defined(OPENSSL_WINDOWS)
 #include <stdio.h>
-#include <process.h>
+#include <windows.h>
 
 extern void BORINGSSL_bcm_power_on_self_test(void);
 extern void rand_thread_state_clear_all(void);

@@ -351,6 +351,8 @@ elseif(MSVC)
       "C5045" # Compiler will insert Spectre mitigation for memory load if
               # /Qspectre switch specified
       "C4255" # no function prototype given: converting '()' to '(void)'
+      "C4152" # non standard extension, function/data ptr conversion in expression
+              # used in bcm.c to check functions are inside the FIPS module memory region
       )
   set(MSVC_LEVEL4_WARNINGS_LIST
       # See https://connect.microsoft.com/VisualStudio/feedback/details/1217660/warning-c4265-when-using-functional-header
