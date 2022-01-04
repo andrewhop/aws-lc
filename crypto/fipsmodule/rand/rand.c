@@ -19,7 +19,11 @@
 #include <string.h>
 
 #if defined(BORINGSSL_FIPS)
+#if !defined(OPENSSL_WINDOWS)
 #include <unistd.h>
+#else
+#include <io.h>
+#endif
 #include "../../../third_party/jitterentropy/jitterentropy.h"
 #endif
 

@@ -16,7 +16,7 @@ set(JITTER_SOURCES
 
 include_directories(../../include)
 
-set(JITTER_COMPILE_FLAGS "${CMAKE_C_FLAGS} -DAWSLC_FIPS")
+set(JITTER_COMPILE_FLAGS "${CMAKE_C_FLAGS} -DAWSLC")
 
 # Enable timer-less support on systems that supports POSIX threads, see jitterentropy.h for more details.
 if(NOT MSVC)

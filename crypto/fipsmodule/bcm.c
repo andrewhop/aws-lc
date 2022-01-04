@@ -19,7 +19,7 @@
 #include <openssl/crypto.h>
 
 #include <stdlib.h>
-#if defined(BORINGSSL_FIPS)
+#if defined(BORINGSSL_FIPS) && defined(OPENSSL_ANDROID)
 #include <sys/mman.h>
 #include <unistd.h>
 #endif
