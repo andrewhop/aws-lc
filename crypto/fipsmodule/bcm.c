@@ -182,8 +182,12 @@ static void BORINGSSL_maybe_set_module_text_permissions(int permission) {}
 
 #endif  // !ASAN
 
+#if defined(OPENSSL_WINDOWS)
+void BORINGSSL_bcm_power_on_self_test(void) {
+#else
 static void __attribute__((constructor))
 BORINGSSL_bcm_power_on_self_test(void) {
+#endif
 
   OPENSSL_cpuid_setup();
 

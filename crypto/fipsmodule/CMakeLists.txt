@@ -286,6 +286,7 @@ if(FIPS_DELOCATE)
     OBJECT
 
     fips_shared_support.c
+    fips_windows_support.c
   )
   target_compile_definitions(fipsmodule PRIVATE BORINGSSL_IMPLEMENTATION)
 
@@ -303,6 +304,7 @@ elseif(FIPS_SHARED)
     OBJECT
 
     fips_shared_support.c
+    fips_windows_support.c
   )
   target_compile_definitions(fipsmodule PRIVATE BORINGSSL_IMPLEMENTATION)
 
@@ -378,6 +380,7 @@ else()
 
     bcm.c
     fips_shared_support.c
+    fips_windows_support.c
 
     ${BCM_ASM_SOURCES}
   )
