@@ -272,7 +272,7 @@ BORINGSSL_bcm_power_on_self_test(void) {
     goto err;
   }
 
-#else
+#else // !defined(OPENSSL_ASAN)
   if (!BORINGSSL_self_test()) {
     goto err;
   }
