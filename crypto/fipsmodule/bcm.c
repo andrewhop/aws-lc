@@ -284,11 +284,14 @@ err:
   BORINGSSL_FIPS_abort();
 }
 
+OPENSSL_MSVC_PRAGMA(warning(push))
+OPENSSL_MSVC_PRAGMA(warning(disable: 4702))  // Ignore unreachable exit after the abort
 void BORINGSSL_FIPS_abort(void) {
   for (;;) {
     abort();
     exit(1);
   }
 }
+OPENSSL_MSVC_PRAGMA(warning(pop))
 
 #endif  // BORINGSSL_FIPS

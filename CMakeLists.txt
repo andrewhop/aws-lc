@@ -353,7 +353,8 @@ elseif(MSVC)
       "C4255" # no function prototype given: converting '()' to '(void)'
       "C4152" # non standard extension, function/data ptr conversion in expression
               # used in bcm.c to check functions are inside the FIPS module memory region
-      )
+      "C4295" # array is too small to include a terminating null character
+          )
   set(MSVC_LEVEL4_WARNINGS_LIST
       # See https://connect.microsoft.com/VisualStudio/feedback/details/1217660/warning-c4265-when-using-functional-header
       "C4265" # class has virtual functions, but destructor is not virtual
