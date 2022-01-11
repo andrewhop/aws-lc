@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#if defined(AWSLC_FIPS_MACOS_START)
+#if defined(AWSLC_FIPS_SHARED_START)
 
 const uint8_t *BORINGSSL_bcm_text_start(void) {
   return NULL;
@@ -25,7 +25,7 @@ const uint8_t *BORINGSSL_bcm_text_start(void) {
 const uint8_t BORINGSSL_bcm_rodata_start[16] =
               {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}; 
 
-#elif defined(AWSLC_FIPS_MACOS_END)
+#elif defined(AWSLC_FIPS_SHARED_END)
 
 const uint8_t *BORINGSSL_bcm_text_end(void){
   return NULL;

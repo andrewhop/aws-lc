@@ -335,22 +335,41 @@ elseif(FIPS_SHARED)
     # respective start and end markers.
     add_custom_command(
       OUTPUT fips_macos_start.o
-      COMMAND ${CMAKE_C_COMPILER} -isysroot ${CMAKE_OSX_SYSROOT} -c ${CMAKE_CURRENT_SOURCE_DIR}/fips_macos_support.c -DAWSLC_FIPS_MACOS_START -o fips_macos_start.o
-      DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/fips_macos_support.c
+      COMMAND ${CMAKE_C_COMPILER} -isysroot ${CMAKE_OSX_SYSROOT} -c ${CMAKE_CURRENT_SOURCE_DIR}/fips_shared_library_marker.c -DAWSLC_FIPS_SHARED_START -o fips_shared_library_start.o
+      DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/fips_shared_library_marker.c
     )
     add_custom_command(
       OUTPUT fips_macos_end.o
-      COMMAND ${CMAKE_C_COMPILER} -isysroot ${CMAKE_OSX_SYSROOT} -c ${CMAKE_CURRENT_SOURCE_DIR}/fips_macos_support.c -DAWSLC_FIPS_MACOS_END -o fips_macos_end.o
-      DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/fips_macos_support.c
+      COMMAND ${CMAKE_C_COMPILER} -isysroot ${CMAKE_OSX_SYSROOT} -c ${CMAKE_CURRENT_SOURCE_DIR}/fips_shared_library_marker.c -DAWSLC_FIPS_SHARED_END -o fips_shared_library_end.o
+      DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/fips_shared_library_marker.c
     )
 
     add_custom_command(
       OUTPUT bcm.o
-      COMMAND ${CMAKE_LINKER} -r fips_macos_start.o -force_load $<TARGET_FILE:bcm_library> fips_macos_end.o -keep_private_externs -o bcm.o
-      DEPENDS bcm_library fips_macos_start.o fips_macos_end.o
+      COMMAND ${CMAKE_LINKER} -r fips_shared_library_start.o -force_load $<TARGET_FILE:bcm_library> fips_shared_library_end.o -keep_private_externs -o bcm.o
+      DEPENDS bcm_library fips_shared_library_start.o fips_shared_library_end.o
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
 
+   elseif(MSVC)
+    # Like the macOS linker MSVC doesn't have the ability to process linker scripts.
+    add_custom_command(
+            OUTPUT fips_macos_start.o
+            COMMAND ${CMAKE_C_COMPILER} -c ${CMAKE_CURRENT_SOURCE_DIR}/fips_shared_library_marker.c -DAWSLC_FIPS_SHARED_START -o fips_shared_library_start.o
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/fips_shared_library_marker.c
+    )
+    add_custom_command(
+            OUTPUT fips_macos_end.o
+            COMMAND ${CMAKE_C_COMPILER} -c ${CMAKE_CURRENT_SOURCE_DIR}/fips_shared_library_marker.c -DAWSLC_FIPS_SHARED_END -o fips_shared_library_end.o
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/fips_shared_library_marker.c
+    )
+
+    add_custom_command(
+            OUTPUT bcm.o
+            COMMAND ${CMAKE_LINKER} -r fips_shared_library_start.o -force_load $<TARGET_FILE:bcm_library> fips_shared_library_end.o -keep_private_externs -o bcm.o
+            DEPENDS bcm_library fips_shared_library_start.o fips_shared_library_end.o
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    )
    else()
     # Linux is the only OS other than macOS on which we build FIPS.
 

@@ -459,9 +459,11 @@ if(FIPS_SHARED)
   # hash value. For now we support the FIPS build only on Linux and macOS.
 
   if (APPLE)
-    set(INJECT_HASH_MACOS_FLAG "-macos")
+    set(INJECT_HASH_PLATFORM_FLAG "macos-generic")
+  elseif(MSVC)
+    set(INJECT_HASH_PLATFORM_FLAG "windows-msvc")
   else()
-    set(INJECT_HASH_MACOS_FLAG "")
+    set(INJECT_HASH_PLATFORM_FLAG "linux-generic")
   endif()
 
   add_custom_command(
@@ -469,7 +471,7 @@ if(FIPS_SHARED)
     COMMAND ${GO_EXECUTABLE} run
     ${CMAKE_SOURCE_DIR}/util/fipstools/inject_hash/inject_hash.go
     -o $<TARGET_FILE:crypto> -in-object $<TARGET_FILE:crypto>
-    -sha256 ${INJECT_HASH_MACOS_FLAG}
+    -platform ${INJECT_HASH_PLATFORM_FLAG} -sha256
     # The DEPENDS argument to a POST_BUILD rule appears to be ignored. Thus
     # go_executable isn't used (as it doesn't get built), but we list this
     # dependency anyway in case it starts working in some CMake version.

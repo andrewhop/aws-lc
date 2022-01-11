@@ -24,6 +24,7 @@ import (
 	"crypto/sha512"
 	"debug/elf"
 	"debug/macho"
+	"debug/pe"
 	"encoding/binary"
 	"errors"
 	"flag"
@@ -35,6 +36,12 @@ import (
 
 	"boringssl.googlesource.com/boringssl/util/ar"
 	"boringssl.googlesource.com/boringssl/util/fipstools/fipscommon"
+)
+
+const (
+	MacosGeneric = "macos-generic"
+	WindowsMsvc  = "windows-msvc"
+	LinuxGeneric = "linux-generic"
 )
 
 func doLinux(objectBytes []byte, isStatic bool) ([]byte, []byte, error) {
@@ -170,7 +177,6 @@ func doLinux(objectBytes []byte, isStatic bool) ([]byte, []byte, error) {
 	return moduleText, moduleROData, nil
 }
 
-
 func doMacOS(objectBytes []byte) ([]byte, []byte, error) {
 
 	object, err := macho.NewFile(bytes.NewReader(objectBytes))
@@ -298,9 +304,133 @@ func doMacOS(objectBytes []byte) ([]byte, []byte, error) {
 	return moduleText, moduleROData, nil
 }
 
+func doWindows(objectBytes []byte) ([]byte, []byte, error) {
+	object, err := pe.NewFile(bytes.NewReader(objectBytes))
+	if err != nil {
+		return nil, nil, errors.New("failed to parse object: " + err.Error())
+	}
 
+	// Find the __text and, optionally, __const sections.
+	// They are both in __TEXT segment and are unique.
+	var textSection, rdataSection *pe.Section
+	var textSectionIndex, rdataSectionIndex int
+	for i, section := range object.Sections {
+		if section.Name == ".text" {
+			textSection = section
+			textSectionIndex = i + 1
+		}
+		if section.Name == ".rdata" {
+			rdataSection = section
+			rdataSectionIndex = i + 1
+		}
+	}
 
-func do(outPath, oInput string, arInput string, useSHA256 bool, macOS bool) error {
+	if textSection == nil {
+		return nil, nil, errors.New("failed to find __text section in object")
+	}
+
+	// Find the starting and ending symbols for the module.
+	var textStart, textEnd, rodataStart, rodataEnd *uint32
+
+	symbols := object.Symbols
+	if symbols == nil {
+		return nil, nil, errors.New("failed to parse symbols: " + err.Error())
+	}
+
+	for _, symbol := range symbols {
+		var base uint32
+		switch int(symbol.SectionNumber) {
+		case textSectionIndex:
+			base = textSection.VirtualAddress
+		case rdataSectionIndex:
+			if rdataSection == nil {
+				continue
+			}
+			base = rdataSection.VirtualAddress
+		default:
+			continue
+		}
+
+		if symbol.Name != "" && symbol.Name != " " && symbol.Value < base {
+			return nil, nil, fmt.Errorf("symbol %q at %x, which is below base of %x\n", symbol.Name, symbol.Value, base)
+		}
+
+		value := symbol.Value - base
+		switch symbol.Name {
+		case "_BORINGSSL_bcm_text_start":
+			if textStart != nil {
+				return nil, nil, errors.New("duplicate start symbol found")
+			}
+			textStart = &value
+		case "_BORINGSSL_bcm_text_end":
+			if textEnd != nil {
+				return nil, nil, errors.New("duplicate end symbol found")
+			}
+			textEnd = &value
+		case "_BORINGSSL_bcm_rodata_start":
+			if rodataStart != nil {
+				return nil, nil, errors.New("duplicate rodata start symbol found")
+			}
+			rodataStart = &value
+		case "_BORINGSSL_bcm_rodata_end":
+			if rodataEnd != nil {
+				return nil, nil, errors.New("duplicate rodata end symbol found")
+			}
+			rodataEnd = &value
+		default:
+			continue
+		}
+	}
+
+	if textStart == nil || textEnd == nil {
+		return nil, nil, errors.New("could not find .text module boundaries in object")
+	}
+
+	if (rodataStart == nil) != (rdataSection == nil) {
+		return nil, nil, errors.New("rodata start marker inconsistent with rodata section presence")
+	}
+
+	if (rodataStart != nil) != (rodataEnd != nil) {
+		return nil, nil, errors.New("rodata marker presence inconsistent")
+	}
+
+	if max := textSection.Size; *textStart > max || *textStart > *textEnd || *textEnd > max {
+		return nil, nil, fmt.Errorf("invalid module __text boundaries: start: %x, end: %x, max: %x", *textStart, *textEnd, max)
+	}
+
+	if rdataSection != nil {
+		if max := rdataSection.Size; *rodataStart > max || *rodataStart > *rodataEnd || *rodataEnd > max {
+			return nil, nil, fmt.Errorf("invalid module __const boundaries: start: %x, end: %x, max: %x", *rodataStart, *rodataEnd, max)
+		}
+	}
+
+	// Extract the module from the __text section.
+	text := textSection.Open()
+	if _, err := text.Seek(int64(*textStart), 0); err != nil {
+		return nil, nil, errors.New("failed to seek to module start in __text: " + err.Error())
+	}
+	moduleText := make([]byte, *textEnd-*textStart)
+	if _, err := io.ReadFull(text, moduleText); err != nil {
+		return nil, nil, errors.New("failed to read __text: " + err.Error())
+	}
+
+	// Maybe extract the module's read-only data too
+	var moduleROData []byte
+	if rdataSection != nil {
+		rodata := rdataSection.Open()
+		if _, err := rodata.Seek(int64(*rodataStart), 0); err != nil {
+			return nil, nil, errors.New("failed to seek to module start in __const: " + err.Error())
+		}
+		moduleROData = make([]byte, *rodataEnd-*rodataStart)
+		if _, err := io.ReadFull(rodata, moduleROData); err != nil {
+			return nil, nil, errors.New("failed to read __const: " + err.Error())
+		}
+	}
+
+	return moduleText, moduleROData, nil
+}
+
+func do(outPath, oInput string, arInput string, useSHA256 bool, platform string) error {
 	var objectBytes []byte
 	var isStatic bool
 	var perm os.FileMode
@@ -312,8 +442,8 @@ func do(outPath, oInput string, arInput string, useSHA256 bool, macOS bool) erro
 			return fmt.Errorf("-in-archive and -in-object are mutually exclusive")
 		}
 
-		if macOS {
-			return fmt.Errorf("only shared libraries can be handled on macOS")
+		if platform == MacosGeneric || platform == WindowsMsvc {
+			return fmt.Errorf("only shared libraries can be handled on %s and %s", MacosGeneric, WindowsMsvc)
 		}
 
 		fi, err := os.Stat(arInput)
@@ -357,16 +487,20 @@ func do(outPath, oInput string, arInput string, useSHA256 bool, macOS bool) erro
 
 	var moduleText, moduleROData []byte
 	var err error
-	if macOS == true {
-		moduleText, moduleROData, err = doMacOS(objectBytes)
-	} else {
+	switch platform {
+	case LinuxGeneric:
 		moduleText, moduleROData, err = doLinux(objectBytes, isStatic)
+	case MacosGeneric:
+		moduleText, moduleROData, err = doMacOS(objectBytes)
+	case WindowsMsvc:
+		moduleText, moduleROData, err = doWindows(objectBytes)
+	default:
+		return fmt.Errorf("unknown platform %s, valid options are %s, %s, or %s", platform, LinuxGeneric, MacosGeneric, WindowsMsvc)
 	}
 
 	if err != nil {
 		return err
 	}
-
 
 	var zeroKey [64]byte
 	hashFunc := sha512.New
@@ -403,7 +537,7 @@ func do(outPath, oInput string, arInput string, useSHA256 bool, macOS bool) erro
 
 	copy(objectBytes[offset:], calculated)
 
-	return ioutil.WriteFile(outPath, objectBytes, perm & 0777)
+	return ioutil.WriteFile(outPath, objectBytes, perm&0777)
 }
 
 func main() {
@@ -411,11 +545,11 @@ func main() {
 	oInput := flag.String("in-object", "", "Path to a .o file")
 	outPath := flag.String("o", "", "Path to output object")
 	sha256 := flag.Bool("sha256", false, "Whether to use SHA-256 over SHA-512. This must match what the compiled module expects.")
-	macOS := flag.Bool("macos", false, "Whether the FIPS module is built for macOS or not.")
+	platform := flag.String("platform", "", "What platform the FIPS module is built for (linux-generic, macos-generic, windows-msvc).")
 
 	flag.Parse()
 
-	if err := do(*outPath, *oInput, *arInput, *sha256, *macOS); err != nil {
+	if err := do(*outPath, *oInput, *arInput, *sha256, *platform); err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
