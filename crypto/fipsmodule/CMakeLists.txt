@@ -368,8 +368,8 @@ elseif(FIPS_SHARED)
     )
   endif()
 
-
   add_custom_target(bcm_o_target DEPENDS bcm.o)
+
 else()
   add_library(
     fipsmodule
