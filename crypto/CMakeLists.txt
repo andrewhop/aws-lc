@@ -225,9 +225,9 @@ else()
   file(COPY ${GENERATE_CODE_ROOT}/err_data.c DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 endif()
 
-set(
-  LIBCRYPTO_SOURCES
-
+add_library(
+  crypto_objects
+  OBJECT
   asn1/a_bitstr.c
   asn1/a_bool.c
   asn1/a_d2i_fp.c
@@ -450,42 +450,52 @@ set(
 
 
   ${CRYPTO_ARCH_SOURCES}
-  ${CRYPTO_FIPS_OBJECTS}
 )
+target_compile_definitions(crypto_objects PRIVATE BORINGSSL_IMPLEMENTATION)
 
+
+function(build_libcrypto name module_source)
+  add_library(${name} $<TARGET_OBJECTS:crypto_objects> ${CRYPTO_FIPS_OBJECTS} ${module_source})
+  add_dependencies(${name} global_target)
+
+  target_compile_definitions(${name} PRIVATE BORINGSSL_IMPLEMENTATION)
+
+  if(FIPS_DELOCATE OR FIPS_SHARED)
+    add_dependencies(${name} bcm_o_target)
+  endif()
+
+  SET_TARGET_PROPERTIES(${name} PROPERTIES LINKER_LANGUAGE C)
+
+  if(WIN32)
+    target_link_libraries(${name} PUBLIC ws2_32)
+  endif()
+  if(NOT WIN32 AND NOT ANDROID)
+    target_link_libraries(${name} PUBLIC pthread)
+  endif()
+
+  if(FIPS)
+    target_link_libraries(${name} PRIVATE jitterentropy)
+  endif()
+  target_include_directories(${name} SYSTEM PUBLIC
+          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+          $<INSTALL_INTERFACE:include>)
+
+  # Every target depends on crypto, so we add libcxx as a dependency here to
+  # simplify injecting it everywhere.
+  if(USE_CUSTOM_LIBCXX)
+    install(TARGETS libcxx libcxxabi
+            EXPORT crypto-targets
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            )
+    target_link_libraries(${name}  PUBLIC libcxx)
+  endif()
+
+endfunction()
 if(FIPS_SHARED)
-  add_library(precrypto ${LIBCRYPTO_SOURCES} $<TARGET_OBJECTS:fipsmodule>)
-  target_compile_definitions(precrypto PRIVATE BORINGSSL_IMPLEMENTATION)
-  target_link_libraries(precrypto PRIVATE jitterentropy)
-  target_link_libraries(precrypto PUBLIC pthread)
-
-  # Rewrite libcrypto.so (or libcrypto.dylib) to inject the correct module
-  # hash value. For now we support the FIPS build only on Linux and macOS.
-
-#  if (APPLE)
-#    set(INJECT_HASH_MACOS_FLAG "-macos")
-#  else()
-#    set(INJECT_HASH_MACOS_FLAG "")
-#  endif()
-
-#  add_custom_command(
-#    TARGET crypto POST_BUILD
-#    COMMAND ${GO_EXECUTABLE} run
-#    ${PROJECT_SOURCE_DIR}/util/fipstools/inject_hash/inject_hash.go
-#    -o $<TARGET_FILE:crypto> -in-object $<TARGET_FILE:crypto>
-#    -sha256 ${INJECT_HASH_MACOS_FLAG}
-#    # The DEPENDS argument to a POST_BUILD rule appears to be ignored. Thus
-#    # go_executable isn't used (as it doesn't get built), but we list this
-#    # dependency anyway in case it starts working in some CMake version.
-#    DEPENDS ../util/fipstools/inject_hash/inject_hash.go
-#    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-#  )
-
+  build_libcrypto(precrypto $<TARGET_OBJECTS:fipsmodule>)
   add_executable(fips_empty_main fipsmodule/fips_empty_main.c)
-  target_compile_definitions(fips_empty_main PRIVATE BORINGSSL_IMPLEMENTATION)
-
   target_link_libraries(fips_empty_main PUBLIC precrypto)
-
   add_custom_command(OUTPUT generated_fips_shared_support.c
           COMMAND ${GO_EXECUTABLE} run
           ${PROJECT_SOURCE_DIR}/util/fipstools/integrity_capture/integrity_capture.go
@@ -493,55 +503,11 @@ if(FIPS_SHARED)
           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
           DEPENDS fips_empty_main ${PROJECT_SOURCE_DIR}/util/fipstools/integrity_capture/integrity_capture.go
           )
-
-  add_library(
-          generated_fipsmodule
-          OBJECT
-          generated_fips_shared_support.c
-  )
-
-  add_library(crypto ${LIBCRYPTO_SOURCES} $<TARGET_OBJECTS:generated_fipsmodule>)
-  target_compile_definitions(crypto PRIVATE BORINGSSL_IMPLEMENTATION)
-
-
-
+  add_library(generated_fipsmodule OBJECT generated_fips_shared_support.c)
+  build_libcrypto(crypto $<TARGET_OBJECTS:generated_fipsmodule>)
 else()
-  add_library(crypto ${LIBCRYPTO_SOURCES} $<TARGET_OBJECTS:fipsmodule>)
-  target_compile_definitions(crypto PRIVATE BORINGSSL_IMPLEMENTATION)
+  build_libcrypto(crypto $<TARGET_OBJECTS:fipsmodule>)
 endif()
-  add_dependencies(crypto global_target)
-
-if(FIPS_DELOCATE OR FIPS_SHARED)
-  add_dependencies(crypto bcm_o_target)
-endif()
-
-SET_TARGET_PROPERTIES(crypto PROPERTIES LINKER_LANGUAGE C)
-
-if(WIN32)
-  target_link_libraries(crypto PUBLIC ws2_32)
-endif()
-if(NOT WIN32 AND NOT ANDROID)
-  target_link_libraries(crypto PUBLIC pthread)
-endif()
-
-if(FIPS)
-  target_link_libraries(crypto PRIVATE jitterentropy)
-endif()
-
-# Every target depends on crypto, so we add libcxx as a dependency here to
-# simplify injecting it everywhere.
-if(USE_CUSTOM_LIBCXX)
-  install(TARGETS libcxx libcxxabi
-          EXPORT crypto-targets
-          ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-          LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  )
-  target_link_libraries(crypto PUBLIC libcxx)
-endif()
-
-target_include_directories(crypto SYSTEM PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
-  $<INSTALL_INTERFACE:include>)
 
 if(BUILD_TESTING)
   add_subdirectory(test)
