@@ -346,6 +346,18 @@ static constexpr SSL_CIPHER kCiphers[] = {
      SSL_HANDSHAKE_MAC_DEFAULT,
     },
 
+    // Cipher C027
+    {
+        TLS1_TXT_ECDHE_RSA_WITH_AES_128_SHA256,
+        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+        TLS1_CK_ECDHE_RSA_WITH_AES_128_SHA256,
+        SSL_kECDHE,
+        SSL_aRSA,
+        SSL_AES128,
+        SSL_AEAD,
+        SSL_HANDSHAKE_MAC_SHA256,
+    },
+
     // GCM based TLS v1.2 ciphersuites from RFC 5289
 
     // Cipher C02B
