@@ -639,6 +639,26 @@ bool ssl_cipher_get_evp_aead(const EVP_AEAD **out_aead,
     }
 
     *out_mac_secret_len = SHA_DIGEST_LENGTH;
+  } else if (cipher->algorithm_mac == SSL_SHA256){
+    if (cipher->algorithm_enc == SSL_AES128) {
+      if (version == TLS1_VERSION) {
+        *out_aead = EVP_aead_aes_128_cbc_sha1_tls_implicit_iv();
+        *out_fixed_iv_len = 16;
+      } else {
+        *out_aead = EVP_aead_aes_128_cbc_sha1_tls();
+      }
+    } else if (cipher->algorithm_enc == SSL_AES256) {
+      if (version == TLS1_VERSION) {
+        *out_aead = EVP_aead_aes_256_cbc_sha1_tls_implicit_iv();
+        *out_fixed_iv_len = 16;
+      } else {
+        *out_aead = EVP_aead_aes_256_cbc_sha1_tls();
+      }
+    } else {
+      return false;
+    }
+    *out_mac_secret_len = SHA256_DIGEST_LENGTH;
+
   } else {
     return false;
   }
@@ -1422,6 +1442,8 @@ int SSL_CIPHER_get_digest_nid(const SSL_CIPHER *cipher) {
       return NID_undef;
     case SSL_SHA1:
       return NID_sha1;
+    case SSL_SHA256:
+      return NID_sha256;
   }
   assert(0);
   return NID_undef;
@@ -1686,6 +1708,10 @@ const char *SSL_CIPHER_description(const SSL_CIPHER *cipher, char *buf,
   switch (alg_mac) {
     case SSL_SHA1:
       mac = "SHA1";
+      break;
+
+    case SSL_SHA256:
+      mac = "SHA256";
       break;
 
     case SSL_AEAD:
