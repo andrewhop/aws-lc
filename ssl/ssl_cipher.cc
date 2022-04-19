@@ -354,7 +354,7 @@ static constexpr SSL_CIPHER kCiphers[] = {
         SSL_kECDHE,
         SSL_aRSA,
         SSL_AES128,
-        SSL_AEAD,
+        SSL_SHA256,
         SSL_HANDSHAKE_MAC_SHA256,
     },
 
@@ -642,17 +642,17 @@ bool ssl_cipher_get_evp_aead(const EVP_AEAD **out_aead,
   } else if (cipher->algorithm_mac == SSL_SHA256){
     if (cipher->algorithm_enc == SSL_AES128) {
       if (version == TLS1_VERSION) {
-        *out_aead = EVP_aead_aes_128_cbc_sha1_tls_implicit_iv();
+        *out_aead = EVP_aead_aes_128_cbc_sha256_tls_implicit_iv();
         *out_fixed_iv_len = 16;
       } else {
-        *out_aead = EVP_aead_aes_128_cbc_sha1_tls();
+        *out_aead = EVP_aead_aes_128_cbc_sha256_tls();
       }
     } else if (cipher->algorithm_enc == SSL_AES256) {
       if (version == TLS1_VERSION) {
-        *out_aead = EVP_aead_aes_256_cbc_sha1_tls_implicit_iv();
+        *out_aead = EVP_aead_aes_256_cbc_sha256_tls_implicit_iv();
         *out_fixed_iv_len = 16;
       } else {
-        *out_aead = EVP_aead_aes_256_cbc_sha1_tls();
+        *out_aead = EVP_aead_aes_256_cbc_sha256_tls();
       }
     } else {
       return false;
