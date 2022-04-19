@@ -1023,7 +1023,7 @@ TEST(SSLTest, CipherProperties) {
           TLS1_CK_ECDHE_RSA_WITH_AES_128_SHA256,
           "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
           NID_aes_128_cbc,
-          NID_undef,
+          NID_sha256,
           NID_kx_ecdhe,
           NID_auth_rsa,
           NID_sha256,

@@ -268,7 +268,7 @@ int EVP_sha1_final_with_secret_suffix(SHA_CTX *ctx,
 }
 
 int EVP_tls_cbc_record_digest_supported(const EVP_MD *md) {
-  return EVP_MD_type(md) == NID_sha1 || EVP_MD_type(md) == NID_sha256;
+  return EVP_MD_type(md) == NID_sha1;
 }
 
 int EVP_tls_cbc_digest_record(const EVP_MD *md, uint8_t *md_out,
