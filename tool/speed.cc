@@ -12,6 +12,11 @@
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 
+#include <linux/perf_event.h>
+#include <asm/unistd.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+
 #include <algorithm>
 #include <functional>
 #include <memory>
@@ -42,6 +47,37 @@ OPENSSL_MSVC_PRAGMA(warning(pop))
 #include <time.h>
 #endif
 
+static int startInstructionCounter(perf_event_attr *pAttr) {
+  memset(pAttr, 0, sizeof(struct perf_event_attr));
+  pAttr->type = PERF_TYPE_HARDWARE;
+  pAttr->size = sizeof(struct perf_event_attr);
+  pAttr->config = PERF_COUNT_HW_INSTRUCTIONS;
+  pAttr->disabled = 1;
+  pAttr->exclude_kernel = 1;
+  pAttr->exclude_hv = 1;
+
+  int fd = syscall(__NR_perf_event_open, pAttr, 0, -1, -1, 0);
+  if (fd == -1) {
+    printf("perf_event_open failed %s\n", strerror(errno));
+    exit(1);
+  }
+  ioctl(fd, PERF_EVENT_IOC_RESET, 0);
+  ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
+  return fd;
+}
+
+static ssize_t getInstructionCount(int fd) {
+  ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
+  ssize_t count = 0;
+  ssize_t result = read(fd, &count, sizeof(long long));
+  if (count < 0 || result < 0) {
+    printf("Failed to read instructions, count: %zd, result: %zd", count,
+           result);
+    exit(1);
+  }
+  return count;
+}
+
 static inline void *BM_memset(void *dst, int c, size_t n) {
   if (n == 0) {
     return dst;
@@ -52,6 +88,7 @@ static inline void *BM_memset(void *dst, int c, size_t n) {
 
 // g_print_json is true if printed output is JSON formatted.
 static bool g_print_json = false;
+static bool g_instruction_mode = false;
 
 // TimeResults represents the results of benchmarking a function.
 struct TimeResults {
@@ -60,25 +97,41 @@ struct TimeResults {
   // us is the number of microseconds that elapsed in the time period.
   unsigned us;
 
+  // instructions is the total count of instructions to do num_calls loops
+  size_t num_inst;
+
   void Print(const std::string &description) const {
-    if (g_print_json) {
-      PrintJSON(description);
+    if(g_instruction_mode) {
+      printf("Did %u %s operations in %zu instructions (%f instructions/operation)\n",
+             num_calls, description.c_str(), num_inst, (static_cast<double>(num_inst) / num_calls));
     } else {
-      printf("Did %u %s operations in %uus (%.1f ops/sec)\n", num_calls,
-             description.c_str(), us,
-             (static_cast<double>(num_calls) / us) * 1000000);
+      if (g_print_json) {
+        PrintJSON(description);
+      } else {
+        printf("Did %u %s operations in %uus (%.1f ops/sec)\n", num_calls,
+               description.c_str(), us,
+               (static_cast<double>(num_calls) / us) * 1000000);
+      }
     }
   }
 
   void PrintWithBytes(const std::string &description,
                       size_t bytes_per_call) const {
-    if (g_print_json) {
-      PrintJSON(description, bytes_per_call);
+    if (g_instruction_mode) {
+      printf("Did %u %s operations in %zu instructions (%.1f instructions/operation): %f instructions/byte\n",
+             num_calls, description.c_str(), num_inst,
+             (static_cast<double>(num_inst) / num_calls),
+             static_cast<double>(num_inst) / (bytes_per_call * num_calls));
+
     } else {
-      printf("Did %u %s operations in %uus (%.1f ops/sec): %.1f MB/s\n",
-             num_calls, description.c_str(), us,
-             (static_cast<double>(num_calls) / us) * 1000000,
-             static_cast<double>(bytes_per_call * num_calls) / us);
+      if (g_print_json) {
+        PrintJSON(description, bytes_per_call);
+      } else {
+        printf("Did %u %s operations in %uus (%.1f ops/sec): %.1f MB/s\n",
+               num_calls, description.c_str(), us,
+               (static_cast<double>(num_calls) / us) * 1000000,
+               static_cast<double>(bytes_per_call * num_calls) / us);
+      }
     }
   }
 
@@ -134,6 +187,7 @@ static uint64_t time_now() {
 #endif
 
 static uint64_t g_timeout_seconds = 1;
+static uint64_t g_iterations = 1;
 static std::vector<size_t> g_chunk_lengths = {16, 256, 1350, 8192, 16384};
 
 static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
@@ -161,22 +215,39 @@ static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
     }
   }
 
-  for (;;) {
-    for (unsigned i = 0; i < iterations_between_time_checks; i++) {
+  if(g_instruction_mode) {
+    struct perf_event_attr pe;
+    int fd = startInstructionCounter(&pe);
+
+    for (uint64_t i = 0; i < g_iterations; i++) {
       if (!func()) {
         return false;
       }
-      done++;
     }
 
-    now = time_now();
-    if (now - start > total_us) {
-      break;
+    ssize_t result = getInstructionCount(fd);
+
+    results->num_inst = result;
+    results->num_calls = g_iterations;
+  } else {
+    for (;;) {
+      for (unsigned i = 0; i < iterations_between_time_checks; i++) {
+        if (!func()) {
+          return false;
+        }
+        done++;
+      }
+
+      now = time_now();
+      if (now - start > total_us) {
+        break;
+      }
     }
+    results->us = now - start;
+    results->num_calls = done;
   }
 
-  results->us = now - start;
-  results->num_calls = done;
+
   return true;
 }
 
@@ -321,7 +392,7 @@ static bool SpeedRSAKeyGen(const std::string &selected) {
     std::sort(durations.begin(), durations.end());
     const std::string description =
         std::string("RSA ") + std::to_string(size) + std::string(" key-gen");
-    const TimeResults results = {num_calls, us};
+    const TimeResults results = {num_calls, us, 0};
     results.Print(description);
     const size_t n = durations.size();
     assert(n > 0);
@@ -1505,6 +1576,18 @@ static const argument_t kArguments[] = {
         "the JSON field for bytesPerCall will be omitted.",
     },
     {
+        "-instruction",
+        kBooleanArgument,
+        "If this flag is set speed with count and report instructions per function "
+        "instead of time. In instruction mode test runs for -iterations count not "
+        "-timeout time",
+    },
+    {
+        "-iterations",
+        kOptionalArgument,
+        "If set this specifies how many times to run each function, can not be used with timeout"
+    },
+    {
         "",
         kOptionalArgument,
         "",
@@ -1527,8 +1610,17 @@ bool Speed(const std::vector<std::string> &args) {
     g_print_json = true;
   }
 
+  if (args_map.count("-instruction") != 0) {
+    g_instruction_mode = true;
+  }
+
   if (args_map.count("-timeout") != 0) {
     g_timeout_seconds = atoi(args_map["-timeout"].c_str());
+  }
+
+  if (args_map.count("-iterations") != 0) {
+    g_instruction_mode = true;
+    g_iterations = atoi(args_map["-iterations"].c_str());
   }
 
   if (args_map.count("-chunks") != 0) {
