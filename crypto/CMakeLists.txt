@@ -570,6 +570,7 @@ if(BUILD_TESTING)
     ${CRYPTO_TEST_EXEC}
 
     abi_self_test.cc
+    aead_perf_test.cc
     asn1/asn1_test.cc
     base64/base64_test.cc
     bio/bio_test.cc
