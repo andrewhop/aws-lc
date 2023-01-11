@@ -6,8 +6,8 @@ function env {
   echo "export ${1}=\"${2}\"" >> "${FUZZ_ROOT}/fuzz_env.sh"
 }
 # Recommended flags from https://github.com/guidovranken/cryptofuzz/blob/master/docs/building.md
-export CFLAGS="-fsanitize=address,undefined,fuzzer-no-link -O2 -g"
-export CXXFLAGS="-fsanitize=address,undefined,fuzzer-no-link -D_GLIBCXX_DEBUG -O2 -g"
+export CFLAGS="-fsanitize=address,fuzzer-no-link -O2 -g"
+export CXXFLAGS="-fsanitize=address,fuzzer-no-link -D_GLIBCXX_DEBUG -O2 -g"
 
 # Setup base of Cryptofuzz
 cd "$FUZZ_ROOT"
@@ -48,8 +48,8 @@ make -j$(nproc)
 
 # Extract the seed corpus, docker layers are already compressed so this won't use any more space and save time when running
 cd "$FUZZ_ROOT"
-unzip cryptofuzz_data.zip
-rm cryptofuzz_data.zip
+unzip /cryptofuzz_data.zip
+rm /cryptofuzz_data.zip
 env CRYPTOFUZZ_SEED_CORPUS `realpath cryptofuzz_seed_corpus`
 env CRYPTOFUZZ_DICT `realpath cryptofuzz-dict.txt`
 
