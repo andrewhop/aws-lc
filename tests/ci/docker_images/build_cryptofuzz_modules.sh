@@ -24,8 +24,9 @@ cd "$MODULES_ROOT"
 
 # Setup the other crypto libraries for differential fuzzing
 # Botan https://github.com/guidovranken/cryptofuzz/blob/master/docs/botan.md
-git clone --depth 1 https://github.com/randombit/botan.git
+git clone https://github.com/randombit/botan.git
 cd botan
+git checkout 2022306362d5794bb4643d91f725505b4acd27de
 git rev-parse HEAD
 python3 configure.py --cc-bin=$CXX --cc-abi-flags="$CXXFLAGS" --disable-shared --disable-modules=locking_allocator,x509,tls --build-targets=static --without-documentation
 make -j$(nproc)
