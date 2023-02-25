@@ -1,15 +1,10 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0 OR ISC
 
-FROM amazonlinux-2:gcc-7x
+FROM amazonlinux-2022:clang-14x-sanitizer
 
 SHELL ["/bin/bash", "-c"]
 
-# Enable the EPEL repository on Amazon Linux 2 before installing packages
-# https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/add-repositories.html
-
-# gcc 7.3.1 is the latest version versions `yum --showduplicates list gcc`
-# Install Valgrind for Valgrind test target even though it is not needed for the base test target.
 RUN set -ex && \
     yum -y update && yum install -y \
     # Without glibc.i686, running "./sde --help" generates error "bash: ./sde: /lib/ld-linux.so.2: bad ELF interpreter: No such file or directory"
@@ -32,7 +27,8 @@ RUN set -ex && \
     rm -rf /tmp/* && \
     rm -rf /var/cache/yum
 
-ENV CC=gcc
-ENV CXX=g++
+ENV CC=clang
+ENV CXX=clang++
 ENV SDEROOT=/sde-external-9.0.0-2021-11-07-lin
 ENV PATH="$SDEROOT:$PATH"
+

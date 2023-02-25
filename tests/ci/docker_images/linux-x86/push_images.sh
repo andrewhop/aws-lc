@@ -36,6 +36,7 @@ tag_and_push_img 'amazonlinux-2:gcc-7x-intel-sde' "${ECS_REPO}:amazonlinux-2_gcc
 tag_and_push_img 'amazonlinux-2022:gcc-11x' "${ECS_REPO}:amazonlinux-2022_gcc-11x"
 tag_and_push_img 'amazonlinux-2022:clang-14x' "${ECS_REPO}:amazonlinux-2022_clang-14x"
 tag_and_push_img 'amazonlinux-2022:clang-14x-sanitizer' "${ECS_REPO}:amazonlinux-2022_clang-14x_sanitizer"
+tag_and_push_img 'amazonlinux-2022:clang-14x-sanitizer-intel-sde' "${ECS_REPO}:amazonlinux-2022_clang-14x_sanitizer_intel-sde"
 tag_and_push_img 'amazonlinux-2022:cryptofuzz' "${ECS_REPO}:amazonlinux-2022_clang-14x_cryptofuzz"
 tag_and_push_img 'fedora-31:clang-9x' "${ECS_REPO}:fedora-31_clang-9x"
 tag_and_push_img 'ubuntu-10.04_gcc-4.1x' "${ECS_REPO}:ubuntu-10.04_gcc-4.1x"

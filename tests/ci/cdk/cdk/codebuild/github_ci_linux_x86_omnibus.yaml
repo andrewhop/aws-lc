@@ -264,13 +264,13 @@ batch:
         compute-type: BUILD_GENERAL1_LARGE
         image: 620771051181.dkr.ecr.us-west-2.amazonaws.com/aws-lc-docker-images-linux-x86:amazonlinux-2_clang-7x_latest
 
-    - identifier: amazonlinux2_gcc7x_intel_sde_x86_64
-      buildspec: ./tests/ci/codebuild/linux-x86/amazonlinux-2_gcc-7x_intel-sde.yml
+    - identifier: amazonlinux2022_clang14x_intel_sde_x86_64
+      buildspec: ./tests/ci/codebuild/linux-x86/run_intel_sde_tests.yml
       env:
         type: LINUX_CONTAINER
         privileged-mode: true
         compute-type: BUILD_GENERAL1_2XLARGE
-        image: 620771051181.dkr.ecr.us-west-2.amazonaws.com/aws-lc-docker-images-linux-x86:amazonlinux-2_gcc-7x_intel-sde_latest
+        image: 620771051181.dkr.ecr.us-west-2.amazonaws.com/aws-lc-docker-images-linux-x86:amazonlinux-2022_clang-14x_sanitizer_intel-sde_latest
 
     - identifier: amazonlinux2022_gcc11x_x86_64_valgrind
       buildspec: ./tests/ci/codebuild/common/run_valgrind_tests.yml
