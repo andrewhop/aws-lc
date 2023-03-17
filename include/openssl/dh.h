@@ -113,6 +113,14 @@ OPENSSL_EXPORT const BIGNUM *DH_get0_g(const DH *dh);
 OPENSSL_EXPORT void DH_get0_key(const DH *dh, const BIGNUM **out_pub_key,
                                 const BIGNUM **out_priv_key);
 
+// DH_clear_flags is deprecated and does not modify the |DH| internal flags.
+OPENSSL_EXPORT void DH_clear_flags(DH *dh, int flags);
+
+// DH_FLAG_CACHE_MONT_P is deprecated and not supported. It is included here
+// to simplify building software with AWS-LC that expects this flag.
+#define DH_FLAG_CACHE_MONT_P 0
+
+
 // DH_set0_key sets |dh|'s public and private key to the specified values. If
 // NULL, the field is left unchanged. On success, it takes ownership of each
 // argument and returns one. Otherwise, it returns zero.

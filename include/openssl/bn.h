@@ -672,9 +672,16 @@ OPENSSL_EXPORT int BN_pseudo_rand_range(BIGNUM *rnd, const BIGNUM *range);
 // When other code needs to call a BN generation function it will often take a
 // BN_GENCB argument and may call the function with other argument values.
 struct bn_gencb_st {
+  uint8_t type;
   void *arg;        // callback-specific data
-  int (*callback)(int event, int n, struct bn_gencb_st *);
+  union {
+    int (*new_style)(int event, int n, struct bn_gencb_st *);
+    void (*old_style)(int, int, void *);
+  } callback;
 };
+#define BN_CALLBACK_UNSET 0
+#define BN_CALLBACK_NEW 1
+#define BN_CALLBACK_OLD 2
 
 // BN_GENCB_new returns a newly-allocated |BN_GENCB| object, or NULL on
 // allocation failure. The result must be released with |BN_GENCB_free| when
@@ -689,6 +696,9 @@ OPENSSL_EXPORT void BN_GENCB_free(BN_GENCB *callback);
 OPENSSL_EXPORT void BN_GENCB_set(BN_GENCB *callback,
                                  int (*f)(int event, int n, BN_GENCB *),
                                  void *arg);
+
+OPENSSL_EXPORT void BN_GENCB_set_old(BN_GENCB *gencb,
+                                     void (*callback)(int, int, void *), void *cb_arg);
 
 // BN_GENCB_call calls |callback|, if not NULL, and returns the return value of
 // the callback, or 1 if |callback| is NULL.
