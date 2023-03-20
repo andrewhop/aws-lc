@@ -21,6 +21,7 @@ static const EVP_PKEY_ASN1_METHOD *const asn1_evp_pkey_methods[] = {
   &ed25519_asn1_meth,
   &x25519_asn1_meth,
   &kem_asn1_meth,
+  &hmac_asn1_meth,
 };
 
 OPENSSL_STATIC_ASSERT(

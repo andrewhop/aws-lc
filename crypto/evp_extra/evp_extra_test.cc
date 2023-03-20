@@ -2235,3 +2235,24 @@ TEST_P(PerKEMTest, KAT) {
   });
 }
 
+TEST(EVPExtraTest, HMAC_PKEY) {
+
+  uint8_t key[64] = {0};
+  EVP_PKEY *pkey = EVP_PKEY_new_raw_private_key(EVP_PKEY_HMAC, NULL, key, sizeof(key));
+  ASSERT_TRUE(pkey);
+
+  EVP_MD_CTX *hmac = EVP_MD_CTX_new();
+  const EVP_MD *md_type = EVP_sha256();
+  ASSERT_TRUE(EVP_DigestSignInit(hmac, NULL, md_type, NULL, pkey));
+
+  uint8_t data_to_sign[128] = {0};
+
+  ASSERT_TRUE(EVP_DigestSignUpdate(hmac, data_to_sign, sizeof(data_to_sign)));
+
+  uint8_t hmac_sha256_digest[33] = {0};
+  size_t digest_length = sizeof(hmac_sha256_digest);
+  ASSERT_TRUE(EVP_DigestSignFinal(hmac, hmac_sha256_digest, &digest_length));
+
+  ASSERT_EQ(digest_length, (size_t)32);
+}
+

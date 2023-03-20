@@ -180,7 +180,7 @@ OPENSSL_EXPORT EC_KEY *EVP_PKEY_get1_EC_KEY(const EVP_PKEY *pkey);
 #define EVP_PKEY_EC NID_X9_62_id_ecPublicKey
 #define EVP_PKEY_ED25519 NID_ED25519
 #define EVP_PKEY_X25519 NID_X25519
-#define EVP_PKEY_HMAC NID_undef
+#define EVP_PKEY_HMAC NID_hmac
 // TODO(awslc): delete Kyber define
 #define EVP_PKEY_KYBER512 NID_KYBER512
 #define EVP_PKEY_HKDF NID_hkdf
@@ -1170,6 +1170,7 @@ struct evp_pkey_st {
     DH *dh;
     EC_KEY *ec;
     KEM_KEY *kem_key;
+    HMAC_CTX *hmac_ctx;
   } pkey;
 
   // ameth contains a pointer to a method table that contains many ASN.1
