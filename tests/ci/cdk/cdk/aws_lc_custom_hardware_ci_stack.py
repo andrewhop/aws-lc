@@ -12,7 +12,7 @@ from util.build_spec_loader import BuildSpecLoader
 
 # detailed documentation can be found here: https://docs.aws.amazon.com/cdk/api/latest/docs/aws-ec2-readme.html
 
-class AwsLcMacArmCIStack(core.Stack):
+class AwsLcCustomHardwareCIStack(core.Stack):
     """Define a stack used to create a CodeBuild instance on which to execute the AWS-LC m1 ci ec2 instance"""
 
     def __init__(self,

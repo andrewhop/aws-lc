@@ -1,0 +1,26 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0 OR ISC
+
+version: 0.2
+
+# Doc for batch https://docs.aws.amazon.com/codebuild/latest/userguide/batch-build-buildspec.html#build-spec.batch.build-list
+batch:
+  build-list:
+    - identifier: macos_arm_tests
+      # Actual tests are ran on a m1 ec2 instance via SSM Commands.
+      buildspec: ./tests/ci/codebuild/macos-aarch/run_m1_tests.yml
+      env:
+        type: LINUX_CONTAINER
+        privileged-mode: true
+        compute-type: BUILD_GENERAL1_SMALL
+        image: 620771051181.dkr.ecr.us-west-2.amazonaws.com/aws-lc-docker-images-linux-x86:ubuntu-20.04_clang-7x-bm-framework_latest
+    - identifier: graviton_3_tests
+      # Actual tests are ran on a Graviton 3 ec2 instance via SSM Commands.
+      buildspec: ./tests/ci/codebuild/macos-aarch/run_m1_tests.yml
+      env:
+        type: LINUX_CONTAINER
+        privileged-mode: true
+        compute-type: BUILD_GENERAL1_SMALL
+        image: 620771051181.dkr.ecr.us-west-2.amazonaws.com/aws-lc-docker-images-linux-x86:ubuntu-20.04_clang-7x-bm-framework_latest
+        variables:
+          AWS_LC_EC2_INSTANCE_TYPE:  "c7g.xlarge"
