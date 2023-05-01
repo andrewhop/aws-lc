@@ -710,7 +710,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "powerpc64le|ppc64le")
 elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "riscv64")
   set(ARCH "riscv64")
 else()
-  message(STATUS "Unknown processor found. Using generic implementations. Processor:" ${CMAKE_SYSTEM_PROCESSOR})
+  message(STATUS "Unknown processor found. Using generic implementations. Processor: " ${CMAKE_SYSTEM_PROCESSOR})
   set(ARCH "generic")
 endif()
 
