@@ -672,7 +672,7 @@ endif()
 
 TEST_BIG_ENDIAN(BIG_ENDIAN)
 if(BIG_ENDIAN)
-  message(FATAL_ERROR "Big Endian is not supported.")
+  message(STATUS "Continuing on big endian platform")
 endif()
 
 if(OPENSSL_NO_SSE2_FOR_TESTING)
