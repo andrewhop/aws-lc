@@ -86,7 +86,6 @@ extern "C" {
 #if defined(BORINGSSL_FIPS)
 #define AWSLC_FIPS
 #endif
-
 #if defined(__x86_64) || defined(_M_AMD64) || defined(_M_X64)
 #define OPENSSL_64_BIT
 #define OPENSSL_X86_64
@@ -105,6 +104,7 @@ extern "C" {
 #elif (defined(__PPC__) || defined(__powerpc__)) && defined(_BIG_ENDIAN)
 #define OPENSSL_32_BIT
 #define OPENSSL_PPC32BE
+#define OPENSSL_BIG_ENDIAN
 #elif defined(__MIPSEL__) && !defined(__LP64__)
 #define OPENSSL_32_BIT
 #define OPENSSL_MIPS

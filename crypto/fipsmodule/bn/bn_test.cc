@@ -1161,12 +1161,14 @@ TEST_F(BNTest, LittleEndian) {
     // Compute the expected value by reversing the big-endian output.
     uint8_t expected[sizeof(out)];
     ASSERT_TRUE(BN_bn2bin_padded(expected, sizeof(expected), x.get()));
+#if !defined(OPENSSL_BIG_ENDIAN)
+    // On a little endian machine we have to reverse the expected output
     for (size_t i = 0; i < sizeof(expected) / 2; i++) {
       uint8_t tmp = expected[i];
       expected[i] = expected[sizeof(expected) - 1 - i];
       expected[sizeof(expected) - 1 - i] = tmp;
     }
-
+#endif
     EXPECT_EQ(Bytes(out), Bytes(expected));
 
     // Make sure the decoding produces the same BIGNUM.
