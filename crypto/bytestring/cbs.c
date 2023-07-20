@@ -520,20 +520,19 @@ int CBS_get_asn1_int64(CBS *cbs, int64_t *out) {
   }
   uint8_t sign_extend[sizeof(int64_t)];
   memset(sign_extend, is_negative ? 0xff : 0, sizeof(sign_extend));
-  // On big endian machines the byte order doesn't need to be swapped, but the
-  // most significant bit needs to be stored in the lowest memory address.
   for (size_t i = 0; i < len; i++) {
 #ifdef OPENSSL_BIG_ENDIAN
     // sign_extend[sizeof(int64_t) - 0 - 1] = data[0];
     // sign_extend[8 - 0 - 1] = data[0];
     // sign_extend[7] = data[0];
-    sign_extend[sizeof(int64_t) - i - 1] = data[i];
+    sign_extend[sizeof(sign_extend) - i - 1] = data[len - i - 1];
 #else
     // sign_extend[0] = data[1 - 0 - 1];
     // sign_extend[0] = data[0];
     sign_extend[i] = data[len - i - 1];
 #endif
   }
+
   memcpy(out, sign_extend, sizeof(sign_extend));
   return 1;
 }
