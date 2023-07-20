@@ -82,8 +82,8 @@ TEST(EndianTest, TestRotate64) {
 }
 
 union test_union {
-  uint32_t big;
-  uint16_t small;
+  uint16_t big[2];
+  uint8_t small[4];
 };
 
 struct test_struct {
@@ -91,18 +91,20 @@ struct test_struct {
 };
 
 TEST(EndianTest, TestStructUnion) {
-  struct test_struct val = {{0}};
-  val.union_val.big = 0x12345678;
+  struct test_struct val = {{{0}}};
+  val.union_val.big[0] = 0x1234;
+  val.union_val.big[1] = 0x5678;
 
-  uint32_t big_val = val.union_val.big;
-  uint16_t small_val = val.union_val.small;
 
 #if defined(OPENSSL_BIG_ENDIAN)
-  ASSERT_EQ(small_val, (uint16_t)0x1234);
-
+  ASSERT_EQ(val.union_val.small[0], 0x12);
+  ASSERT_EQ(val.union_val.small[1], 0x34);
+  ASSERT_EQ(val.union_val.small[2], 0x56);
+  ASSERT_EQ(val.union_val.small[3], 0x78);
 #else
-  ASSERT_EQ(small_val, (uint16_t)0x5678);
+  ASSERT_EQ(val.union_val.small[0], 0x34);
+  ASSERT_EQ(val.union_val.small[1], 0x12);
+  ASSERT_EQ(val.union_val.small[2], 0x78);
+  ASSERT_EQ(val.union_val.small[3], 0x56);
 #endif
-  // Assert that the big value remains as expected
-  ASSERT_EQ(big_val, (uint32_t)0x12345678);
 }
