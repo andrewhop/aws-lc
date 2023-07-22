@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "internal.h"
+#include "openssl/bn.h"
 #include "test/test_util.h"
 
 
@@ -107,4 +108,52 @@ TEST(EndianTest, TestStructUnion) {
   ASSERT_EQ(val.union_val.small[2], 0x78);
   ASSERT_EQ(val.union_val.small[3], 0x56);
 #endif
+}
+
+TEST(EndianTest, Shifting) {
+  uint32_t test = 0b1010000000010001;
+  ASSERT_EQ(test << 4, (uint32_t)0b10100000000100010000);
+  ASSERT_EQ(test >> 4, (uint32_t)0b101000000001);
+}
+
+TEST(EndianTest, Swap) {
+  EXPECT_EQ(0x3412, CRYPTO_bswap2(0x1234));
+  EXPECT_EQ((uint32_t)0x78563412, CRYPTO_bswap4(0x12345678));
+  EXPECT_EQ(0xf0debc9a78563412, CRYPTO_bswap8(0x123456789abcdef0));
+}
+
+TEST(EndianTest, BN_bin2bn) {
+  bssl::UniquePtr<BIGNUM> x(BN_new());
+  uint8_t input[256];
+  OPENSSL_memset(input, 0, sizeof(input));
+  input[0] = 0xaa;
+  input[1] = 0x01;
+  input[254] = 0x01;
+  input[255] = 0x02;
+  ASSERT_NE(nullptr, BN_bin2bn(input, sizeof(input), x.get()));
+  EXPECT_FALSE(BN_is_zero(x.get()));
+  for (int i = 1; i < (256*8/BN_BITS2) - 1; i++) {
+    SCOPED_TRACE(i);
+    EXPECT_EQ((uint64_t)0, x.get()->d[i]);
+  }
+  EXPECT_EQ((uint64_t)0x0102, x.get()->d[0]);
+  EXPECT_EQ((uint64_t)0xaa01 << (BN_BITS2-16), x.get()->d[(256*8/BN_BITS2)-1]);
+}
+
+TEST(EndianTest, BN_le2bn) {
+  bssl::UniquePtr<BIGNUM> x(BN_new());
+  uint8_t input[256];
+  OPENSSL_memset(input, 0, sizeof(input));
+  input[0] = 0xaa;
+  input[1] = 0x01;
+  input[254] = 0x01;
+  input[255] = 0x02;
+  ASSERT_NE(nullptr, BN_le2bn(input, sizeof(input), x.get()));
+  EXPECT_FALSE(BN_is_zero(x.get()));
+  for (int i = 1; i < (256*8/BN_BITS2) - 1; i++) {
+    SCOPED_TRACE(i);
+    EXPECT_EQ((uint64_t)0, x.get()->d[i]);
+  }
+  EXPECT_EQ((uint64_t)0x01aa, x.get()->d[0]);
+  EXPECT_EQ((uint64_t)0x0201 << (BN_BITS2-16), x.get()->d[(256*8/BN_BITS2)-1]);
 }

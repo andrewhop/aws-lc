@@ -726,6 +726,15 @@ static inline uint32_t CRYPTO_bswap4(uint32_t x) {
 static inline uint64_t CRYPTO_bswap8(uint64_t x) {
   return __builtin_bswap64(x);
 }
+static inline uint64_t CRYPTO_bswap_word(uint64_t x) {
+#if defined(OPENSSL_64_BIT)
+  return CRYPTO_bswap8(x);
+#else
+  return CRYPTO_bswap4(x);
+#endif
+}
+
+
 #elif defined(_MSC_VER)
 OPENSSL_MSVC_PRAGMA(warning(push, 3))
 #include <stdlib.h>
@@ -923,11 +932,7 @@ static inline crypto_word_t CRYPTO_load_word_le(const void *in) {
   crypto_word_t v;
   OPENSSL_memcpy(&v, in, sizeof(v));
 #if defined(OPENSSL_BIG_ENDIAN)
-#if defined(OPENSSL_64_BIT)
-  return CRYPTO_bswap8(v);
-#else
-  return CRYPTO_bswap4(v);
-#endif
+  return CRYPTO_bswap_word(v);
 #else
   return v;
 #endif
@@ -937,11 +942,7 @@ static inline void CRYPTO_store_word_le(void *out, crypto_word_t v) {
 
 
 #if defined(OPENSSL_BIG_ENDIAN)
-#if defined(OPENSSL_64_BIT)
-  v = CRYPTO_bswap8(v);
-#else
-  v = CRYPTO_bswap4(v);
-#endif
+  v = CRYPTO_bswap_word(v);
 #endif
   OPENSSL_memcpy(out, &v, sizeof(v));
 
