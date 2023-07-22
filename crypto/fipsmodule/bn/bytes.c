@@ -158,19 +158,13 @@ BIGNUM *BN_le2bn(const uint8_t *in, size_t len, BIGNUM *ret) {
 
 size_t BN_bn2bin(const BIGNUM *in, uint8_t *out) {
   size_t n, i;
-
-  n = i = BN_num_bytes(in);
-#ifdef OPENSSL_BIG_ENDIAN
-  const uint8_t *bytes = (const uint8_t *)in->d;
-  OPENSSL_memcpy(out, bytes, i);
-#else
   BN_ULONG l;
 
+  n = i = BN_num_bytes(in);
   while (i--) {
     l = in->d[i / BN_BYTES];
     *(out++) = (unsigned char)(l >> (8 * (i % BN_BYTES))) & 0xff;
   }
-#endif
   return n;
 }
 
@@ -192,9 +186,18 @@ int BN_bn2le_padded(uint8_t *out, size_t len, const BIGNUM *in) {
     num_bytes = len;
   }
 
+#ifdef OPENSSL_BIG_ENDIAN
+  BN_ULONG l;
+
+  for (size_t i = 0; i < BN_num_bytes(in); i++) {
+    l = in->d[i / BN_BYTES];
+    *(out++) = (unsigned char)(l >> (8 * (i % BN_BYTES))) & 0xff;
+  }
+#else
   // We only support little-endian platforms, so we can simply memcpy into the
   // internal representation.
   OPENSSL_memcpy(out, bytes, num_bytes);
+#endif
   // Pad out the rest of the buffer with zeroes.
   OPENSSL_memset(out + num_bytes, 0, len - num_bytes);
   return 1;
