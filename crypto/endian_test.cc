@@ -110,6 +110,7 @@ TEST(EndianTest, TestStructUnion) {
 #endif
 }
 
+// Shift left is increasing value/significance
 TEST(EndianTest, Shifting) {
   uint32_t test = 0b1010000000010001;
   ASSERT_EQ(test << 4, (uint32_t)0b10100000000100010000);
@@ -187,5 +188,21 @@ TEST(EndianTest, BN_bn2le_padded) {
   uint8_t out[256];
   OPENSSL_memset(out, 0, sizeof(out));
   EXPECT_EQ(1, BN_bn2le_padded(out, sizeof(out), x.get()));
+  EXPECT_EQ(Bytes(input), Bytes(out));
+}
+
+TEST(EndianTest, BN_bn2bin_padded) {
+  bssl::UniquePtr<BIGNUM> x(BN_new());
+  uint8_t input[256];
+  OPENSSL_memset(input, 0, sizeof(input));
+  input[0] = 0xaa;
+  input[1] = 0x01;
+  input[254] = 0x01;
+  input[255] = 0x02;
+  ASSERT_NE(nullptr, BN_bin2bn(input, sizeof(input), x.get()));
+
+  uint8_t out[256];
+  OPENSSL_memset(out, 0, sizeof(out));
+  EXPECT_EQ(1, BN_bn2bin_padded(out, sizeof(out), x.get()));
   EXPECT_EQ(Bytes(input), Bytes(out));
 }

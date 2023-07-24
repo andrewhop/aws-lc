@@ -96,6 +96,7 @@ BIGNUM *BN_bin2bn(const uint8_t *in, size_t len, BIGNUM *ret) {
   ret->width = (int)num_words;
   ret->neg = 0;
 
+  // This is shifting which is why it works on big and little
   while (len--) {
     word = (word << 8) | *(in++);
     if (m-- == 0) {
@@ -203,6 +204,7 @@ int BN_bn2le_padded(uint8_t *out, size_t len, const BIGNUM *in) {
   return 1;
 }
 
+// Need to reverse the overall word order but not byte order
 int BN_bn2bin_padded(uint8_t *out, size_t len, const BIGNUM *in) {
   const uint8_t *bytes = (const uint8_t *)in->d;
   size_t num_bytes = in->width * BN_BYTES;
@@ -213,11 +215,21 @@ int BN_bn2bin_padded(uint8_t *out, size_t len, const BIGNUM *in) {
     num_bytes = len;
   }
 
+#ifdef OPENSSL_BIG_ENDIAN
+  BN_ULONG l;
+
+  for (size_t i = BN_num_bytes(in) - 1; i <  BN_num_bytes(in); i--) {
+    l = in->d[i / BN_BYTES];
+    *(out++) = (unsigned char)(l >> (8 * (i % BN_BYTES))) & 0xff;
+  }
+
+#else
   // We only support little-endian platforms, so we can simply write the buffer
   // in reverse.
   for (size_t i = 0; i < num_bytes; i++) {
     out[len - i - 1] = bytes[i];
   }
+#endif
   // Pad out the rest of the buffer with zeroes.
   OPENSSL_memset(out, 0, len - num_bytes);
   return 1;
