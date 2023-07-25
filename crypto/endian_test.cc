@@ -111,6 +111,7 @@ TEST(EndianTest, TestStructUnion) {
 }
 
 // Shift left is increasing value/significance
+// shift right decreases value/drops values
 TEST(EndianTest, Shifting) {
   uint32_t test = 0b1010000000010001;
   ASSERT_EQ(test << 4, (uint32_t)0b10100000000100010000);

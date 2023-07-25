@@ -139,14 +139,13 @@ BIGNUM *BN_le2bn(const uint8_t *in, size_t len, BIGNUM *ret) {
 
 #ifdef OPENSSL_BIG_ENDIAN
   BN_ULONG word = 0;
-  unsigned m = (len - 1) % BN_BYTES;
-  size_t index = 0;
+  unsigned m;
 
-  while (len--) {
-    uint8_t temp = *(in++);
-    word = (word << 8) | temp;
+  m = (len - 1) % BN_BYTES;
+  for (size_t i = len -1; i < len; i--) {
+    word = (word << 8) | in[i];
     if (m-- == 0) {
-      ret->d[index++] = CRYPTO_bswap_word(word);
+      ret->d[--num_words] = word;
       word = 0;
       m = BN_BYTES - 1;
     }
@@ -169,19 +168,29 @@ size_t BN_bn2bin(const BIGNUM *in, uint8_t *out) {
   return n;
 }
 
-static int fits_in_bytes(const uint8_t *bytes, size_t num_bytes, size_t len) {
+// check the end of the BN to make sure it's all zero if it's
+// longer than len
+static int fits_in_bytes(const BIGNUM *bn, size_t len) {
   uint8_t mask = 0;
-  for (size_t i = len; i < num_bytes; i++) {
-    mask |= bytes[i];
+  // i goes from 0 to width (in words)
+  for (int i = len / BN_BYTES; i < bn->width; i++) {
+    BN_ULONG word = bn->d[i];
+    for (int j = 0; j < BN_BYTES; j++) {
+      if ((i * BN_BYTES) + j < (int) len) {
+        // For the first word we don't need to check any bytes shorter than len
+        continue ;
+      } else {
+        mask |= (word >> (j * 8)) & 0xff;
+      }
+    }
   }
   return mask == 0;
 }
 
 int BN_bn2le_padded(uint8_t *out, size_t len, const BIGNUM *in) {
-  const uint8_t *bytes = (const uint8_t *)in->d;
   size_t num_bytes = in->width * BN_BYTES;
   if (len < num_bytes) {
-    if (!fits_in_bytes(bytes, num_bytes, len)) {
+    if (!fits_in_bytes(in, len)) {
       return 0;
     }
     num_bytes = len;
@@ -190,11 +199,12 @@ int BN_bn2le_padded(uint8_t *out, size_t len, const BIGNUM *in) {
 #ifdef OPENSSL_BIG_ENDIAN
   BN_ULONG l;
 
-  for (size_t i = 0; i < BN_num_bytes(in); i++) {
+  for (size_t i = 0; i < num_bytes; i++) {
     l = in->d[i / BN_BYTES];
-    *(out++) = (unsigned char)(l >> (8 * (i % BN_BYTES))) & 0xff;
+    out[i] = (unsigned char)(l >> (8 * (i % BN_BYTES))) & 0xff;
   }
 #else
+  const uint8_t *bytes = (const uint8_t *)in->d;
   // We only support little-endian platforms, so we can simply memcpy into the
   // internal representation.
   OPENSSL_memcpy(out, bytes, num_bytes);
@@ -206,10 +216,9 @@ int BN_bn2le_padded(uint8_t *out, size_t len, const BIGNUM *in) {
 
 // Need to reverse the overall word order but not byte order
 int BN_bn2bin_padded(uint8_t *out, size_t len, const BIGNUM *in) {
-  const uint8_t *bytes = (const uint8_t *)in->d;
   size_t num_bytes = in->width * BN_BYTES;
   if (len < num_bytes) {
-    if (!fits_in_bytes(bytes, num_bytes, len)) {
+    if (!fits_in_bytes(in, len)) {
       return 0;
     }
     num_bytes = len;
@@ -218,14 +227,15 @@ int BN_bn2bin_padded(uint8_t *out, size_t len, const BIGNUM *in) {
 #ifdef OPENSSL_BIG_ENDIAN
   BN_ULONG l;
 
-  for (size_t i = BN_num_bytes(in) - 1; i <  BN_num_bytes(in); i--) {
+  for (size_t i = num_bytes - 1; i < num_bytes; i--) {
     l = in->d[i / BN_BYTES];
-    *(out++) = (unsigned char)(l >> (8 * (i % BN_BYTES))) & 0xff;
+    out[len - i - 1] = (unsigned char)(l >> (8 * (i % BN_BYTES))) & 0xff;
   }
 
 #else
   // We only support little-endian platforms, so we can simply write the buffer
   // in reverse.
+  const uint8_t *bytes = (const uint8_t *)in->d;
   for (size_t i = 0; i < num_bytes; i++) {
     out[len - i - 1] = bytes[i];
   }
