@@ -106,7 +106,6 @@ static inline aes_word_t aes_nohw_not(aes_word_t a) {
   _mm_srli_si128((a), (i))
 #else  // !OPENSSL_SSE2
 #if defined(OPENSSL_64_BIT)
-typedef uint64_t aes_word_t;
 #define AES_NOHW_WORD_SIZE 8
 #define AES_NOHW_BATCH_SIZE 4
 #define AES_NOHW_ROW0_MASK UINT64_C(0x000f000f000f000f)
@@ -117,7 +116,6 @@ typedef uint64_t aes_word_t;
 #define AES_NOHW_COL2_MASK UINT64_C(0x0000ffff00000000)
 #define AES_NOHW_COL3_MASK UINT64_C(0xffff000000000000)
 #else  // !OPENSSL_64_BIT
-typedef uint32_t aes_word_t;
 #define AES_NOHW_WORD_SIZE 4
 #define AES_NOHW_BATCH_SIZE 2
 #define AES_NOHW_ROW0_MASK 0x03030303
@@ -272,7 +270,7 @@ static inline void aes_nohw_batch_get(const AES_NOHW_BATCH *batch,
 #if !defined(OPENSSL_SSE2)
 // aes_nohw_delta_swap returns |a| with bits |a & mask| and
 // |a & (mask << shift)| swapped. |mask| and |mask << shift| may not overlap.
-static inline aes_word_t aes_nohw_delta_swap(aes_word_t a, aes_word_t mask,
+inline aes_word_t aes_nohw_delta_swap(aes_word_t a, aes_word_t mask,
                                              aes_word_t shift) {
   // See
   // https://reflectionsonsecurity.wordpress.com/2014/05/11/efficient-bit-permutation-using-delta-swaps/
@@ -345,7 +343,14 @@ static inline uint32_t aes_nohw_word_from_bytes(uint8_t a0, uint8_t a1,
 
 static inline void aes_nohw_compact_block(aes_word_t out[AES_NOHW_BLOCK_WORDS],
                                           const uint8_t in[16]) {
+  // endian issue
+#if defined(OPENSSL_BIG_ENDIAN)
+  for (int i = 0; i < 16/AES_NOHW_WORD_SIZE; i++) {
+    out[i] = CRYPTO_load_word_le(&in[i*AES_NOHW_WORD_SIZE]);
+  }
+#else
   memcpy(out, in, 16);
+#endif
 #if defined(OPENSSL_SSE2)
   // No conversions needed.
 #elif defined(OPENSSL_64_BIT)
@@ -942,6 +947,16 @@ static void aes_nohw_setup_key_128(AES_KEY *key, const uint8_t in[16]) {
 
   aes_word_t block[AES_NOHW_BLOCK_WORDS];
   aes_nohw_compact_block(block, in);
+  printf("\nblock: \n");
+  for (size_t i = 0; i < AES_NOHW_BLOCK_WORDS; ++i) {
+#if defined(OPENSSL_64_BIT)
+    printf("%016llx\n", block[i]);
+#else
+    printf("%08x\n", block[i]);
+#endif
+  }
+  printf("\n");
+
   memcpy(key->rd_key, block, 16);
 
   for (size_t i = 1; i <= 10; i++) {

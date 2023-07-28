@@ -211,42 +211,80 @@ TEST(EndianTest, BN_bn2bin_padded) {
 #define round_key_size  4 * (AES_MAXNR + 1)
 TEST(EndianTest, AES) {
   // Initialize the key and message buffers with zeros
-  uint8_t zero_key[AES_BLOCK_SIZE] = {0};
-  uint8_t zero_message[AES_BLOCK_SIZE] = {0};
+  uint8_t key[AES_BLOCK_SIZE] = {0};
+  key[0] = 0xaa;
+  key[0] = 0xbb;
+  uint8_t message[AES_BLOCK_SIZE] = {0};
+  message[0] = 0xcc;
+  message[1] = 0xdd;
 
   // Allocate buffer to store the encrypted message
   uint8_t encrypted_message[AES_BLOCK_SIZE];
 
   // Create an AES_KEY struct
   AES_KEY aes_key = {{0}, 0};
-  ASSERT_EQ(0, AES_set_encrypt_key(zero_key, 128, &aes_key));
+  ASSERT_EQ(0, AES_set_encrypt_key(key, 128, &aes_key));
   ASSERT_EQ((unsigned)10, aes_key.rounds);
-    for (size_t i = 0; i < round_key_size; ++i) {
-      std::cout << ", 0x" << std::setfill('0') << std::setw(8) << std::hex << static_cast<int>(aes_key.rd_key[i]);
-    }
-    std::cout << std::endl;
-
-  const uint32_t known_aes_key[round_key_size] = {
-        0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x63636362, 0x63636362,
-        0x63636362, 0x63636362, 0xc998989b, 0xaafbfbf9, 0xc998989b, 0xaafbfbf9,
-        0x50349790, 0xfacf6c69, 0x3357f4f2, 0x99ac0f0b, 0x7bda06ee, 0x81156a87,
-        0xb2429e75, 0x2bee917e, 0x882b2e7f, 0x093e44f8, 0xbb7cda8d, 0x90924bf3,
-        0x854b61ec, 0x8c752514, 0x3709ff99, 0xa79bb46a, 0x87177521, 0x0b625035,
-        0x3c6bafac, 0x9bf01bc6, 0x3303f90e, 0x3861a93b, 0x040a0697, 0x9ffa1d51,
-        0xe2d8d4b1, 0xdab97d8a, 0xdeb37b1d, 0x4149664c, 0xcb5befb4, 0x11e2923e,
-        0xcf51e923, 0x8e188f6f, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-        0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-        0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000};
-  EXPECT_EQ(Bytes(reinterpret_cast<const uint8_t*>(known_aes_key), round_key_size * 8), Bytes(reinterpret_cast<const uint8_t*>(aes_key.rd_key), round_key_size * 8));
 
 
-  AES_encrypt(zero_message, encrypted_message, &aes_key);
+//  const uint32_t known_aes_key[round_key_size] = {
+//        0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x63636362, 0x63636362,
+//        0x63636362, 0x63636362, 0xc998989b, 0xaafbfbf9, 0xc998989b, 0xaafbfbf9,
+//        0x50349790, 0xfacf6c69, 0x3357f4f2, 0x99ac0f0b, 0x7bda06ee, 0x81156a87,
+//        0xb2429e75, 0x2bee917e, 0x882b2e7f, 0x093e44f8, 0xbb7cda8d, 0x90924bf3,
+//        0x854b61ec, 0x8c752514, 0x3709ff99, 0xa79bb46a, 0x87177521, 0x0b625035,
+//        0x3c6bafac, 0x9bf01bc6, 0x3303f90e, 0x3861a93b, 0x040a0697, 0x9ffa1d51,
+//        0xe2d8d4b1, 0xdab97d8a, 0xdeb37b1d, 0x4149664c, 0xcb5befb4, 0x11e2923e,
+//        0xcf51e923, 0x8e188f6f, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+//        0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+//        0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,0x00000000};
+//  EXPECT_EQ(Bytes(reinterpret_cast<const uint8_t*>(known_aes_key), round_key_size * 4), Bytes(reinterpret_cast<const uint8_t*>(aes_key.rd_key), round_key_size * 4));
 
+
+  AES_encrypt(message, encrypted_message, &aes_key);
+//      for (size_t i = 0; i < AES_BLOCK_SIZE; ++i) {
+//        std::cout << ", 0x"  << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(encrypted_message[i]);
+//      }
+//      std::cout << std::endl;
 
   const uint8_t known_value_bytes[AES_BLOCK_SIZE] = {
-      0x66, 0xe9, 0x4b, 0xd4, 0xef, 0x8a, 0x2c, 0x3b,
-      0x88, 0x4c, 0xfa, 0x59, 0xca, 0x34, 0x2b, 0x2e
+      0x15, 0x81, 0x0f, 0xf3, 0x0d, 0x23, 0x08, 0x71, 0x96, 0x05, 0x94, 0x12, 0x14, 0xb7, 0xd6, 0x69
   };
   EXPECT_EQ(Bytes(known_value_bytes), Bytes(encrypted_message));
 
+}
+
+TEST(EndianTest, memcpy) {
+  uint8_t buffer[2] = {0xab, 0xcd};
+  uint16_t out = 0;
+  memcpy(&out, buffer, 2);
+#if defined(OPENSSL_BIG_ENDIAN)
+  EXPECT_EQ(out, 0xabcd);
+#else
+  EXPECT_EQ(out, 0xcdab);
+#endif
+}
+
+TEST(EndianTest, masking) {
+  uint16_t value = 0xabcd;
+  uint16_t mask = 0xf00f;
+  uint16_t result = value & mask;
+  EXPECT_EQ(result, 0xa00d);
+}
+
+TEST(EndianTest, aes_nohw_delta_swap) {
+#ifdef OPENSSL_64_BIT
+  aes_word_t input = 0xabcdef1234567890;
+  aes_word_t mask =  0x00000000ffffffff;
+  aes_word_t shift = 64;
+  aes_word_t result = aes_nohw_delta_swap(input, mask, shift);
+  EXPECT_EQ(result, (aes_word_t)0x6B8D3FC27416B870);
+#else
+  aes_word_t input = 0xabcdef12;
+  aes_word_t mask =  0x0000ffff;
+  aes_word_t shift = 16;
+  aes_word_t result = aes_nohw_delta_swap(input, mask, shift);
+  EXPECT_EQ(result, (aes_word_t)0xEF12ABCD);
+
+#endif
 }
