@@ -139,9 +139,6 @@ endif()
 
 if(BORINGSSL_PREFIX AND BORINGSSL_PREFIX_SYMBOLS AND GO_EXECUTABLE)
 
-  # Use "symbol_prefix_include" to store generated header files
-  include_directories(${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include)
-
   if(IS_ABSOLUTE ${BORINGSSL_PREFIX_SYMBOLS})
     set(BORINGSSL_PREFIX_SYMBOLS_PATH ${BORINGSSL_PREFIX_SYMBOLS})
   else()
@@ -149,9 +146,9 @@ if(BORINGSSL_PREFIX AND BORINGSSL_PREFIX_SYMBOLS AND GO_EXECUTABLE)
   endif()
 
   add_custom_command(
-    OUTPUT symbol_prefix_include/boringssl_prefix_symbols.h
-           symbol_prefix_include/boringssl_prefix_symbols_asm.h
-           symbol_prefix_include/boringssl_prefix_symbols_nasm.inc
+    OUTPUT symbol_prefix_include/openssl/boringssl_prefix_symbols.h
+           symbol_prefix_include/openssl/boringssl_prefix_symbols_asm.h
+           symbol_prefix_include/openssl/boringssl_prefix_symbols_nasm.inc
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include
     COMMAND ${GO_EXECUTABLE} run ${CMAKE_CURRENT_SOURCE_DIR}/util/make_prefix_headers.go -out ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include ${BORINGSSL_PREFIX_SYMBOLS_PATH}
     COMMAND sed -i.bak '/ bignum_/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/boringssl_prefix_symbols.h
@@ -166,9 +163,15 @@ if(BORINGSSL_PREFIX AND BORINGSSL_PREFIX_SYMBOLS AND GO_EXECUTABLE)
   # target.
   add_custom_target(
     boringssl_prefix_symbols
-    DEPENDS symbol_prefix_include/boringssl_prefix_symbols.h
-            symbol_prefix_include/boringssl_prefix_symbols_asm.h
-            symbol_prefix_include/boringssl_prefix_symbols_nasm.inc)
+    DEPENDS symbol_prefix_include/openssl/boringssl_prefix_symbols.h
+            symbol_prefix_include/openssl/boringssl_prefix_symbols_asm.h
+            symbol_prefix_include/openssl/boringssl_prefix_symbols_nasm.inc)
+
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl/boringssl_prefix_symbols.h
+          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/openssl
+          COMPONENT Development
+          )
+  include_directories(${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include)
 elseif(BORINGSSL_PREFIX AND BORINGSSL_PREFIX_HEADERS)
 
   if(IS_ABSOLUTE ${BORINGSSL_PREFIX_HEADERS})
@@ -180,6 +183,7 @@ elseif(BORINGSSL_PREFIX AND BORINGSSL_PREFIX_HEADERS)
   include_directories(${BORINGSSL_PREFIX_HEADERS_PATH})
 
   add_custom_target(boringssl_prefix_symbols)
+
 elseif(BORINGSSL_PREFIX OR BORINGSSL_PREFIX_SYMBOLS)
   message(FATAL_ERROR "Must specify both or neither of BORINGSSL_PREFIX and BORINGSSL_PREFIX_SYMBOLS")
 elseif((BORINGSSL_PREFIX AND BORINGSSL_PREFIX_SYMBOLS) AND NOT GO_EXECUTABLE)
