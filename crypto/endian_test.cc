@@ -37,7 +37,7 @@ TEST(EndianTest, u64Operations) {
 }
 
 TEST(EndianTest, wordOperations) {
-  uint8_t buffer[sizeof(size_t)];
+  uint8_t buffer[sizeof(crypto_word_t)];
 #if defined(OPENSSL_64_BIT)
   size_t val = 0x123456789abcdef0;
   uint8_t expected_le[8] = {0xf0, 0xde, 0xbc, 0x9a, 0x78, 0x56, 0x34, 0x12};
