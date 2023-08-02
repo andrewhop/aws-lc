@@ -634,8 +634,8 @@ else()
 endif()
 
 if(NOT ANDROID)
-#  find_package(Threads REQUIRED)
-  target_link_libraries(crypto PUBLIC pthread)
+  find_package(Threads REQUIRED)
+  target_link_libraries(crypto PUBLIC Threads::Threads)
 endif()
 
 # Every target depends on crypto, so we add libcxx as a dependency here to

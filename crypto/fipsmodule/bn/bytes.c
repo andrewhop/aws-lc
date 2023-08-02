@@ -96,7 +96,6 @@ BIGNUM *BN_bin2bn(const uint8_t *in, size_t len, BIGNUM *ret) {
   ret->width = (int)num_words;
   ret->neg = 0;
 
-  // This is shifting which is why it works on big and little
   while (len--) {
     word = (word << 8) | *(in++);
     if (m-- == 0) {

@@ -209,7 +209,7 @@ TEST(EndianTest, BN_bn2bin_padded) {
   EXPECT_EQ(Bytes(input), Bytes(out));
 }
 #define round_key_size  4 * (AES_MAXNR + 1)
-TEST(EndianTest, AES) {
+TEST(EndianTest, AES_disabled) {
   // Initialize the key and message buffers with zeros
   uint8_t key[AES_BLOCK_SIZE] = {0};
   key[0] = 0xaa;
@@ -226,32 +226,12 @@ TEST(EndianTest, AES) {
   ASSERT_EQ(0, AES_set_encrypt_key(key, 128, &aes_key));
   ASSERT_EQ((unsigned)10, aes_key.rounds);
 
-
-//  const uint32_t known_aes_key[round_key_size] = {
-//        0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x63636362, 0x63636362,
-//        0x63636362, 0x63636362, 0xc998989b, 0xaafbfbf9, 0xc998989b, 0xaafbfbf9,
-//        0x50349790, 0xfacf6c69, 0x3357f4f2, 0x99ac0f0b, 0x7bda06ee, 0x81156a87,
-//        0xb2429e75, 0x2bee917e, 0x882b2e7f, 0x093e44f8, 0xbb7cda8d, 0x90924bf3,
-//        0x854b61ec, 0x8c752514, 0x3709ff99, 0xa79bb46a, 0x87177521, 0x0b625035,
-//        0x3c6bafac, 0x9bf01bc6, 0x3303f90e, 0x3861a93b, 0x040a0697, 0x9ffa1d51,
-//        0xe2d8d4b1, 0xdab97d8a, 0xdeb37b1d, 0x4149664c, 0xcb5befb4, 0x11e2923e,
-//        0xcf51e923, 0x8e188f6f, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-//        0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-//        0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,0x00000000};
-//  EXPECT_EQ(Bytes(reinterpret_cast<const uint8_t*>(known_aes_key), round_key_size * 4), Bytes(reinterpret_cast<const uint8_t*>(aes_key.rd_key), round_key_size * 4));
-
-
   AES_encrypt(message, encrypted_message, &aes_key);
-//      for (size_t i = 0; i < AES_BLOCK_SIZE; ++i) {
-//        std::cout << ", 0x"  << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(encrypted_message[i]);
-//      }
-//      std::cout << std::endl;
 
   const uint8_t known_value_bytes[AES_BLOCK_SIZE] = {
       0x15, 0x81, 0x0f, 0xf3, 0x0d, 0x23, 0x08, 0x71, 0x96, 0x05, 0x94, 0x12, 0x14, 0xb7, 0xd6, 0x69
   };
   EXPECT_EQ(Bytes(known_value_bytes), Bytes(encrypted_message));
-
 }
 
 TEST(EndianTest, memcpy) {

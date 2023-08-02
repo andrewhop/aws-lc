@@ -672,7 +672,7 @@ endif()
 
 TEST_BIG_ENDIAN(BIG_ENDIAN)
 if(BIG_ENDIAN)
-  message(STATUS "Continuing on big endian platform")
+  message(STATUS "Continuing with experimental support on big endian platform")
 endif()
 
 if(OPENSSL_NO_SSE2_FOR_TESTING)

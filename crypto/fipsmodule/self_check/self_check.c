@@ -56,10 +56,8 @@ static int check_test(const void *expected, const void *actual,
     fprintf(stderr, "\n");
     fflush(stderr);
     return 0;
-  } else {
-    fprintf(stderr, "%s passed.\n", name);
-    return 1;
   }
+  return 1;
 }
 
 static int set_bignum(BIGNUM **out, const uint8_t *in, size_t len) {
@@ -377,7 +375,6 @@ static DH *self_test_dh(void) {
 
   BIGNUM *priv = BN_new();
   if (!priv) {
-    fprintf(stderr, "BN_new failed\n");
     goto err;
   }
 
@@ -395,7 +392,6 @@ static DH *self_test_dh(void) {
                       OPENSSL_ARRAY_SIZE(kFFDHE2048PrivateKeyData));
 
   if (!DH_set0_key(dh, NULL, priv)) {
-    fprintf(stderr, "DH_set0_key failed\n");
     goto err;
   }
   return dh;
@@ -420,7 +416,7 @@ static int boringssl_self_test_rsa(void) {
   RSA *const rsa_key = self_test_rsa_key();
   if (rsa_key == NULL) {
     fprintf(stderr, "RSA key construction failed\n");
-    goto end;
+    goto err;
   }
   // Disable blinding for the power-on tests because it's not needed and
   // triggers an entropy draw.
@@ -464,6 +460,7 @@ static int boringssl_self_test_rsa(void) {
       !check_test(kRSASignSignature, output, sizeof(kRSASignSignature),
                   "RSA-sign KAT")) {
     fprintf(stderr, "RSA signing test failed.\n");
+    goto err;
   }
 
   // RSA Verify KAT
@@ -501,10 +498,12 @@ static int boringssl_self_test_rsa(void) {
                                sizeof(kRSAVerifyPlaintext), kRSAVerifySignature,
                                sizeof(kRSAVerifySignature), rsa_key)) {
     fprintf(stderr, "RSA-verify KAT failed.\n");
+    goto err;
   }
 
   ret = 1;
-end:
+
+err:
   RSA_free(rsa_key);
 
   return ret;
@@ -522,7 +521,7 @@ static int boringssl_self_test_ecc(void) {
   ec_key = self_test_ecdsa_key();
   if (ec_key == NULL) {
     fprintf(stderr, "ECDSA KeyGen failed\n");
-    goto end;
+    goto err;
   }
 
   // ECDSA Sign/Verify KAT
@@ -554,6 +553,7 @@ static int boringssl_self_test_ecc(void) {
       !check_test(kECDSASignSig, ecdsa_sign_output, sizeof(ecdsa_sign_output),
                   "ECDSA-sign signature")) {
     fprintf(stderr, "ECDSA-sign KAT failed.\n");
+    goto err;
   }
 
   static const uint8_t kECDSAVerifyPlaintext[32] = {
@@ -576,6 +576,7 @@ static int boringssl_self_test_ecc(void) {
       !ecdsa_digestverify_no_self_test(EVP_sha256(), kECDSAVerifyPlaintext,
                                   sizeof(kECDSAVerifyPlaintext), sig, ec_key)) {
     fprintf(stderr, "ECDSA-verify KAT failed.\n");
+    goto err;
   }
 
   // Primitive Z Computation KAT (IG 9.6).
@@ -608,7 +609,7 @@ static int boringssl_self_test_ecc(void) {
   ec_group = EC_GROUP_new_by_curve_name(NID_X9_62_prime256v1);
   if (ec_group == NULL) {
     fprintf(stderr, "Failed to create P-256 group.\n");
-    goto end;
+    goto err;
   }
   ec_point_in = EC_POINT_new(ec_group);
   ec_point_out = EC_POINT_new(ec_group);
@@ -625,10 +626,12 @@ static int boringssl_self_test_ecc(void) {
       !check_test(kP256PointResult, z_comp_result, sizeof(z_comp_result),
                   "Z Computation Result")) {
     fprintf(stderr, "Z-computation KAT failed.\n");
+    goto err;
   }
 
   ret = 1;
-end:
+
+err:
   EC_KEY_free(ec_key);
   EC_POINT_free(ec_point_in);
   EC_POINT_free(ec_point_out);
@@ -766,6 +769,7 @@ static int boringssl_self_test_ffdh(void) {
           sizeof(dh_out) ||
       !check_test(kDHOutput, dh_out, sizeof(dh_out), "FFC DH")) {
     fprintf(stderr, "FFDH failed.\n");
+    goto err;
   }
 
   // FFC Diffie-Hellman KAT with FB domain parameters.
@@ -778,10 +782,12 @@ static int boringssl_self_test_ffdh(void) {
           sizeof(fb_dh_out) ||
       !check_test(kDH_fb_z, fb_dh_out, sizeof(fb_dh_out), "FFC DH FB")) {
     fprintf(stderr, "FFDH FB failed.\n");
+    goto err;
   }
 
   ret = 1;
 
+err:
   DH_free(dh);
   BN_free(ffdhe2048_value);
   DH_free(fb_dh);
@@ -959,11 +965,13 @@ static int boringssl_self_test_fast(void) {
   memcpy(aes_iv, kAESIV, sizeof(kAESIV));
   if (AES_set_encrypt_key(kAESKey, 8 * sizeof(kAESKey), &aes_key) != 0) {
     fprintf(stderr, "AES_set_encrypt_key failed.\n");
+    goto err;
   }
   AES_cbc_encrypt(kAESCBCEncPlaintext, output, sizeof(kAESCBCEncPlaintext),
                   &aes_key, aes_iv, AES_ENCRYPT);
   if (!check_test(kAESCBCEncCiphertext, output, sizeof(kAESCBCEncCiphertext),
                   "AES-CBC-encrypt KAT")) {
+    goto err;
   }
 
   // AES-CBC Decryption KAT
@@ -980,11 +988,13 @@ static int boringssl_self_test_fast(void) {
   memcpy(aes_iv, kAESIV, sizeof(kAESIV));
   if (AES_set_decrypt_key(kAESKey, 8 * sizeof(kAESKey), &aes_key) != 0) {
     fprintf(stderr, "AES_set_decrypt_key failed.\n");
+    goto err;
   }
   AES_cbc_encrypt(kAESCBCDecCiphertext, output, sizeof(kAESCBCDecCiphertext),
                   &aes_key, aes_iv, AES_DECRYPT);
   if (!check_test(kAESCBCDecPlaintext, output, sizeof(kAESCBCDecPlaintext),
                   "AES-CBC-decrypt KAT")) {
+    goto err;
   }
 
   size_t out_len;
@@ -993,50 +1003,53 @@ static int boringssl_self_test_fast(void) {
   if (!EVP_AEAD_CTX_init(&aead_ctx, EVP_aead_aes_128_gcm(), kAESKey,
                          sizeof(kAESKey), 0, NULL)) {
     fprintf(stderr, "EVP_AEAD_CTX_init for AES-128-GCM failed.\n");
-  } else {
-    // AES-GCM Encryption KAT
-    static const uint8_t kAESGCMEncPlaintext[32] = {
-        0x8f, 0xcc, 0x40, 0x99, 0x80, 0x8e, 0x75, 0xca, 0xaf, 0xf5, 0x82,
-        0x89, 0x88, 0x48, 0xa8, 0x8d, 0x80, 0x8b, 0x55, 0xab, 0x4e, 0x93,
-        0x70, 0x79, 0x7d, 0x94, 0x0b, 0xe8, 0xcc, 0x1d, 0x78, 0x84,
-    };
-    static const uint8_t kAESGCMCiphertext[sizeof(kAESGCMEncPlaintext) + 16] = {
-        0x87, 0x7b, 0xd5, 0x8d, 0x96, 0x3e, 0x4b, 0xe6, 0x64, 0x94, 0x40, 0x2f,
-        0x61, 0x9b, 0x7e, 0x56, 0x52, 0x7d, 0xa4, 0x5a, 0xf9, 0xa6, 0xe2, 0xdb,
-        0x1c, 0x63, 0x2e, 0x97, 0x93, 0x0f, 0xfb, 0xed, 0xb5, 0x9e, 0x1c, 0x20,
-        0xb2, 0xb0, 0x58, 0xda, 0x48, 0x07, 0x2d, 0xbd, 0x96, 0x0d, 0x34, 0xc6,
-    };
-    if (!EVP_AEAD_CTX_seal(&aead_ctx, output, &out_len, sizeof(output), nonce,
-                           EVP_AEAD_nonce_length(EVP_aead_aes_128_gcm()),
-                           kAESGCMEncPlaintext, sizeof(kAESGCMEncPlaintext),
-                           NULL, 0) ||
-        !check_test(kAESGCMCiphertext, output, sizeof(kAESGCMCiphertext),
-                    "AES-GCM-encrypt KAT")) {
-      fprintf(stderr, "EVP_AEAD_CTX_seal for AES-128-GCM failed.\n");
-    }
+    goto err;
+  }
 
-    // AES-GCM Decryption KAT
-    static const uint8_t kAESGCMDecCiphertext[48] = {
-        0x35, 0xf3, 0x05, 0x8f, 0x87, 0x57, 0x60, 0xff, 0x09, 0xd3, 0x12, 0x0f,
-        0x70, 0xc4, 0xbc, 0x9e, 0xd7, 0xa8, 0x68, 0x72, 0xe1, 0x34, 0x52, 0x20,
-        0x21, 0x76, 0xf7, 0x37, 0x1a, 0xe0, 0x4f, 0xaa, 0xe1, 0xdd, 0x39, 0x19,
-        0x20, 0xf5, 0xd1, 0x39, 0x53, 0xd8, 0x96, 0x78, 0x59, 0x94, 0x82, 0x3c,
-    };
-    static const uint8_t
-        kAESGCMDecPlaintext[sizeof(kAESGCMDecCiphertext) - 16] = {
-            0x3d, 0x44, 0x90, 0x9b, 0x91, 0xe7, 0x5e, 0xd3, 0xc2, 0xb2, 0xd0,
-            0xa9, 0x99, 0x17, 0x6a, 0x45, 0x05, 0x5e, 0x99, 0x83, 0x56, 0x01,
-            0xc0, 0x82, 0x40, 0x81, 0xd2, 0x48, 0x45, 0xf2, 0xcc, 0xc3,
-        };
-    if (!EVP_AEAD_CTX_open(&aead_ctx, output, &out_len, sizeof(output), nonce,
-                           EVP_AEAD_nonce_length(EVP_aead_aes_128_gcm()),
-                           kAESGCMDecCiphertext, sizeof(kAESGCMDecCiphertext),
-                           NULL, 0) ||
-        !check_test(kAESGCMDecPlaintext, output, sizeof(kAESGCMDecPlaintext),
-                    "AES-GCM-decrypt KAT")) {
-      fprintf(stderr,
-              "AES-GCM-decrypt KAT failed because EVP_AEAD_CTX_open failed.\n");
-    }
+  // AES-GCM Encryption KAT
+  static const uint8_t kAESGCMEncPlaintext[32] = {
+      0x8f, 0xcc, 0x40, 0x99, 0x80, 0x8e, 0x75, 0xca, 0xaf, 0xf5, 0x82,
+      0x89, 0x88, 0x48, 0xa8, 0x8d, 0x80, 0x8b, 0x55, 0xab, 0x4e, 0x93,
+      0x70, 0x79, 0x7d, 0x94, 0x0b, 0xe8, 0xcc, 0x1d, 0x78, 0x84,
+  };
+  static const uint8_t kAESGCMCiphertext[sizeof(kAESGCMEncPlaintext) + 16] = {
+      0x87, 0x7b, 0xd5, 0x8d, 0x96, 0x3e, 0x4b, 0xe6, 0x64, 0x94, 0x40, 0x2f,
+      0x61, 0x9b, 0x7e, 0x56, 0x52, 0x7d, 0xa4, 0x5a, 0xf9, 0xa6, 0xe2, 0xdb,
+      0x1c, 0x63, 0x2e, 0x97, 0x93, 0x0f, 0xfb, 0xed, 0xb5, 0x9e, 0x1c, 0x20,
+      0xb2, 0xb0, 0x58, 0xda, 0x48, 0x07, 0x2d, 0xbd, 0x96, 0x0d, 0x34, 0xc6,
+  };
+  if (!EVP_AEAD_CTX_seal(&aead_ctx, output, &out_len, sizeof(output), nonce,
+                         EVP_AEAD_nonce_length(EVP_aead_aes_128_gcm()),
+                         kAESGCMEncPlaintext, sizeof(kAESGCMEncPlaintext), NULL,
+                         0) ||
+      !check_test(kAESGCMCiphertext, output, sizeof(kAESGCMCiphertext),
+                  "AES-GCM-encrypt KAT")) {
+    fprintf(stderr, "EVP_AEAD_CTX_seal for AES-128-GCM failed.\n");
+    goto err;
+  }
+
+  // AES-GCM Decryption KAT
+  static const uint8_t kAESGCMDecCiphertext[48] = {
+      0x35, 0xf3, 0x05, 0x8f, 0x87, 0x57, 0x60, 0xff, 0x09, 0xd3, 0x12, 0x0f,
+      0x70, 0xc4, 0xbc, 0x9e, 0xd7, 0xa8, 0x68, 0x72, 0xe1, 0x34, 0x52, 0x20,
+      0x21, 0x76, 0xf7, 0x37, 0x1a, 0xe0, 0x4f, 0xaa, 0xe1, 0xdd, 0x39, 0x19,
+      0x20, 0xf5, 0xd1, 0x39, 0x53, 0xd8, 0x96, 0x78, 0x59, 0x94, 0x82, 0x3c,
+  };
+  static const uint8_t kAESGCMDecPlaintext[sizeof(kAESGCMDecCiphertext) - 16] =
+      {
+          0x3d, 0x44, 0x90, 0x9b, 0x91, 0xe7, 0x5e, 0xd3, 0xc2, 0xb2, 0xd0,
+          0xa9, 0x99, 0x17, 0x6a, 0x45, 0x05, 0x5e, 0x99, 0x83, 0x56, 0x01,
+          0xc0, 0x82, 0x40, 0x81, 0xd2, 0x48, 0x45, 0xf2, 0xcc, 0xc3,
+      };
+  if (!EVP_AEAD_CTX_open(&aead_ctx, output, &out_len, sizeof(output), nonce,
+                         EVP_AEAD_nonce_length(EVP_aead_aes_128_gcm()),
+                         kAESGCMDecCiphertext, sizeof(kAESGCMDecCiphertext),
+                         NULL, 0) ||
+      !check_test(kAESGCMDecPlaintext, output, sizeof(kAESGCMDecPlaintext),
+                  "AES-GCM-decrypt KAT")) {
+    fprintf(stderr,
+            "AES-GCM-decrypt KAT failed because EVP_AEAD_CTX_open failed.\n");
+    goto err;
   }
 
   // SHA-1 KAT
@@ -1051,10 +1064,12 @@ static int boringssl_self_test_fast(void) {
   SHA1(kSHA1Input, sizeof(kSHA1Input), output);
   if (!check_test(kSHA1Digest, output, sizeof(kSHA1Digest),
                   "SHA-1 KAT")) {
+    goto err;
   }
 
   if (!boringssl_self_test_sha512() ||
       !boringssl_self_test_hkdf_sha256()) {
+    goto err;
   }
 
   // DBRG KAT
@@ -1101,12 +1116,14 @@ static int boringssl_self_test_fast(void) {
       !check_test(kDRBGReseedOutput, output, sizeof(kDRBGReseedOutput),
                   "DRBG-reseed KAT")) {
     fprintf(stderr, "CTR-DRBG failed.\n");
+    goto err;
   }
   CTR_DRBG_clear(&drbg);
 
   CTR_DRBG_STATE kZeroDRBG;
   memset(&kZeroDRBG, 0, sizeof(kZeroDRBG));
   if (!check_test(&kZeroDRBG, &drbg, sizeof(drbg), "DRBG Clear KAT")) {
+    goto err;
   }
 
   // TLS KDF KAT
@@ -1136,6 +1153,7 @@ static int boringssl_self_test_fast(void) {
                        sizeof(kTLSSeed2)) ||
       !check_test(kTLSOutput, tls_output, sizeof(kTLSOutput), "TLS-KDF KAT")) {
     fprintf(stderr, "TLS KDF failed.\n");
+    goto err;
   }
 
   // PBKDF2 KAT - password/salt data from RFC 6070, derived key generated by
@@ -1163,10 +1181,12 @@ static int boringssl_self_test_fast(void) {
       !check_test(kPBKDF2DerivedKey, pbkdf2_output, sizeof(kPBKDF2DerivedKey),
                   "PBKDF2 KAT")) {
     fprintf(stderr, "PBKDF2 failed.\n");
+    goto err;
   }
 
   ret = 1;
 
+err:
   EVP_AEAD_CTX_cleanup(&aead_ctx);
 
   return ret;

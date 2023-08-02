@@ -74,13 +74,6 @@ struct aes_key_st {
   unsigned rounds;
 };
 typedef struct aes_key_st AES_KEY;
-#if defined(OPENSSL_64_BIT)
-typedef uint64_t aes_word_t;
-#else
-typedef uint32_t aes_word_t;
-#endif
-OPENSSL_EXPORT aes_word_t aes_nohw_delta_swap(aes_word_t a, aes_word_t mask,
-                                                     aes_word_t shift);
 
 // AES_set_encrypt_key configures |aeskey| to encrypt with the |bits|-bit key,
 // |key|. |key| must point to |bits|/8 bytes. It returns zero on success and a

@@ -12,9 +12,6 @@
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 
-#include <iostream>
-#include <iomanip>
-
 #include <string>
 #include <vector>
 
@@ -28,11 +25,9 @@
 #else
 #include <libgen.h>
 #include <signal.h>
-#include <cstring>
 #endif
 
 #include "internal.h"
-#include "openssl/md4.h"
 
 static bool version(const std::vector<std::string> &args) {
   printf("%s\n", AWSLC_VERSION_NUMBER_STRING);
@@ -41,65 +36,6 @@ static bool version(const std::vector<std::string> &args) {
 
 static bool IsFIPS(const std::vector<std::string> &args) {
   printf("%d\n", FIPS_mode());
-  return true;
-}
-using namespace std;
-
-static bool SelfCheck(const std::vector<std::string> &args) {
-  int64_t value = 123456;
-  uint8_t bytes[sizeof(int64_t)];
-  memcpy(bytes, &value, sizeof(value));
-  printf("value: %ld\n", (long int) value);
-
-  printf("memcpy int64_t:\n");
-  for (int i = 0; i < 8; i++) {
-    printf("%02x ", bytes[i]);
-
-  }
-  printf("\n");
-
-  printf("bit shifting int64_t:\n");
-  for (int i = 0; i < 8; i++) {
-    printf("%02x ", (unsigned int) value >> (8*i) & 0xff);
-  }
-  printf("\n");
-
-
-  uint8_t okay_bytes[sizeof(int64_t)] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
-  printf("direct byte array:\n");
-  for (int i = 0; i < 8; i++) {
-    printf("%02x ", okay_bytes[i]);
-  }
-  printf("\n");
-
-  uint8_t okay_bytes_copy[sizeof(int64_t)];
-  memcpy(okay_bytes_copy, &okay_bytes, sizeof(int64_t));
-  printf("direct byte array memcpy:\n");
-  for (int i = 0; i < 8; i++) {
-    printf("%02x ", okay_bytes_copy[i]);
-  }
-  printf("\n");
-
-  uint8_t data[1] = {0};
-  uint8_t md4_hash[MD4_DIGEST_LENGTH];
-
-  MD4(data, 0, md4_hash);
-
-  printf("MD4 hash of 0 byte array:\n");
-  for(int i = 0; i < MD4_DIGEST_LENGTH; i++) {
-    printf("%02x", md4_hash[i]);
-  }
-  printf("\n");
-
-  uint8_t sha256_hash[SHA256_DIGEST_LENGTH];
-  SHA256(data, 0, sha256_hash);
-  printf("SHA256 hash of 0 byte array:\n");
-  for(int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-    printf("%02x", sha256_hash[i]);
-  }
-  printf("\n");
-
-//  printf("%d\n", BORINGSSL_self_test());
   return true;
 }
 
@@ -113,8 +49,7 @@ struct Tool {
 static const Tool kTools[] = {
   { "ciphers", Ciphers },
   { "client", Client },
-    { "isfips", IsFIPS },
-    { "selfCheck", SelfCheck },
+  { "isfips", IsFIPS },
   { "generate-ech", GenerateECH},
   { "generate-ed25519", GenerateEd25519Key },
   { "genrsa", GenerateRSAKey },
