@@ -610,6 +610,37 @@ static bool SpeedAESGeneric(const EVP_CIPHER *cipher, const std::string &name,
   return true;
 }
 
+static bool SpeedMallocChunk(const std::string &name, size_t chunk_len) {
+  TimeResults results;
+  if (!TimeFunction(&results, [chunk_len]() -> bool {
+        void *mem = OPENSSL_malloc(chunk_len);
+        if (mem == NULL) {
+          return false;
+        }
+        OPENSSL_free(mem);
+        return true;
+      })) {
+    return false;
+  }
+  
+  results.PrintWithBytes(name, chunk_len);
+  return true;
+
+}
+
+static bool SpeedMalloc(const std::string &name, const std::string &selected) {
+  if (!selected.empty() && name.find(selected) == std::string::npos) {
+    return true;
+  }
+  for (size_t chunk_byte_len : g_chunk_lengths) {
+    if (!SpeedMallocChunk(name, chunk_byte_len)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+
 #if !defined(OPENSSL_BENCHMARK)
 static bool SpeedAEADChunk(const EVP_AEAD *aead, std::string name,
                            size_t chunk_len, size_t ad_len,
@@ -2578,7 +2609,8 @@ bool Speed(const std::vector<std::string> &args) {
   }
 
   for (std::string selected : g_filters) {
-    if(!SpeedAESBlock("AES-128", 128, selected) ||
+    if(!SpeedMalloc("malloc", selected) ||
+       !SpeedAESBlock("AES-128", 128, selected) ||
        !SpeedAESBlock("AES-192", 192, selected) ||
        !SpeedAESBlock("AES-256", 256, selected) ||
        !SpeedAESGeneric(EVP_aes_128_gcm(), "EVP-AES-128-GCM", kTLSADLen, selected) ||
