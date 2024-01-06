@@ -68,7 +68,6 @@ build_aws_lc_fips
 build_aws_lc_fips_2022
 build_openssl $openssl_1_0_2_branch
 build_openssl $openssl_1_1_1_branch
-build_openssl $openssl_3_1_branch
 build_openssl $openssl_3_2_branch
 build_openssl $openssl_master_branch
 
@@ -76,13 +75,11 @@ run_build -DASAN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBENCHMARK_LIBS="\
 aws-lc-fips:${install_dir}/aws-lc-fips-2022-11-02;\
 open102:${install_dir}/openssl-${openssl_1_0_2_branch};\
 open111:${install_dir}/openssl-${openssl_1_1_1_branch};\
-open31:${install_dir}/openssl-${openssl_3_1_branch};\
 open32:${install_dir}/openssl-${openssl_3_2_branch};\
 openmaster:${install_dir}/openssl-${openssl_master_branch};"
 "${BUILD_ROOT}/tool/aws-lc-fips" -timeout_ms 10
 "${BUILD_ROOT}/tool/open102" -timeout_ms 10
 "${BUILD_ROOT}/tool/open111" -timeout_ms 10
-"${BUILD_ROOT}/tool/open31" -timeout_ms 10
 "${BUILD_ROOT}/tool/open32" -timeout_ms 10
 "${BUILD_ROOT}/tool/openmaster" -timeout_ms 10
 
