@@ -93,7 +93,7 @@ OPENSSL_INLINE int hwaes_capable(void) {
 
 #if defined(HWAES)
 
-int aes_hw_set_encrypt_key(const uint8_t *user_key, const int bits,
+OPENSSL_EXPORT int aes_hw_set_encrypt_key(const uint8_t *user_key, const int bits,
                            AES_KEY *key);
 int aes_hw_set_decrypt_key(const uint8_t *user_key, const int bits,
                            AES_KEY *key);

@@ -35,6 +35,8 @@
 
 #include <openssl/crypto.h>
 #if defined(OPENSSL_IS_AWSLC)
+#include <openssl/aes.h>
+#include "../crypto/fipsmodule/aes/internal.h"
 #include "bssl_bm.h"
 #elif defined(OPENSSL_IS_BORINGSSL)
 #define BORINGSSL_BENCHMARK
@@ -2600,8 +2602,8 @@ static bool SpeedAesSetEncryptKey(const std::string &name,
 
   return true;
 }
-#if defined(OPENSSL_X86) || defined(OPENSSL_X86_64)
-static bool SpeedAesniSetEncryptKey(const std::string &name,
+
+static bool SpeedAesHwSetEncryptKey(const std::string &name,
                                   const std::string &selected) {
   AES_KEY aes_key = {{0}, 0};
   uint8_t key[16] = {0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x11, 0x22, 0x33,
@@ -2609,16 +2611,15 @@ static bool SpeedAesniSetEncryptKey(const std::string &name,
 
   TimeResults results;
   if (!TimeFunction(&results, [&]() -> bool {
-        return aesni_set_encrypt_key(key, 128, &aes_key) == 0;})) {
-    fprintf(stderr, "aesni_set_encrypt_key failed.\n");
+        return aes_hw_set_encrypt_key(key, 128, &aes_key) == 0;})) {
+    fprintf(stderr, "aes_hw_set_encrypt_key failed.\n");
     ERR_print_errors_fp(stderr);
     return false;
   }
-  results.Print(name +  " aesni_set_encrypt_key");
+  results.Print(name +  " aes_hw_set_encrypt_key");
 
   return true;
 }
-#endif
 
 bool Speed(const std::vector<std::string> &args) {
 #if AWSLC_API_VERSION > 27
@@ -2718,9 +2719,7 @@ bool Speed(const std::vector<std::string> &args) {
   for (std::string selected : g_filters) {
     if(
        !SpeedAesSetEncryptKey("AES_set_encrypt_key", selected) ||
-#if defined(OPENSSL_X86) || defined(OPENSSL_X86_64)
-       !SpeedAesniSetEncryptKey("aesni_set_encrypt_key", selected) ||
-#endif
+       !SpeedAesHwSetEncryptKey("aes_hw_set_encrypt_key", selected) ||
        !SpeedAESBlock("AES-128", 128, selected) ||
        !SpeedAESBlock("AES-192", 192, selected) ||
        !SpeedAESBlock("AES-256", 256, selected) ||
