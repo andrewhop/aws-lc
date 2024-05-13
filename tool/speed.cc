@@ -2601,8 +2601,6 @@ static bool SpeedAesSetEncryptKey(const std::string &name,
   return true;
 }
 #if defined(OPENSSL_X86) || defined(OPENSSL_X86_64)
-extern int aesni_set_encrypt_key(const unsigned char *userKey, int bits,
-                                 AES_KEY *key);
 static bool SpeedAesniSetEncryptKey(const std::string &name,
                                   const std::string &selected) {
   AES_KEY aes_key = {{0}, 0};

@@ -83,6 +83,11 @@ typedef struct aes_key_st AES_KEY;
 OPENSSL_EXPORT int AES_set_encrypt_key(const uint8_t *key, unsigned bits,
                                        AES_KEY *aeskey);
 
+#if defined(OPENSSL_X86) || defined(OPENSSL_X86_64)
+OPENSSL_EXPORT int aesni_set_encrypt_key(const unsigned char *userKey, int bits,
+                                 AES_KEY *key);
+#endif
+
 // AES_set_decrypt_key configures |aeskey| to decrypt with the |bits|-bit key,
 // |key|. |key| must point to |bits|/8 bytes. It returns zero on success and a
 // negative number if |bits| is an invalid AES key size.
