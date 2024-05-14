@@ -2600,7 +2600,21 @@ static bool SpeedAesSetEncryptKey(const std::string &name,
     ERR_print_errors_fp(stderr);
     return false;
   }
-  results.Print(name +  " AES_set_encrypt_key");
+  results.Print(name);
+
+  return true;
+}
+
+static bool Speedhwaes_capable(const std::string &name,
+                               const std::string &selected) {
+  if (!selected.empty() && name.find(selected) == std::string::npos) {
+    return true;
+  }
+  TimeResults results;
+  TimeFunction(&results, [&]() -> bool {
+         return hwaes_capable();
+      });
+  results.Print(name);
 
   return true;
 }
@@ -2620,7 +2634,7 @@ static bool SpeedAesHwSetEncryptKey(const std::string &name,
     ERR_print_errors_fp(stderr);
     return false;
   }
-  results.Print(name +  " aes_hw_set_encrypt_key");
+  results.Print(name);
 
   return true;
 }
@@ -2641,7 +2655,7 @@ static bool SpeedAesCtr128EncryptChunks(const std::string &name,
         AES_ctr128_encrypt(in_storage.get(), out_storage.get(), chunk_len, &aes_key, iv_storage.get(), ecount_storage.get(), &num);
         return true;
       });
-  results.PrintWithBytes(name +  " AES_ctr128_encrypt", chunk_len);
+  results.PrintWithBytes(name, chunk_len);
   return true;
 }
 
@@ -2660,7 +2674,7 @@ static bool SpeedAesHwctr32EncryptBlocksChunks(const std::string &name, size_t c
     aes_hw_ctr32_encrypt_blocks(in_storage.get(), out_storage.get(), chunk_len/16, &aes_key, iv_storage.get());
     return true;
   });
-  results.PrintWithBytes(name +  " aes_hw_ctr32_encrypt_blocks", chunk_len);
+  results.PrintWithBytes(name, chunk_len);
   return true;
 }
 
@@ -2726,7 +2740,7 @@ static bool SpeedCustomCtrEncryptChunks(const std::string &name, size_t chunk_le
     customCtrEncrypt(in_storage.get(), out_storage.get(), chunk_len, &aes_key, iv_storage.get());
     return true;
   });
-  results.PrintWithBytes(name +  " CustomCtrEncrypt", chunk_len);
+  results.PrintWithBytes(name, chunk_len);
   return true;
 }
 
@@ -2874,6 +2888,7 @@ bool Speed(const std::vector<std::string> &args) {
        !SpeedAesCtr128Encrypt("AES_ctr128_encrypt", selected) ||
        !SpeedAesHwctr32EncryptBlocks("aes_hw_ctr32_encrypt_blocks", selected) ||
        !SpeedCustomCtrEncrypt("CustomCtrEncrypt", selected) ||
+       !Speedhwaes_capable("hwaes_capable", selected) ||
        !SpeedAESBlock("AES-128", 128, selected) ||
        !SpeedAESBlock("AES-192", 192, selected) ||
        !SpeedAESBlock("AES-256", 256, selected) ||
