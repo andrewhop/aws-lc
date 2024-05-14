@@ -2663,10 +2663,90 @@ static bool SpeedAesHwctr32EncryptBlocksChunks(const std::string &name, size_t c
     return true;
   });
   results.PrintWithBytes(name +  " aes_hw_ctr32_encrypt_blocks", chunk_len);
-
   return true;
-
 }
+
+static void customCtrEncrypt(
+    const uint8_t *bufferIn,
+    uint8_t *bufferOut,
+    size_t bufLen,
+    const AES_KEY *expandedKey,
+    const void *nonce)
+{
+  size_t blockCount = bufLen / 16;
+  size_t extraLen = bufLen - blockCount * 16;
+
+  if (blockCount > 0) {
+    aes_hw_ctr32_encrypt_blocks(
+        bufferIn,
+        bufferOut,
+        blockCount,
+        expandedKey,
+        (const unsigned char *)nonce);
+  }
+
+  if (extraLen > 0) {
+    unsigned __int128 counter = *(const unsigned __int128 *)nonce;
+    unsigned char *pCounter = (unsigned char *)&counter;
+
+    if (blockCount > 0) {
+      uint32_t &bigEndian = *(uint32_t *)(pCounter + 12);
+      uint32_t littleEndian = __builtin_bswap32(bigEndian);
+      littleEndian += blockCount;
+      bigEndian = __builtin_bswap32(littleEndian);
+
+      bufferIn += blockCount * 16;
+      bufferOut += blockCount * 16;
+    }
+    aes_hw_encrypt(
+        (const unsigned char *)&counter,
+        pCounter,
+        (const AES_KEY *)expandedKey);
+    if (extraLen == 8) {
+      *(uint64_t *)bufferOut =
+          *(uint64_t *)bufferIn ^ *(uint64_t *)pCounter;
+    } else {
+      for (size_t i = 0; i < extraLen; i ++) {
+        bufferOut[i] = bufferIn[i] ^ pCounter[i];
+      }
+    }
+  }
+}
+
+static bool SpeedCustomCtrEncryptChunks(const std::string &name, size_t chunk_len) {
+  std::unique_ptr<uint8_t[]> key_storage(new uint8_t[128/8]);
+  std::unique_ptr<uint8_t[]> iv_storage(new uint8_t[AES_BLOCK_SIZE]);
+  std::unique_ptr<uint8_t[]> ecount_storage(new uint8_t[AES_BLOCK_SIZE]);
+  std::unique_ptr<uint8_t[]> in_storage(new uint8_t[chunk_len]);
+  std::unique_ptr<uint8_t[]> out_storage(new uint8_t[chunk_len]);
+
+  AES_KEY aes_key = {{0}, 0};
+  uint8_t key[16] = {0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x11, 0x22, 0x33,
+                     0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x50};
+  aes_hw_set_encrypt_key(key, 128, &aes_key);
+
+  TimeResults results;
+  TimeFunction(&results, [&]() -> bool {
+    customCtrEncrypt(in_storage.get(), out_storage.get(), chunk_len, &aes_key, iv_storage.get());
+    return true;
+  });
+  results.PrintWithBytes(name +  " CustomCtrEncrypt", chunk_len);
+  return true;
+}
+
+static bool SpeedCustomCtrEncrypt(const std::string &name,
+                                         const std::string &selected) {
+  if (!selected.empty() && name.find(selected) == std::string::npos) {
+    return true;
+  }
+  for (size_t chunk_byte_len : g_chunk_lengths) {
+    if (!SpeedCustomCtrEncryptChunks(name, chunk_byte_len)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 
 static bool SpeedAesCtr128Encrypt(const std::string &name,
                                   const std::string &selected) {
@@ -2797,6 +2877,7 @@ bool Speed(const std::vector<std::string> &args) {
        !SpeedAesHwSetEncryptKey("aes_hw_set_encrypt_key", selected) ||
        !SpeedAesCtr128Encrypt("AES_ctr128_encrypt", selected) ||
        !SpeedAesHwctr32EncryptBlocks("aes_hw_ctr32_encrypt_blocks", selected) ||
+       !SpeedCustomCtrEncrypt("CustomCtrEncrypt", selected) ||
        !SpeedAESBlock("AES-128", 128, selected) ||
        !SpeedAESBlock("AES-192", 192, selected) ||
        !SpeedAESBlock("AES-256", 256, selected) ||
