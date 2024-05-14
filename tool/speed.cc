@@ -2659,7 +2659,7 @@ static bool SpeedAesHwctr32EncryptBlocksChunks(const std::string &name, size_t c
 
   TimeResults results;
   TimeFunction(&results, [&]() -> bool {
-    aes_hw_ctr32_encrypt_blocks(in_storage.get(), out_storage.get(), chunk_len, &aes_key, iv_storage.get());
+    aes_hw_ctr32_encrypt_blocks(in_storage.get(), out_storage.get(), chunk_len/16, &aes_key, iv_storage.get());
     return true;
   });
   results.PrintWithBytes(name +  " aes_hw_ctr32_encrypt_blocks", chunk_len);
