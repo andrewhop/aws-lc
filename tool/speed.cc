@@ -2591,11 +2591,11 @@ static bool SpeedAesSetEncryptKey(const std::string &name,
     return true;
   }
   AES_KEY aes_key = {{0}, 0};
-  std::unique_ptr<uint8_t[]> key_storage(new uint8_t[128/8]);
+  std::unique_ptr<uint8_t[]> key_storage(new uint8_t[256/8]);
 
   TimeResults results;
   if (!TimeFunction(&results, [&]() -> bool {
-        return AES_set_encrypt_key(key_storage.get(), 128, &aes_key) == 0;})) {
+        return AES_set_encrypt_key(key_storage.get(), 256, &aes_key) == 0;})) {
     fprintf(stderr, "AES_set_encrypt_key failed.\n");
     ERR_print_errors_fp(stderr);
     return false;
@@ -2611,11 +2611,11 @@ static bool SpeedAesHwSetEncryptKey(const std::string &name,
     return true;
   }
   AES_KEY aes_key = {{0}, 0};
-  std::unique_ptr<uint8_t[]> key_storage(new uint8_t[128/8]);
+  std::unique_ptr<uint8_t[]> key_storage(new uint8_t[256/8]);
 
   TimeResults results;
   if (!TimeFunction(&results, [&]() -> bool {
-        return aes_hw_set_encrypt_key(key_storage.get(), 128, &aes_key) == 0;})) {
+        return aes_hw_set_encrypt_key(key_storage.get(), 256, &aes_key) == 0;})) {
     fprintf(stderr, "aes_hw_set_encrypt_key failed.\n");
     ERR_print_errors_fp(stderr);
     return false;
@@ -2627,14 +2627,14 @@ static bool SpeedAesHwSetEncryptKey(const std::string &name,
 
 static bool SpeedAesCtr128EncryptChunks(const std::string &name,
                                         size_t chunk_len) {
-  std::unique_ptr<uint8_t[]> key_storage(new uint8_t[128/8]);
+  std::unique_ptr<uint8_t[]> key_storage(new uint8_t[256/8]);
   std::unique_ptr<uint8_t[]> iv_storage(new uint8_t[AES_BLOCK_SIZE]);
   std::unique_ptr<uint8_t[]> ecount_storage(new uint8_t[AES_BLOCK_SIZE]);
   std::unique_ptr<uint8_t[]> in_storage(new uint8_t[chunk_len]);
   std::unique_ptr<uint8_t[]> out_storage(new uint8_t[chunk_len]);
 
   AES_KEY aes_key = {{0}, 0};
-  AES_set_encrypt_key(key_storage.get(), 128, &aes_key);
+  AES_set_encrypt_key(key_storage.get(), 256, &aes_key);
   unsigned int num = 0;
   TimeResults results;
   TimeFunction(&results, [&]() -> bool {
@@ -2646,16 +2646,14 @@ static bool SpeedAesCtr128EncryptChunks(const std::string &name,
 }
 
 static bool SpeedAesHwctr32EncryptBlocksChunks(const std::string &name, size_t chunk_len) {
-  std::unique_ptr<uint8_t[]> key_storage(new uint8_t[128/8]);
+  std::unique_ptr<uint8_t[]> key_storage(new uint8_t[256/8]);
   std::unique_ptr<uint8_t[]> iv_storage(new uint8_t[AES_BLOCK_SIZE]);
   std::unique_ptr<uint8_t[]> ecount_storage(new uint8_t[AES_BLOCK_SIZE]);
   std::unique_ptr<uint8_t[]> in_storage(new uint8_t[chunk_len]);
   std::unique_ptr<uint8_t[]> out_storage(new uint8_t[chunk_len]);
 
   AES_KEY aes_key = {{0}, 0};
-  uint8_t key[16] = {0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x11, 0x22, 0x33,
-                     0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x50};
-  aes_hw_set_encrypt_key(key, 128, &aes_key);
+  aes_hw_set_encrypt_key(key_storage.get(), 256, &aes_key);
 
   TimeResults results;
   TimeFunction(&results, [&]() -> bool {
@@ -2666,7 +2664,7 @@ static bool SpeedAesHwctr32EncryptBlocksChunks(const std::string &name, size_t c
   return true;
 }
 
-static void customCtrEncrypt(
+static void __attribute__ ((noinline)) customCtrEncrypt(
     const uint8_t *bufferIn,
     uint8_t *bufferOut,
     size_t bufLen,
@@ -2714,16 +2712,14 @@ static void customCtrEncrypt(
 }
 
 static bool SpeedCustomCtrEncryptChunks(const std::string &name, size_t chunk_len) {
-  std::unique_ptr<uint8_t[]> key_storage(new uint8_t[128/8]);
+  std::unique_ptr<uint8_t[]> key_storage(new uint8_t[256/8]);
   std::unique_ptr<uint8_t[]> iv_storage(new uint8_t[AES_BLOCK_SIZE]);
   std::unique_ptr<uint8_t[]> ecount_storage(new uint8_t[AES_BLOCK_SIZE]);
   std::unique_ptr<uint8_t[]> in_storage(new uint8_t[chunk_len]);
   std::unique_ptr<uint8_t[]> out_storage(new uint8_t[chunk_len]);
 
   AES_KEY aes_key = {{0}, 0};
-  uint8_t key[16] = {0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x11, 0x22, 0x33,
-                     0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x50};
-  aes_hw_set_encrypt_key(key, 128, &aes_key);
+  aes_hw_set_encrypt_key(key_storage.get(), 256, &aes_key);
 
   TimeResults results;
   TimeFunction(&results, [&]() -> bool {
