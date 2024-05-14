@@ -101,7 +101,7 @@ void aes_hw_encrypt(const uint8_t *in, uint8_t *out, const AES_KEY *key);
 void aes_hw_decrypt(const uint8_t *in, uint8_t *out, const AES_KEY *key);
 void aes_hw_cbc_encrypt(const uint8_t *in, uint8_t *out, size_t length,
                         const AES_KEY *key, uint8_t *ivec, const int enc);
-void aes_hw_ctr32_encrypt_blocks(const uint8_t *in, uint8_t *out, size_t len,
+OPENSSL_EXPORT void aes_hw_ctr32_encrypt_blocks(const uint8_t *in, uint8_t *out, size_t len,
                                  const AES_KEY *key, const uint8_t ivec[16]);
 
 #else

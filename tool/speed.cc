@@ -2587,13 +2587,15 @@ static bool parseStringVectorToIntegerVector(
 
 static bool SpeedAesSetEncryptKey(const std::string &name,
                           const std::string &selected) {
+  if (!selected.empty() && name.find(selected) == std::string::npos) {
+    return true;
+  }
   AES_KEY aes_key = {{0}, 0};
-  uint8_t key[16] = {0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x11, 0x22, 0x33,
-                     0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x50};
+  std::unique_ptr<uint8_t[]> key_storage(new uint8_t[128/8]);
 
   TimeResults results;
   if (!TimeFunction(&results, [&]() -> bool {
-        return AES_set_encrypt_key(key, 128, &aes_key) == 0;})) {
+        return AES_set_encrypt_key(key_storage.get(), 128, &aes_key) == 0;})) {
     fprintf(stderr, "AES_set_encrypt_key failed.\n");
     ERR_print_errors_fp(stderr);
     return false;
@@ -2605,19 +2607,92 @@ static bool SpeedAesSetEncryptKey(const std::string &name,
 
 static bool SpeedAesHwSetEncryptKey(const std::string &name,
                                   const std::string &selected) {
+  if (!selected.empty() && name.find(selected) == std::string::npos) {
+    return true;
+  }
   AES_KEY aes_key = {{0}, 0};
-  uint8_t key[16] = {0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x11, 0x22, 0x33,
-                     0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x50};
+  std::unique_ptr<uint8_t[]> key_storage(new uint8_t[128/8]);
 
   TimeResults results;
   if (!TimeFunction(&results, [&]() -> bool {
-        return aes_hw_set_encrypt_key(key, 128, &aes_key) == 0;})) {
+        return aes_hw_set_encrypt_key(key_storage.get(), 128, &aes_key) == 0;})) {
     fprintf(stderr, "aes_hw_set_encrypt_key failed.\n");
     ERR_print_errors_fp(stderr);
     return false;
   }
   results.Print(name +  " aes_hw_set_encrypt_key");
 
+  return true;
+}
+
+static bool SpeedAesCtr128EncryptChunks(const std::string &name,
+                                        size_t chunk_len) {
+  std::unique_ptr<uint8_t[]> key_storage(new uint8_t[128/8]);
+  std::unique_ptr<uint8_t[]> iv_storage(new uint8_t[AES_BLOCK_SIZE]);
+  std::unique_ptr<uint8_t[]> ecount_storage(new uint8_t[AES_BLOCK_SIZE]);
+  std::unique_ptr<uint8_t[]> in_storage(new uint8_t[chunk_len]);
+  std::unique_ptr<uint8_t[]> out_storage(new uint8_t[chunk_len]);
+
+  AES_KEY aes_key = {{0}, 0};
+  AES_set_encrypt_key(key_storage.get(), 128, &aes_key);
+  unsigned int num = 0;
+  TimeResults results;
+  TimeFunction(&results, [&]() -> bool {
+        AES_ctr128_encrypt(in_storage.get(), out_storage.get(), chunk_len, &aes_key, iv_storage.get(), ecount_storage.get(), &num);
+        return true;
+      });
+  results.PrintWithBytes(name +  " AES_ctr128_encrypt", chunk_len);
+  return true;
+}
+
+static bool SpeedAesHwctr32EncryptBlocksChunks(const std::string &name, size_t chunk_len) {
+  std::unique_ptr<uint8_t[]> key_storage(new uint8_t[128/8]);
+  std::unique_ptr<uint8_t[]> iv_storage(new uint8_t[AES_BLOCK_SIZE]);
+  std::unique_ptr<uint8_t[]> ecount_storage(new uint8_t[AES_BLOCK_SIZE]);
+  std::unique_ptr<uint8_t[]> in_storage(new uint8_t[chunk_len]);
+  std::unique_ptr<uint8_t[]> out_storage(new uint8_t[chunk_len]);
+
+  AES_KEY aes_key = {{0}, 0};
+  uint8_t key[16] = {0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x11, 0x22, 0x33,
+                     0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x50};
+  aes_hw_set_encrypt_key(key, 128, &aes_key);
+
+  TimeResults results;
+  TimeFunction(&results, [&]() -> bool {
+    aes_hw_ctr32_encrypt_blocks(in_storage.get(), out_storage.get(), chunk_len, &aes_key, iv_storage.get());
+    return true;
+  });
+  results.PrintWithBytes(name +  " aes_hw_ctr32_encrypt_blocks", chunk_len);
+
+  return true;
+
+}
+
+static bool SpeedAesCtr128Encrypt(const std::string &name,
+                                  const std::string &selected) {
+  if (!selected.empty() && name.find(selected) == std::string::npos) {
+    return true;
+  }
+
+  for (size_t chunk_byte_len : g_chunk_lengths) {
+    if (!SpeedAesCtr128EncryptChunks(name, chunk_byte_len)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+static bool SpeedAesHwctr32EncryptBlocks(const std::string &name,
+                                               const std::string &selected) {
+  if (!selected.empty() && name.find(selected) == std::string::npos) {
+    return true;
+  }
+
+  for (size_t chunk_byte_len : g_chunk_lengths) {
+    if (!SpeedAesHwctr32EncryptBlocksChunks(name, chunk_byte_len)) {
+      return false;
+    }
+  }
   return true;
 }
 
@@ -2720,6 +2795,8 @@ bool Speed(const std::vector<std::string> &args) {
     if(
        !SpeedAesSetEncryptKey("AES_set_encrypt_key", selected) ||
        !SpeedAesHwSetEncryptKey("aes_hw_set_encrypt_key", selected) ||
+       !SpeedAesCtr128Encrypt("AES_ctr128_encrypt", selected) ||
+       !SpeedAesHwctr32EncryptBlocks("aes_hw_ctr32_encrypt_blocks", selected) ||
        !SpeedAESBlock("AES-128", 128, selected) ||
        !SpeedAESBlock("AES-192", 192, selected) ||
        !SpeedAESBlock("AES-256", 256, selected) ||
