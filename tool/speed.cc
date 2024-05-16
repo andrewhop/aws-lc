@@ -2619,6 +2619,23 @@ static bool Speedhwaes_capable(const std::string &name,
   return true;
 }
 
+static bool SpeedCRYPTO_store_u32_be(const std::string &name,
+                                    const std::string &selected) {
+  if (!selected.empty() && name.find(selected) == std::string::npos) {
+    return true;
+  }
+  std::unique_ptr<uint8_t[]> out_storage(new uint8_t[32/8]);
+  uint32_t input = 123456789;
+
+  TimeResults results;
+  TimeFunction(&results, [&]() -> bool {
+        CRYPTO_store_u32_be(out_storage.get(), input);
+        return true;
+      });
+  results.Print(name);
+  return true;
+}
+
 static bool SpeedAesHwSetEncryptKey(const std::string &name,
                                   const std::string &selected) {
   if (!selected.empty() && name.find(selected) == std::string::npos) {
@@ -2888,6 +2905,7 @@ bool Speed(const std::vector<std::string> &args) {
        !SpeedAesCtr128Encrypt("AES_ctr128_encrypt", selected) ||
        !SpeedAesHwctr32EncryptBlocks("aes_hw_ctr32_encrypt_blocks", selected) ||
        !SpeedCustomCtrEncrypt("CustomCtrEncrypt", selected) ||
+       !SpeedCRYPTO_store_u32_be("CRYPTO_store_u32_be", selected) ||
        !Speedhwaes_capable("hwaes_capable", selected) ||
        !SpeedAESBlock("AES-128", 128, selected) ||
        !SpeedAESBlock("AES-192", 192, selected) ||
