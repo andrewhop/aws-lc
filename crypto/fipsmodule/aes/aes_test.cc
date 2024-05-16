@@ -745,3 +745,80 @@ TEST(AESTest, VPAESToBSAESConvert) {
   }
 }
 #endif  // BSAES && !SHARED_LIBRARY
+
+static void __attribute__ ((noinline)) customCtrEncrypt(
+    const uint8_t *bufferIn,
+    uint8_t *bufferOut,
+    size_t bufLen,
+    const AES_KEY *expandedKey,
+    const void *nonce)
+{
+  size_t blockCount = bufLen / 16;
+  size_t extraLen = bufLen - blockCount * 16;
+
+  if (blockCount > 0) {
+    aes_hw_ctr32_encrypt_blocks(
+        bufferIn,
+        bufferOut,
+        blockCount,
+        expandedKey,
+        (const unsigned char *)nonce);
+  }
+
+  if (extraLen > 0) {
+    unsigned __int128 counter = *(const unsigned __int128 *)nonce;
+    unsigned char *pCounter = (unsigned char *)&counter;
+
+    if (blockCount > 0) {
+      uint32_t &bigEndian = *(uint32_t *)(pCounter + 12);
+      uint32_t littleEndian = __builtin_bswap32(bigEndian);
+      littleEndian += blockCount;
+      bigEndian = __builtin_bswap32(littleEndian);
+
+      bufferIn += blockCount * 16;
+      bufferOut += blockCount * 16;
+    }
+    aes_hw_encrypt(
+        (const unsigned char *)&counter,
+        pCounter,
+        (const AES_KEY *)expandedKey);
+    if (extraLen == 8) {
+      *(uint64_t *)bufferOut =
+          *(uint64_t *)bufferIn ^ *(uint64_t *)pCounter;
+    } else {
+      for (size_t i = 0; i < extraLen; i ++) {
+        bufferOut[i] = bufferIn[i] ^ pCounter[i];
+      }
+    }
+  }
+}
+
+
+TEST(AESTest, CustomCtr) {
+  size_t plaintext_size = 17;
+  std::unique_ptr<uint8_t[]> key_storage(new uint8_t[256/8]);
+  std::unique_ptr<uint8_t[]> real_iv_storage(new uint8_t[AES_BLOCK_SIZE]);
+  std::unique_ptr<uint8_t[]> custom_iv_storage(new uint8_t[AES_BLOCK_SIZE]);
+  std::unique_ptr<uint8_t[]> ecount_storage(new uint8_t[AES_BLOCK_SIZE]);
+  std::unique_ptr<uint8_t[]> in_storage(new uint8_t[plaintext_size]);
+  std::unique_ptr<uint8_t[]> real_out_storage(new uint8_t[plaintext_size]);
+  std::unique_ptr<uint8_t[]> custom_out_storage(new uint8_t[plaintext_size]);
+  unsigned int real_num = 0;
+
+  AES_KEY real_aes_key = {{0}, 0};
+  AES_KEY custom_aes_key = {{0}, 0};
+  aes_hw_set_encrypt_key(key_storage.get(), 256, &custom_aes_key);
+  AES_set_encrypt_key(key_storage.get(), 256, &real_aes_key);
+
+  AES_ctr128_encrypt(in_storage.get(), real_out_storage.get(), plaintext_size, &real_aes_key, real_iv_storage.get(), ecount_storage.get(), &real_num);
+  customCtrEncrypt(in_storage.get(), custom_out_storage.get(), plaintext_size, &custom_aes_key, custom_iv_storage.get());
+  EXPECT_EQ(Bytes(real_out_storage.get(), plaintext_size), Bytes(custom_out_storage.get(), plaintext_size));
+
+  AES_ctr128_encrypt(in_storage.get(), real_out_storage.get(), plaintext_size, &real_aes_key, real_iv_storage.get(), ecount_storage.get(), &real_num);
+  customCtrEncrypt(in_storage.get(), custom_out_storage.get(), plaintext_size, &custom_aes_key, custom_iv_storage.get());
+  // This should be the same again but it is not because the counter is wrong
+  EXPECT_EQ(Bytes(real_out_storage.get(), plaintext_size), Bytes(custom_out_storage.get(), plaintext_size));
+}
+
+
+
