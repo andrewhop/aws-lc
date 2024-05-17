@@ -811,11 +811,27 @@ TEST(AESTest, CustomCtr) {
   AES_set_encrypt_key(key_storage.get(), 256, &real_aes_key);
 
   AES_ctr128_encrypt(in_storage.get(), real_out_storage.get(), plaintext_size, &real_aes_key, real_iv_storage.get(), ecount_storage.get(), &real_num);
+  uint32_t awslc_counter = CRYPTO_load_u32_be(real_iv_storage.get() + 12);
+  EXPECT_EQ(awslc_counter, (uint32_t)2);
+
   customCtrEncrypt(in_storage.get(), custom_out_storage.get(), plaintext_size, &custom_aes_key, custom_iv_storage.get());
+  uint32_t custom_counter = CRYPTO_load_u32_be(custom_iv_storage.get() + 12);
+  // This fails because customCtrEncrypt does not update the counter
+  EXPECT_EQ(custom_counter, (uint32_t)2);
+
+  // The first ciphertext matches because both start with the zero counter
   EXPECT_EQ(Bytes(real_out_storage.get(), plaintext_size), Bytes(custom_out_storage.get(), plaintext_size));
 
   AES_ctr128_encrypt(in_storage.get(), real_out_storage.get(), plaintext_size, &real_aes_key, real_iv_storage.get(), ecount_storage.get(), &real_num);
+  awslc_counter = CRYPTO_load_u32_be(real_iv_storage.get() + 12);
+  EXPECT_EQ(awslc_counter, (uint32_t)3);
+
   customCtrEncrypt(in_storage.get(), custom_out_storage.get(), plaintext_size, &custom_aes_key, custom_iv_storage.get());
+  custom_counter = CRYPTO_load_u32_be(custom_iv_storage.get() + 12);
+  // This fails because customCtrEncrypt didn't update the counter
+  EXPECT_EQ(custom_counter, (uint32_t)3);
+
+
   // This should be the same again but it is not because the counter is wrong
   EXPECT_EQ(Bytes(real_out_storage.get(), plaintext_size), Bytes(custom_out_storage.get(), plaintext_size));
 }
