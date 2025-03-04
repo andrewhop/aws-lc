@@ -106,6 +106,8 @@ static inline void *BM_memset(void *dst, int c, size_t n) {
 // g_print_json is true if printed output is JSON formatted.
 static bool g_print_json = false;
 
+static bool g_stats = false;
+
 #if defined(DIT_OPTION)
 // g_dit is true if the DIT macro is to be enabled before benchmarking
 static bool g_dit = false;
@@ -132,14 +134,28 @@ struct TimeResults {
   // us is the number of microseconds that elapsed in the time period.
   uint64_t us;
 
+  double p0;
+  double p50;
+  double p90;
+  double p100;
+  double std_dev;
+
   void Print(const std::string &description) const {
     if (g_print_json) {
       PrintJSON(description);
     } else {
-      printf(
-          "Did %" PRIu64 " %s operations in %" PRIu64 "us (%.1f ops/sec)\n",
+      if (g_stats) {
+        printf(
+          "Did %" PRIu64 " %s operations in %" PRIu64 "us (%.1f ops/sec), p0 %.3f, p50 %.3f, avg %.3f, p90 %.3f, p100 %.3f, std deviation %.3f\n",
           num_calls, description.c_str(), us,
-          (static_cast<double>(num_calls) / static_cast<double>(us)) * 1000000);
+          (static_cast<double>(num_calls) / static_cast<double>(us)) * 1000000,
+          p0, p50, static_cast<double>(us) / static_cast<double>(num_calls), p90, p100, std_dev);
+      } else {
+        printf(
+            "Did %" PRIu64 " %s operations in %" PRIu64 "us (%.1f ops/sec)\n",
+            num_calls, description.c_str(), us,
+            (static_cast<double>(num_calls) / static_cast<double>(us)) * 1000000);
+      }
     }
   }
 
@@ -148,13 +164,25 @@ struct TimeResults {
     if (g_print_json) {
       PrintJSON(description, bytes_per_call);
     } else {
-      printf(
-          "Did %" PRIu64 " %s operations in %" PRIu64
-          "us (%.1f ops/sec): %.1f MB/s\n",
-          num_calls, (description + ChunkLenSuffix(bytes_per_call)).c_str(), us,
-          (static_cast<double>(num_calls) / static_cast<double>(us)) * 1000000,
-          static_cast<double>(bytes_per_call * num_calls) /
-              static_cast<double>(us));
+      if (g_stats) {
+        printf(
+            "Did %" PRIu64 " %s operations in %" PRIu64
+            "us (%.1f ops/sec): %.1f MB/s, p0 %.3f, p50 %.3f, avg %.3f, p90 %.3f, p100 %.3f, std deviation %.3f\n",
+            num_calls, (description + ChunkLenSuffix(bytes_per_call)).c_str(), us,
+            (static_cast<double>(num_calls) / static_cast<double>(us)) * 1000000,
+            static_cast<double>(bytes_per_call * num_calls) /
+                static_cast<double>(us),
+                p0, p50, static_cast<double>(us) / static_cast<double>(num_calls), p90, p100, std_dev);
+
+      } else {
+        printf(
+            "Did %" PRIu64 " %s operations in %" PRIu64
+            "us (%.1f ops/sec): %.1f MB/s\n",
+            num_calls, (description + ChunkLenSuffix(bytes_per_call)).c_str(), us,
+            (static_cast<double>(num_calls) / static_cast<double>(us)) * 1000000,
+            static_cast<double>(bytes_per_call * num_calls) /
+                static_cast<double>(us));
+      }
     }
   }
 
@@ -249,6 +277,8 @@ static std::vector<size_t> g_threads = {1, 2, 4, 8, 16, 32, 64};
 static std::vector<size_t> g_prime_bit_lengths = {2048, 3072};
 static std::vector<std::string> g_filters = {""};
 
+static const size_t stats_benchmark_iterations = 100000;
+
 static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
   // The first time |func| is called an expensive self check might run that
   // will skew the iterations between checks calculation
@@ -267,38 +297,95 @@ static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
   delta = now - start;
   unsigned iterations_between_time_checks;
   if (delta == 0) {
-    iterations_between_time_checks = 250;
-  } else {
-    // Aim for about 100ms between time checks.
+    start = time_now();
+    for (int i = 0; i < 1000; i++) {
+      if (!func()) {
+        return false;
+      }
+    }
+    now = time_now();
+    delta = now - start;
+    double time_per_iteration = static_cast<double>(delta)/1000;
+    // The fastest AWS-LC operation is around 0.1 microseonds, if the number of
+    // iterations is too small the signal will be lost in the timing overhead,
+    // if the number of iterations is too large the small outliers will be lost
     iterations_between_time_checks =
-        static_cast<double>(100000) / static_cast<double>(delta);
-    if (iterations_between_time_checks > 1000) {
-      iterations_between_time_checks = 1000;
-    } else if (iterations_between_time_checks < 1) {
+        static_cast<double>(100) / time_per_iteration;
+  } else {
+    // Aim for about 100 microseconds between time checks.
+    iterations_between_time_checks =
+        static_cast<double>(100) / static_cast<double>(delta);
+    if (iterations_between_time_checks < 1) {
       iterations_between_time_checks = 1;
     }
   }
 
   // Don't include the time taken to run |func| to calculate
   // |iterations_between_time_checks|
-  start = time_now();
-  uint64_t done = 0;
-  for (;;) {
-    for (unsigned i = 0; i < iterations_between_time_checks; i++) {
-      if (!func()) {
-        return false;
+  if (g_stats) {
+    uint64_t overall_start = time_now();
+
+    std::vector<uint64_t> benchmark_results;
+    benchmark_results.reserve(stats_benchmark_iterations);
+    size_t i = 0;
+    while (i < stats_benchmark_iterations) {
+      start = time_now();
+      for (size_t j = 0; j < iterations_between_time_checks; j++) {
+        if (!func()) {
+          return false;
+        }
+        i++;
       }
-      done++;
+      now = time_now();
+      benchmark_results.push_back(now - start);
+      if (now - overall_start > total_us) {
+        break;
+      }
+    }
+    std::sort(benchmark_results.begin(), benchmark_results.end());
+
+    uint64_t sum = 0.0;
+    for (uint64_t time : benchmark_results) {
+      sum += time;
     }
 
-    now = time_now();
-    if (now - start > total_us) {
-      break;
+    double average = static_cast<double>(sum) / (static_cast<double>(benchmark_results.size()) * iterations_between_time_checks);
+
+    double sum_squared_diff = 0.0;
+    for (uint64_t time : benchmark_results) {
+      double diff = (static_cast<double>(time) / iterations_between_time_checks) - average;
+      sum_squared_diff += diff * diff;
     }
+
+    double std_dev = std::sqrt(sum_squared_diff / (static_cast<double>(benchmark_results.size()) - 1));
+
+    results->us = sum;
+    results->num_calls = benchmark_results.size() * iterations_between_time_checks;
+    results->p0 = static_cast<double>(benchmark_results.front())/iterations_between_time_checks;
+    results->p50 = static_cast<double>(benchmark_results[benchmark_results.size() * 0.5])/iterations_between_time_checks;
+    results->p90 = static_cast<double>(benchmark_results[benchmark_results.size() * 0.9])/iterations_between_time_checks;
+    results->p100 = static_cast<double>(benchmark_results.back())/iterations_between_time_checks;
+    results->std_dev = std_dev;
+
+  } else {
+    start = time_now();
+    uint64_t done = 0;
+    for (;;) {
+      for (unsigned i = 0; i < iterations_between_time_checks; i++) {
+        if (!func()) {
+          return false;
+        }
+        done++;
+      }
+
+      now = time_now();
+      if (now - start > total_us) {
+        break;
+      }
+    }
+    results->us = now - start;
+    results->num_calls = done;
   }
-
-  results->us = now - start;
-  results->num_calls = done;
   return true;
 }
 
@@ -474,7 +561,7 @@ static bool SpeedRSAKeyGen(bool is_fips, const std::string &selected) {
     }
     const std::string description =
         rsa_type + std::to_string(size) + std::string(" key-gen");
-    const TimeResults results = {num_calls, us};
+    const TimeResults results = {num_calls, us, 0, 0, 0, 0, 0};
     results.Print(description);
     const size_t n = durations.size();
     assert(n > 0);
@@ -2611,6 +2698,14 @@ static const argument_t kArguments[] = {
         "there is no information about the bytes per call for an  operation, "
         "the JSON field for bytesPerCall will be omitted.",
     },
+{
+        "-stats",
+        kBooleanArgument,
+        "If this flag is set track per call time to calculate a min, max, "
+        "average, and standard deviation of all benchmark runs. When enabled the "
+        "benchmark will run for the requested time or 100,000 iterations, which ever"
+        "is less."
+    },
 #if defined(DIT_OPTION)
     {
         "-dit",
@@ -2704,6 +2799,10 @@ bool Speed(const std::vector<std::string> &args) {
 
   if (args_map.count("-json") != 0) {
     g_print_json = true;
+  }
+
+  if (args_map.count("-stats") != 0) {
+    g_stats = true;
   }
 
   if (args_map.count("-timeout") != 0 && args_map.count("-timeout_ms") != 0) {
