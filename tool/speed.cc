@@ -134,10 +134,7 @@ struct TimeResults {
   // us is the number of microseconds that elapsed in the time period.
   uint64_t us;
 
-  double p0;
-  double p50;
-  double p90;
-  double p100;
+  double percentiles[101];
   double std_dev;
 
   void Print(const std::string &description) const {
@@ -146,10 +143,10 @@ struct TimeResults {
     } else {
       if (g_stats) {
         printf(
-          "Did %" PRIu64 " %s operations in %" PRIu64 "us (%.1f ops/sec), p0 %.3f, p50 %.3f, avg %.3f, p90 %.3f, p100 %.3f, std deviation %.3f\n",
+          "Did %" PRIu64 " %s operations in %" PRIu64 "us (%.1f ops/sec), avg %.3f, std deviation %.3f\n",
           num_calls, description.c_str(), us,
           (static_cast<double>(num_calls) / static_cast<double>(us)) * 1000000,
-          p0, p50, static_cast<double>(us) / static_cast<double>(num_calls), p90, p100, std_dev);
+          static_cast<double>(us) / static_cast<double>(num_calls), std_dev);
       } else {
         printf(
             "Did %" PRIu64 " %s operations in %" PRIu64 "us (%.1f ops/sec)\n",
@@ -167,12 +164,12 @@ struct TimeResults {
       if (g_stats) {
         printf(
             "Did %" PRIu64 " %s operations in %" PRIu64
-            "us (%.1f ops/sec): %.1f MB/s, p0 %.3f, p50 %.3f, avg %.3f, p90 %.3f, p100 %.3f, std deviation %.3f\n",
+            "us (%.1f ops/sec): %.1f MB/s, avg %.3f, std deviation %.3f\n",
             num_calls, (description + ChunkLenSuffix(bytes_per_call)).c_str(), us,
             (static_cast<double>(num_calls) / static_cast<double>(us)) * 1000000,
             static_cast<double>(bytes_per_call * num_calls) /
                 static_cast<double>(us),
-                p0, p50, static_cast<double>(us) / static_cast<double>(num_calls), p90, p100, std_dev);
+                static_cast<double>(us) / static_cast<double>(num_calls), std_dev);
 
       } else {
         printf(
@@ -212,6 +209,18 @@ struct TimeResults {
 
     if (bytes_per_call > 0) {
       printf(", \"bytesPerCall\": %zu", bytes_per_call);
+    }
+
+    printf (", \"avg\": %.3f", static_cast<double>(us) / static_cast<double>(num_calls));
+    if (std_dev > 0) {
+      printf(", \"stdDev\": %.3f, percentiles:[", std_dev);
+      for (int i = 0; i < 101; i++) {
+        printf("%.3f", percentiles[i]);
+        if (i != 100) {
+          printf(",");
+        }
+      }
+      printf("]");
     }
 
     printf("}");
@@ -277,7 +286,7 @@ static std::vector<size_t> g_threads = {1, 2, 4, 8, 16, 32, 64};
 static std::vector<size_t> g_prime_bit_lengths = {2048, 3072};
 static std::vector<std::string> g_filters = {""};
 
-static const size_t stats_benchmark_iterations = 100000;
+static const size_t stats_benchmark_iterations = 1000000;
 
 static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
   // The first time |func| is called an expensive self check might run that
@@ -327,14 +336,12 @@ static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
 
     std::vector<uint64_t> benchmark_results;
     benchmark_results.reserve(stats_benchmark_iterations);
-    size_t i = 0;
-    while (i < stats_benchmark_iterations) {
+    for (size_t i = 0; i < stats_benchmark_iterations/iterations_between_time_checks; i++) {
       start = time_now();
       for (size_t j = 0; j < iterations_between_time_checks; j++) {
         if (!func()) {
           return false;
         }
-        i++;
       }
       now = time_now();
       benchmark_results.push_back(now - start);
@@ -361,10 +368,10 @@ static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
 
     results->us = sum;
     results->num_calls = benchmark_results.size() * iterations_between_time_checks;
-    results->p0 = static_cast<double>(benchmark_results.front())/iterations_between_time_checks;
-    results->p50 = static_cast<double>(benchmark_results[benchmark_results.size() * 0.5])/iterations_between_time_checks;
-    results->p90 = static_cast<double>(benchmark_results[benchmark_results.size() * 0.9])/iterations_between_time_checks;
-    results->p100 = static_cast<double>(benchmark_results.back())/iterations_between_time_checks;
+    for (size_t i = 0; i < 101; i++) {
+      size_t index = (static_cast<double>(i)/100) * (benchmark_results.size() - 1);
+      results->percentiles[i] = static_cast<double>(benchmark_results[index]) / iterations_between_time_checks;
+    }
     results->std_dev = std_dev;
 
   } else {
@@ -561,7 +568,7 @@ static bool SpeedRSAKeyGen(bool is_fips, const std::string &selected) {
     }
     const std::string description =
         rsa_type + std::to_string(size) + std::string(" key-gen");
-    const TimeResults results = {num_calls, us, 0, 0, 0, 0, 0};
+    const TimeResults results = {num_calls, us, {0}, 0};
     results.Print(description);
     const size_t n = durations.size();
     assert(n > 0);
