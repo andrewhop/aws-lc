@@ -563,29 +563,25 @@ static bool SpeedRSAKeyGen(bool is_fips, const std::string &selected) {
   if (!BN_set_word(e.get(), 65537)) {
     return false;
   }
+  g_timeout_ms = 1000 * 30;
 
   const std::vector<int> kSizes = {2048, 3072, 4096};
   for (int size : kSizes) {
-    const uint64_t start = time_now();
-    uint64_t num_calls = 0;
-    uint64_t us;
     std::vector<uint64_t> durations;
-
-    for (;;) {
+    TimeResults keygenResults;
+    if (!TimeFunction(&keygenResults, [&]() -> bool {
       BM_NAMESPACE::UniquePtr<RSA> rsa(RSA_new());
-
-      const uint64_t iteration_start = time_now();
       if(is_fips){
-#if !defined(OPENSSL_BENCHMARK)
+      #if !defined(OPENSSL_BENCHMARK)
         // RSA_generate_key_fips is AWS-LC specific.
         if (!RSA_generate_key_fips(rsa.get(), size, nullptr)) {
           fprintf(stderr, "RSA_generate_key_fips failed.\n");
           ERR_print_errors_fp(stderr);
           return false;
         }
-#else
+      #else
         return true;
-#endif
+      #endif
       }
       else {
         if (!RSA_generate_key_ex(rsa.get(), size, e.get(), nullptr)) {
@@ -594,41 +590,19 @@ static bool SpeedRSAKeyGen(bool is_fips, const std::string &selected) {
           return false;
         }
       }
-      const uint64_t iteration_end = time_now();
+      return true;
 
-      num_calls++;
-      durations.push_back(iteration_end - iteration_start);
-
-      us = iteration_end - start;
-      if (us > 30 * 1000000 /* 30 secs */) {
-        break;
+    })) {
+      fprintf(stderr, "RSA keygen failed.\n");
+      ERR_print_errors_fp(stderr);
+      return false;
       }
-    }
+    std::string name = "RSA " + std::to_string(size) + " keygen" + (is_fips? " fips" : "");
 
-    std::sort(durations.begin(), durations.end());
-    std::string rsa_type = std::string("RSA ");
-    if (is_fips) {
-      rsa_type += "FIPS ";
-    }
-    const std::string description =
-        rsa_type + std::to_string(size) + std::string(" key-gen");
-    const TimeResults results = {num_calls, us, 0, {}, {}};
-    results.Print(description);
-    const size_t n = durations.size();
-    assert(n > 0);
+    keygenResults.Print(name);
 
-    // Distribution information is useful, but doesn't fit into the standard
-    // format used by |g_print_json|.
-    if (!g_print_json) {
-      uint64_t min = durations[0];
-      uint64_t median = n & 1 ? durations[n / 2]
-                              : (durations[n / 2 - 1] + durations[n / 2]) / 2;
-      uint64_t max = durations[n - 1];
-      printf("  min: %" PRIu64 "us, median: %" PRIu64 "us, max: %" PRIu64
-             "us\n",
-             min, median, max);
-    }
   }
+  g_timeout_ms = 1000;
 
   return true;
 }
@@ -3005,7 +2979,7 @@ bool Speed(const std::vector<std::string> &args) {
        // OpenSSL 1.0 and BoringSSL don't support DH_new_by_nid, NID_ffdhe2048, or NID_ffdhe4096
        !SpeedFFDH(selected) ||
 #endif
-       !SpeedRSA(selected) ||
+       !SpeedRSA("foo") ||
        !SpeedRSAKeyGen(false, selected) ||
        !SpeedDHcheck(selected)
 #if !defined(OPENSSL_BENCHMARK)
