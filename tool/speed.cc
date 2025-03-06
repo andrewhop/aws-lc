@@ -127,15 +127,22 @@ static std::string PrimeLenSuffix(size_t prime_length) {
   return buf;
 }
 
+struct HistogramBucket {
+  double start;
+  double end;
+  double percentage;
+};
+
 // TimeResults represents the results of benchmarking a function.
 struct TimeResults {
   // num_calls is the number of function calls done in the time period.
   uint64_t num_calls;
   // us is the number of microseconds that elapsed in the time period.
   uint64_t us;
+  double std_dev;
 
   double percentiles[101];
-  double std_dev;
+  HistogramBucket histograms[100];
 
   void Print(const std::string &description) const {
     if (g_print_json) {
@@ -213,14 +220,22 @@ struct TimeResults {
 
     printf (", \"avg\": %.3f", static_cast<double>(us) / static_cast<double>(num_calls));
     if (std_dev > 0) {
-      printf(", \"stdDev\": %.3f, percentiles:[", std_dev);
+      printf(", \"stdDev\": %.3f, \"percentiles\":[", std_dev);
       for (int i = 0; i < 101; i++) {
         printf("%.3f", percentiles[i]);
         if (i != 100) {
           printf(",");
         }
       }
+      printf("], \"histogram\": [");
+      for (int i = 0; i < 101; i++) {
+        printf("[%.3f, %.3f, %.3f]", histograms[i].start, histograms[i].end, histograms[i].percentage);
+        if (i != 100) {
+          printf(",");
+        }
+      }
       printf("]");
+
     }
 
     printf("}");
@@ -366,6 +381,8 @@ static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
 
     double std_dev = std::sqrt(sum_squared_diff / (static_cast<double>(benchmark_results.size()) - 1));
 
+
+    // Percentiles
     results->us = sum;
     results->num_calls = benchmark_results.size() * iterations_between_time_checks;
     for (size_t i = 0; i < 101; i++) {
@@ -373,6 +390,33 @@ static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
       results->percentiles[i] = static_cast<double>(benchmark_results[index]) / iterations_between_time_checks;
     }
     results->std_dev = std_dev;
+
+
+    // Histogram
+    uint64_t min_value = benchmark_results.front();
+    uint64_t max_value = benchmark_results.back();
+    double num_buckets = 100;
+    double bucket_width = static_cast<double>(max_value - min_value) / num_buckets;
+    std::vector<size_t> bucket_counts(num_buckets, 0);
+    for (uint64_t value : benchmark_results) {
+      // Calculate which bucket this value belongs in
+      int bucket_index =
+          (value == max_value) ?
+              (num_buckets - 1) : // Handle exact maximum value
+              static_cast<int>((value - min_value) / bucket_width);
+
+      bucket_counts[bucket_index]++;
+    }
+
+    double total_count = benchmark_results.size();
+
+    for (int i = 0; i < num_buckets; i++) {
+      double bucket_start = min_value + i * bucket_width;
+      double bucket_end = min_value + (i + 1) * bucket_width;
+      double percentage = (bucket_counts[i] / total_count) * 100.0;
+
+      results->histograms[i] = {bucket_start, bucket_end, percentage};
+    }
 
   } else {
     start = time_now();
@@ -568,7 +612,7 @@ static bool SpeedRSAKeyGen(bool is_fips, const std::string &selected) {
     }
     const std::string description =
         rsa_type + std::to_string(size) + std::string(" key-gen");
-    const TimeResults results = {num_calls, us, {0}, 0};
+    const TimeResults results = {num_calls, us, 0, {}, {}};
     results.Print(description);
     const size_t n = durations.size();
     assert(n > 0);
@@ -1734,106 +1778,106 @@ static bool SpeedEvpEcdh(const std::string &selected) {
   }
   return SpeedEvpEcdhCurve("EVP ECDH X25519", NID_X25519, selected);
 }
-
-static bool SpeedECPOINTCurve(const std::string &name, int nid,
-                       const std::string &selected) {
-  if (!selected.empty() && name.find(selected) == std::string::npos) {
-    return true;
-  }
-
-  BM_NAMESPACE::UniquePtr<EC_GROUP> group(EC_GROUP_new_by_curve_name(nid));
-  BM_NAMESPACE::UniquePtr<BN_CTX> ctx(BN_CTX_new());
-  BM_NAMESPACE::UniquePtr<BIGNUM> scalar0(BN_new());
-  BM_NAMESPACE::UniquePtr<BIGNUM> scalar1(BN_new());
-  BM_NAMESPACE::UniquePtr<EC_POINT> pin0(EC_POINT_new(group.get()));
-  BM_NAMESPACE::UniquePtr<EC_POINT> pin1(EC_POINT_new(group.get()));
-  BM_NAMESPACE::UniquePtr<EC_POINT> pout(EC_POINT_new(group.get()));
-
-
-  // Generate two random scalars modulo the EC group order.
-  if (!BN_rand_range(scalar0.get(), EC_GROUP_get0_order(group.get())) ||
-      !BN_rand_range(scalar1.get(), EC_GROUP_get0_order(group.get()))) {
-      return false;
-  }
-
-  // Generate two random EC point.
-  EC_POINT_mul(group.get(), pin0.get(), scalar0.get(), nullptr, nullptr, ctx.get());
-  EC_POINT_mul(group.get(), pin1.get(), scalar1.get(), nullptr, nullptr, ctx.get());
-
-  TimeResults results;
-
-  // Measure point doubling.
-  if (!TimeFunction(&results, [&group, &pout, &ctx, &pin0]() -> bool {
-        if (!EC_POINT_dbl(group.get(), pout.get(), pin0.get(), ctx.get())) {
-          return false;
-        }
-
-        return true;
-      })) {
-    return false;
-  }
-  results.Print(name + " dbl");
-
-  // Measure point addition.
-  if (!TimeFunction(&results, [&group, &pout, &ctx, &pin0, &pin1]() -> bool {
-        if (!EC_POINT_add(group.get(), pout.get(), pin0.get(), pin1.get(), ctx.get())) {
-          return false;
-        }
-
-        return true;
-      })) {
-    return false;
-  }
-  results.Print(name + " add");
-
-  // Measure scalar multiplication of an arbitrary curve point.
-  if (!TimeFunction(&results, [&group, &pout, &ctx, &pin0, &scalar0]() -> bool {
-        if (!EC_POINT_mul(group.get(), pout.get(), nullptr, pin0.get(), scalar0.get(), ctx.get())) {
-          return false;
-        }
-
-        return true;
-      })) {
-    return false;
-  }
-  results.Print(name + " mul");
-
-  // Measure scalar multiplication of the curve based point.
-  if (!TimeFunction(&results, [&group, &pout, &ctx, &scalar0]() -> bool {
-        if (!EC_POINT_mul(group.get(), pout.get(), scalar0.get(), nullptr, nullptr, ctx.get())) {
-          return false;
-        }
-
-        return true;
-      })) {
-    return false;
-  }
-  results.Print(name + " mul base");
-
-  // Measure scalar multiplication of based point and arbitrary point.
-  if (!TimeFunction(&results, [&group, &pout, &pin0, &ctx, &scalar0, &scalar1]() -> bool {
-        if (!EC_POINT_mul(group.get(), pout.get(), scalar1.get(), pin0.get(), scalar0.get(), ctx.get())) {
-          return false;
-        }
-
-        return true;
-      })) {
-    return false;
-  }
-  results.Print(name + " mul public");
-
-  return true;
-}
-
-static bool SpeedECPOINT(const std::string &selected) {
-  for (const auto& config : supported_curves) {
-    std::string message = "EC POINT " + config.name;
-    if(!SpeedECPOINTCurve(message, config.nid, selected)) {
-      return false;
-    }
-  }
-  return true;
-}
+//
+// static bool SpeedECPOINTCurve(const std::string &name, int nid,
+//                        const std::string &selected) {
+//   if (!selected.empty() && name.find(selected) == std::string::npos) {
+//     return true;
+//   }
+//
+//   BM_NAMESPACE::UniquePtr<EC_GROUP> group(EC_GROUP_new_by_curve_name(nid));
+//   BM_NAMESPACE::UniquePtr<BN_CTX> ctx(BN_CTX_new());
+//   BM_NAMESPACE::UniquePtr<BIGNUM> scalar0(BN_new());
+//   BM_NAMESPACE::UniquePtr<BIGNUM> scalar1(BN_new());
+//   BM_NAMESPACE::UniquePtr<EC_POINT> pin0(EC_POINT_new(group.get()));
+//   BM_NAMESPACE::UniquePtr<EC_POINT> pin1(EC_POINT_new(group.get()));
+//   BM_NAMESPACE::UniquePtr<EC_POINT> pout(EC_POINT_new(group.get()));
+//
+//
+//   // Generate two random scalars modulo the EC group order.
+//   if (!BN_rand_range(scalar0.get(), EC_GROUP_get0_order(group.get())) ||
+//       !BN_rand_range(scalar1.get(), EC_GROUP_get0_order(group.get()))) {
+//       return false;
+//   }
+//
+//   // Generate two random EC point.
+//   EC_POINT_mul(group.get(), pin0.get(), scalar0.get(), nullptr, nullptr, ctx.get());
+//   EC_POINT_mul(group.get(), pin1.get(), scalar1.get(), nullptr, nullptr, ctx.get());
+//
+//   TimeResults results;
+//
+//   // Measure point doubling.
+//   if (!TimeFunction(&results, [&group, &pout, &ctx, &pin0]() -> bool {
+//         if (!EC_POINT_dbl(group.get(), pout.get(), pin0.get(), ctx.get())) {
+//           return false;
+//         }
+//
+//         return true;
+//       })) {
+//     return false;
+//   }
+//   results.Print(name + " dbl");
+//
+//   // Measure point addition.
+//   if (!TimeFunction(&results, [&group, &pout, &ctx, &pin0, &pin1]() -> bool {
+//         if (!EC_POINT_add(group.get(), pout.get(), pin0.get(), pin1.get(), ctx.get())) {
+//           return false;
+//         }
+//
+//         return true;
+//       })) {
+//     return false;
+//   }
+//   results.Print(name + " add");
+//
+//   // Measure scalar multiplication of an arbitrary curve point.
+//   if (!TimeFunction(&results, [&group, &pout, &ctx, &pin0, &scalar0]() -> bool {
+//         if (!EC_POINT_mul(group.get(), pout.get(), nullptr, pin0.get(), scalar0.get(), ctx.get())) {
+//           return false;
+//         }
+//
+//         return true;
+//       })) {
+//     return false;
+//   }
+//   results.Print(name + " mul");
+//
+//   // Measure scalar multiplication of the curve based point.
+//   if (!TimeFunction(&results, [&group, &pout, &ctx, &scalar0]() -> bool {
+//         if (!EC_POINT_mul(group.get(), pout.get(), scalar0.get(), nullptr, nullptr, ctx.get())) {
+//           return false;
+//         }
+//
+//         return true;
+//       })) {
+//     return false;
+//   }
+//   results.Print(name + " mul base");
+//
+//   // Measure scalar multiplication of based point and arbitrary point.
+//   if (!TimeFunction(&results, [&group, &pout, &pin0, &ctx, &scalar0, &scalar1]() -> bool {
+//         if (!EC_POINT_mul(group.get(), pout.get(), scalar1.get(), pin0.get(), scalar0.get(), ctx.get())) {
+//           return false;
+//         }
+//
+//         return true;
+//       })) {
+//     return false;
+//   }
+//   results.Print(name + " mul public");
+//
+//   return true;
+// }
+//
+// static bool SpeedECPOINT(const std::string &selected) {
+//   for (const auto& config : supported_curves) {
+//     std::string message = "EC POINT " + config.name;
+//     if(!SpeedECPOINTCurve(message, config.nid, selected)) {
+//       return false;
+//     }
+//   }
+//   return true;
+// }
 
 #endif // !defined(OPENSSL_1_0_BENCHMARK)
 
@@ -2947,7 +2991,7 @@ bool Speed(const std::vector<std::string> &args) {
        // OpenSSL 1.0.2 is missing functions e.g. |EVP_PKEY_get0_EC_KEY| and
        // doesn't implement X255519 either.
        !SpeedEvpEcdh(selected) ||
-       !SpeedECPOINT(selected) ||
+       // !SpeedECPOINT(selected) ||
        // OpenSSL 1.0 doesn't support Scrypt
        !SpeedScrypt(selected) ||
 #endif
