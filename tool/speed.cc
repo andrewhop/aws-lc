@@ -349,8 +349,8 @@ static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
   if (g_stats) {
     uint64_t overall_start = time_now();
 
-    std::vector<uint64_t> benchmark_results;
-    benchmark_results.reserve(stats_benchmark_iterations);
+    std::vector<uint64_t> raw_benchmark_results;
+    raw_benchmark_results.reserve(stats_benchmark_iterations);
     for (size_t i = 0; i < stats_benchmark_iterations/iterations_between_time_checks; i++) {
       start = time_now();
       for (size_t j = 0; j < iterations_between_time_checks; j++) {
@@ -359,23 +359,28 @@ static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
         }
       }
       now = time_now();
-      benchmark_results.push_back(now - start);
+      raw_benchmark_results.push_back(now - start);
       if (now - overall_start > total_us) {
         break;
       }
     }
-    std::sort(benchmark_results.begin(), benchmark_results.end());
+    std::sort(raw_benchmark_results.begin(), raw_benchmark_results.end());
+    std::vector<double> benchmark_results;
+    benchmark_results.reserve(raw_benchmark_results.size());
 
-    uint64_t sum = 0.0;
+
+    double  sum = 0.0;
     for (uint64_t time : benchmark_results) {
-      sum += time;
+      double temp = static_cast<double>(time) / iterations_between_time_checks;
+      sum += temp;
+      benchmark_results.push_back(temp);
     }
 
-    double average = static_cast<double>(sum) / (static_cast<double>(benchmark_results.size()) * iterations_between_time_checks);
+    double average = sum / static_cast<double>(benchmark_results.size());
 
     double sum_squared_diff = 0.0;
-    for (uint64_t time : benchmark_results) {
-      double diff = (static_cast<double>(time) / iterations_between_time_checks) - average;
+    for (double time : benchmark_results) {
+      double diff = time - average;
       sum_squared_diff += diff * diff;
     }
 
@@ -387,21 +392,22 @@ static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
     results->num_calls = benchmark_results.size() * iterations_between_time_checks;
     for (size_t i = 0; i < 101; i++) {
       size_t index = (static_cast<double>(i)/100) * (benchmark_results.size() - 1);
-      results->percentiles[i] = static_cast<double>(benchmark_results[index]) / iterations_between_time_checks;
+      results->percentiles[i] = benchmark_results[index];
     }
     results->std_dev = std_dev;
 
 
     // Histogram
-    uint64_t min_value = benchmark_results.front();
-    uint64_t max_value = benchmark_results.back();
+    double min_value = results->percentiles[0];
+    // Trim the bucket so there is more buckets for relevant metrics
+    double max_value = results->percentiles[99];
     double num_buckets = 100;
-    double bucket_width = static_cast<double>(max_value - min_value) / num_buckets;
+    double bucket_width = (max_value - min_value) / num_buckets;
     std::vector<size_t> bucket_counts(num_buckets, 0);
-    for (uint64_t value : benchmark_results) {
+    for (double value : benchmark_results) {
       // Calculate which bucket this value belongs in
       int bucket_index =
-          (value == max_value) ?
+          (value >= max_value) ?
               (num_buckets - 1) : // Handle exact maximum value
               static_cast<int>((value - min_value) / bucket_width);
 
@@ -563,7 +569,9 @@ static bool SpeedRSAKeyGen(bool is_fips, const std::string &selected) {
   if (!BN_set_word(e.get(), 65537)) {
     return false;
   }
-  g_timeout_ms = 1000 * 30;
+  uint64_t original_timeout = g_timeout_ms;
+  // Run for at least 60 seconds
+  g_timeout_ms = std::max(g_timeout_ms * 60, (uint64_t)600000);
 
   const std::vector<int> kSizes = {2048, 3072, 4096};
   for (int size : kSizes) {
@@ -602,7 +610,7 @@ static bool SpeedRSAKeyGen(bool is_fips, const std::string &selected) {
     keygenResults.Print(name);
 
   }
-  g_timeout_ms = 1000;
+  g_timeout_ms = original_timeout;
 
   return true;
 }
@@ -2979,7 +2987,7 @@ bool Speed(const std::vector<std::string> &args) {
        // OpenSSL 1.0 and BoringSSL don't support DH_new_by_nid, NID_ffdhe2048, or NID_ffdhe4096
        !SpeedFFDH(selected) ||
 #endif
-       !SpeedRSA("foo") ||
+       !SpeedRSA(selected) ||
        !SpeedRSAKeyGen(false, selected) ||
        !SpeedDHcheck(selected)
 #if !defined(OPENSSL_BENCHMARK)
