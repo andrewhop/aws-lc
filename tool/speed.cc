@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
+#include <math.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -571,7 +572,7 @@ static bool SpeedRSAKeyGen(bool is_fips, const std::string &selected) {
   }
   uint64_t original_timeout = g_timeout_ms;
   // Run for at least 60 seconds
-  g_timeout_ms = std::max(g_timeout_ms * 60, (uint64_t)600000);
+  g_timeout_ms = std::max(g_timeout_ms * 10, (uint64_t)60000);
 
   const std::vector<int> kSizes = {2048, 3072, 4096};
   for (int size : kSizes) {
