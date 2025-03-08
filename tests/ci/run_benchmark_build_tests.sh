@@ -15,8 +15,8 @@ openssl_3_1_branch='openssl-3.1'
 openssl_3_2_branch='openssl-3.2'
 openssl_master_branch='master'
 
-#mkdir -p "${scratch_folder}"
-#rm -rf "${scratch_folder:?}"/*
+mkdir -p "${scratch_folder}"
+rm -rf "${scratch_folder:?}"/*
 
 function build_aws_lc_fips {
   echo "building aws-lc in FIPS mode"
@@ -70,19 +70,19 @@ function build_boringssl {
 # when we want to compare the performance of a particular FIPS release against mainline if mainline
 # has changes in speed.cc that could affect the comparison of the FIPS to non-FIPS, or if new
 # algorithms have been added to speed.cc
-#build_aws_lc_fips
+build_aws_lc_fips
 #"${BUILD_ROOT}/tool/bssl" speed -timeout_ms 10 -chunks 1,2,16,256,20000
-#
-#build_aws_lc_branch fips-2021-10-20
-#build_aws_lc_branch fips-2022-11-02
-#build_aws_lc_branch fips-2024-09-27
-#build_openssl_no_debug $openssl_1_0_2_branch
-#build_openssl_no_debug $openssl_1_1_1_branch
-#build_openssl_no_debug $openssl_3_1_branch
-#build_openssl_no_debug $openssl_3_2_branch
-#build_openssl_no_debug $openssl_master_branch
-#build_boringssl
-#
+
+build_aws_lc_branch fips-2021-10-20
+build_aws_lc_branch fips-2022-11-02
+build_aws_lc_branch fips-2024-09-27
+build_openssl_no_debug $openssl_1_0_2_branch
+build_openssl_no_debug $openssl_1_1_1_branch
+build_openssl_no_debug $openssl_3_1_branch
+build_openssl_no_debug $openssl_3_2_branch
+build_openssl_no_debug $openssl_master_branch
+build_boringssl
+
 run_build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_STANDARD=17 -DCMAKE_C_STANDARD=11 -DENABLE_DILITHIUM=ON -DBENCHMARK_LIBS="\
 aws-lc-fips-2021:${install_dir}/aws-lc-fips-2021-10-20;\
 aws-lc-fips-2022:${install_dir}/aws-lc-fips-2022-11-02;\

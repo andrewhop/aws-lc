@@ -571,7 +571,7 @@ static bool SpeedRSAKeyGen(bool is_fips, const std::string &selected) {
     return false;
   }
   uint64_t original_timeout = g_timeout_ms;
-  g_timeout_ms = g_timeout_ms * 10;
+  g_timeout_ms = g_timeout_ms * 60 * 10;
 
   const std::vector<int> kSizes = {2048, 3072, 4096};
   for (int size : kSizes) {
