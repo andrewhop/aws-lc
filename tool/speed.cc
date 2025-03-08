@@ -399,9 +399,8 @@ static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
 
 
     // Histogram
-    double min_value = results->percentiles[0];
-    // Trim the bucket so there is more buckets for relevant metrics
-    double max_value = results->percentiles[99];
+    double min_value = benchmark_results.front();
+    double max_value = benchmark_results.back();
     double num_buckets = 100;
     double bucket_width = (max_value - min_value) / num_buckets;
     std::vector<size_t> bucket_counts(num_buckets, 0);
@@ -571,8 +570,7 @@ static bool SpeedRSAKeyGen(bool is_fips, const std::string &selected) {
     return false;
   }
   uint64_t original_timeout = g_timeout_ms;
-  // Run for at least 60 seconds
-  g_timeout_ms = std::max(g_timeout_ms * 10, (uint64_t)60000);
+  g_timeout_ms = g_timeout_ms * 10;
 
   const std::vector<int> kSizes = {2048, 3072, 4096};
   for (int size : kSizes) {
