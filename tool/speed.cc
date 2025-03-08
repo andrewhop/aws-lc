@@ -220,7 +220,7 @@ struct TimeResults {
     }
 
     printf (", \"avg\": %.3f", static_cast<double>(us) / static_cast<double>(num_calls));
-    if (std_dev > 0) {
+    if (g_stats) {
       printf(", \"stdDev\": %.3f, \"percentiles\":[", std_dev);
       for (int i = 0; i < 101; i++) {
         printf("%.3f", percentiles[i]);
@@ -236,7 +236,6 @@ struct TimeResults {
         }
       }
       printf("]");
-
     }
 
     printf("}");

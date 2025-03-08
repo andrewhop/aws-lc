@@ -83,16 +83,16 @@ function build_boringssl {
 #build_openssl_no_debug $openssl_master_branch
 #build_boringssl
 #
-#run_build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_STANDARD=17 -DCMAKE_C_STANDARD=11 -DENABLE_DILITHIUM=ON -DBENCHMARK_LIBS="\
-#aws-lc-fips-2021:${install_dir}/aws-lc-fips-2021-10-20;\
-#aws-lc-fips-2022:${install_dir}/aws-lc-fips-2022-11-02;\
-#aws-lc-fips-2024:${install_dir}/aws-lc-fips-2024-09-27;\
-#open102:${install_dir}/openssl-${openssl_1_0_2_branch};\
-#open111:${install_dir}/openssl-${openssl_1_1_1_branch};\
-#open31:${install_dir}/openssl-${openssl_3_1_branch};\
-#open32:${install_dir}/openssl-${openssl_3_2_branch};\
-#openmaster:${install_dir}/openssl-${openssl_master_branch};\
-#boringssl:${install_dir}/boringssl;"
+run_build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_STANDARD=17 -DCMAKE_C_STANDARD=11 -DENABLE_DILITHIUM=ON -DBENCHMARK_LIBS="\
+aws-lc-fips-2021:${install_dir}/aws-lc-fips-2021-10-20;\
+aws-lc-fips-2022:${install_dir}/aws-lc-fips-2022-11-02;\
+aws-lc-fips-2024:${install_dir}/aws-lc-fips-2024-09-27;\
+open102:${install_dir}/openssl-${openssl_1_0_2_branch};\
+open111:${install_dir}/openssl-${openssl_1_1_1_branch};\
+open31:${install_dir}/openssl-${openssl_3_1_branch};\
+open32:${install_dir}/openssl-${openssl_3_2_branch};\
+openmaster:${install_dir}/openssl-${openssl_master_branch};\
+boringssl:${install_dir}/boringssl;"
 #
 #"${BUILD_ROOT}/tool/bssl" speed -json -stats | tee c8g_aws-lc-main_stats.json
 #LD_LIBRARY_PATH="${install_dir}/aws-lc-fips-2021-10-20/lib64" "${BUILD_ROOT}/tool/aws-lc-fips-2021" -json -stats | tee c8g_aws-lc-fips-2021_stats.json
