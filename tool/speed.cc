@@ -332,7 +332,8 @@ static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
     double time_per_iteration = static_cast<double>(delta)/1000;
     // The fastest AWS-LC operation is around 0.1 microseonds, if the number of
     // iterations is too small the signal will be lost in the timing overhead,
-    // if the number of iterations is too large the small outliers will be lost
+    // if the number of iterations is too large the small outliers will be lost.
+    // Therefore we aim for 100 microseconds between checks
     iterations_between_time_checks =
         static_cast<double>(100) / time_per_iteration;
   } else {
@@ -369,14 +370,14 @@ static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
     benchmark_results.reserve(raw_benchmark_results.size());
 
 
-    double  sum = 0.0;
+    uint64_t  sum = 0;
     for (uint64_t time : raw_benchmark_results) {
       double temp = static_cast<double>(time) / iterations_between_time_checks;
-      sum += temp;
+      sum += time;
       benchmark_results.push_back(temp);
     }
 
-    double average = sum / static_cast<double>(benchmark_results.size());
+    double average = static_cast<double>(sum) / static_cast<double>(benchmark_results.size());
 
     double sum_squared_diff = 0.0;
     for (double time : benchmark_results) {
@@ -398,8 +399,9 @@ static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
 
 
     // Histogram
-    double min_value = benchmark_results.front();
-    double max_value = benchmark_results.back();
+    double min_value = results->percentiles[0];
+    // Trim the last 1% of results so the 100 histogram buckets focus on the more interesting part
+    double max_value = results->percentiles[99];
     double num_buckets = 100;
     double bucket_width = (max_value - min_value) / num_buckets;
     std::vector<size_t> bucket_counts(num_buckets, 0);
