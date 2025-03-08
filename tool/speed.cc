@@ -371,7 +371,7 @@ static bool TimeFunction(TimeResults *results, std::function<bool()> func) {
 
 
     double  sum = 0.0;
-    for (uint64_t time : benchmark_results) {
+    for (uint64_t time : raw_benchmark_results) {
       double temp = static_cast<double>(time) / iterations_between_time_checks;
       sum += temp;
       benchmark_results.push_back(temp);
