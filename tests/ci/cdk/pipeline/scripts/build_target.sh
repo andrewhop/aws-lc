@@ -14,6 +14,11 @@ if [[ -z "${NEED_REBUILD+x}" || -z "${NEED_REBUILD}" || ${NEED_REBUILD} -eq 0 ]]
   exit 0
 fi
 
+# Define ANSI escape codes
+export BLUE='\033[0;34m'
+export UNDERLINE='\033[4m'
+export NC='\033[0m' # No Color
+
 export COMMIT_HASH=${COMMIT_HASH:-$CODEBUILD_RESOLVED_SOURCE_VERSION}
 export CROSS_ACCOUNT_BUILD_ROLE_ARN="arn:aws:iam::${DEPLOY_ACCOUNT}:role/CrossAccountCodeBuildRole"
 export CROSS_ACCOUNT_BUILD_SESSION="pipeline-${COMMIT_HASH}"
@@ -36,6 +41,9 @@ function build_codebuild_ci_project() {
   echo "Starting CI tests in ${project}"
   start_codebuild_project "${project}" "${source_version}"
 
+  build_console_link="https://us-west-2.console.aws.amazon.com/codesuite/codebuild/${DEPLOY_ACCOUNT}/projects/${project}/batch/${project}%3A${BUILD_BATCH_ID}?region=${DEPLOY_REGION}"
+  echo "Tests started. View build logs at: ${BLUE}${UNDERLINE}${build_console_link}${NC}"
+
   while [[ ${attempt} -le ${MAX_RETRY} ]]; do
     if [[ $attempt -gt 0 ]]; then
       echo "Retrying ${attempt}/${MAX_RETRY}..."
@@ -49,7 +57,7 @@ function build_codebuild_ci_project() {
       if [[ ${attempt} -le ${MAX_RETRY} ]]; then
         retry_batch_build
       else
-        echo "CI tests failed."
+        echo "CI tests failed. View build logs at: ${BLUE}${UNDERLINE}${build_console_link}${NC}"
         exit 1
       fi
     fi
@@ -61,8 +69,10 @@ function build_codebuild_ci_project() {
 function build_linux_docker_images() {
   local attempt=0
 
-  echo "Activating AWS CodeBuild to build Linux aarch & x86 docker images."
+  echo "Activating AWS CodeBuild to build Linux aarch & x86 docker images..."
   start_codebuild_project aws-lc-docker-image-build-linux "${COMMIT_HASH}"
+  build_console_link="https://us-west-2.console.aws.amazon.com/codesuite/codebuild/${DEPLOY_ACCOUNT}/projects/${project}/batch/${project}%3A${BUILD_BATCH_ID}?region=${DEPLOY_REGION}"
+  echo "Linux Docker image build started. View build logs at: ${BLUE}${UNDERLINE}${build_console_link}${NC}"
 
   while [[ ${attempt} -le ${MAX_RETRY} ]]; do
     if [[ $attempt -gt 0 ]]; then
@@ -78,7 +88,7 @@ function build_linux_docker_images() {
       if [[ ${attempt} -le ${MAX_RETRY} ]]; then
         retry_batch_build
       else
-        echo "Failed to build Linux docker images"
+        echo "Failed to build Linux docker images. View build logs at: ${BLUE}${UNDERLINE}${build_console_link}${NC}"
         exit 1
       fi
     fi
