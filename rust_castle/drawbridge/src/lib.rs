@@ -12,6 +12,8 @@ pub extern "C" fn aws_lc_add(left: u64, right: u64) -> u64 {
 /// |out|. There must be at least |SHA256_DIGEST_LENGTH| bytes of space in
 /// |out|.
 ///
+/// uint8_t *SHA256(const uint8_t *data, size_t len, uint8_t out[SHA256_DIGEST_LENGTH]);
+///
 /// # Safety
 ///
 /// This function is unsafe because it dereferences raw pointers:
@@ -28,14 +30,10 @@ pub unsafe extern "C" fn SHA256(data: *const u8, len: usize, out: *mut u8) -> *m
 
     // Convert C pointers to Rust slices
     let input = unsafe { core::slice::from_raw_parts(data, len) };
+    let output = unsafe { core::slice::from_raw_parts_mut(out, keep::hash::sha256::DIGEST_LEN) };
 
-    // Call Keep's digest function
-    let digest = keep::hash::sha256::digest(input);
-
-    // Copy the result to the output buffer
-    unsafe {
-        core::ptr::copy_nonoverlapping(digest.as_ptr(), out, keep::hash::sha256::DIGEST_LEN);
-    }
+    // Call Keep's digest function with input and output buffer
+    keep::hash::sha256::digest(input, output);
 
     // Return the output pointer as required by the C API
     out
