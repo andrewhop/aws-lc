@@ -1,4 +1,23 @@
-//! SHA-256 hash function implementation
+//! SHA-256 hash function implementation.
+//!
+//! This is a no_std, no_alloc implementation with no external dependencies,
+//! suitable for use in constrained environments including FIPS-validated modules.
+//!
+//! # Examples
+//!
+//! ```
+//! use keep::hash::sha256;
+//!
+//! // One-shot hashing
+//! let data = b"hello world";
+//! let hash = sha256::digest(data);
+//!
+//! // Incremental hashing
+//! let mut context = sha256::Context::new();
+//! context.update(b"hello ");
+//! context.update(b"world");
+//! let hash = context.finalize();
+//! ```
 
 #[cfg(test)]
 extern crate alloc;
@@ -8,6 +27,12 @@ pub const DIGEST_LEN: usize = 32;
 
 /// The internal block size of SHA-256 in bytes (64 bytes = 512 bits)
 pub const BLOCK_LEN: usize = 64;
+
+/// Padding byte (binary 10000000)
+const PADDING_BYTE: u8 = 0x80;
+
+/// Padding zero byte
+const PADDING_ZERO: u8 = 0x00;
 
 /// Round constants K[0..63]
 /// First 32 bits of the fractional parts of the cube roots of the first 64 primes 2..311
@@ -28,6 +53,7 @@ const H_INIT: [u32; 8] = [
 ];
 
 /// SHA-256 hash function context
+#[derive(Clone, Copy, Debug)]
 pub struct Context {
     /// Current hash state (h0-h7 in the pseudocode)
     state: [u32; 8],
@@ -69,11 +95,15 @@ impl Context {
 
         // If we have data in the buffer, try to fill it first
         if self.buffer_len > 0 {
-            while data_index < data.len() && self.buffer_len < BLOCK_LEN {
-                self.buffer[self.buffer_len] = data[data_index];
-                self.buffer_len += 1;
-                data_index += 1;
-            }
+            // Calculate how many bytes we can copy to fill the buffer
+            let bytes_to_copy = core::cmp::min(BLOCK_LEN - self.buffer_len, data.len());
+
+            // Copy bytes to the buffer
+            self.buffer[self.buffer_len..self.buffer_len + bytes_to_copy]
+                .copy_from_slice(&data[..bytes_to_copy]);
+
+            self.buffer_len += bytes_to_copy;
+            data_index = bytes_to_copy;
 
             // If the buffer is full, process it
             if self.buffer_len == BLOCK_LEN {
@@ -85,16 +115,17 @@ impl Context {
         // Process as many complete blocks as possible
         while data_index + BLOCK_LEN <= data.len() {
             self.buffer
-                .copy_from_slice(&data[data_index..(data_index + BLOCK_LEN)]);
+                .copy_from_slice(&data[data_index..data_index + BLOCK_LEN]);
             self.transform();
             data_index += BLOCK_LEN;
         }
 
         // Store any remaining bytes in the buffer
-        while data_index < data.len() {
-            self.buffer[self.buffer_len] = data[data_index];
-            self.buffer_len += 1;
-            data_index += 1;
+        if data_index < data.len() {
+            let remaining = data.len() - data_index;
+            self.buffer[self.buffer_len..self.buffer_len + remaining]
+                .copy_from_slice(&data[data_index..]);
+            self.buffer_len += remaining;
         }
     }
 
@@ -102,14 +133,14 @@ impl Context {
     pub fn finalize(mut self) -> [u8; DIGEST_LEN] {
         // Pad the message
         // 1. Append a single '1' bit
-        self.buffer[self.buffer_len] = 0x80;
+        self.buffer[self.buffer_len] = PADDING_BYTE;
         self.buffer_len += 1;
 
         // 2. Append '0' bits until the message length is congruent to 448 modulo 512
         if self.buffer_len > BLOCK_LEN - 8 {
             // Not enough room for the length, pad with zeros and process this block
             while self.buffer_len < BLOCK_LEN {
-                self.buffer[self.buffer_len] = 0;
+                self.buffer[self.buffer_len] = PADDING_ZERO;
                 self.buffer_len += 1;
             }
             self.transform();
@@ -118,20 +149,13 @@ impl Context {
 
         // Pad with zeros up to the point where the length will be added
         while self.buffer_len < BLOCK_LEN - 8 {
-            self.buffer[self.buffer_len] = 0;
+            self.buffer[self.buffer_len] = PADDING_ZERO;
             self.buffer_len += 1;
         }
 
         // 3. Append the length as a 64-bit big-endian integer
-        let bit_len = self.total_bits;
-        self.buffer[self.buffer_len] = ((bit_len >> 56) & 0xff) as u8;
-        self.buffer[self.buffer_len + 1] = ((bit_len >> 48) & 0xff) as u8;
-        self.buffer[self.buffer_len + 2] = ((bit_len >> 40) & 0xff) as u8;
-        self.buffer[self.buffer_len + 3] = ((bit_len >> 32) & 0xff) as u8;
-        self.buffer[self.buffer_len + 4] = ((bit_len >> 24) & 0xff) as u8;
-        self.buffer[self.buffer_len + 5] = ((bit_len >> 16) & 0xff) as u8;
-        self.buffer[self.buffer_len + 6] = ((bit_len >> 8) & 0xff) as u8;
-        self.buffer[self.buffer_len + 7] = (bit_len & 0xff) as u8;
+        let bit_len_bytes = self.total_bits.to_be_bytes();
+        self.buffer[self.buffer_len..self.buffer_len + 8].copy_from_slice(&bit_len_bytes);
 
         // Process the final block
         self.transform();
@@ -139,10 +163,8 @@ impl Context {
         // Convert state to bytes in big-endian format
         let mut digest = [0u8; DIGEST_LEN];
         for i in 0..8 {
-            digest[i * 4] = (self.state[i] >> 24) as u8;
-            digest[i * 4 + 1] = (self.state[i] >> 16) as u8;
-            digest[i * 4 + 2] = (self.state[i] >> 8) as u8;
-            digest[i * 4 + 3] = self.state[i] as u8;
+            let bytes = self.state[i].to_be_bytes();
+            digest[i * 4..(i + 1) * 4].copy_from_slice(&bytes);
         }
 
         digest
@@ -164,16 +186,19 @@ impl Context {
         // Copy block into first 16 words w[0..15] of the message schedule array
         // Convert from bytes to words (big-endian)
         for (i, word) in w.iter_mut().enumerate().take(16) {
-            *word = ((self.buffer[i * 4] as u32) << 24)
-                | ((self.buffer[i * 4 + 1] as u32) << 16)
-                | ((self.buffer[i * 4 + 2] as u32) << 8)
-                | (self.buffer[i * 4 + 3] as u32);
+            let bytes = [
+                self.buffer[i * 4],
+                self.buffer[i * 4 + 1],
+                self.buffer[i * 4 + 2],
+                self.buffer[i * 4 + 3],
+            ];
+            *word = u32::from_be_bytes(bytes);
         }
 
         // Extend the first 16 words into the remaining 48 words w[16..63]
         for i in 16..64 {
-            let s0 = rotr(w[i - 15], 7) ^ rotr(w[i - 15], 18) ^ (w[i - 15] >> 3);
-            let s1 = rotr(w[i - 2], 17) ^ rotr(w[i - 2], 19) ^ (w[i - 2] >> 10);
+            let s0 = small_sigma0(w[i - 15]);
+            let s1 = small_sigma1(w[i - 2]);
             w[i] = w[i - 16]
                 .wrapping_add(s0)
                 .wrapping_add(w[i - 7])
@@ -192,16 +217,16 @@ impl Context {
 
         // Compression function main loop
         for i in 0..64 {
-            let s1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25);
-            let ch = (e & f) ^ (!e & g);
+            let s1 = sigma1(e);
+            let ch_result = ch(e, f, g);
             let temp1 = h
                 .wrapping_add(s1)
-                .wrapping_add(ch)
+                .wrapping_add(ch_result)
                 .wrapping_add(K[i])
                 .wrapping_add(w[i]);
-            let s0 = rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22);
-            let maj = (a & b) ^ (a & c) ^ (b & c);
-            let temp2 = s0.wrapping_add(maj);
+            let s0 = sigma0(a);
+            let maj_result = maj(a, b, c);
+            let temp2 = s0.wrapping_add(maj_result);
 
             h = g;
             g = f;
@@ -236,6 +261,48 @@ pub fn digest(data: &[u8]) -> [u8; DIGEST_LEN] {
 #[inline]
 fn rotr(x: u32, n: u32) -> u32 {
     (x >> n) | (x << (32 - n))
+}
+
+/// Choose function: (x & y) ^ (!x & z)
+/// If x then y else z
+#[inline]
+fn ch(x: u32, y: u32, z: u32) -> u32 {
+    (x & y) ^ (!x & z)
+}
+
+/// Majority function: (x & y) ^ (x & z) ^ (y & z)
+/// Returns the bit value that appears most often in x, y, z
+#[inline]
+fn maj(x: u32, y: u32, z: u32) -> u32 {
+    (x & y) ^ (x & z) ^ (y & z)
+}
+
+/// Sigma0 function: rotr(x, 2) ^ rotr(x, 13) ^ rotr(x, 22)
+/// Used in the compression function for working variables
+#[inline]
+fn sigma0(x: u32) -> u32 {
+    rotr(x, 2) ^ rotr(x, 13) ^ rotr(x, 22)
+}
+
+/// Sigma1 function: rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25)
+/// Used in the compression function for working variables
+#[inline]
+fn sigma1(x: u32) -> u32 {
+    rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25)
+}
+
+/// Small sigma0 function: rotr(x, 7) ^ rotr(x, 18) ^ (x >> 3)
+/// Used in message schedule array preparation
+#[inline]
+fn small_sigma0(x: u32) -> u32 {
+    rotr(x, 7) ^ rotr(x, 18) ^ (x >> 3)
+}
+
+/// Small sigma1 function: rotr(x, 17) ^ rotr(x, 19) ^ (x >> 10)
+/// Used in message schedule array preparation
+#[inline]
+fn small_sigma1(x: u32) -> u32 {
+    rotr(x, 17) ^ rotr(x, 19) ^ (x >> 10)
 }
 
 #[cfg(test)]
@@ -332,14 +399,14 @@ mod tests {
             let expected = digest(data);
             test_incremental_patterns(data, &expected, "hello world");
         }
-        
+
         // Test case 2: "The quick brown fox jumps over the lazy dog"
         {
             let data = b"The quick brown fox jumps over the lazy dog";
             let expected = digest(data);
             test_incremental_patterns(data, &expected, "fox jumps");
         }
-        
+
         // Test case 3: Binary data (all byte values 0-255)
         {
             let data: Vec<u8> = (0..=255).collect();
@@ -347,7 +414,7 @@ mod tests {
             test_incremental_patterns(&data, &expected, "binary data");
         }
     }
-    
+
     // Helper function to test various incremental hashing patterns
     fn test_incremental_patterns(data: &[u8], expected: &[u8; DIGEST_LEN], name: &str) {
         // Test 1: Simple two-part split
@@ -435,41 +502,40 @@ mod tests {
     fn test_boundaries() {
         // Combine block boundaries and padding edge cases tests
         let block_size = BLOCK_LEN;
-        
+
         // Test cases for different boundary conditions
         let test_sizes = [
             // Block boundaries
-            block_size,      // Exactly one block
-            block_size * 2,  // Exactly two blocks
-            
+            block_size,     // Exactly one block
+            block_size * 2, // Exactly two blocks
             // Padding edge cases
-            55,              // Just below padding boundary
-            56,              // At padding boundary
-            57,              // Just above padding boundary
-            
+            55, // Just below padding boundary
+            56, // At padding boundary
+            57, // Just above padding boundary
             // Additional interesting sizes
-            block_size - 1,  // One byte less than a block
-            block_size + 1,  // One byte more than a block
+            block_size - 1, // One byte less than a block
+            block_size + 1, // One byte more than a block
         ];
-        
+
         for &size in &test_sizes {
             // Use a consistent byte value based on the size
             let byte_value = (size % 256) as u8;
             let data = vec![byte_value; size];
-            
+
             // Test direct hashing
             let direct_result = digest(&data);
-            
+
             // Test incremental hashing
             let mut context = Context::new();
             context.update(&data);
             let incremental_result = context.finalize();
-            
+
             assert_eq!(
                 direct_result, incremental_result,
-                "Failed boundary test with size {} bytes", size
+                "Failed boundary test with size {} bytes",
+                size
             );
-            
+
             // For larger sizes, also test with multiple updates
             if size > 10 {
                 let mut context = Context::new();
@@ -478,10 +544,11 @@ mod tests {
                     context.update(chunk);
                 }
                 let multi_update_result = context.finalize();
-                
+
                 assert_eq!(
                     direct_result, multi_update_result,
-                    "Failed multi-update boundary test with size {} bytes", size
+                    "Failed multi-update boundary test with size {} bytes",
+                    size
                 );
             }
         }
