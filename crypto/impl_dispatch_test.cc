@@ -138,7 +138,7 @@ constexpr size_t kFlag_aes_hw_encrypt = 1;
 constexpr size_t kFlag_aes_hw_set_encrypt_key = 3;
 constexpr size_t kFlag_vpaes_encrypt = 4;
 constexpr size_t kFlag_vpaes_set_encrypt_key = 5;
-constexpr size_t kFlag_sha256_hw = 6;
+// constexpr size_t kFlag_sha256_hw = 6;
 #if defined(OPENSSL_X86) || defined(OPENSSL_X86_64)
 constexpr size_t kFlag_aesni_gcm_encrypt = 2;
 constexpr size_t kFlag_aes_gcm_encrypt_avx512 = 7;
@@ -221,17 +221,18 @@ TEST_F(ImplDispatchTest, AES_single_block) {
       });
 }
 
-TEST_F(ImplDispatchTest, SHA256) {
-  AssertFunctionsHit(
-      {
-          {kFlag_sha256_hw, sha_ext_},
-      },
-      [] {
-        const uint8_t in[32] = {0};
-        uint8_t out[SHA256_DIGEST_LENGTH];
-        SHA256(in, 32, out);
-      });
-}
+// The SHA256 implementation has been replaced with the Rust Castle
+// TEST_F(ImplDispatchTest, SHA256) {
+//   AssertFunctionsHit(
+//       {
+//           {kFlag_sha256_hw, sha_ext_},
+//       },
+//       [] {
+//         const uint8_t in[32] = {0};
+//         uint8_t out[SHA256_DIGEST_LENGTH];
+//         SHA256(in, 32, out);
+//       });
+// }
 
 #ifdef OPENSSL_AARCH64
 TEST_F(ImplDispatchTest, SHA512) {
