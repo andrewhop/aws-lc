@@ -171,11 +171,25 @@ OPENSSL_EXPORT void SHA256_TransformBlocks(uint32_t state[8],
                                            const uint8_t *data,
                                            size_t num_blocks);
 
+// struct sha256_state_st {
+//   uint32_t h[8];
+//   uint64_t Num;
+//   uint8_t data[SHA256_CBLOCK];
+//   unsigned num, md_len;
+// };
+
 struct sha256_state_st {
-  uint32_t h[8];
-  uint32_t Nl, Nh;
-  uint8_t data[SHA256_CBLOCK];
-  unsigned num, md_len;
+  /* Current hash state (h0-h7 in the pseudocode) */
+  uint32_t state[8];
+
+  /* Unprocessed data buffer */
+  uint8_t buffer[SHA256_CBLOCK];
+
+  /* Number of bytes in the buffer */
+  size_t buffer_len;
+
+  /* Total number of bits processed */
+  uint64_t total_bits;
 };
 
 

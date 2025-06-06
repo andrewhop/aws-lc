@@ -39,6 +39,9 @@ pub unsafe extern "C" fn SHA256(data: *const u8, len: usize, out: *mut u8) -> *m
     out
 }
 
+
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
