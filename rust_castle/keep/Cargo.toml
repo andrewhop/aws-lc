@@ -1,0 +1,19 @@
+[package]
+name = "keep"
+version = "0.1.0"
+edition = "2024"
+description = "Core FIPS-validated cryptographic primitives"
+
+[dependencies]
+
+[profile.dev]
+#lto = true
+#opt-level = 0
+#codegen-units = 1
+panic = "abort"
+
+[profile.release]
+#lto = true
+#opt-level = 3
+#codegen-units = 1
+panic = "abort"

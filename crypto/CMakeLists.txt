@@ -752,6 +752,7 @@ if(BUILD_TESTING)
     bio/bio_test.cc
     bio/bio_socket_test.cc
     blake2/blake2_test.cc
+    castle_test.cc
     buf/buf_test.cc
     bytestring/bytestring_test.cc
     chacha/chacha_test.cc

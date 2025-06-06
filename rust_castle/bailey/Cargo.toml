@@ -1,0 +1,8 @@
+[package]
+name = "bailey"
+version = "0.1.0"
+edition = "2024"
+description = "Utility functions supporting the core cryptographic operations"
+
+[dependencies]
+keep = { path = "../keep", version = "0.1.0" }
