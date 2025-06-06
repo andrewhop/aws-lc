@@ -125,6 +125,52 @@ if(NOT OPENSSL_NO_ASM)
   endif()
 endif()
 
+# Build the Rust Castle component
+find_program(CARGO_EXECUTABLE cargo)
+if(CARGO_EXECUTABLE)
+  message(STATUS "Found Cargo: ${CARGO_EXECUTABLE}")
+  
+  # Determine build type for Rust
+  if(CMAKE_BUILD_TYPE_LOWER STREQUAL "debug")
+    set(CARGO_BUILD_TYPE "debug")
+  else()
+    set(CARGO_BUILD_TYPE "release")
+    set(CARGO_BUILD_FLAGS "--release")
+  endif()
+  
+  # Set the path to the Rust static library
+  if(APPLE)
+    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust_castle/target/${CARGO_BUILD_TYPE}/libaws_lc_rust.a")
+  elseif(WIN32)
+    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust_castle/target/${CARGO_BUILD_TYPE}/aws_lc_rust.lib")
+  else()
+    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust_castle/target/${CARGO_BUILD_TYPE}/libaws_lc_rust.a")
+  endif()
+  
+  # Find all Rust source files and Cargo.toml files
+  file(GLOB_RECURSE RUST_CASTLE_SOURCES
+    "${CMAKE_SOURCE_DIR}/rust_castle/*.rs"
+    "${CMAKE_SOURCE_DIR}/rust_castle/*/Cargo.toml"
+    "${CMAKE_SOURCE_DIR}/rust_castle/Cargo.toml"
+    "${CMAKE_SOURCE_DIR}/rust_castle/Cargo.lock"
+  )
+  
+  # Custom command to build the Rust library
+  add_custom_command(
+    OUTPUT ${RUST_CASTLE_LIB}
+    COMMAND ${CARGO_EXECUTABLE} build ${CARGO_BUILD_FLAGS}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/rust_castle
+    DEPENDS ${RUST_CASTLE_SOURCES}
+    COMMENT "Building Rust Castle library"
+    VERBATIM
+  )
+  
+  # Create a custom target for the Rust library
+  add_custom_target(rust_castle_build ALL DEPENDS ${RUST_CASTLE_LIB})
+else()
+  message(FATAL_ERROR "Cargo not found. Please install Rust and Cargo to build the Rust Castle component.")
+endif()
+
 if(PERL_EXECUTABLE)
   function(perlasm dest src)
     get_filename_component(dir ${dest} DIRECTORY)
@@ -591,6 +637,12 @@ function(build_libcrypto name module_source)
     add_library(${name} $<TARGET_OBJECTS:crypto_objects> ${CRYPTO_FIPS_OBJECTS} ${module_source} $<TARGET_OBJECTS:jitterentropy>)
   else()
     add_library(${name} $<TARGET_OBJECTS:crypto_objects> ${CRYPTO_FIPS_OBJECTS} ${module_source})
+  endif()
+
+  # Add dependency on rust_castle_build and link the Rust library
+  if(CARGO_EXECUTABLE)
+    add_dependencies(${name} rust_castle_build)
+    target_link_libraries(${name} PRIVATE ${RUST_CASTLE_LIB})
   endif()
 
   if(FIPS_DELOCATE OR FIPS_SHARED)
