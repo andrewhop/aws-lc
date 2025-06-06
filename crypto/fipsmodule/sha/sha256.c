@@ -79,19 +79,6 @@ int SHA224_Init(SHA256_CTX *sha) {
   return 1;
 }
 
-int SHA256_Init(SHA256_CTX *sha) {
-  OPENSSL_memset(sha, 0, sizeof(SHA256_CTX));
-  sha->h[0] = 0x6a09e667UL;
-  sha->h[1] = 0xbb67ae85UL;
-  sha->h[2] = 0x3c6ef372UL;
-  sha->h[3] = 0xa54ff53aUL;
-  sha->h[4] = 0x510e527fUL;
-  sha->h[5] = 0x9b05688cUL;
-  sha->h[6] = 0x1f83d9abUL;
-  sha->h[7] = 0x5be0cd19UL;
-  sha->md_len = SHA256_DIGEST_LENGTH;
-  return 1;
-}
 
 OPENSSL_STATIC_ASSERT(SHA256_CHAINING_LENGTH==SHA224_CHAINING_LENGTH,
                       sha256_and_sha224_have_same_chaining_length)
@@ -163,12 +150,6 @@ void SHA256_Transform(SHA256_CTX *c, const uint8_t data[SHA256_CBLOCK]) {
   sha256_block_data_order(c->h, data, 1);
 }
 
-int SHA256_Update(SHA256_CTX *c, const void *data, size_t len) {
-  crypto_md32_update(&sha256_block_data_order, c->h, c->data, SHA256_CBLOCK,
-                     &c->num, &c->Nh, &c->Nl, data, len);
-  return 1;
-}
-
 int SHA224_Update(SHA256_CTX *ctx, const void *data, size_t len) {
   return SHA256_Update(ctx, data, len);
 }
@@ -188,10 +169,6 @@ static int sha256_final_impl(uint8_t *out, size_t md_len, SHA256_CTX *c) {
   }
   FIPS_service_indicator_update_state();
   return 1;
-}
-
-int SHA256_Final(uint8_t out[SHA256_DIGEST_LENGTH], SHA256_CTX *c) {
-  return sha256_final_impl(out, SHA256_DIGEST_LENGTH, c);
 }
 
 int SHA224_Final(uint8_t out[SHA224_DIGEST_LENGTH], SHA256_CTX *ctx) {

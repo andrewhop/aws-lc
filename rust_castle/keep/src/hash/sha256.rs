@@ -57,18 +57,25 @@ const H_INIT: [u32; 8] = [
 // / SHA-256 hash function context
 #[derive(Clone, Copy, Debug)]
 #[repr(C)]
+#[allow(non_snake_case)]
 pub struct Context {
     /// Current hash state (h0-h7 in the pseudocode)
-    state: [u32; 8],
+    h: [u32; 8],
+
+    /// Lower 32 bits of bit count (OpenSSL compatibility)
+    Nl: u32,
+
+    /// Higher 32 bits of bit count (OpenSSL compatibility)
+    Nh: u32,
 
     /// Unprocessed data buffer
-    buffer: [u8; BLOCK_LEN],
+    data: [u8; BLOCK_LEN],
 
     /// Number of bytes in the buffer
-    buffer_len: usize,
+    num: usize,
 
-    /// Total number of bits processed
-    total_bits: u64,
+    /// Length of the digest in bytes
+    md_len: u32,
 }
 
 impl Default for Context {
@@ -81,43 +88,54 @@ impl Context {
     /// Creates a new SHA-256 context with the default initial state
     pub fn new() -> Self {
         Self {
-            state: H_INIT,
-            buffer: [0; BLOCK_LEN],
-            buffer_len: 0,
-            total_bits: 0,
+            h: H_INIT,
+            Nl: 0,
+            Nh: 0,
+            data: [0; BLOCK_LEN],
+            num: 0,
+            md_len: DIGEST_LEN as u32,
         }
     }
 
     /// Updates the hash state with input data
     pub fn update(&mut self, data: &[u8]) {
         // Update the total bit count
-        self.total_bits += (data.len() as u64) * 8;
+        let bits = (data.len() as u64) * 8;
+        let new_nl = self.Nl.wrapping_add((bits & 0xFFFF_FFFF) as u32);
+
+        // Check for overflow
+        if new_nl < self.Nl {
+            self.Nh = self.Nh.wrapping_add(1); // Carry to high word
+        }
+        self.Nl = new_nl;
+
+        // Add high bits
+        self.Nh = self.Nh.wrapping_add((bits >> 32) as u32);
 
         // Process the input data
         let mut data_index = 0;
 
         // If we have data in the buffer, try to fill it first
-        if self.buffer_len > 0 {
+        if self.num > 0 {
             // Calculate how many bytes we can copy to fill the buffer
-            let bytes_to_copy = core::cmp::min(BLOCK_LEN - self.buffer_len, data.len());
+            let bytes_to_copy = core::cmp::min(BLOCK_LEN - self.num, data.len());
 
             // Copy bytes to the buffer
-            self.buffer[self.buffer_len..self.buffer_len + bytes_to_copy]
-                .copy_from_slice(&data[..bytes_to_copy]);
+            self.data[self.num..self.num + bytes_to_copy].copy_from_slice(&data[..bytes_to_copy]);
 
-            self.buffer_len += bytes_to_copy;
+            self.num += bytes_to_copy;
             data_index = bytes_to_copy;
 
             // If the buffer is full, process it
-            if self.buffer_len == BLOCK_LEN {
+            if self.num == BLOCK_LEN {
                 self.transform();
-                self.buffer_len = 0;
+                self.num = 0;
             }
         }
 
         // Process as many complete blocks as possible
         while data_index + BLOCK_LEN <= data.len() {
-            self.buffer
+            self.data
                 .copy_from_slice(&data[data_index..data_index + BLOCK_LEN]);
             self.transform();
             data_index += BLOCK_LEN;
@@ -126,9 +144,8 @@ impl Context {
         // Store any remaining bytes in the buffer
         if data_index < data.len() {
             let remaining = data.len() - data_index;
-            self.buffer[self.buffer_len..self.buffer_len + remaining]
-                .copy_from_slice(&data[data_index..]);
-            self.buffer_len += remaining;
+            self.data[self.num..self.num + remaining].copy_from_slice(&data[data_index..]);
+            self.num += remaining;
         }
     }
 
@@ -137,46 +154,57 @@ impl Context {
         // assert!(output.len() >= DIGEST_LEN);
         // Pad the message
         // 1. Append a single '1' bit
-        self.buffer[self.buffer_len] = PADDING_BYTE;
-        self.buffer_len += 1;
+        self.data[self.num] = PADDING_BYTE;
+        self.num += 1;
 
         // 2. Append '0' bits until the message length is congruent to 448 modulo 512
-        if self.buffer_len > BLOCK_LEN - 8 {
+        if self.num > BLOCK_LEN - 8 {
             // Not enough room for the length, pad with zeros and process this block
-            while self.buffer_len < BLOCK_LEN {
-                self.buffer[self.buffer_len] = PADDING_ZERO;
-                self.buffer_len += 1;
+            while self.num < BLOCK_LEN {
+                self.data[self.num] = PADDING_ZERO;
+                self.num += 1;
             }
             self.transform();
-            self.buffer_len = 0;
+            self.num = 0;
         }
 
         // Pad with zeros up to the point where the length will be added
-        while self.buffer_len < BLOCK_LEN - 8 {
-            self.buffer[self.buffer_len] = PADDING_ZERO;
-            self.buffer_len += 1;
+        while self.num < BLOCK_LEN - 8 {
+            self.data[self.num] = PADDING_ZERO;
+            self.num += 1;
         }
 
         // 3. Append the length as a 64-bit big-endian integer
-        let bit_len_bytes = self.total_bits.to_be_bytes();
-        self.buffer[self.buffer_len..self.buffer_len + 8].copy_from_slice(&bit_len_bytes);
+        let bit_len_bytes = [
+            (self.Nh >> 24) as u8,
+            (self.Nh >> 16) as u8,
+            (self.Nh >> 8) as u8,
+            self.Nh as u8,
+            (self.Nl >> 24) as u8,
+            (self.Nl >> 16) as u8,
+            (self.Nl >> 8) as u8,
+            self.Nl as u8,
+        ];
+        self.data[self.num..self.num + 8].copy_from_slice(&bit_len_bytes);
 
         // Process the final block
         self.transform();
 
         // Convert state to bytes in big-endian format
         for i in 0..8 {
-            let bytes = self.state[i].to_be_bytes();
+            let bytes = self.h[i].to_be_bytes();
             output[i * 4..(i + 1) * 4].copy_from_slice(&bytes);
         }
     }
 
     /// Resets the context to its initial state
     pub fn reset(&mut self) {
-        self.state = H_INIT;
-        self.buffer = [0; BLOCK_LEN];
-        self.buffer_len = 0;
-        self.total_bits = 0;
+        self.h = H_INIT;
+        self.data = [0; BLOCK_LEN];
+        self.num = 0;
+        self.Nl = 0;
+        self.Nh = 0;
+        self.md_len = DIGEST_LEN as u32;
     }
 
     /// Internal function to process a complete 64-byte block
@@ -188,10 +216,10 @@ impl Context {
         // Convert from bytes to words (big-endian)
         for (i, word) in w.iter_mut().enumerate().take(16) {
             let bytes = [
-                self.buffer[i * 4],
-                self.buffer[i * 4 + 1],
-                self.buffer[i * 4 + 2],
-                self.buffer[i * 4 + 3],
+                self.data[i * 4],
+                self.data[i * 4 + 1],
+                self.data[i * 4 + 2],
+                self.data[i * 4 + 3],
             ];
             *word = u32::from_be_bytes(bytes);
         }
@@ -207,14 +235,14 @@ impl Context {
         }
 
         // Initialize working variables to current hash value
-        let mut a = self.state[0];
-        let mut b = self.state[1];
-        let mut c = self.state[2];
-        let mut d = self.state[3];
-        let mut e = self.state[4];
-        let mut f = self.state[5];
-        let mut g = self.state[6];
-        let mut h = self.state[7];
+        let mut a = self.h[0];
+        let mut b = self.h[1];
+        let mut c = self.h[2];
+        let mut d = self.h[3];
+        let mut e = self.h[4];
+        let mut f = self.h[5];
+        let mut g = self.h[6];
+        let mut h = self.h[7];
 
         // Compression function main loop
         for i in 0..64 {
@@ -240,14 +268,14 @@ impl Context {
         }
 
         // Add the compressed chunk to the current hash value
-        self.state[0] = self.state[0].wrapping_add(a);
-        self.state[1] = self.state[1].wrapping_add(b);
-        self.state[2] = self.state[2].wrapping_add(c);
-        self.state[3] = self.state[3].wrapping_add(d);
-        self.state[4] = self.state[4].wrapping_add(e);
-        self.state[5] = self.state[5].wrapping_add(f);
-        self.state[6] = self.state[6].wrapping_add(g);
-        self.state[7] = self.state[7].wrapping_add(h);
+        self.h[0] = self.h[0].wrapping_add(a);
+        self.h[1] = self.h[1].wrapping_add(b);
+        self.h[2] = self.h[2].wrapping_add(c);
+        self.h[3] = self.h[3].wrapping_add(d);
+        self.h[4] = self.h[4].wrapping_add(e);
+        self.h[5] = self.h[5].wrapping_add(f);
+        self.h[6] = self.h[6].wrapping_add(g);
+        self.h[7] = self.h[7].wrapping_add(h);
     }
 }
 
