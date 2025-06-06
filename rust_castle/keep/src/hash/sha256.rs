@@ -1,5 +1,8 @@
 //! SHA-256 hash function implementation
 
+#[cfg(test)]
+extern crate alloc;
+
 /// The size of a SHA-256 digest in bytes (32 bytes = 256 bits)
 pub const DIGEST_LEN: usize = 32;
 
@@ -238,6 +241,8 @@ fn rotr(x: u32, n: u32) -> u32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use alloc::vec;
+    use alloc::vec::Vec;
 
     #[test]
     fn test_empty_string() {
@@ -283,14 +288,32 @@ mod tests {
 
     #[test]
     fn test_incremental_hashing() {
-        let expected = digest(b"hello world");
+        let test_data = b"hello world";
+        let expected = digest(test_data);
 
+        // Test the original simple case
         let mut context = Context::new();
         context.update(b"hello ");
         context.update(b"world");
         let result = context.finalize();
+        assert_eq!(result, expected, "Failed with simple two-part split");
 
-        assert_eq!(result, expected);
+        // Test every possible increment size from 1 byte to the full length
+        for chunk_size in 1..=test_data.len() {
+            let mut context = Context::new();
+
+            // Process the input in chunks of the current size
+            for chunk in test_data.chunks(chunk_size) {
+                context.update(chunk);
+            }
+
+            let result = context.finalize();
+            assert_eq!(
+                result, expected,
+                "Failed with chunk size of {} bytes",
+                chunk_size
+            );
+        }
     }
 
     #[test]
@@ -338,6 +361,169 @@ mod tests {
         for _ in 0..1000 {
             // 1000 * 1000 = 1,000,000
             context.update(&chunk);
+        }
+        let result = context.finalize();
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_context_reset() {
+        let data1 = b"hello";
+        let data2 = b"world";
+
+        // First hash
+        let mut context = Context::new();
+        context.update(data1);
+
+        // Reset and hash different data
+        context.reset();
+        context.update(data2);
+        let result = context.finalize();
+
+        // Compare with direct hash of second data
+        let expected = digest(data2);
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_empty_updates() {
+        let data = b"test data";
+        let expected = digest(data);
+
+        let mut context = Context::new();
+        context.update(&[]); // Empty update before
+        context.update(data);
+        context.update(&[]); // Empty update after
+        let result = context.finalize();
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_block_boundaries() {
+        // Test with data sizes at block boundaries
+        let block_size = BLOCK_LEN;
+
+        // Test exactly one block
+        let data_one_block = vec![0xAA; block_size];
+        let one_block_direct = digest(&data_one_block);
+
+        let mut context = Context::new();
+        context.update(&data_one_block);
+        let one_block_incremental = context.finalize();
+
+        assert_eq!(one_block_direct, one_block_incremental);
+
+        // Test exactly two blocks
+        let data_two_blocks = vec![0xBB; block_size * 2];
+        let two_blocks_direct = digest(&data_two_blocks);
+
+        let mut context = Context::new();
+        context.update(&data_two_blocks);
+        let two_blocks_incremental = context.finalize();
+
+        assert_eq!(two_blocks_direct, two_blocks_incremental);
+    }
+
+    #[test]
+    fn test_nist_test_vectors() {
+        // NIST test vectors from FIPS 180-4
+        // SHA-256('abc')
+        let input1 = b"abc";
+        let expected1 = [
+            0xba, 0x78, 0x16, 0xbf, 0x8f, 0x01, 0xcf, 0xea, 0x41, 0x41, 0x40, 0xde, 0x5d, 0xae,
+            0x22, 0x23, 0xb0, 0x03, 0x61, 0xa3, 0x96, 0x17, 0x7a, 0x9c, 0xb4, 0x10, 0xff, 0x61,
+            0xf2, 0x00, 0x15, 0xad,
+        ];
+        assert_eq!(digest(input1), expected1);
+
+        // SHA-256('abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq')
+        let input2 = b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
+        let expected2 = [
+            0x24, 0x8d, 0x6a, 0x61, 0xd2, 0x06, 0x38, 0xb8, 0xe5, 0xc0, 0x26, 0x93, 0x0c, 0x3e,
+            0x60, 0x39, 0xa3, 0x3c, 0xe4, 0x59, 0x64, 0xff, 0x21, 0x67, 0xf6, 0xec, 0xed, 0xd4,
+            0x19, 0xdb, 0x06, 0xc1,
+        ];
+        assert_eq!(digest(input2), expected2);
+    }
+
+    #[test]
+    fn test_padding_edge_cases() {
+        // Test with data sizes that trigger different padding behaviors
+
+        // Just below the padding boundary (55 bytes)
+        let data1 = vec![0xCC; 55];
+        let direct1 = digest(&data1);
+
+        let mut context = Context::new();
+        context.update(&data1);
+        let incremental1 = context.finalize();
+
+        assert_eq!(direct1, incremental1);
+
+        // Just at the padding boundary (56 bytes)
+        let data2 = vec![0xDD; 56];
+        let direct2 = digest(&data2);
+
+        let mut context = Context::new();
+        context.update(&data2);
+        let incremental2 = context.finalize();
+
+        assert_eq!(direct2, incremental2);
+
+        // Just above the padding boundary (57 bytes)
+        let data3 = vec![0xEE; 57];
+        let direct3 = digest(&data3);
+
+        let mut context = Context::new();
+        context.update(&data3);
+        let incremental3 = context.finalize();
+
+        assert_eq!(direct3, incremental3);
+    }
+
+    #[test]
+    fn test_incremental_update_patterns() {
+        let data = b"The quick brown fox jumps over the lazy dog";
+        let expected = digest(data);
+
+        // Pattern 1: Alternating single byte and multi-byte updates
+        let mut context = Context::new();
+        context.update(&data[0..1]); // 1 byte
+        context.update(&data[1..5]); // 4 bytes
+        context.update(&data[5..6]); // 1 byte
+        context.update(&data[6..15]); // 9 bytes
+        context.update(&data[15..16]); // 1 byte
+        context.update(&data[16..]); // remaining bytes
+        let result1 = context.finalize();
+        assert_eq!(result1, expected);
+
+        // Pattern 2: Decreasing size updates
+        let mut context = Context::new();
+        let len = data.len();
+        let third = len / 3;
+        context.update(&data[0..third * 2]);
+        context.update(&data[third * 2..third * 2 + third / 2]);
+        context.update(&data[third * 2 + third / 2..]);
+        let result2 = context.finalize();
+        assert_eq!(result2, expected);
+    }
+
+    #[test]
+    fn test_binary_data() {
+        // Create a buffer with various binary values
+        let mut binary_data = Vec::with_capacity(256);
+        for i in 0..=255u8 {
+            binary_data.push(i);
+        }
+
+        let expected = digest(&binary_data);
+
+        // Test incremental hashing with the binary data
+        let mut context = Context::new();
+        for chunk in binary_data.chunks(16) {
+            context.update(chunk);
         }
         let result = context.finalize();
 
