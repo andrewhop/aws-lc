@@ -44,3 +44,8 @@ symbols.txt
 /CMakePresets.json
 /compile_commands.json
 /scratch
+
+# Rust build artifacts
+/target/
+**/target/
+Cargo.lock
