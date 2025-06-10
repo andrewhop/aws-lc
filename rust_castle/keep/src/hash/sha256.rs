@@ -72,7 +72,7 @@ pub struct Context {
     data: [u8; BLOCK_LEN],
 
     /// Number of bytes in the buffer
-    num: usize,
+    num: u32,
 
     /// Length of the digest in bytes
     md_len: u32,
@@ -118,16 +118,17 @@ impl Context {
         // If we have data in the buffer, try to fill it first
         if self.num > 0 {
             // Calculate how many bytes we can copy to fill the buffer
-            let bytes_to_copy = core::cmp::min(BLOCK_LEN - self.num, data.len());
+            let bytes_to_copy = core::cmp::min(BLOCK_LEN - self.num as usize, data.len());
 
             // Copy bytes to the buffer
-            self.data[self.num..self.num + bytes_to_copy].copy_from_slice(&data[..bytes_to_copy]);
+            self.data[self.num as usize..self.num as usize + bytes_to_copy]
+                .copy_from_slice(&data[..bytes_to_copy]);
 
-            self.num += bytes_to_copy;
+            self.num += bytes_to_copy as u32;
             data_index = bytes_to_copy;
 
             // If the buffer is full, process it
-            if self.num == BLOCK_LEN {
+            if self.num as usize == BLOCK_LEN {
                 self.transform();
                 self.num = 0;
             }
@@ -144,8 +145,9 @@ impl Context {
         // Store any remaining bytes in the buffer
         if data_index < data.len() {
             let remaining = data.len() - data_index;
-            self.data[self.num..self.num + remaining].copy_from_slice(&data[data_index..]);
-            self.num += remaining;
+            self.data[self.num as usize..self.num as usize + remaining]
+                .copy_from_slice(&data[data_index..]);
+            self.num += remaining as u32;
         }
     }
 
@@ -154,14 +156,14 @@ impl Context {
         // assert!(output.len() >= DIGEST_LEN);
         // Pad the message
         // 1. Append a single '1' bit
-        self.data[self.num] = PADDING_BYTE;
+        self.data[self.num as usize] = PADDING_BYTE;
         self.num += 1;
 
         // 2. Append '0' bits until the message length is congruent to 448 modulo 512
-        if self.num > BLOCK_LEN - 8 {
+        if (self.num as usize) > BLOCK_LEN - 8 {
             // Not enough room for the length, pad with zeros and process this block
-            while self.num < BLOCK_LEN {
-                self.data[self.num] = PADDING_ZERO;
+            while (self.num as usize) < BLOCK_LEN {
+                self.data[self.num as usize] = PADDING_ZERO;
                 self.num += 1;
             }
             self.transform();
@@ -169,8 +171,8 @@ impl Context {
         }
 
         // Pad with zeros up to the point where the length will be added
-        while self.num < BLOCK_LEN - 8 {
-            self.data[self.num] = PADDING_ZERO;
+        while (self.num as usize) < BLOCK_LEN - 8 {
+            self.data[self.num as usize] = PADDING_ZERO;
             self.num += 1;
         }
 
@@ -185,7 +187,7 @@ impl Context {
             (self.Nl >> 8) as u8,
             self.Nl as u8,
         ];
-        self.data[self.num..self.num + 8].copy_from_slice(&bit_len_bytes);
+        self.data[self.num as usize..self.num as usize + 8].copy_from_slice(&bit_len_bytes);
 
         // Process the final block
         self.transform();
@@ -338,7 +340,6 @@ fn small_sigma1(x: u32) -> u32 {
 mod tests {
     use super::*;
     use alloc::vec;
-    use alloc::vec::Vec;
 
     /// Test vector structure for table-driven tests
     struct TestVector<'a> {
@@ -405,33 +406,8 @@ mod tests {
             let mut result = [0u8; DIGEST_LEN];
             context.finalize(&mut result);
             assert_eq!(result, vector.expected);
-        }
-    }
 
-    #[test]
-    fn test_incremental_hashing() {
-        // Test case 1: "hello world"
-        {
-            let data = b"hello world";
-            let mut expected = [0u8; DIGEST_LEN];
-            digest(data, &mut expected);
-            test_incremental_patterns(data, &expected);
-        }
-
-        // Test case 2: "The quick brown fox jumps over the lazy dog"
-        {
-            let data = b"The quick brown fox jumps over the lazy dog";
-            let mut expected = [0u8; DIGEST_LEN];
-            digest(data, &mut expected);
-            test_incremental_patterns(data, &expected);
-        }
-
-        // Test case 3: Binary data (all byte values 0-255)
-        {
-            let data: Vec<u8> = (0..=255).collect();
-            let mut expected = [0u8; DIGEST_LEN];
-            digest(&data, &mut expected);
-            test_incremental_patterns(&data, &expected);
+            test_incremental_patterns(vector.input, &vector.expected);
         }
     }
 

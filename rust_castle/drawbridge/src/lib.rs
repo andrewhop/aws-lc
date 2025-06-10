@@ -45,6 +45,9 @@ pub unsafe extern "C" fn SHA256_Update(
     data: *const core::ffi::c_void,
     len: usize,
 ) -> i32 {
+    if len == 0 {
+        return 1;
+    }
     if sha.is_null() || data.is_null() {
         return 0;
     }
@@ -77,7 +80,7 @@ pub unsafe extern "C" fn SHA256_Final(out: *mut u8, sha: *mut SHA256_CTX) -> i32
 
     // Finalize the hash and write to the output buffer
     // Note: finalize consumes the context, so we need to clone it
-    let context = unsafe { *sha };
+    let context = unsafe { &mut *sha };
     context.finalize(output);
 
     // Return 1 on success as per the C API
@@ -111,10 +114,8 @@ pub unsafe extern "C" fn SHA256(data: *const u8, len: usize, out: *mut u8) -> *m
     // Call Keep's digest function with input and output buffer
     keep::hash::sha256::digest(input, output);
 
-    // Return the output pointer as required by the C API
     out
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
