@@ -5,7 +5,7 @@ pub extern "C" fn aws_lc_add_double(left: u64, right: u64) -> u64 {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn aws_lc_add(left: u64, right: u64) -> u64 {
-    keep::add(left, right)
+    bailey::add_double(left, right)
 }
 
 /// SHA256_CTX is a type alias for the keep::hash::sha256::Context struct
@@ -123,7 +123,7 @@ mod tests {
     #[test]
     fn it_works() {
         let result = aws_lc_add(2, 3);
-        assert_eq!(result, 5);
+        assert_eq!(result, 10);
 
         let result = aws_lc_add_double(2, 3);
         assert_eq!(result, 10);

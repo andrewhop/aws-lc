@@ -1,18 +1,11 @@
 #![no_std]
 
-pub mod hash;
-
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
-
 #[cfg(test)]
-mod tests {
-    use super::*;
+extern crate std;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+pub mod hash {
+    pub mod sha256 {
+        include!(concat!("../fips_src/hash/sha256.rs"));
     }
 }
+include!(concat!("../fips_src/integrity.rs"));

@@ -1,5 +1,5 @@
 pub fn add_double(left: u64, right: u64) -> u64 {
-    keep::add(left, right) * 2
+    (left + right) * 2
 }
 
 #[cfg(test)]

@@ -1,25 +1,25 @@
-//! SHA-256 hash function implementation.
-//!
-//! This is a no_std, no_alloc implementation with no external dependencies,
-//! suitable for use in constrained environments including FIPS-validated modules.
-//!
-//! # Examples
-//!
-//! ```
-//! use keep::hash::sha256;
-//!
-//! // One-shot hashing
-//! let data = b"hello world";
-//! let mut hash = [0u8; sha256::DIGEST_LEN];
-//! sha256::digest(data, &mut hash);
-//!
-//! // Incremental hashing
-//! let mut context = sha256::Context::new();
-//! context.update(b"hello ");
-//! context.update(b"world");
-//! let mut hash = [0u8; sha256::DIGEST_LEN];
-//! context.finalize(&mut hash);
-//! ```
+// SHA-256 hash function implementation.
+//
+// This is a no_std, no_alloc implementation with no external dependencies,
+// suitable for use in constrained environments including FIPS-validated modules.
+//
+// # Examples
+//
+// ```
+// use keep::hash::sha256;
+//
+// // One-shot hashing
+// let data = b"hello world";
+// let mut hash = [0u8; sha256::DIGEST_LEN];
+// sha256::digest(data, &mut hash);
+//
+// // Incremental hashing
+// let mut context = sha256::Context::new();
+// context.update(b"hello ");
+// context.update(b"world");
+// let mut hash = [0u8; sha256::DIGEST_LEN];
+// context.finalize(&mut hash);
+// ```
 
 #[cfg(test)]
 extern crate alloc;
@@ -152,6 +152,7 @@ impl Context {
     }
 
     /// Finalizes the hash computation and returns the digest
+    #[unsafe(link_section = "__TEXT,__fips_text")]
     pub fn finalize(mut self, output: &mut [u8]) {
         // assert!(output.len() >= DIGEST_LEN);
         // Pad the message
@@ -282,6 +283,7 @@ impl Context {
 }
 
 /// Computes the SHA-256 digest of the input data in one step
+#[unsafe(link_section = "__TEXT,__fips_text")]
 pub fn digest(data: &[u8], output: &mut [u8]) {
     let mut context = Context::new();
     context.update(data);
