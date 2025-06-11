@@ -15,9 +15,9 @@ fn main() {
         // Ensure the order_file exists and contains our section ordering
         if !order_file.exists() {
             let mut file = File::create(&order_file).unwrap();
-            writeln!(file, "__TEXT,__fips_start").unwrap();
-            writeln!(file, "__TEXT,__fips_text").unwrap();
-            writeln!(file, "__TEXT,__fips_end").unwrap();
+            writeln!(file, "__TEXT,__fips_a").unwrap();
+            writeln!(file, "__TEXT,__fips_b").unwrap();
+            writeln!(file, "__TEXT,__fips_c").unwrap();
         }
 
         // Use the order file to control section placement
@@ -28,7 +28,7 @@ fn main() {
 
         // Create empty sections (optional, may not be necessary)
         println!("cargo:rustc-link-arg=-Wl,-sectcreate,__TEXT,__fips_start,/dev/null");
-        println!("cargo:rustc-link-arg=-Wl,-sectcreate,__TEXT,__fips_text,/dev/null");
+        println!("cargo:rustc-link-arg=-Wl,-sectcreate,__TEXT,__fips_b,/dev/null");
         println!("cargo:rustc-link-arg=-Wl,-sectcreate,__TEXT,__fips_end,/dev/null");
     } else {
         // For non-macOS (e.g., Linux), use the typical `-T` option

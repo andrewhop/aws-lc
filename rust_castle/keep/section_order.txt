@@ -1,3 +1,3 @@
-_fips_module_start
-_constant_time_eq
-_fips_module_end
+__TEXT,__fips_a
+__TEXT,__fips_b
+__TEXT,__fips_c
