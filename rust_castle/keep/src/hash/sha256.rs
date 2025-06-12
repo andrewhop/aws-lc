@@ -54,7 +54,64 @@ const H_INIT: [u32; 8] = [
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
 ];
 
-// / SHA-256 hash function context
+// Macro for first 16 rounds
+macro_rules! round_00_15 {
+    ($a:expr, $b:expr, $c:expr, $d:expr, $e:expr, $f:expr, $g:expr, $h:expr, $w:expr, $i:expr) => {
+        let s1 = sigma1($e);
+        let ch_result = ch($e, $f, $g);
+        let temp1 = $h.wrapping_add(s1)
+            .wrapping_add(ch_result)
+            .wrapping_add(K[$i])
+            .wrapping_add($w[$i]);
+        let s0 = sigma0($a);
+        let maj_result = maj($a, $b, $c);
+        let temp2 = s0.wrapping_add(maj_result);
+        
+        $h = $g;
+        $g = $f;
+        $f = $e;
+        $e = $d.wrapping_add(temp1);
+        $d = $c;
+        $c = $b;
+        $b = $a;
+        $a = temp1.wrapping_add(temp2);
+    };
+}
+
+// Macro for rounds 16-63
+macro_rules! round_16_63 {
+    ($a:expr, $b:expr, $c:expr, $d:expr, $e:expr, $f:expr, $g:expr, $h:expr, $w:expr, $i:expr) => {
+        // Update message schedule
+        let s0 = small_sigma0($w[($i - 15) & 0x0f]);
+        let s1 = small_sigma1($w[($i - 2) & 0x0f]);
+        $w[$i & 0x0f] = $w[($i - 16) & 0x0f]
+            .wrapping_add(s0)
+            .wrapping_add($w[($i - 7) & 0x0f])
+            .wrapping_add(s1);
+        
+        // Process round
+        let s1 = sigma1($e);
+        let ch_result = ch($e, $f, $g);
+        let temp1 = $h.wrapping_add(s1)
+            .wrapping_add(ch_result)
+            .wrapping_add(K[$i])
+            .wrapping_add($w[$i & 0x0f]);
+        let s0 = sigma0($a);
+        let maj_result = maj($a, $b, $c);
+        let temp2 = s0.wrapping_add(maj_result);
+        
+        $h = $g;
+        $g = $f;
+        $f = $e;
+        $e = $d.wrapping_add(temp1);
+        $d = $c;
+        $c = $b;
+        $b = $a;
+        $a = temp1.wrapping_add(temp2);
+    };
+}
+
+// SHA-256 hash function context
 #[derive(Clone, Copy, Debug)]
 #[repr(C)]
 #[allow(non_snake_case)]
@@ -210,22 +267,22 @@ impl Context {
     }
 
     /// Internal function to process a complete 64-byte block
+    /// Optimized with manual loop unrolling and batch processing
     fn transform(&mut self) {
-        // Create message schedule array w[0..15] as a circular buffer
+        // Create message schedule array w[0..15]
         let mut w = [0u32; 16];
-
-        // Copy block into words w[0..15] of the message schedule array
-        // Convert from bytes to words (big-endian)
+        
+        // Load data into w[0..15] directly with efficient byte-to-word conversion
         for (i, word) in w.iter_mut().enumerate() {
-            let bytes = [
-                self.data[i * 4],
-                self.data[i * 4 + 1],
-                self.data[i * 4 + 2],
-                self.data[i * 4 + 3],
-            ];
-            *word = u32::from_be_bytes(bytes);
+            let offset = i * 4;
+            *word = u32::from_be_bytes([
+                self.data[offset],
+                self.data[offset + 1],
+                self.data[offset + 2],
+                self.data[offset + 3],
+            ]);
         }
-
+        
         // Initialize working variables to current hash value
         let mut a = self.h[0];
         let mut b = self.h[1];
@@ -235,40 +292,37 @@ impl Context {
         let mut f = self.h[5];
         let mut g = self.h[6];
         let mut h = self.h[7];
-
-        // Compression function main loop
-        for i in 0..64 {
-            // For indices 16-63, calculate the message schedule on-the-fly using circular buffer
-            if i >= 16 {
-                let s0 = small_sigma0(w[(i - 15) & 0x0f]);
-                let s1 = small_sigma1(w[(i - 2) & 0x0f]);
-                w[i & 0x0f] = w[(i - 16) & 0x0f]
-                    .wrapping_add(s0)
-                    .wrapping_add(w[(i - 7) & 0x0f])
-                    .wrapping_add(s1);
-            }
-
-            let s1 = sigma1(e);
-            let ch_result = ch(e, f, g);
-            let temp1 = h
-                .wrapping_add(s1)
-                .wrapping_add(ch_result)
-                .wrapping_add(K[i])
-                .wrapping_add(w[i & 0x0f]);
-            let s0 = sigma0(a);
-            let maj_result = maj(a, b, c);
-            let temp2 = s0.wrapping_add(maj_result);
-
-            h = g;
-            g = f;
-            f = e;
-            e = d.wrapping_add(temp1);
-            d = c;
-            c = b;
-            b = a;
-            a = temp1.wrapping_add(temp2);
+        
+        // Process first 16 rounds with direct data access (manually unrolled)
+        round_00_15!(a, b, c, d, e, f, g, h, w, 0);
+        round_00_15!(a, b, c, d, e, f, g, h, w, 1);
+        round_00_15!(a, b, c, d, e, f, g, h, w, 2);
+        round_00_15!(a, b, c, d, e, f, g, h, w, 3);
+        round_00_15!(a, b, c, d, e, f, g, h, w, 4);
+        round_00_15!(a, b, c, d, e, f, g, h, w, 5);
+        round_00_15!(a, b, c, d, e, f, g, h, w, 6);
+        round_00_15!(a, b, c, d, e, f, g, h, w, 7);
+        round_00_15!(a, b, c, d, e, f, g, h, w, 8);
+        round_00_15!(a, b, c, d, e, f, g, h, w, 9);
+        round_00_15!(a, b, c, d, e, f, g, h, w, 10);
+        round_00_15!(a, b, c, d, e, f, g, h, w, 11);
+        round_00_15!(a, b, c, d, e, f, g, h, w, 12);
+        round_00_15!(a, b, c, d, e, f, g, h, w, 13);
+        round_00_15!(a, b, c, d, e, f, g, h, w, 14);
+        round_00_15!(a, b, c, d, e, f, g, h, w, 15);
+        
+        // Process remaining rounds in batches of 8 for better performance
+        for i in (16..64).step_by(8) {
+            round_16_63!(a, b, c, d, e, f, g, h, w, i);
+            round_16_63!(a, b, c, d, e, f, g, h, w, i+1);
+            round_16_63!(a, b, c, d, e, f, g, h, w, i+2);
+            round_16_63!(a, b, c, d, e, f, g, h, w, i+3);
+            round_16_63!(a, b, c, d, e, f, g, h, w, i+4);
+            round_16_63!(a, b, c, d, e, f, g, h, w, i+5);
+            round_16_63!(a, b, c, d, e, f, g, h, w, i+6);
+            round_16_63!(a, b, c, d, e, f, g, h, w, i+7);
         }
-
+        
         // Add the compressed chunk to the current hash value
         self.h[0] = self.h[0].wrapping_add(a);
         self.h[1] = self.h[1].wrapping_add(b);
@@ -289,50 +343,50 @@ pub fn digest(data: &[u8], output: &mut [u8]) {
 }
 
 /// Right rotate a 32-bit value by the specified number of bits
-#[inline]
-fn rotr(x: u32, n: u32) -> u32 {
+#[inline(always)]
+const fn rotr(x: u32, n: u32) -> u32 {
     (x >> n) | (x << (32 - n))
 }
 
 /// Choose function: (x & y) ^ (!x & z)
 /// If x then y else z
-#[inline]
-fn ch(x: u32, y: u32, z: u32) -> u32 {
+#[inline(always)]
+const fn ch(x: u32, y: u32, z: u32) -> u32 {
     (x & y) ^ (!x & z)
 }
 
 /// Majority function: (x & y) ^ (x & z) ^ (y & z)
 /// Returns the bit value that appears most often in x, y, z
-#[inline]
-fn maj(x: u32, y: u32, z: u32) -> u32 {
+#[inline(always)]
+const fn maj(x: u32, y: u32, z: u32) -> u32 {
     (x & y) ^ (x & z) ^ (y & z)
 }
 
 /// Sigma0 function: rotr(x, 2) ^ rotr(x, 13) ^ rotr(x, 22)
 /// Used in the compression function for working variables
-#[inline]
-fn sigma0(x: u32) -> u32 {
+#[inline(always)]
+const fn sigma0(x: u32) -> u32 {
     rotr(x, 2) ^ rotr(x, 13) ^ rotr(x, 22)
 }
 
 /// Sigma1 function: rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25)
 /// Used in the compression function for working variables
-#[inline]
-fn sigma1(x: u32) -> u32 {
+#[inline(always)]
+const fn sigma1(x: u32) -> u32 {
     rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25)
 }
 
 /// Small sigma0 function: rotr(x, 7) ^ rotr(x, 18) ^ (x >> 3)
 /// Used in message schedule array preparation
-#[inline]
-fn small_sigma0(x: u32) -> u32 {
+#[inline(always)]
+const fn small_sigma0(x: u32) -> u32 {
     rotr(x, 7) ^ rotr(x, 18) ^ (x >> 3)
 }
 
 /// Small sigma1 function: rotr(x, 17) ^ rotr(x, 19) ^ (x >> 10)
 /// Used in message schedule array preparation
-#[inline]
-fn small_sigma1(x: u32) -> u32 {
+#[inline(always)]
+const fn small_sigma1(x: u32) -> u32 {
     rotr(x, 17) ^ rotr(x, 19) ^ (x >> 10)
 }
 
