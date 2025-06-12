@@ -54,18 +54,15 @@ const H_INIT: [u32; 8] = [
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
 ];
 
-// Macro for first 16 rounds
+// Macro for first 16 rounds (optimized)
 macro_rules! round_00_15 {
     ($a:expr, $b:expr, $c:expr, $d:expr, $e:expr, $f:expr, $g:expr, $h:expr, $w:expr, $i:expr) => {
-        let s1 = sigma1($e);
-        let ch_result = ch($e, $f, $g);
-        let temp1 = $h.wrapping_add(s1)
-            .wrapping_add(ch_result)
+        // Combine operations to reduce temporary variables
+        let temp1 = $h.wrapping_add(sigma1($e))
+            .wrapping_add(ch($e, $f, $g))
             .wrapping_add(K[$i])
             .wrapping_add($w[$i]);
-        let s0 = sigma0($a);
-        let maj_result = maj($a, $b, $c);
-        let temp2 = s0.wrapping_add(maj_result);
+        let temp2 = sigma0($a).wrapping_add(maj($a, $b, $c));
         
         $h = $g;
         $g = $f;
@@ -78,27 +75,21 @@ macro_rules! round_00_15 {
     };
 }
 
-// Macro for rounds 16-63
+// Macro for rounds 16-63 (optimized)
 macro_rules! round_16_63 {
     ($a:expr, $b:expr, $c:expr, $d:expr, $e:expr, $f:expr, $g:expr, $h:expr, $w:expr, $i:expr) => {
-        // Update message schedule
-        let s0 = small_sigma0($w[($i - 15) & 0x0f]);
-        let s1 = small_sigma1($w[($i - 2) & 0x0f]);
+        // Update message schedule - optimized to reduce temporary variables
         $w[$i & 0x0f] = $w[($i - 16) & 0x0f]
-            .wrapping_add(s0)
+            .wrapping_add(small_sigma0($w[($i - 15) & 0x0f]))
             .wrapping_add($w[($i - 7) & 0x0f])
-            .wrapping_add(s1);
+            .wrapping_add(small_sigma1($w[($i - 2) & 0x0f]));
         
-        // Process round
-        let s1 = sigma1($e);
-        let ch_result = ch($e, $f, $g);
-        let temp1 = $h.wrapping_add(s1)
-            .wrapping_add(ch_result)
+        // Process round - optimized to reduce temporary variables
+        let temp1 = $h.wrapping_add(sigma1($e))
+            .wrapping_add(ch($e, $f, $g))
             .wrapping_add(K[$i])
             .wrapping_add($w[$i & 0x0f]);
-        let s0 = sigma0($a);
-        let maj_result = maj($a, $b, $c);
-        let temp2 = s0.wrapping_add(maj_result);
+        let temp2 = sigma0($a).wrapping_add(maj($a, $b, $c));
         
         $h = $g;
         $g = $f;
@@ -267,20 +258,21 @@ impl Context {
     }
 
     /// Internal function to process a complete 64-byte block
-    /// Optimized with manual loop unrolling and batch processing
+    /// Optimized with manual loop unrolling and efficient data processing
     fn transform(&mut self) {
         // Create message schedule array w[0..15]
         let mut w = [0u32; 16];
         
-        // Load data into w[0..15] directly with efficient byte-to-word conversion
-        for (i, word) in w.iter_mut().enumerate() {
-            let offset = i * 4;
-            *word = u32::from_be_bytes([
-                self.data[offset],
-                self.data[offset + 1],
-                self.data[offset + 2],
-                self.data[offset + 3],
+        // Load data into w[0..15] with direct indexing for better performance
+        let mut i = 0;
+        while i < 16 {
+            w[i] = u32::from_be_bytes([
+                self.data[i*4],
+                self.data[i*4 + 1],
+                self.data[i*4 + 2],
+                self.data[i*4 + 3],
             ]);
+            i += 1;
         }
         
         // Initialize working variables to current hash value
@@ -311,17 +303,55 @@ impl Context {
         round_00_15!(a, b, c, d, e, f, g, h, w, 14);
         round_00_15!(a, b, c, d, e, f, g, h, w, 15);
         
-        // Process remaining rounds in batches of 8 for better performance
-        for i in (16..64).step_by(8) {
-            round_16_63!(a, b, c, d, e, f, g, h, w, i);
-            round_16_63!(a, b, c, d, e, f, g, h, w, i+1);
-            round_16_63!(a, b, c, d, e, f, g, h, w, i+2);
-            round_16_63!(a, b, c, d, e, f, g, h, w, i+3);
-            round_16_63!(a, b, c, d, e, f, g, h, w, i+4);
-            round_16_63!(a, b, c, d, e, f, g, h, w, i+5);
-            round_16_63!(a, b, c, d, e, f, g, h, w, i+6);
-            round_16_63!(a, b, c, d, e, f, g, h, w, i+7);
-        }
+        // Process remaining rounds (fully unrolled)
+        round_16_63!(a, b, c, d, e, f, g, h, w, 16);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 17);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 18);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 19);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 20);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 21);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 22);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 23);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 24);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 25);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 26);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 27);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 28);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 29);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 30);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 31);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 32);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 33);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 34);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 35);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 36);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 37);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 38);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 39);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 40);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 41);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 42);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 43);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 44);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 45);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 46);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 47);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 48);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 49);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 50);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 51);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 52);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 53);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 54);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 55);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 56);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 57);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 58);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 59);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 60);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 61);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 62);
+        round_16_63!(a, b, c, d, e, f, g, h, w, 63);
         
         // Add the compressed chunk to the current hash value
         self.h[0] = self.h[0].wrapping_add(a);
