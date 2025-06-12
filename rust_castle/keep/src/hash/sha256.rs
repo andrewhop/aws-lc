@@ -211,12 +211,12 @@ impl Context {
 
     /// Internal function to process a complete 64-byte block
     fn transform(&mut self) {
-        // Create message schedule array w[0..63]
-        let mut w = [0u32; 64];
+        // Create message schedule array w[0..15] as a circular buffer
+        let mut w = [0u32; 16];
 
-        // Copy block into first 16 words w[0..15] of the message schedule array
+        // Copy block into words w[0..15] of the message schedule array
         // Convert from bytes to words (big-endian)
-        for (i, word) in w.iter_mut().enumerate().take(16) {
+        for (i, word) in w.iter_mut().enumerate() {
             let bytes = [
                 self.data[i * 4],
                 self.data[i * 4 + 1],
@@ -224,16 +224,6 @@ impl Context {
                 self.data[i * 4 + 3],
             ];
             *word = u32::from_be_bytes(bytes);
-        }
-
-        // Extend the first 16 words into the remaining 48 words w[16..63]
-        for i in 16..64 {
-            let s0 = small_sigma0(w[i - 15]);
-            let s1 = small_sigma1(w[i - 2]);
-            w[i] = w[i - 16]
-                .wrapping_add(s0)
-                .wrapping_add(w[i - 7])
-                .wrapping_add(s1);
         }
 
         // Initialize working variables to current hash value
@@ -248,13 +238,23 @@ impl Context {
 
         // Compression function main loop
         for i in 0..64 {
+            // For indices 16-63, calculate the message schedule on-the-fly using circular buffer
+            if i >= 16 {
+                let s0 = small_sigma0(w[(i - 15) & 0x0f]);
+                let s1 = small_sigma1(w[(i - 2) & 0x0f]);
+                w[i & 0x0f] = w[(i - 16) & 0x0f]
+                    .wrapping_add(s0)
+                    .wrapping_add(w[(i - 7) & 0x0f])
+                    .wrapping_add(s1);
+            }
+
             let s1 = sigma1(e);
             let ch_result = ch(e, f, g);
             let temp1 = h
                 .wrapping_add(s1)
                 .wrapping_add(ch_result)
                 .wrapping_add(K[i])
-                .wrapping_add(w[i]);
+                .wrapping_add(w[i & 0x0f]);
             let s0 = sigma0(a);
             let maj_result = maj(a, b, c);
             let temp2 = s0.wrapping_add(maj_result);
