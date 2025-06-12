@@ -80,6 +80,12 @@ SHA256_Final(digest, &ctx);
 SHA256(data, data_len, digest);
 ```
 
+## Future Integration with aws-lc-rs
+
+aws-lc-rs is a separate crate that provides idiomatic Rust bindings for AWS-LC, implementing the Ring API. Currently, aws-lc-rs interacts with AWS-LC through the C layer.
+
+In the future, aws-lc-rs will be able to call functions in Keep and Bailey directly, bypassing the C layer. This will provide full Rust memory safety guarantees and improve performance by eliminating the FFI overhead.
+
 ## Architecture Diagram
 
 ```
@@ -105,6 +111,24 @@ SHA256(data, data_len, digest);
 │  │      (FIPS Algorithm Primitives - no_std)         │  │
 │  └─────────────────────────────────────────────────────┘  │
 │                                                         │
+│                    rust_castle                          │
+└─────────────────────────────────────────────────────────┘
+
+Future Direct Integration:
+┌─────────────────────────────────────────────────────────┐
+│                      aws-lc-rs                          │
+│               (Idiomatic Rust API - Ring)               │
+└───────────────────────────┬─────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│  ┌─────────────────────────────────────────────────┐    │
+│  │                    Bailey                       │    │
+│  └─────────────────────┬───────────────────────────┘    │
+│                        │                                │
+│  ┌─────────────────────┴───────────────────────────┐    │
+│  │                     Keep                        │    │
+│  └─────────────────────────────────────────────────┘    │
 │                    rust_castle                          │
 └─────────────────────────────────────────────────────────┘
 ```
