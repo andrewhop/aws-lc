@@ -88,7 +88,34 @@ In the future, aws-lc-rs will be able to call functions in Keep and Bailey direc
 
 ## Architecture Diagram
 
+### Past Architecture
+
 ```
+┌─────────────────────────────────────────────────────────┐
+│                      aws-lc-rs                          │
+│               (Idiomatic Rust API - Ring)               │
+└───────────────────────────┬─────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│                     AWS-LC (C code)                     │
+│                                                         │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │              C API (sha.h, etc.)                │    │
+│  └─────────────────────────────────────────────────┘    │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Near Future Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                      aws-lc-rs                          │
+│               (Idiomatic Rust API - Ring)               │
+└───────────────────────────┬─────────────────────────────┘
+                            │
+                            ▼
 ┌─────────────────────────────────────────────────────────┐
 │                     AWS-LC (C code)                     │
 │                                                         │
@@ -113,8 +140,11 @@ In the future, aws-lc-rs will be able to call functions in Keep and Bailey direc
 │                                                         │
 │                    rust_castle                          │
 └─────────────────────────────────────────────────────────┘
+```
 
-Future Direct Integration:
+### Far Future Architecture
+
+```
 ┌─────────────────────────────────────────────────────────┐
 │                      aws-lc-rs                          │
 │               (Idiomatic Rust API - Ring)               │
