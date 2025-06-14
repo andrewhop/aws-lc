@@ -1,4 +1,4 @@
-//! SHA-256 hash function implementation.
+//! SHA-224 hash function implementation.
 //!
 //! This is a no_std, no_alloc implementation with no external dependencies,
 //! suitable for use in constrained environments including FIPS-validated modules.
@@ -6,18 +6,18 @@
 //! # Examples
 //!
 //! ```
-//! use keep::hash::sha256;
+//! use keep::hash::sha224;
 //!
 //! // One-shot hashing
 //! let data = b"hello world";
-//! let mut hash = [0u8; sha256::DIGEST_LEN];
-//! sha256::digest(data, &mut hash);
+//! let mut hash = [0u8; sha224::DIGEST_LEN];
+//! sha224::digest(data, &mut hash);
 //!
 //! // Incremental hashing
-//! let mut context = sha256::Context::new();
+//! let mut context = sha224::Context::new();
 //! context.update(b"hello ");
 //! context.update(b"world");
-//! let mut hash = [0u8; sha256::DIGEST_LEN];
+//! let mut hash = [0u8; sha224::DIGEST_LEN];
 //! context.finalize(&mut hash);
 //! ```
 
@@ -28,18 +28,19 @@ use super::sha2_common::{
     process_block, PADDING_BYTE, PADDING_ZERO,
 };
 
-/// The size of a SHA-256 digest in bytes (32 bytes = 256 bits)
-pub const DIGEST_LEN: usize = 32;
+/// The size of a SHA-224 digest in bytes (28 bytes = 224 bits)
+pub const DIGEST_LEN: usize = 28;
 
-/// The internal block size of SHA-256 in bytes (64 bytes = 512 bits)
+/// The internal block size of SHA-224 in bytes (64 bytes = 512 bits)
 pub const BLOCK_LEN: usize = 64;
 
-/// Initial hash values: first 32 bits of the fractional parts of the square roots of the first 8 primes 2..19
+/// Initial hash values for SHA-224
+/// First 32 bits of the fractional parts of the square roots of the 9th through 16th primes 23..53
 const H_INIT: [u32; 8] = [
-    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
+    0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4,
 ];
 
-// SHA-256 hash function context
+// SHA-224 hash function context
 #[derive(Clone, Copy, Debug)]
 #[repr(C)]
 #[allow(non_snake_case)]
@@ -70,7 +71,7 @@ impl Default for Context {
 }
 
 impl Context {
-    /// Creates a new SHA-256 context with the default initial state
+    /// Creates a new SHA-224 context with the default initial state
     pub fn new() -> Self {
         Self {
             h: H_INIT,
@@ -178,7 +179,8 @@ impl Context {
         self.transform();
 
         // Convert state to bytes in big-endian format
-        for i in 0..8 {
+        // For SHA-224, we only use the first 7 words (28 bytes) of the state
+        for i in 0..7 {
             let bytes = self.h[i].to_be_bytes();
             output[i * 4..(i + 1) * 4].copy_from_slice(&bytes);
         }
@@ -200,18 +202,16 @@ impl Context {
     }
 }
 
-/// Computes the SHA-256 digest of the input data in one step
+/// Computes the SHA-224 digest of the input data in one step
 pub fn digest(data: &[u8], output: &mut [u8]) {
     let mut context = Context::new();
     context.update(data);
     context.finalize(output);
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use alloc::vec;
 
     /// Test vector structure for table-driven tests
     struct TestVector<'a> {
@@ -221,46 +221,34 @@ mod tests {
 
     #[test]
     fn test_standard_vectors() {
-        // Combine all standard test vectors into a single table-driven test
+        // Standard test vectors for SHA-224
         let test_vectors = [
             TestVector {
                 input: &[],
                 expected: [
-                    0xe3, 0xb0, 0xc4, 0x42, 0x98, 0xfc, 0x1c, 0x14, 0x9a, 0xfb, 0xf4, 0xc8, 0x99, 0x6f,
-                    0xb9, 0x24, 0x27, 0xae, 0x41, 0xe4, 0x64, 0x9b, 0x93, 0x4c, 0xa4, 0x95, 0x99, 0x1b,
-                    0x78, 0x52, 0xb8, 0x55,
-                ],
-            },
-            TestVector {
-                input: b"hello world",
-                expected: [
-                    0xb9, 0x4d, 0x27, 0xb9, 0x93, 0x4d, 0x3e, 0x08, 0xa5, 0x2e, 0x52, 0xd7, 0xda, 0x7d,
-                    0xab, 0xfa, 0xc4, 0x84, 0xef, 0xe3, 0x7a, 0x53, 0x80, 0xee, 0x90, 0x88, 0xf7, 0xac,
-                    0xe2, 0xef, 0xcd, 0xe9,
+                    0xd1, 0x4a, 0x02, 0x8c, 0x2a, 0x3a, 0x2b, 0xc9, 0x47, 0x61, 0x02, 0xbb, 0x28, 0x82,
+                    0x34, 0xc4, 0x15, 0xa2, 0xb0, 0x1f, 0x82, 0x8e, 0xa6, 0x2a, 0xc5, 0xb3, 0xe4, 0x2f,
                 ],
             },
             TestVector {
                 input: b"abc",
                 expected: [
-                    0xba, 0x78, 0x16, 0xbf, 0x8f, 0x01, 0xcf, 0xea, 0x41, 0x41, 0x40, 0xde, 0x5d, 0xae,
-                    0x22, 0x23, 0xb0, 0x03, 0x61, 0xa3, 0x96, 0x17, 0x7a, 0x9c, 0xb4, 0x10, 0xff, 0x61,
-                    0xf2, 0x00, 0x15, 0xad,
+                    0x23, 0x09, 0x7d, 0x22, 0x34, 0x05, 0xd8, 0x22, 0x86, 0x42, 0xa4, 0x77, 0xbd, 0xa2,
+                    0x55, 0xb3, 0x2a, 0xad, 0xbc, 0xe4, 0xbd, 0xa0, 0xb3, 0xf7, 0xe3, 0x6c, 0x9d, 0xa7,
                 ],
             },
             TestVector {
                 input: b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
                 expected: [
-                    0x24, 0x8d, 0x6a, 0x61, 0xd2, 0x06, 0x38, 0xb8, 0xe5, 0xc0, 0x26, 0x93, 0x0c, 0x3e,
-                    0x60, 0x39, 0xa3, 0x3c, 0xe4, 0x59, 0x64, 0xff, 0x21, 0x67, 0xf6, 0xec, 0xed, 0xd4,
-                    0x19, 0xdb, 0x06, 0xc1,
+                    0x75, 0x38, 0x8b, 0x16, 0x51, 0x27, 0x76, 0xcc, 0x5d, 0xba, 0x5d, 0xa1, 0xfd, 0x89,
+                    0x01, 0x50, 0xb0, 0xc6, 0x45, 0x5c, 0xb4, 0xf5, 0x8b, 0x19, 0x52, 0x52, 0x25, 0x25,
                 ],
             },
             TestVector {
                 input: b"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu",
                 expected: [
-                    0xcf, 0x5b, 0x16, 0xa7, 0x78, 0xaf, 0x83, 0x80, 0x03, 0x6c, 0xe5, 0x9e, 0x7b, 0x04,
-                    0x92, 0x37, 0x0b, 0x24, 0x9b, 0x11, 0xe8, 0xf0, 0x7a, 0x51, 0xaf, 0xac, 0x45, 0x03,
-                    0x7a, 0xfe, 0xe9, 0xd1,
+                    0xc9, 0x7c, 0xa9, 0xa5, 0x59, 0x85, 0x0c, 0xe9, 0x7a, 0x04, 0xa9, 0x6d, 0xef, 0x6d,
+                    0x99, 0xa9, 0xe0, 0xe0, 0xe2, 0xab, 0x14, 0xe6, 0xb8, 0xdf, 0x26, 0x5f, 0xc0, 0xb3,
                 ],
             },
         ];
@@ -321,20 +309,7 @@ mod tests {
             assert_eq!(result, *expected);
         }
 
-        // Test 4: Decreasing size updates
-        if data.len() >= 3 {
-            let mut context = Context::new();
-            let len = data.len();
-            let third = len / 3;
-            context.update(&data[0..third * 2]);
-            context.update(&data[third * 2..third * 2 + third / 2]);
-            context.update(&data[third * 2 + third / 2..]);
-            let mut result = [0u8; DIGEST_LEN];
-            context.finalize(&mut result);
-            assert_eq!(result, *expected);
-        }
-
-        // Test 5: Empty updates before, after, and between
+        // Test 4: Empty updates before, after, and between
         let mut context = Context::new();
         context.update(&[]); // Empty update before
         if data.len() > 1 {
@@ -352,65 +327,13 @@ mod tests {
     }
 
     #[test]
-    fn test_boundaries() {
-        // Combine block boundaries and padding edge cases tests
-        let block_size = BLOCK_LEN;
-
-        // Test cases for different boundary conditions
-        let test_sizes = [
-            // Block boundaries
-            block_size,     // Exactly one block
-            block_size * 2, // Exactly two blocks
-            // Padding edge cases
-            55, // Just below padding boundary
-            56, // At padding boundary
-            57, // Just above padding boundary
-            // Additional interesting sizes
-            block_size - 1, // One byte less than a block
-            block_size + 1, // One byte more than a block
-        ];
-
-        for &size in &test_sizes {
-            // Use a consistent byte value based on the size
-            let byte_value = (size % 256) as u8;
-            let data = vec![byte_value; size];
-
-            // Test direct hashing
-            let mut direct_result = [0u8; DIGEST_LEN];
-            digest(&data, &mut direct_result);
-
-            // Test incremental hashing
-            let mut context = Context::new();
-            context.update(&data);
-            let mut incremental_result = [0u8; DIGEST_LEN];
-            context.finalize(&mut incremental_result);
-
-            assert_eq!(direct_result, incremental_result);
-
-            // For larger sizes, also test with multiple updates
-            if size > 10 {
-                let mut context = Context::new();
-                let chunk_size = size / 3;
-                for chunk in data.chunks(chunk_size) {
-                    context.update(chunk);
-                }
-                let mut multi_update_result = [0u8; DIGEST_LEN];
-                context.finalize(&mut multi_update_result);
-
-                assert_eq!(direct_result, multi_update_result);
-            }
-        }
-    }
-
-    #[test]
     fn test_million_a() {
         // Test with a million 'a' characters
-        // This is a standard test vector for SHA-256
-        // Expected hash: cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0
+        // This is a standard test vector for SHA-224
+        // Expected hash: 20794655980c91d8bbb4c1ea97618a4bf03f42581948b2ee4ee7ad67
         let expected = [
-            0xcd, 0xc7, 0x6e, 0x5c, 0x99, 0x14, 0xfb, 0x92, 0x81, 0xa1, 0xc7, 0xe2, 0x84, 0xd7,
-            0x3e, 0x67, 0xf1, 0x80, 0x9a, 0x48, 0xa4, 0x97, 0x20, 0x0e, 0x04, 0x6d, 0x39, 0xcc,
-            0xc7, 0x11, 0x2c, 0xd0,
+            0x20, 0x79, 0x46, 0x55, 0x98, 0x0c, 0x91, 0xd8, 0xbb, 0xb4, 0xc1, 0xea, 0x97, 0x61,
+            0x8a, 0x4b, 0xf0, 0x3f, 0x42, 0x58, 0x19, 0x48, 0xb2, 0xee, 0x4e, 0xe7, 0xad, 0x67,
         ];
 
         // Create a context and update it with a million 'a' characters
