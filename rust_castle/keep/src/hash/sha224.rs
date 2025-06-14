@@ -24,10 +24,6 @@
 #[cfg(test)]
 extern crate alloc;
 
-use super::sha2_common::{
-    process_block, PADDING_BYTE, PADDING_ZERO,
-};
-
 /// The size of a SHA-224 digest in bytes (28 bytes = 224 bits)
 pub const DIGEST_LEN: usize = 28;
 
@@ -98,43 +94,15 @@ impl Context {
     /// Finalizes the hash computation and returns the digest
     pub fn finalize(mut self, output: &mut [u8]) {
         // assert!(output.len() >= DIGEST_LEN);
-        // Pad the message
-        // 1. Append a single '1' bit
-        self.data[self.num as usize] = PADDING_BYTE;
-        self.num += 1;
 
-        // 2. Append '0' bits until the message length is congruent to 448 modulo 512
-        if (self.num as usize) > BLOCK_LEN - 8 {
-            // Not enough room for the length, pad with zeros and process this block
-            while (self.num as usize) < BLOCK_LEN {
-                self.data[self.num as usize] = PADDING_ZERO;
-                self.num += 1;
-            }
-            self.transform();
-            self.num = 0;
-        }
-
-        // Pad with zeros up to the point where the length will be added
-        while (self.num as usize) < BLOCK_LEN - 8 {
-            self.data[self.num as usize] = PADDING_ZERO;
-            self.num += 1;
-        }
-
-        // 3. Append the length as a 64-bit big-endian integer
-        let bit_len_bytes = [
-            (self.Nh >> 24) as u8,
-            (self.Nh >> 16) as u8,
-            (self.Nh >> 8) as u8,
-            self.Nh as u8,
-            (self.Nl >> 24) as u8,
-            (self.Nl >> 16) as u8,
-            (self.Nl >> 8) as u8,
-            self.Nl as u8,
-        ];
-        self.data[self.num as usize..self.num as usize + 8].copy_from_slice(&bit_len_bytes);
-
-        // Process the final block
-        self.transform();
+        // Use the common finalize function to process the padding and final block
+        super::sha2_common::finalize_hash_state(
+            &mut self.h,
+            &mut self.data,
+            &mut self.num,
+            self.Nl,
+            self.Nh,
+        );
 
         // Convert state to bytes in big-endian format
         // For SHA-224, we only use the first 7 words (28 bytes) of the state
@@ -152,11 +120,6 @@ impl Context {
         self.Nl = 0;
         self.Nh = 0;
         self.md_len = DIGEST_LEN as u32;
-    }
-
-    /// Internal function to process a complete 64-byte block
-    fn transform(&mut self) {
-        process_block(&self.data, &mut self.h);
     }
 }
 

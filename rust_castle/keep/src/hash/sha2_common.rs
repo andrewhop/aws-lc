@@ -54,8 +54,7 @@ pub fn update_hash_state(
     // Store any remaining bytes in the buffer
     if data_index < data.len() {
         let remaining = data.len() - data_index;
-        buffer[*num as usize..*num as usize + remaining]
-            .copy_from_slice(&data[data_index..]);
+        buffer[*num as usize..*num as usize + remaining].copy_from_slice(&data[data_index..]);
         *num += remaining as u32;
     }
 }
@@ -174,6 +173,54 @@ macro_rules! round_16_63 {
         $b = $a;
         $a = temp1.wrapping_add(temp2);
     };
+}
+
+/// Common finalize function for SHA-224 and SHA-256
+/// Returns the final hash state after padding and processing
+pub fn finalize_hash_state(
+    h: &mut [u32; 8],
+    buffer: &mut [u8; 64],
+    num: &mut u32,
+    nl: u32,
+    nh: u32,
+) {
+    // Pad the message
+    // 1. Append a single '1' bit
+    buffer[*num as usize] = PADDING_BYTE;
+    *num += 1;
+
+    // 2. Append '0' bits until the message length is congruent to 448 modulo 512
+    if (*num as usize) > 64 - 8 {
+        // Not enough room for the length, pad with zeros and process this block
+        while (*num as usize) < 64 {
+            buffer[*num as usize] = PADDING_ZERO;
+            *num += 1;
+        }
+        process_block(buffer, h);
+        *num = 0;
+    }
+
+    // Pad with zeros up to the point where the length will be added
+    while (*num as usize) < 64 - 8 {
+        buffer[*num as usize] = PADDING_ZERO;
+        *num += 1;
+    }
+
+    // 3. Append the length as a 64-bit big-endian integer
+    let bit_len_bytes = [
+        (nh >> 24) as u8,
+        (nh >> 16) as u8,
+        (nh >> 8) as u8,
+        nh as u8,
+        (nl >> 24) as u8,
+        (nl >> 16) as u8,
+        (nl >> 8) as u8,
+        nl as u8,
+    ];
+    buffer[*num as usize..*num as usize + 8].copy_from_slice(&bit_len_bytes);
+
+    // Process the final block
+    process_block(buffer, h);
 }
 
 /// Process a complete 64-byte block with the SHA-2 compression function
