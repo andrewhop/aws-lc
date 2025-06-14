@@ -58,12 +58,13 @@ const H_INIT: [u32; 8] = [
 macro_rules! round_00_15 {
     ($a:expr, $b:expr, $c:expr, $d:expr, $e:expr, $f:expr, $g:expr, $h:expr, $w:expr, $i:expr) => {
         // Combine operations to reduce temporary variables
-        let temp1 = $h.wrapping_add(sigma1($e))
+        let temp1 = $h
+            .wrapping_add(sigma1($e))
             .wrapping_add(ch($e, $f, $g))
             .wrapping_add(K[$i])
             .wrapping_add($w[$i]);
         let temp2 = sigma0($a).wrapping_add(maj($a, $b, $c));
-        
+
         $h = $g;
         $g = $f;
         $f = $e;
@@ -83,14 +84,14 @@ macro_rules! round_16_63 {
             .wrapping_add(small_sigma0($w[($i - 15) & 0x0f]))
             .wrapping_add($w[($i - 7) & 0x0f])
             .wrapping_add(small_sigma1($w[($i - 2) & 0x0f]));
-        
+
         // Process round - optimized to reduce temporary variables
         let temp1 = $h.wrapping_add(sigma1($e))
             .wrapping_add(ch($e, $f, $g))
             .wrapping_add(K[$i])
             .wrapping_add($w[$i & 0x0f]);
         let temp2 = sigma0($a).wrapping_add(maj($a, $b, $c));
-        
+
         $h = $g;
         $g = $f;
         $f = $e;
@@ -262,19 +263,19 @@ impl Context {
     fn transform(&mut self) {
         // Create message schedule array w[0..15]
         let mut w = [0u32; 16];
-        
+
         // Load data into w[0..15] with direct indexing for better performance
         let mut i = 0;
         while i < 16 {
             w[i] = u32::from_be_bytes([
-                self.data[i*4],
-                self.data[i*4 + 1],
-                self.data[i*4 + 2],
-                self.data[i*4 + 3],
+                self.data[i * 4],
+                self.data[i * 4 + 1],
+                self.data[i * 4 + 2],
+                self.data[i * 4 + 3],
             ]);
             i += 1;
         }
-        
+
         // Initialize working variables to current hash value
         let mut a = self.h[0];
         let mut b = self.h[1];
@@ -284,7 +285,7 @@ impl Context {
         let mut f = self.h[5];
         let mut g = self.h[6];
         let mut h = self.h[7];
-        
+
         // Process first 16 rounds with direct data access (manually unrolled)
         round_00_15!(a, b, c, d, e, f, g, h, w, 0);
         round_00_15!(a, b, c, d, e, f, g, h, w, 1);
@@ -302,7 +303,7 @@ impl Context {
         round_00_15!(a, b, c, d, e, f, g, h, w, 13);
         round_00_15!(a, b, c, d, e, f, g, h, w, 14);
         round_00_15!(a, b, c, d, e, f, g, h, w, 15);
-        
+
         // Process remaining rounds (fully unrolled)
         round_16_63!(a, b, c, d, e, f, g, h, w, 16);
         round_16_63!(a, b, c, d, e, f, g, h, w, 17);
@@ -352,7 +353,7 @@ impl Context {
         round_16_63!(a, b, c, d, e, f, g, h, w, 61);
         round_16_63!(a, b, c, d, e, f, g, h, w, 62);
         round_16_63!(a, b, c, d, e, f, g, h, w, 63);
-        
+
         // Add the compressed chunk to the current hash value
         self.h[0] = self.h[0].wrapping_add(a);
         self.h[1] = self.h[1].wrapping_add(b);

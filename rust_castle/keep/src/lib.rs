@@ -1,6 +1,7 @@
-#![no_std]
+#![cfg_attr(not(test), no_std)]
 
 pub mod hash;
+pub mod integrity;
 
 pub fn add(left: u64, right: u64) -> u64 {
     left + right
