@@ -1,5 +1,65 @@
 //! Common utilities for SHA-2 family algorithms (SHA-224 and SHA-256).
 
+/// Common update function for SHA-224 and SHA-256
+pub fn update_hash_state(
+    data: &[u8],
+    h: &mut [u32; 8],
+    buffer: &mut [u8; 64],
+    num: &mut u32,
+    nl: &mut u32,
+    nh: &mut u32,
+) {
+    // Update the total bit count
+    let bits = (data.len() as u64) * 8;
+    let new_nl = nl.wrapping_add((bits & 0xFFFF_FFFF) as u32);
+
+    // Check for overflow
+    if new_nl < *nl {
+        *nh = nh.wrapping_add(1); // Carry to high word
+    }
+    *nl = new_nl;
+
+    // Add high bits
+    *nh = nh.wrapping_add((bits >> 32) as u32);
+
+    // Process the input data
+    let mut data_index = 0;
+
+    // If we have data in the buffer, try to fill it first
+    if *num > 0 {
+        // Calculate how many bytes we can copy to fill the buffer
+        let bytes_to_copy = core::cmp::min(64 - *num as usize, data.len());
+
+        // Copy bytes to the buffer
+        buffer[*num as usize..*num as usize + bytes_to_copy]
+            .copy_from_slice(&data[..bytes_to_copy]);
+
+        *num += bytes_to_copy as u32;
+        data_index = bytes_to_copy;
+
+        // If the buffer is full, process it
+        if *num as usize == 64 {
+            process_block(buffer, h);
+            *num = 0;
+        }
+    }
+
+    // Process as many complete blocks as possible
+    while data_index + 64 <= data.len() {
+        buffer.copy_from_slice(&data[data_index..data_index + 64]);
+        process_block(buffer, h);
+        data_index += 64;
+    }
+
+    // Store any remaining bytes in the buffer
+    if data_index < data.len() {
+        let remaining = data.len() - data_index;
+        buffer[*num as usize..*num as usize + remaining]
+            .copy_from_slice(&data[data_index..]);
+        *num += remaining as u32;
+    }
+}
+
 /// Padding byte (binary 10000000)
 pub const PADDING_BYTE: u8 = 0x80;
 

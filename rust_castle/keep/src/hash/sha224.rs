@@ -85,56 +85,14 @@ impl Context {
 
     /// Updates the hash state with input data
     pub fn update(&mut self, data: &[u8]) {
-        // Update the total bit count
-        let bits = (data.len() as u64) * 8;
-        let new_nl = self.Nl.wrapping_add((bits & 0xFFFF_FFFF) as u32);
-
-        // Check for overflow
-        if new_nl < self.Nl {
-            self.Nh = self.Nh.wrapping_add(1); // Carry to high word
-        }
-        self.Nl = new_nl;
-
-        // Add high bits
-        self.Nh = self.Nh.wrapping_add((bits >> 32) as u32);
-
-        // Process the input data
-        let mut data_index = 0;
-
-        // If we have data in the buffer, try to fill it first
-        if self.num > 0 {
-            // Calculate how many bytes we can copy to fill the buffer
-            let bytes_to_copy = core::cmp::min(BLOCK_LEN - self.num as usize, data.len());
-
-            // Copy bytes to the buffer
-            self.data[self.num as usize..self.num as usize + bytes_to_copy]
-                .copy_from_slice(&data[..bytes_to_copy]);
-
-            self.num += bytes_to_copy as u32;
-            data_index = bytes_to_copy;
-
-            // If the buffer is full, process it
-            if self.num as usize == BLOCK_LEN {
-                self.transform();
-                self.num = 0;
-            }
-        }
-
-        // Process as many complete blocks as possible
-        while data_index + BLOCK_LEN <= data.len() {
-            self.data
-                .copy_from_slice(&data[data_index..data_index + BLOCK_LEN]);
-            self.transform();
-            data_index += BLOCK_LEN;
-        }
-
-        // Store any remaining bytes in the buffer
-        if data_index < data.len() {
-            let remaining = data.len() - data_index;
-            self.data[self.num as usize..self.num as usize + remaining]
-                .copy_from_slice(&data[data_index..]);
-            self.num += remaining as u32;
-        }
+        super::sha2_common::update_hash_state(
+            data,
+            &mut self.h,
+            &mut self.data,
+            &mut self.num,
+            &mut self.Nl,
+            &mut self.Nh,
+        );
     }
 
     /// Finalizes the hash computation and returns the digest
