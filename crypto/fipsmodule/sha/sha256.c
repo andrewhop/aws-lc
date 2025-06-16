@@ -65,20 +65,6 @@
 #include "internal.h"
 
 
-int SHA224_Init(SHA256_CTX *sha) {
-  OPENSSL_memset(sha, 0, sizeof(SHA256_CTX));
-  sha->h[0] = 0xc1059ed8UL;
-  sha->h[1] = 0x367cd507UL;
-  sha->h[2] = 0x3070dd17UL;
-  sha->h[3] = 0xf70e5939UL;
-  sha->h[4] = 0xffc00b31UL;
-  sha->h[5] = 0x68581511UL;
-  sha->h[6] = 0x64f98fa7UL;
-  sha->h[7] = 0xbefa4fa4UL;
-  sha->md_len = SHA224_DIGEST_LENGTH;
-  return 1;
-}
-
 
 OPENSSL_STATIC_ASSERT(SHA256_CHAINING_LENGTH==SHA224_CHAINING_LENGTH,
                       sha256_and_sha224_have_same_chaining_length)
@@ -121,23 +107,6 @@ int SHA256_Init_from_state(SHA256_CTX *sha,
   return sha256_init_from_state_impl(sha, SHA256_DIGEST_LENGTH, h, n);
 }
 
-uint8_t *SHA224(const uint8_t *data, size_t len,
-                uint8_t out[SHA224_DIGEST_LENGTH]) {
-  // We have to verify that all the SHA services actually succeed before
-  // updating the indicator state, so we lock the state here.
-  FIPS_service_indicator_lock_state();
-  SHA256_CTX ctx;
-  const int ok = SHA224_Init(&ctx) &&
-                 SHA224_Update(&ctx, data, len) &&
-                 SHA224_Final(out, &ctx);
-  FIPS_service_indicator_unlock_state();
-  if(ok) {
-    FIPS_service_indicator_update_state();
-  }
-  OPENSSL_cleanse(&ctx, sizeof(ctx));
-  return out;
-}
-
 // SHA256 is now implemented in Rust in rust_castle/drawbridge/src/lib.rs
 // using the keep::hash::sha256::digest function
 
@@ -148,31 +117,6 @@ static void sha256_block_data_order(uint32_t state[8], const uint8_t *in,
 
 void SHA256_Transform(SHA256_CTX *c, const uint8_t data[SHA256_CBLOCK]) {
   sha256_block_data_order(c->h, data, 1);
-}
-
-int SHA224_Update(SHA256_CTX *ctx, const void *data, size_t len) {
-  return SHA256_Update(ctx, data, len);
-}
-
-static int sha256_final_impl(uint8_t *out, size_t md_len, SHA256_CTX *c) {
-  crypto_md32_final(&sha256_block_data_order, c->h, c->data, SHA256_CBLOCK,
-                    &c->num, c->Nh, c->Nl, /*is_big_endian=*/1);
-  if (c->md_len != md_len) {
-    return 0;
-  }
-
-  assert(md_len % 4 == 0);
-  const size_t out_words = md_len / 4;
-  for (size_t i = 0; i < out_words; i++) {
-    CRYPTO_store_u32_be(out, c->h[i]);
-    out += 4;
-  }
-  FIPS_service_indicator_update_state();
-  return 1;
-}
-
-int SHA224_Final(uint8_t out[SHA224_DIGEST_LENGTH], SHA256_CTX *ctx) {
-  return sha256_final_impl(out, SHA224_DIGEST_LENGTH, ctx);
 }
 
 // sha256_get_state_impl is the implementation of
