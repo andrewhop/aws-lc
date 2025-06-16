@@ -97,10 +97,9 @@ pub unsafe extern "C" fn SHA256_Final(out: *mut u8, sha: *mut SHA256_CTX) -> i32
     let output =
         unsafe { core::slice::from_raw_parts_mut(out, keep::hash::sha2::SHA256_DIGEST_LEN) };
 
-    // Finalize the hash and write to the output buffer
-    // Note: finalize consumes the context, so we need to clone it
+    // Finalize the hash and write to the output buffer using the SHA-256 specific method
     let context = unsafe { &mut *sha };
-    context.finalize(output);
+    context.sha256_finalize(output);
 
     // Return 1 on success as per the C API
     1
@@ -174,9 +173,9 @@ pub unsafe extern "C" fn SHA224_Final(out: *mut u8, sha: *mut SHA256_CTX) -> i32
     let output =
         unsafe { core::slice::from_raw_parts_mut(out, keep::hash::sha2::SHA224_DIGEST_LEN) };
 
-    // Finalize the hash and write to the output buffer
+    // Finalize the hash and write to the output buffer using the SHA-224 specific method
     let context = unsafe { &mut *sha };
-    context.finalize(output);
+    context.sha224_finalize(output);
 
     // Return 1 on success as per the C API
     1

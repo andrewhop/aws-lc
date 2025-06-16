@@ -18,7 +18,7 @@
 //! context.update(b"hello ");
 //! context.update(b"world");
 //! let mut hash = [0u8; sha2::SHA256_DIGEST_LEN];
-//! context.finalize(&mut hash);
+//! context.sha256_finalize(&mut hash);
 //!
 //! // SHA-224 one-shot hashing
 //! let data = b"hello world";
@@ -30,7 +30,7 @@
 //! context.update(b"hello ");
 //! context.update(b"world");
 //! let mut hash = [0u8; sha2::SHA224_DIGEST_LEN];
-//! context.finalize(&mut hash);
+//! context.sha224_finalize(&mut hash);
 //! ```
 
 #[cfg(test)]
@@ -198,25 +198,23 @@ impl Context {
         }
     }
 
-    /// Finalizes the hash computation and returns the digest
-    /// This is a compatibility method that chooses the appropriate finalize method
-    /// based on the digest length
-    pub fn finalize(&mut self, output: &mut [u8]) {
+    /// Finalizes the SHA-256 hash computation and returns the digest
+    pub fn sha256_finalize(&mut self, output: &mut [u8]) {
         finalize_hash_state(&mut self.h, &mut self.data, &mut self.num, self.Nl, self.Nh);
-        if self.md_len == SHA256_DIGEST_LEN as u32 {
-            // For SHA-256, we use all 8 words (32 bytes)
-            for i in 0..8 {
-                let bytes = self.h[i].to_be_bytes();
-                output[i * 4..(i + 1) * 4].copy_from_slice(&bytes);
-            }
-        } else if self.md_len == SHA224_DIGEST_LEN as u32 {
-            // For SHA-224, we only use the first 7 words (28 bytes)
-            for i in 0..7 {
-                let bytes = self.h[i].to_be_bytes();
-                output[i * 4..(i + 1) * 4].copy_from_slice(&bytes);
-            }
-        } else {
-            panic!("Invalid digest len {}", self.md_len)
+        // For SHA-256, we use all 8 words (32 bytes)
+        for i in 0..8 {
+            let bytes = self.h[i].to_be_bytes();
+            output[i * 4..(i + 1) * 4].copy_from_slice(&bytes);
+        }
+    }
+
+    /// Finalizes the SHA-224 hash computation and returns the digest
+    pub fn sha224_finalize(&mut self, output: &mut [u8]) {
+        finalize_hash_state(&mut self.h, &mut self.data, &mut self.num, self.Nl, self.Nh);
+        // For SHA-224, we only use the first 7 words (28 bytes)
+        for i in 0..7 {
+            let bytes = self.h[i].to_be_bytes();
+            output[i * 4..(i + 1) * 4].copy_from_slice(&bytes);
         }
     }
 }
@@ -225,14 +223,14 @@ impl Context {
 pub fn sha256_digest(data: &[u8], output: &mut [u8]) {
     let mut context = Context::new_sha256();
     context.update(data);
-    context.finalize(output);
+    context.sha256_finalize(output);
 }
 
 /// Computes the SHA-224 digest of the input data in one step
 pub fn sha224_digest(data: &[u8], output: &mut [u8]) {
     let mut context = Context::new_sha224();
     context.update(data);
-    context.finalize(output);
+    context.sha224_finalize(output);
 }
 
 /// Padding byte (binary 10000000)
@@ -568,7 +566,7 @@ mod tests {
             let mut context = Context::new_sha256();
             context.update(input);
             let mut result = [0u8; SHA256_DIGEST_LEN];
-            context.finalize(&mut result);
+            context.sha256_finalize(&mut result);
             assert_eq!(result, *expected);
 
             test_sha256_incremental_patterns(input, expected);
@@ -584,7 +582,7 @@ mod tests {
             context.update(&data[..split_point]);
             context.update(&data[split_point..]);
             let mut result = [0u8; SHA256_DIGEST_LEN];
-            context.finalize(&mut result);
+            context.sha256_finalize(&mut result);
             assert_eq!(result, *expected);
         }
 
@@ -595,7 +593,7 @@ mod tests {
                 context.update(chunk);
             }
             let mut result = [0u8; SHA256_DIGEST_LEN];
-            context.finalize(&mut result);
+            context.sha256_finalize(&mut result);
             assert_eq!(result, *expected);
         }
 
@@ -609,7 +607,7 @@ mod tests {
             context.update(&data[15..16]); // 1 byte
             context.update(&data[16..]); // remaining bytes
             let mut result = [0u8; SHA256_DIGEST_LEN];
-            context.finalize(&mut result);
+            context.sha256_finalize(&mut result);
             assert_eq!(result, *expected);
         }
 
@@ -627,7 +625,7 @@ mod tests {
         }
         context.update(empty_data); // Empty update after
         let mut result = [0u8; SHA256_DIGEST_LEN];
-        context.finalize(&mut result);
+        context.sha256_finalize(&mut result);
         assert_eq!(result, *expected);
     }
 
@@ -685,7 +683,7 @@ mod tests {
             let mut context = Context::new_sha224();
             context.update(input);
             let mut result = [0u8; SHA224_DIGEST_LEN];
-            context.finalize(&mut result);
+            context.sha224_finalize(&mut result);
             assert_eq!(result, *expected);
 
             test_sha224_incremental_patterns(input, expected);
@@ -701,7 +699,7 @@ mod tests {
             context.update(&data[..split_point]);
             context.update(&data[split_point..]);
             let mut result = [0u8; SHA224_DIGEST_LEN];
-            context.finalize(&mut result);
+            context.sha224_finalize(&mut result);
             assert_eq!(result, *expected);
         }
 
@@ -712,7 +710,7 @@ mod tests {
                 context.update(chunk);
             }
             let mut result = [0u8; SHA224_DIGEST_LEN];
-            context.finalize(&mut result);
+            context.sha224_finalize(&mut result);
             assert_eq!(result, *expected);
         }
 
@@ -726,7 +724,7 @@ mod tests {
             context.update(&data[15..16]); // 1 byte
             context.update(&data[16..]); // remaining bytes
             let mut result = [0u8; SHA224_DIGEST_LEN];
-            context.finalize(&mut result);
+            context.sha224_finalize(&mut result);
             assert_eq!(result, *expected);
         }
 
@@ -744,7 +742,7 @@ mod tests {
         }
         context.update(empty_data); // Empty update after
         let mut result = [0u8; SHA224_DIGEST_LEN];
-        context.finalize(&mut result);
+        context.sha224_finalize(&mut result);
         assert_eq!(result, *expected);
     }
 
@@ -767,7 +765,7 @@ mod tests {
             context.update(&chunk);
         }
         let mut result = [0u8; SHA256_DIGEST_LEN];
-        context.finalize(&mut result);
+        context.sha256_finalize(&mut result);
 
         assert_eq!(result, expected);
     }
@@ -790,7 +788,7 @@ mod tests {
             context.update(&chunk);
         }
         let mut result = [0u8; SHA224_DIGEST_LEN];
-        context.finalize(&mut result);
+        context.sha224_finalize(&mut result);
 
         assert_eq!(result, expected);
     }
@@ -809,7 +807,7 @@ mod tests {
         context.reset();
         context.update(data2);
         let mut result = [0u8; SHA256_DIGEST_LEN];
-        context.finalize(&mut result);
+        context.sha256_finalize(&mut result);
 
         // Compare with direct hash of second data
         let mut expected = [0u8; SHA256_DIGEST_LEN];
@@ -824,7 +822,7 @@ mod tests {
         context.reset();
         context.update(data2);
         let mut result = [0u8; SHA224_DIGEST_LEN];
-        context.finalize(&mut result);
+        context.sha224_finalize(&mut result);
 
         // Compare with direct hash of second data
         let mut expected = [0u8; SHA224_DIGEST_LEN];
@@ -865,7 +863,7 @@ mod tests {
             let mut context = Context::new_sha256();
             context.update(&data);
             let mut incremental_result = [0u8; SHA256_DIGEST_LEN];
-            context.finalize(&mut incremental_result);
+            context.sha256_finalize(&mut incremental_result);
 
             assert_eq!(direct_result, incremental_result);
 
@@ -878,7 +876,7 @@ mod tests {
             let mut context = Context::new_sha224();
             context.update(&data);
             let mut incremental_result = [0u8; SHA224_DIGEST_LEN];
-            context.finalize(&mut incremental_result);
+            context.sha224_finalize(&mut incremental_result);
 
             assert_eq!(direct_result, incremental_result);
         }

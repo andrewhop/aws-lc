@@ -126,7 +126,14 @@ mod tests {
                 sha2::Context::new_sha224 as usize,
             ),
             ("sha2::Context::update", sha2::Context::update as usize),
-            ("sha2::Context::finalize", sha2::Context::finalize as usize),
+            (
+                "sha2::Context::sha256_finalize",
+                sha2::Context::sha256_finalize as usize,
+            ),
+            (
+                "sha2::Context::sha224_finalize",
+                sha2::Context::sha224_finalize as usize,
+            ),
         ];
 
         // Sort by address
