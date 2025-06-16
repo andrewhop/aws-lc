@@ -4,7 +4,7 @@
 // by checking that critical functions are within the expected memory region and
 // calculating a hash of the memory region.
 
-use crate::hash::sha256::{DIGEST_LEN, digest};
+use crate::hash::sha2::{SHA256_DIGEST_LEN as DIGEST_LEN, sha256_digest as digest};
 
 #[inline(never)]
 pub fn fips_module_start(a: u8, b: u8) -> bool {
@@ -92,7 +92,7 @@ fn fips_module_end(a: u8, b: u8) -> u8 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::hash::sha256;
+    use crate::hash::sha2;
 
     #[test]
     fn test_boundaries() {
@@ -115,13 +115,13 @@ mod tests {
             ),
             ("get_fips_digest", get_fips_digest as usize),
             ("is_in_fips_boundary", is_in_fips_boundary as usize),
-            ("sha256::digest", sha256::digest as usize),
-            ("sha256::Context::reset", sha256::Context::reset as usize),
-            ("sha256::Context::new", sha256::Context::new as usize),
-            ("sha256::Context::update", sha256::Context::update as usize),
+            ("sha2::sha256_digest", sha2::sha256_digest as usize),
+            ("sha2::Context::reset", sha2::Context::reset as usize),
+            ("sha2::Context::new_sha256", sha2::Context::new_sha256 as usize),
+            ("sha2::Context::update", sha2::Context::update as usize),
             (
-                "sha256::Context::finalize",
-                sha256::Context::finalize as usize,
+                "sha2::Context::finalize",
+                sha2::Context::finalize as usize,
             ),
         ];
 
