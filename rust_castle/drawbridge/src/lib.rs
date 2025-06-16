@@ -1,8 +1,20 @@
+/// aws_lc_add_double multiplies the sum of `left` and `right` by 2.
+///
+/// # Safety
+///
+/// This function is marked as unsafe because it's exposed as a C FFI function,
+/// but it doesn't actually perform any unsafe operations internally.
 #[unsafe(no_mangle)]
 pub extern "C" fn aws_lc_add_double(left: u64, right: u64) -> u64 {
     bailey::add_double(left, right)
 }
 
+/// aws_lc_add adds two unsigned 64-bit integers and returns their sum.
+///
+/// # Safety
+///
+/// This function is marked as unsafe because it's exposed as a C FFI function,
+/// but it doesn't actually perform any unsafe operations internally.
 #[unsafe(no_mangle)]
 pub extern "C" fn aws_lc_add(left: u64, right: u64) -> u64 {
     keep::add(left, right)
@@ -200,6 +212,20 @@ pub unsafe extern "C" fn SHA224(data: *const u8, len: usize, out: *mut u8) -> *m
 
     out
 }
+
+/// SHA256 writes the digest of |len| bytes from |data| to |out| and returns
+/// |out|. There must be at least |SHA256_DIGEST_LENGTH| bytes of space in
+/// |out|.
+///
+/// uint8_t *SHA256(const uint8_t *data, size_t len, uint8_t out[SHA256_DIGEST_LENGTH]);
+///
+/// # Safety
+///
+/// This function is unsafe because it dereferences raw pointers:
+/// - `data` must be a valid pointer to an array of at least `len` bytes
+/// - `out` must be a valid pointer to an array of at least `SHA256_DIGEST_LENGTH` bytes
+/// - The memory referenced by `data` must not be modified during the call
+/// - The memory referenced by `out` must be properly aligned and not overlap with `data`
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA256(data: *const u8, len: usize, out: *mut u8) -> *mut u8 {
     // Safety checks for null pointers

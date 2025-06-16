@@ -117,12 +117,16 @@ mod tests {
             ("is_in_fips_boundary", is_in_fips_boundary as usize),
             ("sha2::sha256_digest", sha2::sha256_digest as usize),
             ("sha2::Context::reset", sha2::Context::reset as usize),
-            ("sha2::Context::new_sha256", sha2::Context::new_sha256 as usize),
-            ("sha2::Context::update", sha2::Context::update as usize),
             (
-                "sha2::Context::finalize",
-                sha2::Context::finalize as usize,
+                "sha2::Context::new_sha256",
+                sha2::Context::new_sha256 as usize,
             ),
+            (
+                "sha2::Context::new_sha224",
+                sha2::Context::new_sha224 as usize,
+            ),
+            ("sha2::Context::update", sha2::Context::update as usize),
+            ("sha2::Context::finalize", sha2::Context::finalize as usize),
         ];
 
         // Sort by address

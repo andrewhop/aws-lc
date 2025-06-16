@@ -110,6 +110,37 @@ impl Context {
         }
     }
 
+    /// Resets the context to its initial state
+    pub fn reset(&mut self) {
+        if self.md_len == SHA256_DIGEST_LEN as u32 {
+            self.h = SHA256_H_INIT;
+        } else {
+            self.h = SHA224_H_INIT;
+        }
+        self.data = [0; BLOCK_LEN];
+        self.num = 0;
+        self.Nl = 0;
+        self.Nh = 0;
+    }
+
+    pub fn sha224_init(&mut self) {
+        self.md_len = SHA224_DIGEST_LEN as u32;
+        self.h = SHA224_H_INIT;
+        self.data = [0; BLOCK_LEN];
+        self.num = 0;
+        self.Nl = 0;
+        self.Nh = 0;
+    }
+
+    pub fn sha256_init(&mut self) {
+        self.md_len = SHA256_DIGEST_LEN as u32;
+        self.h = SHA256_H_INIT;
+        self.data = [0; BLOCK_LEN];
+        self.num = 0;
+        self.Nl = 0;
+        self.Nh = 0;
+    }
+
     /// Updates the hash state with input data
     pub fn update(&mut self, data: &[u8]) {
         let h: &mut [u32; 8] = &mut self.h;
@@ -187,37 +218,6 @@ impl Context {
         } else {
             panic!("Invalid digest len {}", self.md_len)
         }
-    }
-
-    /// Resets the context to its initial state
-    pub fn reset(&mut self) {
-        if self.md_len == SHA256_DIGEST_LEN as u32 {
-            self.h = SHA256_H_INIT;
-        } else {
-            self.h = SHA224_H_INIT;
-        }
-        self.data = [0; BLOCK_LEN];
-        self.num = 0;
-        self.Nl = 0;
-        self.Nh = 0;
-    }
-
-    pub fn sha224_init(&mut self) {
-        self.md_len = SHA224_DIGEST_LEN as u32;
-        self.h = SHA224_H_INIT;
-        self.data = [0; BLOCK_LEN];
-        self.num = 0;
-        self.Nl = 0;
-        self.Nh = 0;
-    }
-
-    pub fn sha256_init(&mut self) {
-        self.md_len = SHA256_DIGEST_LEN as u32;
-        self.h = SHA256_H_INIT;
-        self.data = [0; BLOCK_LEN];
-        self.num = 0;
-        self.Nl = 0;
-        self.Nh = 0;
     }
 }
 
