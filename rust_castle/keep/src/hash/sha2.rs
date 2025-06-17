@@ -220,6 +220,7 @@ impl Context {
 }
 
 /// Computes the SHA-256 digest of the input data in one step
+#[unsafe(link_section = "__TEXT,__fipsb")]
 pub fn sha256_digest(data: &[u8], output: &mut [u8]) {
     let mut context = Context::new_sha256();
     context.update(data);
@@ -227,6 +228,7 @@ pub fn sha256_digest(data: &[u8], output: &mut [u8]) {
 }
 
 /// Computes the SHA-224 digest of the input data in one step
+#[unsafe(link_section = "__TEXT,__fipsb")]
 pub fn sha224_digest(data: &[u8], output: &mut [u8]) {
     let mut context = Context::new_sha224();
     context.update(data);

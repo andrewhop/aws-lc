@@ -7,6 +7,7 @@
 use crate::hash::sha2::{SHA256_DIGEST_LEN as DIGEST_LEN, sha256_digest as digest};
 
 #[inline(never)]
+#[unsafe(link_section = "__TEXT,__fipsa")]
 pub fn fips_module_start(a: u8, b: u8) -> bool {
     a == b
 }
@@ -85,6 +86,7 @@ fn constant_time_eq(a: &[u8], b: &[u8]) -> bool {
 }
 
 #[inline(never)]
+#[unsafe(link_section = "__TEXT,__fipsc")]
 fn fips_module_end(a: u8, b: u8) -> u8 {
     a ^ b
 }
@@ -92,7 +94,7 @@ fn fips_module_end(a: u8, b: u8) -> u8 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::hash::sha2;
+    use crate::hash::sha2::{self};
 
     #[test]
     fn test_boundaries() {
