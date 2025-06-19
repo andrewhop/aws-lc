@@ -474,9 +474,10 @@ pub unsafe extern "C" fn OPENSSL_vasprintf_internal(
         set_errno_enomem();
         return -1;
     }
-
-    let ret = vsnprintf(candidate as *mut c_char, candidate_len, format, args);
-
+    let ret = args.with_copy(|copy| {
+        // Inside this closure, 'copy' is the copied VaList that you can use
+        vsnprintf(candidate as *mut c_char, candidate_len, format, copy)
+    });
     if ret < 0 {
         deallocate(candidate);
         *str = ptr::null_mut();
