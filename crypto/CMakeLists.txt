@@ -140,26 +140,26 @@ if(CARGO_EXECUTABLE)
   
   # Set the path to the Rust static library
   if(APPLE)
-    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust_castle/target/${CARGO_BUILD_TYPE}/libaws_lc_rust.a")
+    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust/target/${CARGO_BUILD_TYPE}/libaws_lc_rust.dylib")
   elseif(WIN32)
-    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust_castle/target/${CARGO_BUILD_TYPE}/aws_lc_rust.lib")
+    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust/target/${CARGO_BUILD_TYPE}/aws_lc_rust.dll")
   else()
-    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust_castle/target/${CARGO_BUILD_TYPE}/libaws_lc_rust.a")
+    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust/target/${CARGO_BUILD_TYPE}/libaws_lc_rust.so")
   endif()
   
   # Find all Rust source files and Cargo.toml files
   file(GLOB_RECURSE RUST_CASTLE_SOURCES
-    "${CMAKE_SOURCE_DIR}/rust_castle/*.rs"
-    "${CMAKE_SOURCE_DIR}/rust_castle/*/Cargo.toml"
-    "${CMAKE_SOURCE_DIR}/rust_castle/Cargo.toml"
-    "${CMAKE_SOURCE_DIR}/rust_castle/Cargo.lock"
+    "${CMAKE_SOURCE_DIR}/rust/*.rs"
+    "${CMAKE_SOURCE_DIR}/rust/*/Cargo.toml"
+    "${CMAKE_SOURCE_DIR}/rust/Cargo.toml"
+    "${CMAKE_SOURCE_DIR}/rust/Cargo.lock"
   )
   
   # Custom command to build the Rust library
   add_custom_command(
     OUTPUT ${RUST_CASTLE_LIB}
     COMMAND ${CARGO_EXECUTABLE} build ${CARGO_BUILD_FLAGS}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/rust_castle
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/rust
     DEPENDS ${RUST_CASTLE_SOURCES}
     COMMENT "Building Rust Castle library"
     VERBATIM
