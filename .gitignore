@@ -44,3 +44,15 @@ symbols.txt
 /CMakePresets.json
 /compile_commands.json
 /scratch
+
+
+# Added by cargo
+
+/target
+
+
+# Added by cargo
+#
+# already existing elements were commented out
+
+#/target
