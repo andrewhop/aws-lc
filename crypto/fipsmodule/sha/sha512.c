@@ -62,6 +62,7 @@
 
 #include "internal.h"
 #include "../../internal.h"
+#include "../service_indicator/internal.h"
 
 
 // The 32-bit hash algorithms share a common byte-order neutral collector and

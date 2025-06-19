@@ -67,6 +67,7 @@
 
 #include "internal.h"
 #include "../../internal.h"
+#include "../service_indicator/internal.h"
 
 
 void EVP_CIPHER_CTX_init(EVP_CIPHER_CTX *ctx) {

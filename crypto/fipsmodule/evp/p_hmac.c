@@ -58,8 +58,11 @@
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 #include <openssl/mem.h>
+#include <string.h>
 
 #include "../../evp_extra/internal.h"
+#include "../../internal.h"
+#include "../delocate.h"
 #include "internal.h"
 
 static int hmac_init(EVP_PKEY_CTX *ctx) {

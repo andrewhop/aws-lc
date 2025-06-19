@@ -68,6 +68,7 @@
 
 #include "internal.h"
 #include "../../internal.h"
+#include "../service_indicator/internal.h"
 
 
 int RSA_padding_add_PKCS1_type_1(uint8_t *to, size_t to_len,

@@ -169,7 +169,7 @@ static int ec_GFp_mont_point_get_affine_coordinates(const EC_GROUP *group,
   return 1;
 }
 
-static int ec_GFp_mont_jacobian_to_affine_batch(const EC_GROUP *group,
+int ec_GFp_mont_jacobian_to_affine_batch(const EC_GROUP *group,
                                                 EC_AFFINE *out,
                                                 const EC_JACOBIAN *in,
                                                 size_t num) {

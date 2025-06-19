@@ -6,7 +6,9 @@
 #include <openssl/target.h>
 
 #include <stdint.h>
+#include <stddef.h>
 
+#include "internal.h"
 // We have two implementations of field arithmetic for NIST curves:
 //   - Fiat-crypto
 //   - s2n-bignum

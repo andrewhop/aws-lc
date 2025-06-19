@@ -43,6 +43,8 @@
 #include "../ml_kem/ml_kem.h"
 #include "../rand/internal.h"
 #include "../rsa/internal.h"
+#include "../sha/internal.h"
+#include "../ml_dsa/ml_dsa.h"
 
 // This should track the biggest input/output used in self_check.c
 #define MAX_HEXDUMP_SIZE (MLDSA44_PRIVATE_KEY_BYTES * 2)

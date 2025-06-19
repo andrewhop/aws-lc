@@ -19,6 +19,7 @@
 #include <openssl/mem.h>
 
 #include "../../internal.h"
+#include "../delocate.h"
 #include "internal.h"
 
 typedef struct {

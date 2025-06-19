@@ -11,6 +11,7 @@
 #include "../../internal.h"
 #include "../delocate.h"
 #include "../service_indicator/internal.h"
+#include "../cpucap/internal.h"
 #include "internal.h"
 
 static int sskdf_variant_digest_ctx_init(sskdf_variant_ctx *ctx,

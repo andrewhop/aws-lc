@@ -81,6 +81,7 @@
 #include "internal.h"
 #include "../delocate.h"
 #include "../../internal.h"
+#include "../service_indicator/internal.h"
 
 
 DEFINE_STATIC_EX_DATA_CLASS(g_ec_ex_data_class)

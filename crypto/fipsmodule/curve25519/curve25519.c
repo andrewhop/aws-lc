@@ -30,7 +30,9 @@
 
 #include "../../internal.h"
 #include "../cpucap/internal.h"
+#include "../service_indicator/internal.h"
 #include "internal.h"
+
 
 #if defined(NDEBUG)
 #define CHECK(x) (void) (x)

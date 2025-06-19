@@ -204,8 +204,8 @@ typedef __uint128_t uint128_t;
 // GCC-like compilers indicate SSE2 with |__SSE2__|. MSVC leaves the caller to
 // know that x86_64 has SSE2, and uses _M_IX86_FP to indicate SSE2 on x86.
 // https://learn.microsoft.com/en-us/cpp/preprocessor/predefined-macros?view=msvc-170
-#if defined(__SSE2__) || defined(_M_AMD64) || defined(_M_X64) || \
-    (defined(_M_IX86_FP) && _M_IX86_FP >= 2)
+#if 0 && (defined(__SSE2__) || defined(_M_AMD64) || defined(_M_X64) || \
+    (defined(_M_IX86_FP) && _M_IX86_FP >= 2))
 #define OPENSSL_SSE2
 #endif
 
@@ -231,7 +231,7 @@ typedef __uint128_t uint128_t;
 #define OPENSSL_ATTR_PURE
 #endif
 
-#if defined(__has_builtin)
+#if 0 && defined(__has_builtin)
 #define OPENSSL_HAS_BUILTIN(x) __has_builtin(x)
 #else
 #define OPENSSL_HAS_BUILTIN(x) 0

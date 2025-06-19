@@ -130,6 +130,8 @@ static const p521_limb_t p521_felem_p[P521_NLIMBS] = {
 // Otherwise, initializing ec_nistp_meth with pointers to s2n-bignum
 // functions directly generates :got: references that are also thought
 // to be local_target by the delocator.
+#if defined(EC_NISTP_USE_S2N_BIGNUM)
+
 static inline void p521_felem_add_wrapper(ec_nistp_felem_limb *c,
                                           const ec_nistp_felem_limb *a,
                                           const ec_nistp_felem_limb *b) {
@@ -146,7 +148,7 @@ static inline void p521_felem_neg_wrapper(ec_nistp_felem_limb *c,
                                           const ec_nistp_felem_limb *a) {
   p521_felem_opp(c, a);
 }
-
+#endif
 static p521_limb_t p521_felem_nz(const p521_limb_t in1[P521_NLIMBS]) {
   p521_limb_t is_not_zero = 0;
   for (int i = 0; i < P521_NLIMBS; i++) {

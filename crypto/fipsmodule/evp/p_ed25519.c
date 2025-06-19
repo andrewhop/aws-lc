@@ -20,6 +20,8 @@
 
 #include "internal.h"
 #include "../curve25519/internal.h"
+#include "../evp_extra/internal.h"
+#include "../delocate.h"
 
 
 // Ed25519 has no parameters to copy.

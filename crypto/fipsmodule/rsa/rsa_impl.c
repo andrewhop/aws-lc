@@ -69,6 +69,7 @@
 #include "internal.h"
 #include "../bn/internal.h"
 #include "../../internal.h"
+#include "../service_indicator/internal.h"
 #include "../delocate.h"
 #include "../rand/fork_detect.h"
 

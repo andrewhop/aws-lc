@@ -10,6 +10,8 @@
 #include "internal.h"
 #include <string.h>
 
+#include "../service_indicator/internal.h"
+
 uint8_t *SHA3_224(const uint8_t *data, size_t len,
                   uint8_t out[SHA3_224_DIGEST_LENGTH]) {
   FIPS_service_indicator_lock_state();

@@ -406,6 +406,8 @@ struct evp_pkey_ctx_signature_context_params_st {
   size_t context_len;
 }; // EVP_PKEY_CTX_SIGNATURE_CONTEXT_PARAMS
 
+int pkey_hkdf_derive(EVP_PKEY_CTX *ctx, uint8_t *out, size_t *out_len);
+
 #if defined(__cplusplus)
 }  // extern C
 #endif

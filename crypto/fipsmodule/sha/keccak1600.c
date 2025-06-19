@@ -8,6 +8,9 @@
  */
 
 #include <assert.h>
+#include <stdint.h>
+
+#include "internal.h"
 
 #if defined(__x86_64__) || defined(__aarch64__) || \
     defined(__mips64) || defined(__ia64) || defined(__loongarch_lp64) || \

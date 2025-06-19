@@ -69,7 +69,10 @@
 
 #include "internal.h"
 #include "../ec/internal.h"
+#include "../evp/internal.h"
+#include "../delocate.h"
 #include "../../internal.h"
+#include "../service_indicator/internal.h"
 
 
 typedef struct {

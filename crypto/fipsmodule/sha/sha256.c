@@ -61,6 +61,7 @@
 #include <openssl/mem.h>
 
 #include "../../internal.h"
+#include "../service_indicator/internal.h"
 #include "../digest/md32_common.h"
 #include "internal.h"
 

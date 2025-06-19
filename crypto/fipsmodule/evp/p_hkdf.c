@@ -21,6 +21,9 @@
 #include <openssl/mem.h>
 
 #include "../../internal.h"
+#include "../service_indicator/internal.h"
+#include "../cpucap/internal.h"
+#include "../delocate.h"
 #include "internal.h"
 
 
@@ -94,7 +97,7 @@ static void pkey_hkdf_cleanup(EVP_PKEY_CTX *ctx) {
   }
 }
 
-static int pkey_hkdf_derive(EVP_PKEY_CTX *ctx, uint8_t *out, size_t *out_len) {
+int pkey_hkdf_derive(EVP_PKEY_CTX *ctx, uint8_t *out, size_t *out_len) {
   HKDF_PKEY_CTX *hctx = ctx->data;
   if (hctx->md == NULL) {
     OPENSSL_PUT_ERROR(EVP, EVP_R_MISSING_PARAMETERS);

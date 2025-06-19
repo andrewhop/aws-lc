@@ -87,6 +87,8 @@ static p384_limb_t p384_felem_nz(const p384_limb_t in1[P384_NLIMBS]) {
 // Otherwise, initializing ec_nistp_meth with pointers to s2n-bignum
 // functions directly generates :got: references that are also thought
 // to be local_target by the delocator.
+#if defined(EC_NISTP_USE_S2N_BIGNUM)
+
 static inline void p384_felem_add_wrapper(ec_nistp_felem_limb *c,
                                           const ec_nistp_felem_limb *a,
                                           const ec_nistp_felem_limb *b) {
@@ -103,7 +105,7 @@ static inline void p384_felem_neg_wrapper(ec_nistp_felem_limb *c,
                                           const ec_nistp_felem_limb *a) {
   p384_felem_opp(c, a);
 }
-
+#endif
 static void p384_from_generic(p384_felem out, const EC_FELEM *in) {
 #ifdef OPENSSL_BIG_ENDIAN
   uint8_t tmp[P384_EC_FELEM_BYTES];

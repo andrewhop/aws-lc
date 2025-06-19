@@ -117,6 +117,7 @@
 
 #include "internal.h"
 #include "../../internal.h"
+#include "../service_indicator/internal.h"
 #include "../rand/internal.h"
 
 

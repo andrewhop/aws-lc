@@ -58,6 +58,7 @@
 #include <openssl/bn.h>
 #include <openssl/bytestring.h>
 #include <openssl/err.h>
+#include <openssl/digest.h>
 #include <openssl/mem.h>
 #include <openssl/sha.h>
 #include <openssl/type_check.h>
@@ -65,6 +66,7 @@
 #include "../../internal.h"
 #include "../bn/internal.h"
 #include "../ec/internal.h"
+#include "../service_indicator/internal.h"
 #include "internal.h"
 
 

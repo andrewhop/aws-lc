@@ -70,6 +70,8 @@
 
 #include "../../evp_extra/internal.h"
 #include "../../internal.h"
+#include "../cpucap/internal.h"
+#include "../digest/internal.h"
 #include "internal.h"
 
 

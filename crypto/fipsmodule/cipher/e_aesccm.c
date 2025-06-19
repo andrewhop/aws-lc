@@ -53,6 +53,7 @@
 #include <openssl/cipher.h>
 #include <openssl/err.h>
 #include <openssl/mem.h>
+#include <openssl/nid.h>
 
 #include "../delocate.h"
 #include "../modes/internal.h"

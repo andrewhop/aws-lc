@@ -67,6 +67,7 @@
 
 #include "../../internal.h"
 #include "../sha/internal.h"
+#include "../delocate.h"
 #include "internal.h"
 
 #if defined(NDEBUG)

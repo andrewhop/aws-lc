@@ -12,6 +12,7 @@
 #include <openssl/sshkdf.h>
 
 #include "../service_indicator/internal.h"
+#include "../cpucap/internal.h"
 #include "../../internal.h"
 
 int SSHKDF(const EVP_MD *evp_md,

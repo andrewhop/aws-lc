@@ -6,6 +6,7 @@
 
 #include "../../internal.h"
 #include "../service_indicator/internal.h"
+#include "../cpucap/internal.h"
 #include "internal.h"
 
 int KBKDF_ctr_hmac(uint8_t *out_key, size_t out_len, const EVP_MD *digest,

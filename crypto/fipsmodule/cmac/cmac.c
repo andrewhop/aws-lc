@@ -57,6 +57,7 @@
 #include <openssl/mem.h>
 
 #include "../../internal.h"
+#include "../service_indicator/internal.h"
 
 
 struct cmac_ctx_st {

@@ -418,7 +418,7 @@ if(GCC OR CLANG)
     endif()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wunused -Wcomment -Wchar-subscripts -Wuninitialized -Wshadow")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wwrite-strings -Wformat-security -Wunused-result -Wno-overlength-strings")
-    set(C_CXX_FLAGS "${C_CXX_FLAGS} -Wno-c11-extensions -Wvla -Wtype-limits -Wno-unused-parameter")
+    set(C_CXX_FLAGS "${C_CXX_FLAGS} -Wvla -Wtype-limits -Wno-unused-parameter")
   endif()
   set(C_CXX_FLAGS "${C_CXX_FLAGS} -Werror -Wformat=2 -Wsign-compare -Wmissing-field-initializers -Wwrite-strings")
 
@@ -475,10 +475,6 @@ if(GCC OR CLANG)
 
   if(CLANG OR NOT "7.0.0" VERSION_GREATER CMAKE_C_COMPILER_VERSION)
     set(C_CXX_FLAGS "${C_CXX_FLAGS} -Wimplicit-fallthrough")
-  endif()
-
-  if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "5")
-    set(C_CXX_FLAGS "${C_CXX_FLAGS} -Wformat-signedness")
   endif()
 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_CXX_FLAGS} -Wmissing-prototypes -Wold-style-definition -Wstrict-prototypes")

@@ -10,6 +10,7 @@
 #include "../delocate.h"
 #include "../kem/internal.h"
 #include "../../internal.h"
+#include "../evp_extra/internal.h"
 #include "internal.h"
 
 typedef struct {

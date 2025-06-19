@@ -60,6 +60,8 @@
 #include "../pqdsa/internal.h"
 #include "../delocate.h"
 #include "../digest/internal.h"
+#include "../cpucap/internal.h"
+#include "../service_indicator/internal.h"
 #include "internal.h"
 
 #if defined(NDEBUG)

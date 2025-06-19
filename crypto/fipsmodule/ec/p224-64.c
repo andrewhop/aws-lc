@@ -30,6 +30,7 @@
 #include "internal.h"
 #include "../delocate.h"
 #include "../../internal.h"
+#include "../internal.h"
 
 
 #if defined(BORINGSSL_HAS_UINT128) && !defined(OPENSSL_SMALL)

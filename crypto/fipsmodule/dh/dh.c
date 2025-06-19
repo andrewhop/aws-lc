@@ -63,9 +63,11 @@
 #include <openssl/digest.h>
 #include <openssl/mem.h>
 #include <openssl/thread.h>
+#include <openssl/nid.h>
 
 #include "internal.h"
 #include "../../internal.h"
+#include "../service_indicator/internal.h"
 #include "../bn/internal.h"
 
 

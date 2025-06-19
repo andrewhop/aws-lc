@@ -847,6 +847,11 @@ EC_GROUP *d2i_ECPKParameters(EC_GROUP **out_group, const uint8_t **inp,
 // are supported.
 int i2d_ECPKParameters(const EC_GROUP *group, uint8_t **outp);
 
+int ec_GFp_mont_jacobian_to_affine_batch(const EC_GROUP *group,
+  EC_AFFINE *out,
+  const EC_JACOBIAN *in,
+  size_t num);
+
 #if defined(__cplusplus)
 }  // extern C
 #endif

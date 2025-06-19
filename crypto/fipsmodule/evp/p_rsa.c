@@ -68,6 +68,9 @@
 #include "internal.h"
 #include "../rsa/internal.h"
 #include "../../rsa_extra/internal.h"
+#include "../../internal.h"
+#include "../delocate.h"
+#include "../service_indicator/internal.h"
 
 #define NO_PSS_SALT_LEN_RESTRICTION -1
 

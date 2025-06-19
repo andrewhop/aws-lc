@@ -68,6 +68,7 @@
 
 #include "../md5/internal.h"
 #include "../sha/internal.h"
+#include "../delocate.h"
 
 typedef int (*HashInit)(void *);
 typedef int (*HashUpdate)(void *, const void *, size_t);

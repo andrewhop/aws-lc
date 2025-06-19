@@ -74,6 +74,8 @@
 #include "../../internal.h"
 //#include "../../rsa_extra/internal.h"
 #include "../bn/internal.h"
+#include "../evp/internal.h"
+#include "../rsa_extra/internal.h"
 #include "../delocate.h"
 #include "internal.h"
 
