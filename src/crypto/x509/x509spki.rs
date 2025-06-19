@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_pctx_st;
     pub type ASN1_VALUE_st;
     pub type evp_pkey_st;
@@ -264,7 +263,7 @@ pub type BIO_callback_fn_ex = Option::<
     ) -> libc::c_long,
 >;
 pub type BIO_METHOD = bio_method_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NETSCAPE_SPKI_set_pubkey(
     mut x: *mut NETSCAPE_SPKI,
     mut pkey: *mut EVP_PKEY,
@@ -274,7 +273,7 @@ pub unsafe extern "C" fn NETSCAPE_SPKI_set_pubkey(
     }
     return X509_PUBKEY_set(&mut (*(*x).spkac).pubkey, pkey);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NETSCAPE_SPKI_get_pubkey(
     mut x: *const NETSCAPE_SPKI,
 ) -> *mut EVP_PKEY {
@@ -283,7 +282,7 @@ pub unsafe extern "C" fn NETSCAPE_SPKI_get_pubkey(
     }
     return X509_PUBKEY_get((*(*x).spkac).pubkey);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NETSCAPE_SPKI_b64_decode(
     mut str: *const libc::c_char,
     mut len: ossl_ssize_t,
@@ -338,7 +337,7 @@ pub unsafe extern "C" fn NETSCAPE_SPKI_b64_decode(
     OPENSSL_free(spki_der as *mut libc::c_void);
     return spki;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NETSCAPE_SPKI_b64_encode(
     mut spki: *mut NETSCAPE_SPKI,
 ) -> *mut libc::c_char {
@@ -374,7 +373,7 @@ pub unsafe extern "C" fn NETSCAPE_SPKI_b64_encode(
     OPENSSL_free(der_spki as *mut libc::c_void);
     return b64_str;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NETSCAPE_SPKI_print(
     mut out: *mut BIO,
     mut spki: *mut NETSCAPE_SPKI,

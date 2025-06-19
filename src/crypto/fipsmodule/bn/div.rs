@@ -9,7 +9,7 @@
 )]
 #![feature(asm, extern_types, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn BN_free(bn: *mut BIGNUM);
     fn BN_dup(src: *const BIGNUM) -> *mut BIGNUM;
@@ -165,7 +165,7 @@ unsafe extern "C" fn bn_div_rem_words(
     *quotient_out = (n / d0 as uint128_t) as BN_ULONG;
     *rem_out = n1.wrapping_sub(*quotient_out * d0);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_div(
     mut quotient: *mut BIGNUM,
     mut rem: *mut BIGNUM,
@@ -393,7 +393,7 @@ pub unsafe extern "C" fn BN_div(
     BN_CTX_end(ctx);
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_nnmod(
     mut r: *mut BIGNUM,
     mut m: *const BIGNUM,
@@ -427,7 +427,7 @@ pub unsafe extern "C" fn BN_nnmod(
     }
         .expect("non-null function pointer")(r, r, d);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_reduce_once(
     mut r: *mut BN_ULONG,
     mut a: *const BN_ULONG,
@@ -513,7 +513,7 @@ pub unsafe extern "C" fn bn_reduce_once(
     bn_select_words(r, carry, a, r, num);
     return carry;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_reduce_once_in_place(
     mut r: *mut BN_ULONG,
     mut carry: BN_ULONG,
@@ -567,7 +567,7 @@ pub unsafe extern "C" fn bn_reduce_once_in_place(
     bn_select_words(r, carry, r, tmp, num);
     return carry;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mod_sub_words(
     mut r: *mut BN_ULONG,
     mut a: *const BN_ULONG,
@@ -580,7 +580,7 @@ pub unsafe extern "C" fn bn_mod_sub_words(
     bn_add_words(tmp, r, m, num);
     bn_select_words(r, (0 as libc::c_int as BN_ULONG).wrapping_sub(borrow), tmp, r, num);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mod_add_words(
     mut r: *mut BN_ULONG,
     mut a: *const BN_ULONG,
@@ -592,7 +592,7 @@ pub unsafe extern "C" fn bn_mod_add_words(
     let mut carry: BN_ULONG = bn_add_words(r, a, b, num);
     bn_reduce_once_in_place(r, carry, m, tmp, num);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_div_consttime(
     mut quotient: *mut BIGNUM,
     mut remainder: *mut BIGNUM,
@@ -813,7 +813,7 @@ unsafe extern "C" fn bn_resized_from_ctx(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_add(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -826,7 +826,7 @@ pub unsafe extern "C" fn BN_mod_add(
     }
     return BN_nnmod(r, r, m, ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_add_quick(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -839,7 +839,7 @@ pub unsafe extern "C" fn BN_mod_add_quick(
     BN_CTX_free(ctx);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mod_add_consttime(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -861,7 +861,7 @@ pub unsafe extern "C" fn bn_mod_add_consttime(
     BN_CTX_end(ctx);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_sub(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -874,7 +874,7 @@ pub unsafe extern "C" fn BN_mod_sub(
     }
     return BN_nnmod(r, r, m, ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mod_sub_consttime(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -896,7 +896,7 @@ pub unsafe extern "C" fn bn_mod_sub_consttime(
     BN_CTX_end(ctx);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_sub_quick(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -909,7 +909,7 @@ pub unsafe extern "C" fn BN_mod_sub_quick(
     BN_CTX_free(ctx);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_mul(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -946,7 +946,7 @@ pub unsafe extern "C" fn BN_mod_mul(
     BN_CTX_end(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_sqr(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -958,7 +958,7 @@ pub unsafe extern "C" fn BN_mod_sqr(
     }
     return BN_div(0 as *mut BIGNUM, r, r, m, ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_lshift(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -988,7 +988,7 @@ pub unsafe extern "C" fn BN_mod_lshift(
     BN_free(abs_m);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mod_lshift_consttime(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -1022,7 +1022,7 @@ pub unsafe extern "C" fn bn_mod_lshift_consttime(
     BN_CTX_end(ctx);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_lshift_quick(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -1035,7 +1035,7 @@ pub unsafe extern "C" fn BN_mod_lshift_quick(
     BN_CTX_free(ctx);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_lshift1(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -1047,7 +1047,7 @@ pub unsafe extern "C" fn BN_mod_lshift1(
     }
     return BN_nnmod(r, r, m, ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mod_lshift1_consttime(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -1056,7 +1056,7 @@ pub unsafe extern "C" fn bn_mod_lshift1_consttime(
 ) -> libc::c_int {
     return bn_mod_add_consttime(r, a, a, m, ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_lshift1_quick(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -1068,7 +1068,7 @@ pub unsafe extern "C" fn BN_mod_lshift1_quick(
     BN_CTX_free(ctx);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_div_word(mut a: *mut BIGNUM, mut w: BN_ULONG) -> BN_ULONG {
     let mut ret: BN_ULONG = 0 as libc::c_int as BN_ULONG;
     let mut i: libc::c_int = 0;
@@ -1100,7 +1100,7 @@ pub unsafe extern "C" fn BN_div_word(mut a: *mut BIGNUM, mut w: BN_ULONG) -> BN_
     ret >>= j;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_word(mut a: *const BIGNUM, mut w: BN_ULONG) -> BN_ULONG {
     let mut ret: uint128_t = 0 as libc::c_int as uint128_t;
     let mut i: libc::c_int = 0;
@@ -1116,7 +1116,7 @@ pub unsafe extern "C" fn BN_mod_word(mut a: *const BIGNUM, mut w: BN_ULONG) -> B
     }
     return ret as BN_ULONG;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_pow2(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -1156,7 +1156,7 @@ pub unsafe extern "C" fn BN_mod_pow2(
     bn_set_minimal_width(r);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_nnmod_pow2(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,

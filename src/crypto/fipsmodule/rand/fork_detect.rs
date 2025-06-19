@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn mmap(
         __addr: *mut libc::c_void,
         __len: size_t,
@@ -388,7 +388,7 @@ unsafe extern "C" fn init_fork_detect() {
         addr = 0 as *mut libc::c_void;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_get_fork_generation() -> uint64_t {
     CRYPTO_once(
         g_fork_detect_once_bss_get(),
@@ -421,7 +421,7 @@ pub unsafe extern "C" fn CRYPTO_get_fork_generation() -> uint64_t {
     CRYPTO_STATIC_MUTEX_unlock_write(lock);
     return current_generation;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_fork_detect_ignore_madv_wipeonfork_for_testing() {
     *g_ignore_madv_wipeonfork_bss_get() = 1 as libc::c_int;
 }

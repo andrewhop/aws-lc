@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     fn BN_GENCB_set(
         callback: *mut BN_GENCB,
@@ -64,7 +63,7 @@ unsafe extern "C" fn callback_wrapper(
     ((*wrapped).callback).expect("non-null function pointer")(event, n, (*wrapped).arg);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_generate_parameters(
     mut prime_len: libc::c_int,
     mut generator: libc::c_int,

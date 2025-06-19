@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_OPENSSL_STRING;
     pub type stack_st_ASN1_OBJECT;
     pub type stack_st;
@@ -337,7 +336,7 @@ unsafe extern "C" fn int_x509_param_set_hosts(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_new() -> *mut X509_VERIFY_PARAM {
     let mut param: *mut X509_VERIFY_PARAM = OPENSSL_zalloc(
         ::core::mem::size_of::<X509_VERIFY_PARAM>() as libc::c_ulong,
@@ -348,7 +347,7 @@ pub unsafe extern "C" fn X509_VERIFY_PARAM_new() -> *mut X509_VERIFY_PARAM {
     (*param).depth = -(1 as libc::c_int);
     return param;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_free(mut param: *mut X509_VERIFY_PARAM) {
     if param.is_null() {
         return;
@@ -469,14 +468,14 @@ unsafe extern "C" fn x509_verify_param_copy(
     (*dest).poison = (*src).poison;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_inherit(
     mut dest: *mut X509_VERIFY_PARAM,
     mut src: *const X509_VERIFY_PARAM,
 ) -> libc::c_int {
     return x509_verify_param_copy(dest, src, 0 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_set1(
     mut to: *mut X509_VERIFY_PARAM,
     mut from: *const X509_VERIFY_PARAM,
@@ -534,7 +533,7 @@ unsafe extern "C" fn int_x509_param_set1_ip(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_set_flags(
     mut param: *mut X509_VERIFY_PARAM,
     mut flags: libc::c_ulong,
@@ -548,7 +547,7 @@ pub unsafe extern "C" fn X509_VERIFY_PARAM_set_flags(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_clear_flags(
     mut param: *mut X509_VERIFY_PARAM,
     mut flags: libc::c_ulong,
@@ -556,34 +555,34 @@ pub unsafe extern "C" fn X509_VERIFY_PARAM_clear_flags(
     (*param).flags &= !flags;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_get_flags(
     mut param: *const X509_VERIFY_PARAM,
 ) -> libc::c_ulong {
     return (*param).flags;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_set_purpose(
     mut param: *mut X509_VERIFY_PARAM,
     mut purpose: libc::c_int,
 ) -> libc::c_int {
     return X509_PURPOSE_set(&mut (*param).purpose, purpose);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_set_trust(
     mut param: *mut X509_VERIFY_PARAM,
     mut trust: libc::c_int,
 ) -> libc::c_int {
     return X509_TRUST_set(&mut (*param).trust, trust);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_set_depth(
     mut param: *mut X509_VERIFY_PARAM,
     mut depth: libc::c_int,
 ) {
     (*param).depth = depth;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_set_time_posix(
     mut param: *mut X509_VERIFY_PARAM,
     mut t: int64_t,
@@ -591,14 +590,14 @@ pub unsafe extern "C" fn X509_VERIFY_PARAM_set_time_posix(
     (*param).check_time = t;
     (*param).flags |= 0x2 as libc::c_int as libc::c_ulong;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_set_time(
     mut param: *mut X509_VERIFY_PARAM,
     mut t: time_t,
 ) {
     X509_VERIFY_PARAM_set_time_posix(param, t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_add0_policy(
     mut param: *mut X509_VERIFY_PARAM,
     mut policy: *mut ASN1_OBJECT,
@@ -614,7 +613,7 @@ pub unsafe extern "C" fn X509_VERIFY_PARAM_add0_policy(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_set1_policies(
     mut param: *mut X509_VERIFY_PARAM,
     mut policies: *const stack_st_ASN1_OBJECT,
@@ -642,7 +641,7 @@ pub unsafe extern "C" fn X509_VERIFY_PARAM_set1_policies(
     (*param).flags |= 0x80 as libc::c_int as libc::c_ulong;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_set1_host(
     mut param: *mut X509_VERIFY_PARAM,
     mut name: *const libc::c_char,
@@ -654,7 +653,7 @@ pub unsafe extern "C" fn X509_VERIFY_PARAM_set1_host(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_add1_host(
     mut param: *mut X509_VERIFY_PARAM,
     mut name: *const libc::c_char,
@@ -666,20 +665,20 @@ pub unsafe extern "C" fn X509_VERIFY_PARAM_add1_host(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_set_hostflags(
     mut param: *mut X509_VERIFY_PARAM,
     mut flags: libc::c_uint,
 ) {
     (*param).hostflags = flags;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_get_hostflags(
     mut param: *const X509_VERIFY_PARAM,
 ) -> libc::c_uint {
     return (*param).hostflags;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_set1_email(
     mut param: *mut X509_VERIFY_PARAM,
     mut email: *const libc::c_char,
@@ -698,7 +697,7 @@ pub unsafe extern "C" fn X509_VERIFY_PARAM_set1_email(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_set1_ip(
     mut param: *mut X509_VERIFY_PARAM,
     mut ip: *const libc::c_uchar,
@@ -713,7 +712,7 @@ pub unsafe extern "C" fn X509_VERIFY_PARAM_set1_ip(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_set1_ip_asc(
     mut param: *mut X509_VERIFY_PARAM,
     mut ipasc: *const libc::c_char,
@@ -726,7 +725,7 @@ pub unsafe extern "C" fn X509_VERIFY_PARAM_set1_ip_asc(
     }
     return X509_VERIFY_PARAM_set1_ip(param, ipout.as_mut_ptr(), iplen);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_get_depth(
     mut param: *const X509_VERIFY_PARAM,
 ) -> libc::c_int {
@@ -804,7 +803,7 @@ static mut kSSLServerParam: X509_VERIFY_PARAM = {
     };
     init
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VERIFY_PARAM_lookup(
     mut name: *const libc::c_char,
 ) -> *const X509_VERIFY_PARAM {

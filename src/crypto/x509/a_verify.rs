@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type evp_pkey_st;
     pub type evp_md_pctx_ops;
@@ -167,7 +166,7 @@ pub struct env_md_ctx_st {
 pub type EVP_PKEY_CTX = evp_pkey_ctx_st;
 pub type EVP_MD_CTX = env_md_ctx_st;
 pub type EVP_MD = env_md_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_verify(
     mut it: *const ASN1_ITEM,
     mut a: *const X509_ALGOR,

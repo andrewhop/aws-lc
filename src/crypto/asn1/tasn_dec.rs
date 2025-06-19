@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_pctx_st;
     pub type ASN1_VALUE_st;
     pub type stack_st_void;
@@ -452,14 +451,14 @@ static mut tag2bit: [libc::c_ulong; 31] = [
     0x1000 as libc::c_int as libc::c_ulong,
     0x800 as libc::c_int as libc::c_ulong,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_tag2bit(mut tag: libc::c_int) -> libc::c_ulong {
     if tag < 0 as libc::c_int || tag > 30 as libc::c_int {
         return 0 as libc::c_int as libc::c_ulong;
     }
     return tag2bit[tag as usize];
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_d2i(
     mut pval: *mut *mut ASN1_VALUE,
     mut in_0: *mut *const libc::c_uchar,
@@ -1058,7 +1057,7 @@ unsafe extern "C" fn asn1_item_ex_d2i(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_ex_d2i(
     mut pval: *mut *mut ASN1_VALUE,
     mut in_0: *mut *const libc::c_uchar,

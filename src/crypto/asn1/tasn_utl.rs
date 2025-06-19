@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type asn1_must_be_null_st;
     fn OPENSSL_free(ptr: *mut libc::c_void);
@@ -134,7 +133,7 @@ unsafe extern "C" fn OPENSSL_memcpy(
     }
     return memcpy(dst, src, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_get_choice_selector(
     mut pval: *mut *mut ASN1_VALUE,
     mut it: *const ASN1_ITEM,
@@ -143,7 +142,7 @@ pub unsafe extern "C" fn asn1_get_choice_selector(
         .offset((*it).utype as isize) as *mut libc::c_void as *mut libc::c_int;
     return *sel;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_set_choice_selector(
     mut pval: *mut *mut ASN1_VALUE,
     mut value: libc::c_int,
@@ -171,7 +170,7 @@ unsafe extern "C" fn asn1_get_references(
     return (*pval as *mut libc::c_char).offset((*aux).ref_offset as isize)
         as *mut libc::c_void as *mut CRYPTO_refcount_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_refcount_set_one(
     mut pval: *mut *mut ASN1_VALUE,
     mut it: *const ASN1_ITEM,
@@ -181,7 +180,7 @@ pub unsafe extern "C" fn asn1_refcount_set_one(
         *references = 1 as libc::c_int as CRYPTO_refcount_t;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_refcount_dec_and_test_zero(
     mut pval: *mut *mut ASN1_VALUE,
     mut it: *const ASN1_ITEM,
@@ -238,7 +237,7 @@ unsafe extern "C" fn asn1_get_enc_ptr(
     return (*pval as *mut libc::c_char).offset((*aux).enc_offset as isize)
         as *mut libc::c_void as *mut ASN1_ENCODING;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_enc_init(
     mut pval: *mut *mut ASN1_VALUE,
     mut it: *const ASN1_ITEM,
@@ -251,7 +250,7 @@ pub unsafe extern "C" fn asn1_enc_init(
         (*enc).set_alias_only_on_next_parse(0 as libc::c_int as libc::c_uint);
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_enc_free(
     mut pval: *mut *mut ASN1_VALUE,
     mut it: *const ASN1_ITEM,
@@ -261,7 +260,7 @@ pub unsafe extern "C" fn asn1_enc_free(
         asn1_encoding_clear(enc);
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_enc_save(
     mut pval: *mut *mut ASN1_VALUE,
     mut in_0: *const libc::c_uchar,
@@ -291,7 +290,7 @@ pub unsafe extern "C" fn asn1_enc_save(
     (*enc).len = inlen as libc::c_long;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_encoding_clear(mut enc: *mut ASN1_ENCODING) {
     if (*enc).alias_only() == 0 {
         OPENSSL_free((*enc).enc as *mut libc::c_void);
@@ -301,7 +300,7 @@ pub unsafe extern "C" fn asn1_encoding_clear(mut enc: *mut ASN1_ENCODING) {
     (*enc).set_alias_only(0 as libc::c_int as libc::c_uint);
     (*enc).set_alias_only_on_next_parse(0 as libc::c_int as libc::c_uint);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_enc_restore(
     mut len: *mut libc::c_int,
     mut out: *mut *mut libc::c_uchar,
@@ -325,7 +324,7 @@ pub unsafe extern "C" fn asn1_enc_restore(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_get_field_ptr(
     mut pval: *mut *mut ASN1_VALUE,
     mut tt: *const ASN1_TEMPLATE,
@@ -338,7 +337,7 @@ pub unsafe extern "C" fn asn1_get_field_ptr(
         as *mut libc::c_void as *mut *mut ASN1_VALUE;
     return pvaltmp;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_do_adb(
     mut pval: *mut *mut ASN1_VALUE,
     mut tt: *const ASN1_TEMPLATE,

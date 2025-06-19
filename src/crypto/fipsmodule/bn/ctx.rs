@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_BIGNUM;
     pub type stack_st;
     fn BN_new() -> *mut BIGNUM;
@@ -121,7 +120,7 @@ unsafe extern "C" fn sk_BIGNUM_pop_free(
         ::core::mem::transmute::<sk_BIGNUM_free_func, OPENSSL_sk_free_func>(free_func),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_CTX_new() -> *mut BN_CTX {
     let mut ret: *mut BN_CTX = OPENSSL_zalloc(
         ::core::mem::size_of::<BN_CTX>() as libc::c_ulong,
@@ -132,11 +131,11 @@ pub unsafe extern "C" fn BN_CTX_new() -> *mut BN_CTX {
     BN_STACK_init(&mut (*ret).stack);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_CTX_secure_new() -> *mut BN_CTX {
     return BN_CTX_new();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_CTX_free(mut ctx: *mut BN_CTX) {
     if ctx.is_null() {
         return;
@@ -178,7 +177,7 @@ pub unsafe extern "C" fn BN_CTX_free(mut ctx: *mut BN_CTX) {
     BN_STACK_cleanup(&mut (*ctx).stack);
     OPENSSL_free(ctx as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_CTX_start(mut ctx: *mut BN_CTX) {
     if (*ctx).error != 0 {
         return;
@@ -188,7 +187,7 @@ pub unsafe extern "C" fn BN_CTX_start(mut ctx: *mut BN_CTX) {
         (*ctx).defer_error = 1 as libc::c_int as libc::c_char;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_CTX_get(mut ctx: *mut BN_CTX) -> *mut BIGNUM {
     if (*ctx).error != 0 {
         if (*ctx).defer_error != 0 {
@@ -233,7 +232,7 @@ pub unsafe extern "C" fn BN_CTX_get(mut ctx: *mut BN_CTX) -> *mut BIGNUM {
     (*ctx).used;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_CTX_end(mut ctx: *mut BN_CTX) {
     if (*ctx).error != 0 {
         return;

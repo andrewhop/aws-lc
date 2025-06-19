@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_ITEM_st;
     pub type X509_crl_st;
     pub type x509_st;
@@ -299,7 +298,7 @@ unsafe extern "C" fn s2i_ASN1_IA5STRING(
     }
     return 0 as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_ns_ia5_list: [X509V3_EXT_METHOD; 8] = unsafe {
     [
         {

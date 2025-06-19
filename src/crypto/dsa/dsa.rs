@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_pctx_st;
     pub type bignum_ctx;
     pub type stack_st_void;
@@ -577,7 +576,7 @@ static mut g_ex_data_class: CRYPTO_EX_DATA_CLASS = {
     };
     init
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_new() -> *mut DSA {
     let mut dsa: *mut DSA = OPENSSL_zalloc(
         ::core::mem::size_of::<DSA>() as libc::c_ulong,
@@ -590,7 +589,7 @@ pub unsafe extern "C" fn DSA_new() -> *mut DSA {
     CRYPTO_new_ex_data(&mut (*dsa).ex_data);
     return dsa;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_free(mut dsa: *mut DSA) {
     if dsa.is_null() {
         return;
@@ -613,7 +612,7 @@ pub unsafe extern "C" fn DSA_free(mut dsa: *mut DSA) {
     CRYPTO_MUTEX_cleanup(&mut (*dsa).method_mont_lock);
     OPENSSL_free(dsa as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_print(
     mut bio: *mut BIO,
     mut dsa: *const DSA,
@@ -627,7 +626,7 @@ pub unsafe extern "C" fn DSA_print(
     EVP_PKEY_free(pkey);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_print_fp(
     mut fp: *mut FILE,
     mut dsa: *const DSA,
@@ -650,36 +649,36 @@ pub unsafe extern "C" fn DSA_print_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_up_ref(mut dsa: *mut DSA) -> libc::c_int {
     CRYPTO_refcount_inc(&mut (*dsa).references);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_bits(mut dsa: *const DSA) -> libc::c_uint {
     return BN_num_bits((*dsa).p);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_get0_pub_key(mut dsa: *const DSA) -> *const BIGNUM {
     return (*dsa).pub_key;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_get0_priv_key(mut dsa: *const DSA) -> *const BIGNUM {
     return (*dsa).priv_key;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_get0_p(mut dsa: *const DSA) -> *const BIGNUM {
     return (*dsa).p;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_get0_q(mut dsa: *const DSA) -> *const BIGNUM {
     return (*dsa).q;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_get0_g(mut dsa: *const DSA) -> *const BIGNUM {
     return (*dsa).g;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_get0_key(
     mut dsa: *const DSA,
     mut out_pub_key: *mut *const BIGNUM,
@@ -692,7 +691,7 @@ pub unsafe extern "C" fn DSA_get0_key(
         *out_priv_key = (*dsa).priv_key;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_get0_pqg(
     mut dsa: *const DSA,
     mut out_p: *mut *const BIGNUM,
@@ -709,7 +708,7 @@ pub unsafe extern "C" fn DSA_get0_pqg(
         *out_g = (*dsa).g;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_set0_key(
     mut dsa: *mut DSA,
     mut pub_key: *mut BIGNUM,
@@ -728,7 +727,7 @@ pub unsafe extern "C" fn DSA_set0_key(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_set0_pqg(
     mut dsa: *mut DSA,
     mut p: *mut BIGNUM,
@@ -758,7 +757,7 @@ pub unsafe extern "C" fn DSA_set0_pqg(
     (*dsa).method_mont_q = 0 as *mut BN_MONT_CTX;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_generate_parameters_ex(
     mut dsa: *mut DSA,
     mut bits: libc::c_uint,
@@ -784,7 +783,7 @@ pub unsafe extern "C" fn DSA_generate_parameters_ex(
         cb,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn dsa_internal_paramgen(
     mut dsa: *mut DSA,
     mut bits: size_t,
@@ -1117,7 +1116,7 @@ pub unsafe extern "C" fn dsa_internal_paramgen(
     OPENSSL_cleanse(seed.as_mut_ptr() as *mut libc::c_void, 32 as libc::c_int as size_t);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSAparams_dup(mut dsa: *const DSA) -> *mut DSA {
     let mut ret: *mut DSA = DSA_new();
     if ret.is_null() {
@@ -1132,7 +1131,7 @@ pub unsafe extern "C" fn DSAparams_dup(mut dsa: *const DSA) -> *mut DSA {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_generate_key(mut dsa: *mut DSA) -> libc::c_int {
     let mut current_block: u64;
     if dsa_check_key(dsa) == 0 {
@@ -1209,12 +1208,12 @@ pub unsafe extern "C" fn DSA_generate_key(mut dsa: *mut DSA) -> libc::c_int {
     BN_CTX_free(ctx);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_SIG_new() -> *mut DSA_SIG {
     return OPENSSL_zalloc(::core::mem::size_of::<DSA_SIG>() as libc::c_ulong)
         as *mut DSA_SIG;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_SIG_free(mut sig: *mut DSA_SIG) {
     if sig.is_null() {
         return;
@@ -1223,7 +1222,7 @@ pub unsafe extern "C" fn DSA_SIG_free(mut sig: *mut DSA_SIG) {
     BN_free((*sig).s);
     OPENSSL_free(sig as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_SIG_get0(
     mut sig: *const DSA_SIG,
     mut out_r: *mut *const BIGNUM,
@@ -1236,7 +1235,7 @@ pub unsafe extern "C" fn DSA_SIG_get0(
         *out_s = (*sig).s;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_SIG_set0(
     mut sig: *mut DSA_SIG,
     mut r: *mut BIGNUM,
@@ -1265,7 +1264,7 @@ unsafe extern "C" fn mod_mul_consttime(
     BN_CTX_end(ctx);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_do_sign(
     mut digest: *const uint8_t,
     mut digest_len: size_t,
@@ -1409,7 +1408,7 @@ pub unsafe extern "C" fn DSA_do_sign(
     BN_clear_free(kinv);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_do_verify(
     mut digest: *const uint8_t,
     mut digest_len: size_t,
@@ -1422,7 +1421,7 @@ pub unsafe extern "C" fn DSA_do_verify(
     }
     return valid;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_do_check_signature(
     mut out_valid: *mut libc::c_int,
     mut digest: *const uint8_t,
@@ -1544,7 +1543,7 @@ pub unsafe extern "C" fn DSA_do_check_signature(
     BN_free(&mut t1);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_sign(
     mut type_0: libc::c_int,
     mut digest: *const uint8_t,
@@ -1563,7 +1562,7 @@ pub unsafe extern "C" fn DSA_sign(
     DSA_SIG_free(s);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_verify(
     mut type_0: libc::c_int,
     mut digest: *const uint8_t,
@@ -1578,7 +1577,7 @@ pub unsafe extern "C" fn DSA_verify(
     }
     return valid;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_check_signature(
     mut out_valid: *mut libc::c_int,
     mut digest: *const uint8_t,
@@ -1626,7 +1625,7 @@ unsafe extern "C" fn der_len_len(mut len: size_t) -> size_t {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_size(mut dsa: *const DSA) -> libc::c_int {
     if ((*dsa).q).is_null() {
         return 0 as libc::c_int;
@@ -1728,7 +1727,7 @@ unsafe extern "C" fn dsa_sign_setup(
     BN_clear_free(kinv);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_get_ex_new_index(
     mut argl: libc::c_long,
     mut argp: *mut libc::c_void,
@@ -1744,7 +1743,7 @@ pub unsafe extern "C" fn DSA_get_ex_new_index(
     }
     return index;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_set_ex_data(
     mut dsa: *mut DSA,
     mut idx: libc::c_int,
@@ -1752,14 +1751,14 @@ pub unsafe extern "C" fn DSA_set_ex_data(
 ) -> libc::c_int {
     return CRYPTO_set_ex_data(&mut (*dsa).ex_data, idx, arg);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_get_ex_data(
     mut dsa: *const DSA,
     mut idx: libc::c_int,
 ) -> *mut libc::c_void {
     return CRYPTO_get_ex_data(&(*dsa).ex_data, idx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_dup_DH(mut dsa: *const DSA) -> *mut DH {
     let mut current_block: u64;
     if dsa.is_null() {

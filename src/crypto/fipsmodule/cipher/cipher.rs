@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type engine_st;
     fn __assert_fail(
         __assertion: *const libc::c_char,
@@ -126,7 +125,7 @@ unsafe extern "C" fn OPENSSL_memset(
 unsafe extern "C" fn EVP_Cipher_verify_service_indicator(
     mut ctx: *const EVP_CIPHER_CTX,
 ) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_init(mut ctx: *mut EVP_CIPHER_CTX) {
     OPENSSL_memset(
         ctx as *mut libc::c_void,
@@ -135,7 +134,7 @@ pub unsafe extern "C" fn EVP_CIPHER_CTX_init(mut ctx: *mut EVP_CIPHER_CTX) {
     );
     (*ctx).poisoned = 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_new() -> *mut EVP_CIPHER_CTX {
     let mut ctx: *mut EVP_CIPHER_CTX = OPENSSL_zalloc(
         ::core::mem::size_of::<EVP_CIPHER_CTX>() as libc::c_ulong,
@@ -145,7 +144,7 @@ pub unsafe extern "C" fn EVP_CIPHER_CTX_new() -> *mut EVP_CIPHER_CTX {
     }
     return ctx;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_cleanup(
     mut c: *mut EVP_CIPHER_CTX,
 ) -> libc::c_int {
@@ -172,14 +171,14 @@ pub unsafe extern "C" fn EVP_CIPHER_CTX_cleanup(
     (*c).poisoned = 1 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_free(mut ctx: *mut EVP_CIPHER_CTX) {
     if !ctx.is_null() {
         EVP_CIPHER_CTX_cleanup(ctx);
         OPENSSL_free(ctx as *mut libc::c_void);
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_copy(
     mut out: *mut EVP_CIPHER_CTX,
     mut in_0: *const EVP_CIPHER_CTX,
@@ -251,7 +250,7 @@ pub unsafe extern "C" fn EVP_CIPHER_CTX_copy(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_reset(
     mut ctx: *mut EVP_CIPHER_CTX,
 ) -> libc::c_int {
@@ -259,7 +258,7 @@ pub unsafe extern "C" fn EVP_CIPHER_CTX_reset(
     EVP_CIPHER_CTX_init(ctx);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CipherInit_ex(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut cipher: *const EVP_CIPHER,
@@ -469,7 +468,7 @@ pub unsafe extern "C" fn EVP_CipherInit_ex(
     (*ctx).poisoned = 0 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_EncryptInit_ex(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut cipher: *const EVP_CIPHER,
@@ -479,7 +478,7 @@ pub unsafe extern "C" fn EVP_EncryptInit_ex(
 ) -> libc::c_int {
     return EVP_CipherInit_ex(ctx, cipher, impl_0, key, iv, 1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DecryptInit_ex(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut cipher: *const EVP_CIPHER,
@@ -562,7 +561,7 @@ unsafe extern "C" fn block_remainder(
         & ((*(*ctx).cipher).block_size).wrapping_sub(1 as libc::c_int as libc::c_uint))
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_EncryptUpdate(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut out: *mut uint8_t,
@@ -740,7 +739,7 @@ pub unsafe extern "C" fn EVP_EncryptUpdate(
     (*ctx).poisoned = 0 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_EncryptFinal_ex(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut out: *mut uint8_t,
@@ -864,7 +863,7 @@ pub unsafe extern "C" fn EVP_EncryptFinal_ex(
     EVP_Cipher_verify_service_indicator(ctx);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DecryptUpdate(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut out: *mut uint8_t,
@@ -1002,7 +1001,7 @@ pub unsafe extern "C" fn EVP_DecryptUpdate(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DecryptFinal_ex(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut out: *mut libc::c_uchar,
@@ -1164,7 +1163,7 @@ pub unsafe extern "C" fn EVP_DecryptFinal_ex(
     EVP_Cipher_verify_service_indicator(ctx);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_Cipher(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut out: *mut uint8_t,
@@ -1200,7 +1199,7 @@ pub unsafe extern "C" fn EVP_Cipher(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CipherUpdate(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut out: *mut uint8_t,
@@ -1225,7 +1224,7 @@ pub unsafe extern "C" fn EVP_CipherUpdate(
         return EVP_DecryptUpdate(ctx, out, out_len, in_0, in_len)
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CipherFinal_ex(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut out: *mut uint8_t,
@@ -1248,37 +1247,37 @@ pub unsafe extern "C" fn EVP_CipherFinal_ex(
         return EVP_DecryptFinal_ex(ctx, out, out_len)
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_cipher(
     mut ctx: *const EVP_CIPHER_CTX,
 ) -> *const EVP_CIPHER {
     return (*ctx).cipher;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_nid(
     mut ctx: *const EVP_CIPHER_CTX,
 ) -> libc::c_int {
     return (*(*ctx).cipher).nid;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_encrypting(
     mut ctx: *const EVP_CIPHER_CTX,
 ) -> libc::c_int {
     return (*ctx).encrypt;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_block_size(
     mut ctx: *const EVP_CIPHER_CTX,
 ) -> libc::c_uint {
     return (*(*ctx).cipher).block_size;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_key_length(
     mut ctx: *const EVP_CIPHER_CTX,
 ) -> libc::c_uint {
     return (*ctx).key_len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_iv_length(
     mut ctx: *const EVP_CIPHER_CTX,
 ) -> libc::c_uint {
@@ -1298,32 +1297,32 @@ pub unsafe extern "C" fn EVP_CIPHER_CTX_iv_length(
     }
     return (*(*ctx).cipher).iv_len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_get_app_data(
     mut ctx: *const EVP_CIPHER_CTX,
 ) -> *mut libc::c_void {
     return (*ctx).app_data;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_set_app_data(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut data: *mut libc::c_void,
 ) {
     (*ctx).app_data = data;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_flags(
     mut ctx: *const EVP_CIPHER_CTX,
 ) -> uint32_t {
     return (*(*ctx).cipher).flags & !(0x3f as libc::c_int) as uint32_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_mode(
     mut ctx: *const EVP_CIPHER_CTX,
 ) -> uint32_t {
     return (*(*ctx).cipher).flags & 0x3f as libc::c_int as uint32_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_ctrl(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut command: libc::c_int,
@@ -1368,7 +1367,7 @@ pub unsafe extern "C" fn EVP_CIPHER_CTX_ctrl(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_set_padding(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut pad: libc::c_int,
@@ -1380,7 +1379,7 @@ pub unsafe extern "C" fn EVP_CIPHER_CTX_set_padding(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_set_key_length(
     mut c: *mut EVP_CIPHER_CTX,
     mut key_len: libc::c_uint,
@@ -1404,14 +1403,14 @@ pub unsafe extern "C" fn EVP_CIPHER_CTX_set_key_length(
     (*c).key_len = key_len;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_nid(mut cipher: *const EVP_CIPHER) -> libc::c_int {
     if !cipher.is_null() {
         return (*cipher).nid;
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_block_size(
     mut cipher: *const EVP_CIPHER,
 ) -> libc::c_uint {
@@ -1420,7 +1419,7 @@ pub unsafe extern "C" fn EVP_CIPHER_block_size(
     }
     return 0 as libc::c_int as libc::c_uint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_key_length(
     mut cipher: *const EVP_CIPHER,
 ) -> libc::c_uint {
@@ -1429,7 +1428,7 @@ pub unsafe extern "C" fn EVP_CIPHER_key_length(
     }
     return 0 as libc::c_int as libc::c_uint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_iv_length(
     mut cipher: *const EVP_CIPHER,
 ) -> libc::c_uint {
@@ -1438,15 +1437,15 @@ pub unsafe extern "C" fn EVP_CIPHER_iv_length(
     }
     return 0 as libc::c_int as libc::c_uint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_flags(mut cipher: *const EVP_CIPHER) -> uint32_t {
     return (*cipher).flags & !(0x3f as libc::c_int) as uint32_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_mode(mut cipher: *const EVP_CIPHER) -> uint32_t {
     return (*cipher).flags & 0x3f as libc::c_int as uint32_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_name(
     mut cipher: *const EVP_CIPHER,
 ) -> *const libc::c_char {
@@ -1455,7 +1454,7 @@ pub unsafe extern "C" fn EVP_CIPHER_name(
     }
     return 0 as *const libc::c_char;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CipherInit(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut cipher: *const EVP_CIPHER,
@@ -1468,7 +1467,7 @@ pub unsafe extern "C" fn EVP_CipherInit(
     }
     return EVP_CipherInit_ex(ctx, cipher, 0 as *mut ENGINE, key, iv, enc);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_EncryptInit(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut cipher: *const EVP_CIPHER,
@@ -1477,7 +1476,7 @@ pub unsafe extern "C" fn EVP_EncryptInit(
 ) -> libc::c_int {
     return EVP_CipherInit(ctx, cipher, key, iv, 1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DecryptInit(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut cipher: *const EVP_CIPHER,
@@ -1486,7 +1485,7 @@ pub unsafe extern "C" fn EVP_DecryptInit(
 ) -> libc::c_int {
     return EVP_CipherInit(ctx, cipher, key, iv, 0 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CipherFinal(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut out: *mut uint8_t,
@@ -1494,7 +1493,7 @@ pub unsafe extern "C" fn EVP_CipherFinal(
 ) -> libc::c_int {
     return EVP_CipherFinal_ex(ctx, out, out_len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_EncryptFinal(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut out: *mut uint8_t,
@@ -1502,7 +1501,7 @@ pub unsafe extern "C" fn EVP_EncryptFinal(
 ) -> libc::c_int {
     return EVP_EncryptFinal_ex(ctx, out, out_len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DecryptFinal(
     mut ctx: *mut EVP_CIPHER_CTX,
     mut out: *mut uint8_t,
@@ -1510,14 +1509,14 @@ pub unsafe extern "C" fn EVP_DecryptFinal(
 ) -> libc::c_int {
     return EVP_DecryptFinal_ex(ctx, out, out_len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_add_cipher_alias(
     mut a: *const libc::c_char,
     mut b: *const libc::c_char,
 ) -> libc::c_int {
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_CTX_set_flags(
     mut ctx: *const EVP_CIPHER_CTX,
     mut flags: uint32_t,

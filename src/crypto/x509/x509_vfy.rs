@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -1031,7 +1030,7 @@ unsafe extern "C" fn lookup_cert_match(
     sk_X509_pop_free(certs, Some(X509_free as unsafe extern "C" fn(*mut X509) -> ()));
     return xtmp;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_verify_cert(mut ctx: *mut X509_STORE_CTX) -> libc::c_int {
     let mut num: libc::c_int = 0;
     let mut x: *mut X509 = 0 as *mut X509;
@@ -1413,7 +1412,7 @@ unsafe extern "C" fn find_issuer(
     }
     return candidate;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x509_check_issued_with_callback(
     mut ctx: *mut X509_STORE_CTX,
     mut x: *mut X509,
@@ -2296,7 +2295,7 @@ unsafe extern "C" fn check_policy(mut ctx: *mut X509_STORE_CTX) -> libc::c_int {
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x509_check_cert_time(
     mut ctx: *mut X509_STORE_CTX,
     mut x509: *mut X509,
@@ -2449,13 +2448,13 @@ unsafe extern "C" fn internal_verify(mut ctx: *mut X509_STORE_CTX) -> libc::c_in
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_cmp_current_time(
     mut ctm: *const ASN1_TIME,
 ) -> libc::c_int {
     return X509_cmp_time_posix(ctm, time(0 as *mut time_t));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_cmp_time(
     mut ctm: *const ASN1_TIME,
     mut cmp_time: *const time_t,
@@ -2467,7 +2466,7 @@ pub unsafe extern "C" fn X509_cmp_time(
     };
     return X509_cmp_time_posix(ctm, compare_time);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_cmp_time_posix(
     mut ctm: *const ASN1_TIME,
     mut cmp_time: int64_t,
@@ -2482,14 +2481,14 @@ pub unsafe extern "C" fn X509_cmp_time_posix(
         1 as libc::c_int
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_gmtime_adj(
     mut s: *mut ASN1_TIME,
     mut offset_sec: libc::c_long,
 ) -> *mut ASN1_TIME {
     return X509_time_adj(s, offset_sec, 0 as *const time_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_time_adj(
     mut s: *mut ASN1_TIME,
     mut offset_sec: libc::c_long,
@@ -2497,7 +2496,7 @@ pub unsafe extern "C" fn X509_time_adj(
 ) -> *mut ASN1_TIME {
     return X509_time_adj_ex(s, 0 as libc::c_int, offset_sec, in_tm);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_time_adj_ex(
     mut s: *mut ASN1_TIME,
     mut offset_day: libc::c_int,
@@ -2512,7 +2511,7 @@ pub unsafe extern "C" fn X509_time_adj_ex(
     }
     return ASN1_TIME_adj(s, t, offset_day, offset_sec);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get_ex_new_index(
     mut argl: libc::c_long,
     mut argp: *mut libc::c_void,
@@ -2528,7 +2527,7 @@ pub unsafe extern "C" fn X509_STORE_CTX_get_ex_new_index(
     }
     return index;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set_ex_data(
     mut ctx: *mut X509_STORE_CTX,
     mut idx: libc::c_int,
@@ -2536,51 +2535,51 @@ pub unsafe extern "C" fn X509_STORE_CTX_set_ex_data(
 ) -> libc::c_int {
     return CRYPTO_set_ex_data(&mut (*ctx).ex_data, idx, data);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get_ex_data(
     mut ctx: *mut X509_STORE_CTX,
     mut idx: libc::c_int,
 ) -> *mut libc::c_void {
     return CRYPTO_get_ex_data(&mut (*ctx).ex_data, idx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get_error(
     mut ctx: *mut X509_STORE_CTX,
 ) -> libc::c_int {
     return (*ctx).error;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set_error(
     mut ctx: *mut X509_STORE_CTX,
     mut err: libc::c_int,
 ) {
     (*ctx).error = err;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get_error_depth(
     mut ctx: *mut X509_STORE_CTX,
 ) -> libc::c_int {
     return (*ctx).error_depth;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get_current_cert(
     mut ctx: *mut X509_STORE_CTX,
 ) -> *mut X509 {
     return (*ctx).current_cert;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get_chain(
     mut ctx: *mut X509_STORE_CTX,
 ) -> *mut stack_st_X509 {
     return (*ctx).chain;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get0_chain(
     mut ctx: *mut X509_STORE_CTX,
 ) -> *mut stack_st_X509 {
     return (*ctx).chain;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get1_chain(
     mut ctx: *mut X509_STORE_CTX,
 ) -> *mut stack_st_X509 {
@@ -2589,59 +2588,59 @@ pub unsafe extern "C" fn X509_STORE_CTX_get1_chain(
     }
     return X509_chain_up_ref((*ctx).chain);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get0_current_issuer(
     mut ctx: *mut X509_STORE_CTX,
 ) -> *mut X509 {
     return (*ctx).current_issuer;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get0_current_crl(
     mut ctx: *mut X509_STORE_CTX,
 ) -> *mut X509_CRL {
     return (*ctx).current_crl;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get0_parent_ctx(
     mut ctx: *mut X509_STORE_CTX,
 ) -> *mut X509_STORE_CTX {
     return 0 as *mut X509_STORE_CTX;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set_cert(
     mut ctx: *mut X509_STORE_CTX,
     mut x: *mut X509,
 ) {
     (*ctx).cert = x;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set_chain(
     mut ctx: *mut X509_STORE_CTX,
     mut sk: *mut stack_st_X509,
 ) {
     (*ctx).untrusted = sk;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set0_untrusted(
     mut ctx: *mut X509_STORE_CTX,
     mut sk: *mut stack_st_X509,
 ) {
     X509_STORE_CTX_set_chain(ctx, sk);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get0_untrusted(
     mut ctx: *mut X509_STORE_CTX,
 ) -> *mut stack_st_X509 {
     return (*ctx).untrusted;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set0_crls(
     mut ctx: *mut X509_STORE_CTX,
     mut sk: *mut stack_st_X509_CRL,
 ) {
     (*ctx).crls = sk;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set_purpose(
     mut ctx: *mut X509_STORE_CTX,
     mut purpose: libc::c_int,
@@ -2670,7 +2669,7 @@ pub unsafe extern "C" fn X509_STORE_CTX_set_purpose(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set_trust(
     mut ctx: *mut X509_STORE_CTX,
     mut trust: libc::c_int,
@@ -2694,12 +2693,12 @@ pub unsafe extern "C" fn X509_STORE_CTX_set_trust(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_new() -> *mut X509_STORE_CTX {
     return OPENSSL_zalloc(::core::mem::size_of::<X509_STORE_CTX>() as libc::c_ulong)
         as *mut X509_STORE_CTX;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_free(mut ctx: *mut X509_STORE_CTX) {
     if ctx.is_null() {
         return;
@@ -2707,7 +2706,7 @@ pub unsafe extern "C" fn X509_STORE_CTX_free(mut ctx: *mut X509_STORE_CTX) {
     X509_STORE_CTX_cleanup(ctx);
     OPENSSL_free(ctx as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_init(
     mut ctx: *mut X509_STORE_CTX,
     mut store: *mut X509_STORE,
@@ -2805,21 +2804,21 @@ pub unsafe extern "C" fn X509_STORE_CTX_init(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set0_trusted_stack(
     mut ctx: *mut X509_STORE_CTX,
     mut sk: *mut stack_st_X509,
 ) {
     (*ctx).trusted_stack = sk;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_trusted_stack(
     mut ctx: *mut X509_STORE_CTX,
     mut sk: *mut stack_st_X509,
 ) {
     X509_STORE_CTX_set0_trusted_stack(ctx, sk);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_cleanup(mut ctx: *mut X509_STORE_CTX) {
     CRYPTO_free_ex_data(
         &mut g_ex_data_class,
@@ -2841,21 +2840,21 @@ pub unsafe extern "C" fn X509_STORE_CTX_cleanup(mut ctx: *mut X509_STORE_CTX) {
         ::core::mem::size_of::<X509_STORE_CTX>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set_depth(
     mut ctx: *mut X509_STORE_CTX,
     mut depth: libc::c_int,
 ) {
     X509_VERIFY_PARAM_set_depth((*ctx).param, depth);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set_flags(
     mut ctx: *mut X509_STORE_CTX,
     mut flags: libc::c_ulong,
 ) {
     X509_VERIFY_PARAM_set_flags((*ctx).param, flags);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set_time_posix(
     mut ctx: *mut X509_STORE_CTX,
     mut flags: libc::c_ulong,
@@ -2863,7 +2862,7 @@ pub unsafe extern "C" fn X509_STORE_CTX_set_time_posix(
 ) {
     X509_VERIFY_PARAM_set_time_posix((*ctx).param, t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set_time(
     mut ctx: *mut X509_STORE_CTX,
     mut flags: libc::c_ulong,
@@ -2871,13 +2870,13 @@ pub unsafe extern "C" fn X509_STORE_CTX_set_time(
 ) {
     X509_STORE_CTX_set_time_posix(ctx, flags, t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get0_cert(
     mut ctx: *mut X509_STORE_CTX,
 ) -> *mut X509 {
     return (*ctx).cert;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set_verify_cb(
     mut ctx: *mut X509_STORE_CTX,
     mut verify_cb: Option::<
@@ -2886,7 +2885,7 @@ pub unsafe extern "C" fn X509_STORE_CTX_set_verify_cb(
 ) {
     (*ctx).verify_cb = verify_cb;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set_default(
     mut ctx: *mut X509_STORE_CTX,
     mut name: *const libc::c_char,
@@ -2897,13 +2896,13 @@ pub unsafe extern "C" fn X509_STORE_CTX_set_default(
     }
     return X509_VERIFY_PARAM_inherit((*ctx).param, param);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get0_param(
     mut ctx: *mut X509_STORE_CTX,
 ) -> *mut X509_VERIFY_PARAM {
     return (*ctx).param;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set0_param(
     mut ctx: *mut X509_STORE_CTX,
     mut param: *mut X509_VERIFY_PARAM,
@@ -2913,7 +2912,7 @@ pub unsafe extern "C" fn X509_STORE_CTX_set0_param(
     }
     (*ctx).param = param;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_add_custom_crit_oid(
     mut ctx: *mut X509_STORE_CTX,
     mut oid: *mut ASN1_OBJECT,
@@ -2955,7 +2954,7 @@ pub unsafe extern "C" fn X509_STORE_CTX_add_custom_crit_oid(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_set_verify_crit_oids(
     mut ctx: *mut X509_STORE_CTX,
     mut verify_custom_crit_oids: X509_STORE_CTX_verify_crit_oids_cb,

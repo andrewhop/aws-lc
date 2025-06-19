@@ -9,7 +9,7 @@
 )]
 #![feature(asm, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn abort() -> !;
     fn BN_new() -> *mut BIGNUM;
     fn BN_free(bn: *mut BIGNUM);
@@ -143,7 +143,7 @@ unsafe extern "C" fn CRYPTO_load_word_be(
     };
     return CRYPTO_bswap8(v);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_big_endian_to_words(
     mut out: *mut BN_ULONG,
     mut out_len: size_t,
@@ -188,7 +188,7 @@ pub unsafe extern "C" fn bn_big_endian_to_words(
         out_len.wrapping_mul(::core::mem::size_of::<BN_ULONG>() as libc::c_ulong),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_bin2bn(
     mut in_0: *const uint8_t,
     mut len: size_t,
@@ -246,7 +246,7 @@ pub unsafe extern "C" fn BN_bin2bn(
     bn_big_endian_to_words((*ret).d, (*ret).width as size_t, in_0, len);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_le2bn(
     mut in_0: *const uint8_t,
     mut len: size_t,
@@ -276,7 +276,7 @@ pub unsafe extern "C" fn BN_le2bn(
     bn_little_endian_to_words((*ret).d, (*ret).width as size_t, in_0, len);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_little_endian_to_words(
     mut out: *mut BN_ULONG,
     mut out_len: size_t,
@@ -342,7 +342,7 @@ unsafe extern "C" fn fits_in_bytes(
     }
     return (mask as libc::c_int == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_assert_fits_in_bytes(
     mut bn: *const BIGNUM,
     mut num: size_t,
@@ -386,7 +386,7 @@ pub unsafe extern "C" fn bn_assert_fits_in_bytes(
         }
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_words_to_big_endian(
     mut out: *mut uint8_t,
     mut out_len: size_t,
@@ -449,7 +449,7 @@ pub unsafe extern "C" fn bn_words_to_big_endian(
         out_len.wrapping_sub(num_bytes),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_bn2bin(
     mut in_0: *const BIGNUM,
     mut out: *mut uint8_t,
@@ -458,7 +458,7 @@ pub unsafe extern "C" fn BN_bn2bin(
     bn_words_to_big_endian(out, n, (*in_0).d, (*in_0).width as size_t);
     return n;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_words_to_little_endian(
     mut out: *mut uint8_t,
     mut out_len: size_t,
@@ -511,7 +511,7 @@ pub unsafe extern "C" fn bn_words_to_little_endian(
         out_len.wrapping_sub(num_bytes),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_bn2le_padded(
     mut out: *mut uint8_t,
     mut len: size_t,
@@ -523,7 +523,7 @@ pub unsafe extern "C" fn BN_bn2le_padded(
     bn_words_to_little_endian(out, len, (*in_0).d, (*in_0).width as size_t);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_bn2bin_padded(
     mut out: *mut uint8_t,
     mut len: size_t,
@@ -535,7 +535,7 @@ pub unsafe extern "C" fn BN_bn2bin_padded(
     bn_words_to_big_endian(out, len, (*in_0).d, (*in_0).width as size_t);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_get_word(mut bn: *const BIGNUM) -> BN_ULONG {
     match bn_minimal_width(bn) {
         0 => return 0 as libc::c_int as BN_ULONG,
@@ -543,7 +543,7 @@ pub unsafe extern "C" fn BN_get_word(mut bn: *const BIGNUM) -> BN_ULONG {
         _ => return 0xffffffffffffffff as libc::c_ulong,
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_get_u64(
     mut bn: *const BIGNUM,
     mut out: *mut uint64_t,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_TRUST_TOKEN_PRETOKEN;
     pub type stack_st_TRUST_TOKEN;
     pub type stack_st;
@@ -3543,7 +3542,7 @@ unsafe extern "C" fn pmbtoken_exp1_init_method() -> libc::c_int {
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp1_generate_key(
     mut out_private: *mut CBB,
     mut out_public: *mut CBB,
@@ -3553,7 +3552,7 @@ pub unsafe extern "C" fn pmbtoken_exp1_generate_key(
     }
     return pmbtoken_generate_key(&mut pmbtoken_exp1_method, out_private, out_public);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp1_derive_key_from_secret(
     mut out_private: *mut CBB,
     mut out_public: *mut CBB,
@@ -3571,7 +3570,7 @@ pub unsafe extern "C" fn pmbtoken_exp1_derive_key_from_secret(
         secret_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp1_client_key_from_bytes(
     mut key: *mut TRUST_TOKEN_CLIENT_KEY,
     mut in_0: *const uint8_t,
@@ -3582,7 +3581,7 @@ pub unsafe extern "C" fn pmbtoken_exp1_client_key_from_bytes(
     }
     return pmbtoken_client_key_from_bytes(&mut pmbtoken_exp1_method, key, in_0, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp1_issuer_key_from_bytes(
     mut key: *mut TRUST_TOKEN_ISSUER_KEY,
     mut in_0: *const uint8_t,
@@ -3593,7 +3592,7 @@ pub unsafe extern "C" fn pmbtoken_exp1_issuer_key_from_bytes(
     }
     return pmbtoken_issuer_key_from_bytes(&mut pmbtoken_exp1_method, key, in_0, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp1_blind(
     mut cbb: *mut CBB,
     mut count: size_t,
@@ -3613,7 +3612,7 @@ pub unsafe extern "C" fn pmbtoken_exp1_blind(
         msg_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp1_sign(
     mut key: *const TRUST_TOKEN_ISSUER_KEY,
     mut cbb: *mut CBB,
@@ -3635,7 +3634,7 @@ pub unsafe extern "C" fn pmbtoken_exp1_sign(
         private_metadata,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp1_unblind(
     mut key: *const TRUST_TOKEN_CLIENT_KEY,
     mut pretokens: *const stack_st_TRUST_TOKEN_PRETOKEN,
@@ -3655,7 +3654,7 @@ pub unsafe extern "C" fn pmbtoken_exp1_unblind(
         key_id,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp1_read(
     mut key: *const TRUST_TOKEN_ISSUER_KEY,
     mut out_nonce: *mut uint8_t,
@@ -3681,7 +3680,7 @@ pub unsafe extern "C" fn pmbtoken_exp1_read(
         msg_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp1_get_h_for_testing(
     mut out: *mut uint8_t,
 ) -> libc::c_int {
@@ -3995,7 +3994,7 @@ unsafe extern "C" fn pmbtoken_exp2_init_method() -> libc::c_int {
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp2_generate_key(
     mut out_private: *mut CBB,
     mut out_public: *mut CBB,
@@ -4005,7 +4004,7 @@ pub unsafe extern "C" fn pmbtoken_exp2_generate_key(
     }
     return pmbtoken_generate_key(&mut pmbtoken_exp2_method, out_private, out_public);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp2_derive_key_from_secret(
     mut out_private: *mut CBB,
     mut out_public: *mut CBB,
@@ -4023,7 +4022,7 @@ pub unsafe extern "C" fn pmbtoken_exp2_derive_key_from_secret(
         secret_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp2_client_key_from_bytes(
     mut key: *mut TRUST_TOKEN_CLIENT_KEY,
     mut in_0: *const uint8_t,
@@ -4034,7 +4033,7 @@ pub unsafe extern "C" fn pmbtoken_exp2_client_key_from_bytes(
     }
     return pmbtoken_client_key_from_bytes(&mut pmbtoken_exp2_method, key, in_0, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp2_issuer_key_from_bytes(
     mut key: *mut TRUST_TOKEN_ISSUER_KEY,
     mut in_0: *const uint8_t,
@@ -4045,7 +4044,7 @@ pub unsafe extern "C" fn pmbtoken_exp2_issuer_key_from_bytes(
     }
     return pmbtoken_issuer_key_from_bytes(&mut pmbtoken_exp2_method, key, in_0, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp2_blind(
     mut cbb: *mut CBB,
     mut count: size_t,
@@ -4065,7 +4064,7 @@ pub unsafe extern "C" fn pmbtoken_exp2_blind(
         msg_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp2_sign(
     mut key: *const TRUST_TOKEN_ISSUER_KEY,
     mut cbb: *mut CBB,
@@ -4087,7 +4086,7 @@ pub unsafe extern "C" fn pmbtoken_exp2_sign(
         private_metadata,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp2_unblind(
     mut key: *const TRUST_TOKEN_CLIENT_KEY,
     mut pretokens: *const stack_st_TRUST_TOKEN_PRETOKEN,
@@ -4107,7 +4106,7 @@ pub unsafe extern "C" fn pmbtoken_exp2_unblind(
         key_id,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp2_read(
     mut key: *const TRUST_TOKEN_ISSUER_KEY,
     mut out_nonce: *mut uint8_t,
@@ -4133,7 +4132,7 @@ pub unsafe extern "C" fn pmbtoken_exp2_read(
         msg_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_exp2_get_h_for_testing(
     mut out: *mut uint8_t,
 ) -> libc::c_int {
@@ -4447,7 +4446,7 @@ unsafe extern "C" fn pmbtoken_pst1_init_method() -> libc::c_int {
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_pst1_generate_key(
     mut out_private: *mut CBB,
     mut out_public: *mut CBB,
@@ -4457,7 +4456,7 @@ pub unsafe extern "C" fn pmbtoken_pst1_generate_key(
     }
     return pmbtoken_generate_key(&mut pmbtoken_pst1_method, out_private, out_public);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_pst1_derive_key_from_secret(
     mut out_private: *mut CBB,
     mut out_public: *mut CBB,
@@ -4475,7 +4474,7 @@ pub unsafe extern "C" fn pmbtoken_pst1_derive_key_from_secret(
         secret_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_pst1_client_key_from_bytes(
     mut key: *mut TRUST_TOKEN_CLIENT_KEY,
     mut in_0: *const uint8_t,
@@ -4486,7 +4485,7 @@ pub unsafe extern "C" fn pmbtoken_pst1_client_key_from_bytes(
     }
     return pmbtoken_client_key_from_bytes(&mut pmbtoken_pst1_method, key, in_0, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_pst1_issuer_key_from_bytes(
     mut key: *mut TRUST_TOKEN_ISSUER_KEY,
     mut in_0: *const uint8_t,
@@ -4497,7 +4496,7 @@ pub unsafe extern "C" fn pmbtoken_pst1_issuer_key_from_bytes(
     }
     return pmbtoken_issuer_key_from_bytes(&mut pmbtoken_pst1_method, key, in_0, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_pst1_blind(
     mut cbb: *mut CBB,
     mut count: size_t,
@@ -4517,7 +4516,7 @@ pub unsafe extern "C" fn pmbtoken_pst1_blind(
         msg_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_pst1_sign(
     mut key: *const TRUST_TOKEN_ISSUER_KEY,
     mut cbb: *mut CBB,
@@ -4539,7 +4538,7 @@ pub unsafe extern "C" fn pmbtoken_pst1_sign(
         private_metadata,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_pst1_unblind(
     mut key: *const TRUST_TOKEN_CLIENT_KEY,
     mut pretokens: *const stack_st_TRUST_TOKEN_PRETOKEN,
@@ -4559,7 +4558,7 @@ pub unsafe extern "C" fn pmbtoken_pst1_unblind(
         key_id,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_pst1_read(
     mut key: *const TRUST_TOKEN_ISSUER_KEY,
     mut out_nonce: *mut uint8_t,
@@ -4585,7 +4584,7 @@ pub unsafe extern "C" fn pmbtoken_pst1_read(
         msg_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pmbtoken_pst1_get_h_for_testing(
     mut out: *mut uint8_t,
 ) -> libc::c_int {

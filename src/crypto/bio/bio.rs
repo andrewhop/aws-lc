@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     pub type stack_st_CRYPTO_EX_DATA_FUNCS;
     fn OPENSSL_malloc(size: size_t) -> *mut libc::c_void;
@@ -501,7 +500,7 @@ static mut g_ex_data_class: CRYPTO_EX_DATA_CLASS = {
     };
     init
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_new(mut method: *const BIO_METHOD) -> *mut BIO {
     let mut ret: *mut BIO = OPENSSL_zalloc(
         ::core::mem::size_of::<BIO>() as libc::c_ulong,
@@ -523,7 +522,7 @@ pub unsafe extern "C" fn BIO_new(mut method: *const BIO_METHOD) -> *mut BIO {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_free(mut bio: *mut BIO) -> libc::c_int {
     let mut next_bio: *mut BIO = 0 as *mut BIO;
     while !bio.is_null() {
@@ -568,20 +567,20 @@ pub unsafe extern "C" fn BIO_free(mut bio: *mut BIO) -> libc::c_int {
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_up_ref(mut bio: *mut BIO) -> libc::c_int {
     CRYPTO_refcount_inc(&mut (*bio).references);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_vfree(mut bio: *mut BIO) {
     BIO_free(bio);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_free_all(mut bio: *mut BIO) {
     BIO_free(bio);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_read(
     mut bio: *mut BIO,
     mut buf: *mut libc::c_void,
@@ -640,7 +639,7 @@ pub unsafe extern "C" fn BIO_read(
         .expect("non-null function pointer")(bio, buf as *mut libc::c_char, len);
     return handle_callback_return(bio, 0x2 as libc::c_int, buf, len, ret);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_read_ex(
     mut bio: *mut BIO,
     mut data: *mut libc::c_void,
@@ -671,7 +670,7 @@ pub unsafe extern "C" fn BIO_read_ex(
         return 0 as libc::c_int;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_gets(
     mut bio: *mut BIO,
     mut buf: *mut libc::c_char,
@@ -736,7 +735,7 @@ pub unsafe extern "C" fn BIO_gets(
         ret,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_write(
     mut bio: *mut BIO,
     mut in_0: *const libc::c_void,
@@ -796,7 +795,7 @@ pub unsafe extern "C" fn BIO_write(
         .expect("non-null function pointer")(bio, in_0 as *const libc::c_char, inl);
     return handle_callback_return(bio, 0x3 as libc::c_int, in_0, inl, ret);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_write_ex(
     mut bio: *mut BIO,
     mut data: *const libc::c_void,
@@ -831,7 +830,7 @@ pub unsafe extern "C" fn BIO_write_ex(
         return 0 as libc::c_int;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_write_all(
     mut bio: *mut BIO,
     mut data: *const libc::c_void,
@@ -893,7 +892,7 @@ pub unsafe extern "C" fn BIO_write_all(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_puts(
     mut bio: *mut BIO,
     mut in_0: *const libc::c_char,
@@ -973,7 +972,7 @@ pub unsafe extern "C" fn BIO_puts(
         ret,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_flush(mut bio: *mut BIO) -> libc::c_int {
     return BIO_ctrl(
         bio,
@@ -982,7 +981,7 @@ pub unsafe extern "C" fn BIO_flush(mut bio: *mut BIO) -> libc::c_int {
         0 as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_ctrl(
     mut bio: *mut BIO,
     mut cmd: libc::c_int,
@@ -1043,7 +1042,7 @@ pub unsafe extern "C" fn BIO_ctrl(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_ptr_ctrl(
     mut b: *mut BIO,
     mut cmd: libc::c_int,
@@ -1057,7 +1056,7 @@ pub unsafe extern "C" fn BIO_ptr_ctrl(
     }
     return p;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_int_ctrl(
     mut b: *mut BIO,
     mut cmd: libc::c_int,
@@ -1067,7 +1066,7 @@ pub unsafe extern "C" fn BIO_int_ctrl(
     let mut i: libc::c_int = iarg;
     return BIO_ctrl(b, cmd, larg, &mut i as *mut libc::c_int as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_reset(mut bio: *mut BIO) -> libc::c_int {
     return BIO_ctrl(
         bio,
@@ -1076,7 +1075,7 @@ pub unsafe extern "C" fn BIO_reset(mut bio: *mut BIO) -> libc::c_int {
         0 as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_eof(mut bio: *mut BIO) -> libc::c_int {
     return BIO_ctrl(
         bio,
@@ -1085,82 +1084,82 @@ pub unsafe extern "C" fn BIO_eof(mut bio: *mut BIO) -> libc::c_int {
         0 as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_flags(mut bio: *mut BIO, mut flags: libc::c_int) {
     (*bio).flags |= flags;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_test_flags(
     mut bio: *const BIO,
     mut flags: libc::c_int,
 ) -> libc::c_int {
     return (*bio).flags & flags;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_should_read(mut bio: *const BIO) -> libc::c_int {
     return BIO_test_flags(bio, 0x1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_should_write(mut bio: *const BIO) -> libc::c_int {
     return BIO_test_flags(bio, 0x2 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_should_retry(mut bio: *const BIO) -> libc::c_int {
     return BIO_test_flags(bio, 0x8 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_should_io_special(mut bio: *const BIO) -> libc::c_int {
     return BIO_test_flags(bio, 0x4 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_get_retry_reason(mut bio: *const BIO) -> libc::c_int {
     return (*bio).retry_reason;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_retry_reason(
     mut bio: *mut BIO,
     mut reason: libc::c_int,
 ) {
     (*bio).retry_reason = reason;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_clear_flags(mut bio: *mut BIO, mut flags: libc::c_int) {
     (*bio).flags &= !flags;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_retry_read(mut bio: *mut BIO) {
     (*bio).flags |= 0x1 as libc::c_int | 0x8 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_retry_write(mut bio: *mut BIO) {
     (*bio).flags |= 0x2 as libc::c_int | 0x8 as libc::c_int;
 }
 static mut kRetryFlags: libc::c_int = 0x1 as libc::c_int | 0x2 as libc::c_int
     | 0x4 as libc::c_int | 0x8 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_get_retry_flags(mut bio: *mut BIO) -> libc::c_int {
     return (*bio).flags & kRetryFlags;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_clear_retry_flags(mut bio: *mut BIO) {
     (*bio).flags &= !kRetryFlags;
     (*bio).retry_reason = 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_method_type(mut bio: *const BIO) -> libc::c_int {
     return (*(*bio).method).type_0;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_method_name(mut bio: *const BIO) -> *const libc::c_char {
     return (*(*bio).method).name;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_copy_next_retry(mut bio: *mut BIO) {
     BIO_clear_retry_flags(bio);
     BIO_set_flags(bio, BIO_get_retry_flags((*bio).next_bio));
     (*bio).retry_reason = (*(*bio).next_bio).retry_reason;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_callback_ctrl(
     mut bio: *mut BIO,
     mut cmd: libc::c_int,
@@ -1183,7 +1182,7 @@ pub unsafe extern "C" fn BIO_callback_ctrl(
     return ((*(*bio).method).callback_ctrl)
         .expect("non-null function pointer")(bio, cmd, fp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_pending(mut bio: *const BIO) -> size_t {
     let r: libc::c_long = BIO_ctrl(
         bio as *mut BIO,
@@ -1224,11 +1223,11 @@ pub unsafe extern "C" fn BIO_pending(mut bio: *const BIO) -> size_t {
     }
     return r as size_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_ctrl_pending(mut bio: *const BIO) -> size_t {
     return BIO_pending(bio);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_wpending(mut bio: *const BIO) -> size_t {
     let r: libc::c_long = BIO_ctrl(
         bio as *mut BIO,
@@ -1269,7 +1268,7 @@ pub unsafe extern "C" fn BIO_wpending(mut bio: *const BIO) -> size_t {
     }
     return r as size_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_close(
     mut bio: *mut BIO,
     mut close_flag: libc::c_int,
@@ -1281,7 +1280,7 @@ pub unsafe extern "C" fn BIO_set_close(
         0 as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_get_close(mut bio: *mut BIO) -> libc::c_int {
     return BIO_ctrl(
         bio,
@@ -1290,15 +1289,15 @@ pub unsafe extern "C" fn BIO_get_close(mut bio: *mut BIO) -> libc::c_int {
         0 as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_number_read(mut bio: *const BIO) -> uint64_t {
     return (*bio).num_read;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_number_written(mut bio: *const BIO) -> uint64_t {
     return (*bio).num_write;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_push(
     mut bio: *mut BIO,
     mut appended_bio: *mut BIO,
@@ -1314,7 +1313,7 @@ pub unsafe extern "C" fn BIO_push(
     (*last_bio).next_bio = appended_bio;
     return bio;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_pop(mut bio: *mut BIO) -> *mut BIO {
     let mut ret: *mut BIO = 0 as *mut BIO;
     if bio.is_null() {
@@ -1324,14 +1323,14 @@ pub unsafe extern "C" fn BIO_pop(mut bio: *mut BIO) -> *mut BIO {
     (*bio).next_bio = 0 as *mut BIO;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_next(mut bio: *mut BIO) -> *mut BIO {
     if bio.is_null() {
         return 0 as *mut BIO;
     }
     return (*bio).next_bio;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_find_type(
     mut bio: *mut BIO,
     mut type_0: libc::c_int,
@@ -1360,7 +1359,7 @@ pub unsafe extern "C" fn BIO_find_type(
     }
     return 0 as *mut BIO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_indent(
     mut bio: *mut BIO,
     mut indent: libc::c_uint,
@@ -1389,7 +1388,7 @@ unsafe extern "C" fn print_bio(
 ) -> libc::c_int {
     return BIO_write_all(bio as *mut BIO, str as *const libc::c_void, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_print_errors(mut bio: *mut BIO) {
     ERR_print_errors_cb(
         Some(
@@ -1493,7 +1492,7 @@ unsafe extern "C" fn bio_read_full(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_read_asn1(
     mut bio: *mut BIO,
     mut out: *mut *mut uint8_t,
@@ -1684,11 +1683,11 @@ pub unsafe extern "C" fn BIO_read_asn1(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_retry_special(mut bio: *mut BIO) {
     (*bio).flags |= 0x1 as libc::c_int | 0x4 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_write_buffer_size(
     mut bio: *mut BIO,
     mut buffer_size: libc::c_int,
@@ -1728,7 +1727,7 @@ static mut g_index_lock: CRYPTO_STATIC_MUTEX = {
     init
 };
 static mut g_index: libc::c_int = 128 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_get_new_index() -> libc::c_int {
     CRYPTO_STATIC_MUTEX_lock_write(&mut g_index_lock);
     let mut ret: libc::c_int = if g_index > 255 as libc::c_int {
@@ -1741,7 +1740,7 @@ pub unsafe extern "C" fn BIO_get_new_index() -> libc::c_int {
     CRYPTO_STATIC_MUTEX_unlock_write(&mut g_index_lock);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_meth_new(
     mut type_0: libc::c_int,
     mut name: *const libc::c_char,
@@ -1756,11 +1755,11 @@ pub unsafe extern "C" fn BIO_meth_new(
     (*method).name = name;
     return method;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_meth_free(mut method: *mut BIO_METHOD) {
     OPENSSL_free(method as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_meth_set_create(
     mut method: *mut BIO_METHOD,
     mut create: Option::<unsafe extern "C" fn(*mut BIO) -> libc::c_int>,
@@ -1768,13 +1767,13 @@ pub unsafe extern "C" fn BIO_meth_set_create(
     (*method).create = create;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_meth_get_create(
     mut method: *const BIO_METHOD,
 ) -> Option::<unsafe extern "C" fn(*mut BIO) -> libc::c_int> {
     return (*method).create;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_meth_set_destroy(
     mut method: *mut BIO_METHOD,
     mut destroy: Option::<unsafe extern "C" fn(*mut BIO) -> libc::c_int>,
@@ -1782,13 +1781,13 @@ pub unsafe extern "C" fn BIO_meth_set_destroy(
     (*method).destroy = destroy;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_meth_get_destroy(
     mut method: *const BIO_METHOD,
 ) -> Option::<unsafe extern "C" fn(*mut BIO) -> libc::c_int> {
     return (*method).destroy;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_meth_set_write(
     mut method: *mut BIO_METHOD,
     mut write: Option::<
@@ -1798,7 +1797,7 @@ pub unsafe extern "C" fn BIO_meth_set_write(
     (*method).bwrite = write;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_meth_set_read(
     mut method: *mut BIO_METHOD,
     mut read: Option::<
@@ -1808,7 +1807,7 @@ pub unsafe extern "C" fn BIO_meth_set_read(
     (*method).bread = read;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_meth_set_gets(
     mut method: *mut BIO_METHOD,
     mut gets: Option::<
@@ -1818,7 +1817,7 @@ pub unsafe extern "C" fn BIO_meth_set_gets(
     (*method).bgets = gets;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_meth_get_gets(
     mut method: *const BIO_METHOD,
 ) -> Option::<
@@ -1826,7 +1825,7 @@ pub unsafe extern "C" fn BIO_meth_get_gets(
 > {
     return (*method).bgets;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_meth_set_ctrl(
     mut method: *mut BIO_METHOD,
     mut ctrl: Option::<
@@ -1841,7 +1840,7 @@ pub unsafe extern "C" fn BIO_meth_set_ctrl(
     (*method).ctrl = ctrl;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_meth_get_ctrl(
     mut method: *const BIO_METHOD,
 ) -> Option::<
@@ -1854,7 +1853,7 @@ pub unsafe extern "C" fn BIO_meth_get_ctrl(
 > {
     return (*method).ctrl;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_meth_set_callback_ctrl(
     mut method: *mut BIO_METHOD,
     mut callback_ctrl: Option::<
@@ -1864,37 +1863,37 @@ pub unsafe extern "C" fn BIO_meth_set_callback_ctrl(
     (*method).callback_ctrl = callback_ctrl;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_meth_get_callback_ctrl(
     mut method: *const BIO_METHOD,
 ) -> Option::<unsafe extern "C" fn(*mut BIO, libc::c_int, bio_info_cb) -> libc::c_long> {
     return (*method).callback_ctrl;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_data(mut bio: *mut BIO, mut ptr: *mut libc::c_void) {
     (*bio).ptr = ptr;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_get_data(mut bio: *mut BIO) -> *mut libc::c_void {
     return (*bio).ptr;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_init(mut bio: *mut BIO, mut init: libc::c_int) {
     (*bio).init = init;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_get_init(mut bio: *mut BIO) -> libc::c_int {
     return (*bio).init;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_shutdown(mut bio: *mut BIO, mut shutdown: libc::c_int) {
     (*bio).shutdown = shutdown;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_get_shutdown(mut bio: *mut BIO) -> libc::c_int {
     return (*bio).shutdown;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_meth_set_puts(
     mut method: *mut BIO_METHOD,
     mut puts: Option::<
@@ -1904,38 +1903,38 @@ pub unsafe extern "C" fn BIO_meth_set_puts(
     (*method).bputs = puts;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_meth_get_puts(
     mut method: *const BIO_METHOD,
 ) -> Option::<unsafe extern "C" fn(*mut BIO, *const libc::c_char) -> libc::c_int> {
     return (*method).bputs;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_callback_ex(
     mut bio: *mut BIO,
     mut callback: BIO_callback_fn_ex,
 ) {
     (*bio).callback_ex = callback;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_callback(
     mut bio: *mut BIO,
     mut callback: BIO_callback_fn,
 ) {
     (*bio).callback = callback;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_callback_arg(
     mut bio: *mut BIO,
     mut arg: *mut libc::c_char,
 ) {
     (*bio).cb_arg = arg;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_get_callback_arg(mut bio: *const BIO) -> *mut libc::c_char {
     return (*bio).cb_arg;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_get_ex_new_index(
     mut argl: libc::c_long,
     mut argp: *mut libc::c_void,
@@ -1951,7 +1950,7 @@ pub unsafe extern "C" fn BIO_get_ex_new_index(
     }
     return index;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_ex_data(
     mut bio: *mut BIO,
     mut idx: libc::c_int,
@@ -1959,7 +1958,7 @@ pub unsafe extern "C" fn BIO_set_ex_data(
 ) -> libc::c_int {
     return CRYPTO_set_ex_data(&mut (*bio).ex_data, idx, data);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_get_ex_data(
     mut bio: *const BIO,
     mut idx: libc::c_int,

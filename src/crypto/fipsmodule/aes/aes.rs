@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn abort() -> !;
     fn aes_nohw_set_encrypt_key(
         key: *const uint8_t,
@@ -105,7 +105,7 @@ unsafe extern "C" fn vpaes_decrypt(
 ) {
     abort();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AES_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -119,7 +119,7 @@ pub unsafe extern "C" fn AES_encrypt(
         aes_nohw_encrypt(in_0, out, key);
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AES_decrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -133,7 +133,7 @@ pub unsafe extern "C" fn AES_decrypt(
         aes_nohw_decrypt(in_0, out, key);
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AES_set_encrypt_key(
     mut key: *const uint8_t,
     mut bits: libc::c_uint,
@@ -153,7 +153,7 @@ pub unsafe extern "C" fn AES_set_encrypt_key(
         return aes_nohw_set_encrypt_key(key, bits, aeskey)
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AES_set_decrypt_key(
     mut key: *const uint8_t,
     mut bits: libc::c_uint,

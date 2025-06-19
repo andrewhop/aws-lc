@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_ITEM_st;
     pub type ASN1_VALUE_st;
     fn ASN1_item_free(val: *mut ASN1_VALUE, it: *const ASN1_ITEM);
@@ -51,7 +50,7 @@ pub struct asn1_string_st {
 }
 pub type ASN1_STRING = asn1_string_st;
 pub type ASN1_VALUE = ASN1_VALUE_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_pack(
     mut obj: *mut libc::c_void,
     mut it: *const ASN1_ITEM,
@@ -86,7 +85,7 @@ pub unsafe extern "C" fn ASN1_item_pack(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_unpack(
     mut oct: *const ASN1_STRING,
     mut it: *const ASN1_ITEM,

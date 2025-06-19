@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn ec_felem_one(group: *const EC_GROUP) -> *const EC_FELEM;
     fn ec_felem_neg(group: *const EC_GROUP, out: *mut EC_FELEM, a: *const EC_FELEM);
     fn ec_felem_select(
@@ -342,7 +342,7 @@ unsafe extern "C" fn OPENSSL_memset(
     }
     return memset(dst, c, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_mont_mul(
     mut group: *const EC_GROUP,
     mut r: *mut EC_JACOBIAN,
@@ -468,7 +468,7 @@ pub unsafe extern "C" fn ec_GFp_mont_mul(
         ec_GFp_simple_point_set_to_infinity(group, r);
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_mont_mul_base(
     mut group: *const EC_GROUP,
     mut r: *mut EC_JACOBIAN,
@@ -607,7 +607,7 @@ unsafe extern "C" fn ec_GFp_mont_batch_get_window(
     sign_mask = (0 as libc::c_uint as crypto_word_t).wrapping_sub(sign_mask);
     ec_felem_select(group, &mut (*out).Y, sign_mask, &mut neg_Y, &mut (*out).Y);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_mont_mul_batch(
     mut group: *const EC_GROUP,
     mut r: *mut EC_JACOBIAN,
@@ -706,7 +706,7 @@ unsafe extern "C" fn ec_GFp_mont_comb_stride(
         .wrapping_sub(1 as libc::c_int as libc::c_uint)
         .wrapping_div(5 as libc::c_int as libc::c_uint);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_mont_init_precomp(
     mut group: *const EC_GROUP,
     mut out: *mut EC_PRECOMP,
@@ -842,7 +842,7 @@ unsafe extern "C" fn ec_GFp_mont_get_comb_window(
         ec_felem_one(group),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_mont_mul_precomp(
     mut group: *const EC_GROUP,
     mut r: *mut EC_JACOBIAN,

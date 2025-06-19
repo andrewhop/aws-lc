@@ -9,7 +9,7 @@
 )]
 #![feature(asm, extern_types)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     pub type stack_st_void;
     pub type engine_st;
@@ -410,7 +410,7 @@ unsafe extern "C" fn rand_nonzero(mut out: *mut uint8_t, mut len: size_t) {
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_padding_add_PKCS1_OAEP_mgf1(
     mut to: *mut uint8_t,
     mut to_len: size_t,
@@ -550,7 +550,7 @@ pub unsafe extern "C" fn RSA_padding_add_PKCS1_OAEP_mgf1(
     OPENSSL_free(dbmask as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_padding_check_PKCS1_OAEP_mgf1(
     mut out: *mut uint8_t,
     mut out_len: *mut size_t,
@@ -855,7 +855,7 @@ unsafe extern "C" fn rsa_padding_check_PKCS1_type_2(
     *out_len = msg_len;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_public_encrypt(
     mut flen: size_t,
     mut from: *const uint8_t,
@@ -882,7 +882,7 @@ pub unsafe extern "C" fn RSA_public_encrypt(
     }
     return out_len as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_private_encrypt(
     mut flen: size_t,
     mut from: *const uint8_t,
@@ -909,7 +909,7 @@ pub unsafe extern "C" fn RSA_private_encrypt(
     }
     return out_len as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_encrypt(
     mut rsa: *mut RSA,
     mut out_len: *mut size_t,
@@ -1179,7 +1179,7 @@ unsafe extern "C" fn rsa_default_decrypt(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_decrypt(
     mut rsa: *mut RSA,
     mut out_len: *mut size_t,
@@ -1203,7 +1203,7 @@ pub unsafe extern "C" fn RSA_decrypt(
     }
     return rsa_default_decrypt(rsa, out_len, out, max_out, in_0, in_len, padding);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_private_decrypt(
     mut flen: size_t,
     mut from: *const uint8_t,
@@ -1230,7 +1230,7 @@ pub unsafe extern "C" fn RSA_private_decrypt(
     }
     return out_len as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_public_decrypt(
     mut flen: size_t,
     mut from: *const uint8_t,

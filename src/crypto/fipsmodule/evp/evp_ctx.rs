@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     pub type dsa_st;
     pub type ec_key_st;
@@ -494,21 +493,21 @@ unsafe extern "C" fn evp_pkey_ctx_new(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_new(
     mut pkey: *mut EVP_PKEY,
     mut e: *mut ENGINE,
 ) -> *mut EVP_PKEY_CTX {
     return evp_pkey_ctx_new(pkey, e, -(1 as libc::c_int));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_new_id(
     mut id: libc::c_int,
     mut e: *mut ENGINE,
 ) -> *mut EVP_PKEY_CTX {
     return evp_pkey_ctx_new(0 as *mut EVP_PKEY, e, id);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_free(mut ctx: *mut EVP_PKEY_CTX) {
     if ctx.is_null() {
         return;
@@ -520,7 +519,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_free(mut ctx: *mut EVP_PKEY_CTX) {
     EVP_PKEY_free((*ctx).peerkey);
     OPENSSL_free(ctx as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_dup(
     mut ctx: *mut EVP_PKEY_CTX,
 ) -> *mut EVP_PKEY_CTX {
@@ -561,13 +560,13 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_dup(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_get0_pkey(
     mut ctx: *mut EVP_PKEY_CTX,
 ) -> *mut EVP_PKEY {
     return (*ctx).pkey;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_ctrl(
     mut ctx: *mut EVP_PKEY_CTX,
     mut keytype: libc::c_int,
@@ -622,7 +621,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_ctrl(
     }
     return ((*(*ctx).pmeth).ctrl).expect("non-null function pointer")(ctx, cmd, p1, p2);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_sign_init(mut ctx: *mut EVP_PKEY_CTX) -> libc::c_int {
     if ctx.is_null() || ((*ctx).pmeth).is_null()
         || ((*(*ctx).pmeth).sign).is_none() && ((*(*ctx).pmeth).sign_message).is_none()
@@ -646,7 +645,7 @@ pub unsafe extern "C" fn EVP_PKEY_sign_init(mut ctx: *mut EVP_PKEY_CTX) -> libc:
     (*ctx).operation = 0 as libc::c_int;
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_sign(
     mut ctx: *mut EVP_PKEY_CTX,
     mut sig: *mut uint8_t,
@@ -679,7 +678,7 @@ pub unsafe extern "C" fn EVP_PKEY_sign(
     return ((*(*ctx).pmeth).sign)
         .expect("non-null function pointer")(ctx, sig, sig_len, digest, digest_len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_verify_init(
     mut ctx: *mut EVP_PKEY_CTX,
 ) -> libc::c_int {
@@ -706,7 +705,7 @@ pub unsafe extern "C" fn EVP_PKEY_verify_init(
     (*ctx).operation = 0 as libc::c_int;
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_verify(
     mut ctx: *mut EVP_PKEY_CTX,
     mut sig: *const uint8_t,
@@ -739,7 +738,7 @@ pub unsafe extern "C" fn EVP_PKEY_verify(
     return ((*(*ctx).pmeth).verify)
         .expect("non-null function pointer")(ctx, sig, sig_len, digest, digest_len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_encrypt_init(
     mut ctx: *mut EVP_PKEY_CTX,
 ) -> libc::c_int {
@@ -757,7 +756,7 @@ pub unsafe extern "C" fn EVP_PKEY_encrypt_init(
     (*ctx).operation = (1 as libc::c_int) << 6 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_encrypt(
     mut ctx: *mut EVP_PKEY_CTX,
     mut out: *mut uint8_t,
@@ -790,7 +789,7 @@ pub unsafe extern "C" fn EVP_PKEY_encrypt(
     return ((*(*ctx).pmeth).encrypt)
         .expect("non-null function pointer")(ctx, out, outlen, in_0, inlen);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_decrypt_init(
     mut ctx: *mut EVP_PKEY_CTX,
 ) -> libc::c_int {
@@ -808,7 +807,7 @@ pub unsafe extern "C" fn EVP_PKEY_decrypt_init(
     (*ctx).operation = (1 as libc::c_int) << 7 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_decrypt(
     mut ctx: *mut EVP_PKEY_CTX,
     mut out: *mut uint8_t,
@@ -841,7 +840,7 @@ pub unsafe extern "C" fn EVP_PKEY_decrypt(
     return ((*(*ctx).pmeth).decrypt)
         .expect("non-null function pointer")(ctx, out, outlen, in_0, inlen);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_verify_recover_init(
     mut ctx: *mut EVP_PKEY_CTX,
 ) -> libc::c_int {
@@ -861,7 +860,7 @@ pub unsafe extern "C" fn EVP_PKEY_verify_recover_init(
     (*ctx).operation = (1 as libc::c_int) << 5 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_verify_recover(
     mut ctx: *mut EVP_PKEY_CTX,
     mut out: *mut uint8_t,
@@ -896,7 +895,7 @@ pub unsafe extern "C" fn EVP_PKEY_verify_recover(
     return ((*(*ctx).pmeth).verify_recover)
         .expect("non-null function pointer")(ctx, out, out_len, sig, sig_len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_derive_init(
     mut ctx: *mut EVP_PKEY_CTX,
 ) -> libc::c_int {
@@ -914,7 +913,7 @@ pub unsafe extern "C" fn EVP_PKEY_derive_init(
     (*ctx).operation = (1 as libc::c_int) << 8 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_derive_set_peer(
     mut ctx: *mut EVP_PKEY_CTX,
     mut peer: *mut EVP_PKEY,
@@ -1006,7 +1005,7 @@ pub unsafe extern "C" fn EVP_PKEY_derive_set_peer(
     EVP_PKEY_up_ref(peer);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_derive(
     mut ctx: *mut EVP_PKEY_CTX,
     mut key: *mut uint8_t,
@@ -1037,7 +1036,7 @@ pub unsafe extern "C" fn EVP_PKEY_derive(
     return ((*(*ctx).pmeth).derive)
         .expect("non-null function pointer")(ctx, key, out_key_len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_keygen_init(
     mut ctx: *mut EVP_PKEY_CTX,
 ) -> libc::c_int {
@@ -1055,7 +1054,7 @@ pub unsafe extern "C" fn EVP_PKEY_keygen_init(
     (*ctx).operation = (1 as libc::c_int) << 2 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_keygen_deterministic(
     mut ctx: *mut EVP_PKEY_CTX,
     mut out_pkey: *mut *mut EVP_PKEY,
@@ -1139,7 +1138,7 @@ pub unsafe extern "C" fn EVP_PKEY_keygen_deterministic(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_keygen(
     mut ctx: *mut EVP_PKEY_CTX,
     mut out_pkey: *mut *mut EVP_PKEY,
@@ -1204,7 +1203,7 @@ pub unsafe extern "C" fn EVP_PKEY_keygen(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_paramgen_init(
     mut ctx: *mut EVP_PKEY_CTX,
 ) -> libc::c_int {
@@ -1223,7 +1222,7 @@ pub unsafe extern "C" fn EVP_PKEY_paramgen_init(
     (*ctx).operation = (1 as libc::c_int) << 9 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_paramgen(
     mut ctx: *mut EVP_PKEY_CTX,
     mut out_pkey: *mut *mut EVP_PKEY,
@@ -1277,7 +1276,7 @@ pub unsafe extern "C" fn EVP_PKEY_paramgen(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_encapsulate_deterministic(
     mut ctx: *mut EVP_PKEY_CTX,
     mut ciphertext: *mut uint8_t,
@@ -1313,7 +1312,7 @@ pub unsafe extern "C" fn EVP_PKEY_encapsulate_deterministic(
         seed_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_encapsulate(
     mut ctx: *mut EVP_PKEY_CTX,
     mut ciphertext: *mut uint8_t,
@@ -1347,7 +1346,7 @@ pub unsafe extern "C" fn EVP_PKEY_encapsulate(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_decapsulate(
     mut ctx: *mut EVP_PKEY_CTX,
     mut shared_secret: *mut uint8_t,
@@ -1381,7 +1380,7 @@ pub unsafe extern "C" fn EVP_PKEY_decapsulate(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_md(
     mut ctx: *mut EVP_PKEY_CTX,
     mut optype: libc::c_int,
@@ -1414,7 +1413,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_md(
         m as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_ctrl_str(
     mut ctx: *mut EVP_PKEY_CTX,
     mut name: *const libc::c_char,
@@ -1456,7 +1455,7 @@ unsafe extern "C" fn trans_cb(
     (*ctx).keygen_info[1 as libc::c_int as usize] = b;
     return ((*ctx).pkey_gencb).expect("non-null function pointer")(ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn evp_pkey_set_cb_translate(
     mut cb: *mut BN_GENCB,
     mut ctx: *mut EVP_PKEY_CTX,
@@ -1474,7 +1473,7 @@ pub unsafe extern "C" fn evp_pkey_set_cb_translate(
         ctx as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_cb(
     mut ctx: *mut EVP_PKEY_CTX,
     mut cb: Option::<EVP_PKEY_gen_cb>,
@@ -1484,7 +1483,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_set_cb(
     }
     (*ctx).pkey_gencb = cb;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_app_data(
     mut ctx: *mut EVP_PKEY_CTX,
     mut data: *mut libc::c_void,
@@ -1494,7 +1493,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_set_app_data(
     }
     (*ctx).app_data = data;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_get_app_data(
     mut ctx: *mut EVP_PKEY_CTX,
 ) -> *mut libc::c_void {
@@ -1503,7 +1502,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_get_app_data(
     }
     return (*ctx).app_data;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_get_keygen_info(
     mut ctx: *mut EVP_PKEY_CTX,
     mut idx: libc::c_int,

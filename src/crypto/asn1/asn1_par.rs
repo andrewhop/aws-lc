@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_tag2str(mut tag: libc::c_int) -> *const libc::c_char {
     static mut tag2str: [*const libc::c_char; 31] = [
         b"EOC\0" as *const u8 as *const libc::c_char,

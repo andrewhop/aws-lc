@@ -9,7 +9,7 @@
 )]
 #![feature(asm)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn BN_init(bn: *mut BIGNUM);
     fn bn_minimal_width(bn: *const BIGNUM) -> libc::c_int;
     fn bn_fits_in_words(bn: *const BIGNUM, num: size_t) -> libc::c_int;
@@ -146,7 +146,7 @@ unsafe extern "C" fn bn_cmp_words_consttime(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_ucmp(
     mut a: *const BIGNUM,
     mut b: *const BIGNUM,
@@ -158,7 +158,7 @@ pub unsafe extern "C" fn BN_ucmp(
         (*b).width as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_cmp(
     mut a: *const BIGNUM,
     mut b: *const BIGNUM,
@@ -181,7 +181,7 @@ pub unsafe extern "C" fn BN_cmp(
     let mut ret: libc::c_int = BN_ucmp(a, b);
     return if (*a).neg != 0 { -ret } else { ret };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_less_than_words(
     mut a: *const BN_ULONG,
     mut b: *const BN_ULONG,
@@ -189,7 +189,7 @@ pub unsafe extern "C" fn bn_less_than_words(
 ) -> libc::c_int {
     return (bn_cmp_words_consttime(a, len, b, len) < 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_abs_is_word(
     mut bn: *const BIGNUM,
     mut w: BN_ULONG,
@@ -206,7 +206,7 @@ pub unsafe extern "C" fn BN_abs_is_word(
     }
     return (mask == 0 as libc::c_int as BN_ULONG) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_cmp_word(
     mut a: *const BIGNUM,
     mut b: BN_ULONG,
@@ -225,16 +225,16 @@ pub unsafe extern "C" fn BN_cmp_word(
     b_bn.flags = 0x2 as libc::c_int;
     return BN_cmp(a, &mut b_bn);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_is_zero(mut bn: *const BIGNUM) -> libc::c_int {
     return bn_fits_in_words(bn, 0 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_is_one(mut bn: *const BIGNUM) -> libc::c_int {
     return ((*bn).neg == 0 as libc::c_int
         && BN_abs_is_word(bn, 1 as libc::c_int as BN_ULONG) != 0) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_is_word(
     mut bn: *const BIGNUM,
     mut w: BN_ULONG,
@@ -243,13 +243,13 @@ pub unsafe extern "C" fn BN_is_word(
         && (w == 0 as libc::c_int as BN_ULONG || (*bn).neg == 0 as libc::c_int))
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_is_odd(mut bn: *const BIGNUM) -> libc::c_int {
     return ((*bn).width > 0 as libc::c_int
         && *((*bn).d).offset(0 as libc::c_int as isize) & 1 as libc::c_int as BN_ULONG
             == 1 as libc::c_int as BN_ULONG) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_is_pow2(mut bn: *const BIGNUM) -> libc::c_int {
     let mut width: libc::c_int = bn_minimal_width(bn);
     if width == 0 as libc::c_int || (*bn).neg != 0 {
@@ -268,7 +268,7 @@ pub unsafe extern "C" fn BN_is_pow2(mut bn: *const BIGNUM) -> libc::c_int {
             & (*((*bn).d).offset((width - 1 as libc::c_int) as isize))
                 .wrapping_sub(1 as libc::c_int as BN_ULONG)) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_equal_consttime(
     mut a: *const BIGNUM,
     mut b: *const BIGNUM,

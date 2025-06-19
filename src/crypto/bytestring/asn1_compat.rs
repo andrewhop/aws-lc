@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn CBB_cleanup(cbb: *mut CBB);
     fn CBB_finish(
         cbb: *mut CBB,
@@ -79,7 +79,7 @@ unsafe extern "C" fn OPENSSL_memcpy(
     }
     return memcpy(dst, src, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_finish_i2d(
     mut cbb: *mut CBB,
     mut outp: *mut *mut uint8_t,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_object_st;
     pub type ASN1_VALUE_st;
     fn ASN1_item_new(it: *const ASN1_ITEM) -> *mut ASN1_VALUE;
@@ -150,7 +149,7 @@ static mut X509_SIG_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_SIG_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -160,22 +159,22 @@ pub static mut X509_SIG_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_SIG(
     mut a: *const X509_SIG,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &X509_SIG_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_SIG_free(mut a: *mut X509_SIG) {
     ASN1_item_free(a as *mut ASN1_VALUE, &X509_SIG_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_SIG_new() -> *mut X509_SIG {
     return ASN1_item_new(&X509_SIG_it) as *mut X509_SIG;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_SIG(
     mut a: *mut *mut X509_SIG,
     mut in_0: *mut *const libc::c_uchar,
@@ -184,7 +183,7 @@ pub unsafe extern "C" fn d2i_X509_SIG(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &X509_SIG_it)
         as *mut X509_SIG;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_SIG_get0(
     mut sig: *const X509_SIG,
     mut out_alg: *mut *const X509_ALGOR,
@@ -197,7 +196,7 @@ pub unsafe extern "C" fn X509_SIG_get0(
         *out_digest = (*sig).digest;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_SIG_getm(
     mut sig: *mut X509_SIG,
     mut out_alg: *mut *mut X509_ALGOR,

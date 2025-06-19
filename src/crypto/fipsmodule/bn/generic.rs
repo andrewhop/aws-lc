@@ -9,7 +9,7 @@
 )]
 #![feature(asm, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn __assert_fail(
         __assertion: *const libc::c_char,
         __file: *const libc::c_char,
@@ -146,7 +146,7 @@ unsafe extern "C" fn CRYPTO_subc_u64(
         | (x == y) as libc::c_int as uint64_t & borrow;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mul_add_words(
     mut rp: *mut BN_ULONG,
     mut ap: *const BN_ULONG,
@@ -202,7 +202,7 @@ pub unsafe extern "C" fn bn_mul_add_words(
     }
     return c1;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mul_words(
     mut rp: *mut BN_ULONG,
     mut ap: *const BN_ULONG,
@@ -253,7 +253,7 @@ pub unsafe extern "C" fn bn_mul_words(
     }
     return c1;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_sqr_words(
     mut r: *mut BN_ULONG,
     mut a: *const BN_ULONG,
@@ -300,7 +300,7 @@ pub unsafe extern "C" fn bn_sqr_words(
         n;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mul_comba8(
     mut r: *mut BN_ULONG,
     mut a: *const BN_ULONG,
@@ -855,7 +855,7 @@ pub unsafe extern "C" fn bn_mul_comba8(
     *r.offset(14 as libc::c_int as isize) = c3;
     *r.offset(15 as libc::c_int as isize) = c1;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mul_comba4(
     mut r: *mut BN_ULONG,
     mut a: *const BN_ULONG,
@@ -1010,7 +1010,7 @@ pub unsafe extern "C" fn bn_mul_comba4(
     *r.offset(6 as libc::c_int as isize) = c1;
     *r.offset(7 as libc::c_int as isize) = c2;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_sqr_comba8(mut r: *mut BN_ULONG, mut a: *const BN_ULONG) {
     let mut c1: BN_ULONG = 0;
     let mut c2: BN_ULONG = 0;
@@ -1477,7 +1477,7 @@ pub unsafe extern "C" fn bn_sqr_comba8(mut r: *mut BN_ULONG, mut a: *const BN_UL
     *r.offset(14 as libc::c_int as isize) = c3;
     *r.offset(15 as libc::c_int as isize) = c1;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_sqr_comba4(mut r: *mut BN_ULONG, mut a: *const BN_ULONG) {
     let mut c1: BN_ULONG = 0;
     let mut c2: BN_ULONG = 0;
@@ -1610,7 +1610,7 @@ pub unsafe extern "C" fn bn_sqr_comba4(mut r: *mut BN_ULONG, mut a: *const BN_UL
     *r.offset(6 as libc::c_int as isize) = c1;
     *r.offset(7 as libc::c_int as isize) = c2;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_add_words(
     mut r: *mut BN_ULONG,
     mut a: *const BN_ULONG,
@@ -1684,7 +1684,7 @@ pub unsafe extern "C" fn bn_add_words(
     }
     return carry;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_sub_words(
     mut r: *mut BN_ULONG,
     mut a: *const BN_ULONG,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type engine_st;
     pub type evp_md_pctx_ops;
     pub type evp_pkey_ctx_st;
@@ -657,7 +656,7 @@ unsafe extern "C" fn sk_TRUST_TOKEN_PRETOKEN_num(
 ) -> size_t {
     return OPENSSL_sk_num(sk as *const OPENSSL_STACK);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_experiment_v1() -> *const TRUST_TOKEN_METHOD {
     static mut kMethod: TRUST_TOKEN_METHOD = unsafe {
         {
@@ -744,7 +743,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_experiment_v1() -> *const TRUST_TOKEN_METHO
     };
     return &kMethod;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_experiment_v2_voprf() -> *const TRUST_TOKEN_METHOD {
     static mut kMethod: TRUST_TOKEN_METHOD = unsafe {
         {
@@ -831,7 +830,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_experiment_v2_voprf() -> *const TRUST_TOKEN
     };
     return &kMethod;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_experiment_v2_pmb() -> *const TRUST_TOKEN_METHOD {
     static mut kMethod: TRUST_TOKEN_METHOD = unsafe {
         {
@@ -918,7 +917,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_experiment_v2_pmb() -> *const TRUST_TOKEN_M
     };
     return &kMethod;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_pst_v1_voprf() -> *const TRUST_TOKEN_METHOD {
     static mut kMethod: TRUST_TOKEN_METHOD = unsafe {
         {
@@ -1005,7 +1004,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_pst_v1_voprf() -> *const TRUST_TOKEN_METHOD
     };
     return &kMethod;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_pst_v1_pmb() -> *const TRUST_TOKEN_METHOD {
     static mut kMethod: TRUST_TOKEN_METHOD = unsafe {
         {
@@ -1092,13 +1091,13 @@ pub unsafe extern "C" fn TRUST_TOKEN_pst_v1_pmb() -> *const TRUST_TOKEN_METHOD {
     };
     return &kMethod;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_PRETOKEN_free(
     mut pretoken: *mut TRUST_TOKEN_PRETOKEN,
 ) {
     OPENSSL_free(pretoken as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_new(
     mut data: *const uint8_t,
     mut len: size_t,
@@ -1117,7 +1116,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_new(
     (*ret).len = len;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_free(mut token: *mut TRUST_TOKEN) {
     if token.is_null() {
         return;
@@ -1125,7 +1124,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_free(mut token: *mut TRUST_TOKEN) {
     OPENSSL_free((*token).data as *mut libc::c_void);
     OPENSSL_free(token as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_generate_key(
     mut method: *const TRUST_TOKEN_METHOD,
     mut out_priv_key: *mut uint8_t,
@@ -1195,7 +1194,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_generate_key(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_derive_key_from_secret(
     mut method: *const TRUST_TOKEN_METHOD,
     mut out_priv_key: *mut uint8_t,
@@ -1269,7 +1268,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_derive_key_from_secret(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_new(
     mut method: *const TRUST_TOKEN_METHOD,
     mut max_batchsize: size_t,
@@ -1295,7 +1294,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_new(
     (*ret).max_batchsize = max_batchsize as uint16_t;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_free(mut ctx: *mut TRUST_TOKEN_CLIENT) {
     if ctx.is_null() {
         return;
@@ -1310,7 +1309,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_free(mut ctx: *mut TRUST_TOKEN_CLIEN
     );
     OPENSSL_free(ctx as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_add_key(
     mut ctx: *mut TRUST_TOKEN_CLIENT,
     mut out_key_index: *mut size_t,
@@ -1363,7 +1362,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_add_key(
     (*ctx).num_keys = ((*ctx).num_keys).wrapping_add(1 as libc::c_int as size_t);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_set_srr_key(
     mut ctx: *mut TRUST_TOKEN_CLIENT,
     mut key: *mut EVP_PKEY,
@@ -1436,7 +1435,7 @@ unsafe extern "C" fn trust_token_client_begin_issuance_impl(
     );
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_begin_issuance(
     mut ctx: *mut TRUST_TOKEN_CLIENT,
     mut out: *mut *mut uint8_t,
@@ -1453,7 +1452,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_begin_issuance(
         0 as libc::c_int as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_begin_issuance_over_message(
     mut ctx: *mut TRUST_TOKEN_CLIENT,
     mut out: *mut *mut uint8_t,
@@ -1472,7 +1471,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_begin_issuance_over_message(
         msg_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_finish_issuance(
     mut ctx: *mut TRUST_TOKEN_CLIENT,
     mut out_key_index: *mut size_t,
@@ -1569,7 +1568,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_finish_issuance(
     *out_key_index = key_index;
     return tokens;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_begin_redemption(
     mut ctx: *mut TRUST_TOKEN_CLIENT,
     mut out: *mut *mut uint8_t,
@@ -1631,7 +1630,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_begin_redemption(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_finish_redemption(
     mut ctx: *mut TRUST_TOKEN_CLIENT,
     mut out_rr: *mut *mut uint8_t,
@@ -1739,7 +1738,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_CLIENT_finish_redemption(
     *out_sig_len = sig_len;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_ISSUER_new(
     mut method: *const TRUST_TOKEN_METHOD,
     mut max_batchsize: size_t,
@@ -1765,7 +1764,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_ISSUER_new(
     (*ret).max_batchsize = max_batchsize as uint16_t;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_ISSUER_free(mut ctx: *mut TRUST_TOKEN_ISSUER) {
     if ctx.is_null() {
         return;
@@ -1774,7 +1773,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_ISSUER_free(mut ctx: *mut TRUST_TOKEN_ISSUE
     OPENSSL_free((*ctx).metadata_key as *mut libc::c_void);
     OPENSSL_free(ctx as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_ISSUER_add_key(
     mut ctx: *mut TRUST_TOKEN_ISSUER,
     mut key: *const uint8_t,
@@ -1825,7 +1824,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_ISSUER_add_key(
     (*ctx).num_keys = ((*ctx).num_keys).wrapping_add(1 as libc::c_int as size_t);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_ISSUER_set_srr_key(
     mut ctx: *mut TRUST_TOKEN_ISSUER,
     mut key: *mut EVP_PKEY,
@@ -1835,7 +1834,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_ISSUER_set_srr_key(
     (*ctx).srr_key = key;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_ISSUER_set_metadata_key(
     mut ctx: *mut TRUST_TOKEN_ISSUER,
     mut key: *const uint8_t,
@@ -1876,7 +1875,7 @@ unsafe extern "C" fn trust_token_issuer_get_key(
     }
     return 0 as *const trust_token_issuer_key_st;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_ISSUER_issue(
     mut ctx: *const TRUST_TOKEN_ISSUER,
     mut out: *mut *mut uint8_t,
@@ -2090,7 +2089,7 @@ unsafe extern "C" fn trust_token_issuer_redeem_impl(
     OPENSSL_free(client_data_buf as *mut libc::c_void);
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_ISSUER_redeem(
     mut ctx: *const TRUST_TOKEN_ISSUER,
     mut out_public: *mut uint32_t,
@@ -2115,7 +2114,7 @@ pub unsafe extern "C" fn TRUST_TOKEN_ISSUER_redeem(
         0 as libc::c_int as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_ISSUER_redeem_over_message(
     mut ctx: *const TRUST_TOKEN_ISSUER,
     mut out_public: *mut uint32_t,
@@ -2164,7 +2163,7 @@ unsafe extern "C" fn get_metadata_obfuscator(
     return (metadata_obfuscator[0 as libc::c_int as usize] as libc::c_int
         >> 7 as libc::c_int) as uint8_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn TRUST_TOKEN_decode_private_metadata(
     mut method: *const TRUST_TOKEN_METHOD,
     mut out_value: *mut uint8_t,

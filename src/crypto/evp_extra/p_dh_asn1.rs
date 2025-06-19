@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type pqdsa_key_st;
     pub type kem_key_st;
     pub type ec_key_st;
@@ -479,7 +478,7 @@ unsafe extern "C" fn dh_pub_cmp(
     return (BN_cmp(DH_get0_pub_key(a_dh), DH_get0_pub_key(b_dh)) == 0 as libc::c_int)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut dh_asn1_meth: EVP_PKEY_ASN1_METHOD = unsafe {
     {
         let mut init = evp_pkey_asn1_method_st {
@@ -556,7 +555,7 @@ pub static mut dh_asn1_meth: EVP_PKEY_ASN1_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_set1_DH(
     mut pkey: *mut EVP_PKEY,
     mut key: *mut DH,
@@ -567,7 +566,7 @@ pub unsafe extern "C" fn EVP_PKEY_set1_DH(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_assign_DH(
     mut pkey: *mut EVP_PKEY,
     mut key: *mut DH,
@@ -576,7 +575,7 @@ pub unsafe extern "C" fn EVP_PKEY_assign_DH(
     (*pkey).pkey.dh = key;
     return (key != 0 as *mut libc::c_void as *mut DH) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_get0_DH(mut pkey: *const EVP_PKEY) -> *mut DH {
     if (*pkey).type_0 != 28 as libc::c_int {
         ERR_put_error(
@@ -591,7 +590,7 @@ pub unsafe extern "C" fn EVP_PKEY_get0_DH(mut pkey: *const EVP_PKEY) -> *mut DH 
     }
     return (*pkey).pkey.dh;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_get1_DH(mut pkey: *const EVP_PKEY) -> *mut DH {
     let mut dh: *mut DH = EVP_PKEY_get0_DH(pkey);
     if !dh.is_null() {

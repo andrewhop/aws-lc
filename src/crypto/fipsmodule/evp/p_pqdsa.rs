@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     pub type dsa_st;
     pub type ec_key_st;
@@ -764,7 +763,7 @@ unsafe extern "C" fn pkey_pqdsa_verify_message(
         0 as libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_pqdsa_set_params(
     mut pkey: *mut EVP_PKEY,
     mut nid: libc::c_int,
@@ -790,7 +789,7 @@ pub unsafe extern "C" fn EVP_PKEY_pqdsa_set_params(
     (*pkey).pkey.pqdsa_key = key;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_pqdsa_set_params(
     mut ctx: *mut EVP_PKEY_CTX,
     mut nid: libc::c_int,
@@ -841,7 +840,7 @@ unsafe extern "C" fn EVP_PKEY_pqdsa_new(mut nid: libc::c_int) -> *mut EVP_PKEY {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_pqdsa_new_raw_public_key(
     mut nid: libc::c_int,
     mut in_0: *const uint8_t,
@@ -876,7 +875,7 @@ pub unsafe extern "C" fn EVP_PKEY_pqdsa_new_raw_public_key(
     EVP_PKEY_free(ret);
     return 0 as *mut EVP_PKEY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_pqdsa_new_raw_private_key(
     mut nid: libc::c_int,
     mut in_0: *const uint8_t,
@@ -968,7 +967,7 @@ static mut EVP_PKEY_pqdsa_pkey_meth_storage: EVP_PKEY_METHOD = evp_pkey_method_s
     encapsulate: None,
     decapsulate: None,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_pqdsa_pkey_meth() -> *const EVP_PKEY_METHOD {
     CRYPTO_once(
         EVP_PKEY_pqdsa_pkey_meth_once_bss_get(),

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type evp_pkey_ctx_st;
     fn BLAKE2B256_Init(b2b: *mut BLAKE2B_CTX);
     fn BLAKE2B256_Update(b2b: *mut BLAKE2B_CTX, data: *const libc::c_void, len: size_t);
@@ -444,7 +443,7 @@ static mut nid_to_digest_mapping: [nid_to_digest; 26] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_get_digestbynid(mut nid: libc::c_int) -> *const EVP_MD {
     if nid == 0 as libc::c_int {
         return 0 as *const EVP_MD;
@@ -629,7 +628,7 @@ unsafe extern "C" fn cbs_to_md(mut cbs: *const CBS) -> *const EVP_MD {
     }
     return 0 as *const EVP_MD;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_get_digestbyobj(
     mut obj: *const ASN1_OBJECT,
 ) -> *const EVP_MD {
@@ -646,7 +645,7 @@ pub unsafe extern "C" fn EVP_get_digestbyobj(
     CBS_init(&mut cbs, OBJ_get0_data(obj), OBJ_length(obj));
     return cbs_to_md(&mut cbs);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_parse_digest_algorithm(mut cbs: *mut CBS) -> *const EVP_MD {
     let mut algorithm: CBS = cbs_st {
         data: 0 as *const uint8_t,
@@ -706,7 +705,7 @@ pub unsafe extern "C" fn EVP_parse_digest_algorithm(mut cbs: *mut CBS) -> *const
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_marshal_digest_algorithm(
     mut cbb: *mut CBB,
     mut md: *const EVP_MD,
@@ -799,7 +798,7 @@ pub unsafe extern "C" fn EVP_marshal_digest_algorithm(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_get_digestbyname(
     mut name: *const libc::c_char,
 ) -> *const EVP_MD {
@@ -865,7 +864,7 @@ static mut evp_md_blake2b256: EVP_MD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_blake2b256() -> *const EVP_MD {
     return &evp_md_blake2b256;
 }
@@ -906,7 +905,7 @@ static mut evp_md_null: EVP_MD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_md_null() -> *const EVP_MD {
     return &evp_md_null;
 }

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type engine_st;
     fn CBS_len(cbs: *const CBS) -> size_t;
     fn CBS_get_asn1(
@@ -274,23 +273,23 @@ unsafe extern "C" fn CRYPTO_store_u64_le(mut out: *mut libc::c_void, mut v: uint
         ::core::mem::size_of::<uint64_t>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_key_length(mut aead: *const EVP_AEAD) -> size_t {
     return (*aead).key_len as size_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_nonce_length(mut aead: *const EVP_AEAD) -> size_t {
     return (*aead).nonce_len as size_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_max_overhead(mut aead: *const EVP_AEAD) -> size_t {
     return (*aead).overhead as size_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_max_tag_len(mut aead: *const EVP_AEAD) -> size_t {
     return (*aead).max_tag_len as size_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_CTX_zero(mut ctx: *mut EVP_AEAD_CTX) {
     OPENSSL_memset(
         ctx as *mut libc::c_void,
@@ -298,7 +297,7 @@ pub unsafe extern "C" fn EVP_AEAD_CTX_zero(mut ctx: *mut EVP_AEAD_CTX) {
         ::core::mem::size_of::<EVP_AEAD_CTX>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_CTX_new(
     mut aead: *const EVP_AEAD,
     mut key: *const uint8_t,
@@ -317,7 +316,7 @@ pub unsafe extern "C" fn EVP_AEAD_CTX_new(
     EVP_AEAD_CTX_free(ctx);
     return 0 as *mut EVP_AEAD_CTX;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_CTX_free(mut ctx: *mut EVP_AEAD_CTX) {
     if ctx.is_null() {
         return;
@@ -325,7 +324,7 @@ pub unsafe extern "C" fn EVP_AEAD_CTX_free(mut ctx: *mut EVP_AEAD_CTX) {
     EVP_AEAD_CTX_cleanup(ctx);
     OPENSSL_free(ctx as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_CTX_init(
     mut ctx: *mut EVP_AEAD_CTX,
     mut aead: *const EVP_AEAD,
@@ -355,7 +354,7 @@ pub unsafe extern "C" fn EVP_AEAD_CTX_init(
         evp_aead_open,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_CTX_init_with_direction(
     mut ctx: *mut EVP_AEAD_CTX,
     mut aead: *const EVP_AEAD,
@@ -390,7 +389,7 @@ pub unsafe extern "C" fn EVP_AEAD_CTX_init_with_direction(
     }
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_CTX_cleanup(mut ctx: *mut EVP_AEAD_CTX) {
     if ((*ctx).aead).is_null() {
         return;
@@ -409,7 +408,7 @@ unsafe extern "C" fn check_alias(
     }
     return (in_0 == out) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_CTX_seal(
     mut ctx: *const EVP_AEAD_CTX,
     mut out: *mut uint8_t,
@@ -479,7 +478,7 @@ pub unsafe extern "C" fn EVP_AEAD_CTX_seal(
     *out_len = 0 as libc::c_int as size_t;
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_CTX_seal_scatter(
     mut ctx: *const EVP_AEAD_CTX,
     mut out: *mut uint8_t,
@@ -542,7 +541,7 @@ pub unsafe extern "C" fn EVP_AEAD_CTX_seal_scatter(
     *out_tag_len = 0 as libc::c_int as size_t;
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_CTX_open(
     mut ctx: *const EVP_AEAD_CTX,
     mut out: *mut uint8_t,
@@ -649,7 +648,7 @@ pub unsafe extern "C" fn EVP_AEAD_CTX_open(
     *out_len = 0 as libc::c_int as size_t;
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_CTX_open_gather(
     mut ctx: *const EVP_AEAD_CTX,
     mut out: *mut uint8_t,
@@ -690,13 +689,13 @@ pub unsafe extern "C" fn EVP_AEAD_CTX_open_gather(
     OPENSSL_memset(out as *mut libc::c_void, 0 as libc::c_int, in_len);
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_CTX_aead(
     mut ctx: *const EVP_AEAD_CTX,
 ) -> *const EVP_AEAD {
     return (*ctx).aead;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_CTX_get_iv(
     mut ctx: *const EVP_AEAD_CTX,
     mut out_iv: *mut *const uint8_t,
@@ -708,7 +707,7 @@ pub unsafe extern "C" fn EVP_AEAD_CTX_get_iv(
     return ((*(*ctx).aead).get_iv)
         .expect("non-null function pointer")(ctx, out_iv, out_len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_CTX_tag_len(
     mut ctx: *const EVP_AEAD_CTX,
     mut out_tag_len: *mut size_t,
@@ -770,7 +769,7 @@ pub unsafe extern "C" fn EVP_AEAD_CTX_tag_len(
     *out_tag_len = extra_in_len.wrapping_add((*ctx).tag_len as size_t);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_get_iv_from_ipv4_nanosecs(
     ipv4_address: uint32_t,
     nanosecs: uint64_t,
@@ -791,7 +790,7 @@ pub unsafe extern "C" fn EVP_AEAD_get_iv_from_ipv4_nanosecs(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_CTX_serialize_state(
     mut ctx: *const EVP_AEAD_CTX,
     mut cbb: *mut CBB,
@@ -898,7 +897,7 @@ pub unsafe extern "C" fn EVP_AEAD_CTX_serialize_state(
     CBB_cleanup(&mut state);
     return CBB_flush(cbb);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_CTX_deserialize_state(
     mut ctx: *const EVP_AEAD_CTX,
     mut cbs: *mut CBS,
@@ -976,7 +975,7 @@ pub unsafe extern "C" fn EVP_AEAD_CTX_deserialize_state(
     return ((*(*ctx).aead).deserialize_state)
         .expect("non-null function pointer")(ctx, &mut state);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_AEAD_CTX_get_aead_id(
     mut ctx: *const EVP_AEAD_CTX,
 ) -> uint16_t {

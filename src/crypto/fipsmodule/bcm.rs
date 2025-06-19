@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
     pub type _IO_marker;
@@ -55,7 +54,7 @@ pub struct _IO_FILE {
 }
 pub type _IO_lock_t = ();
 pub type FILE = _IO_FILE;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AWS_LC_FIPS_failure(mut message: *const libc::c_char) {
     fprintf(
         stderr,
@@ -64,7 +63,7 @@ pub unsafe extern "C" fn AWS_LC_FIPS_failure(mut message: *const libc::c_char) {
     );
     fflush(stderr);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn dummy_func_for_constructor() {
     CRYPTO_library_init();
 }

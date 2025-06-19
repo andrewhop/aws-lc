@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_X509_EXTENSION;
     fn ASN1_item_new(it: *const ASN1_ITEM) -> *mut ASN1_VALUE;
@@ -121,7 +120,7 @@ static mut X509_EXTENSION_seq_tt: [ASN1_TEMPLATE; 3] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_EXTENSION_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -143,7 +142,7 @@ static mut X509_EXTENSIONS_item_tt: ASN1_TEMPLATE = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_EXTENSIONS_it: ASN1_ITEM = unsafe {
     {
         let mut init = ASN1_ITEM_st {
@@ -158,22 +157,22 @@ pub static mut X509_EXTENSIONS_it: ASN1_ITEM = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_EXTENSION(
     mut a: *const X509_EXTENSION,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &X509_EXTENSION_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_EXTENSION_free(mut a: *mut X509_EXTENSION) {
     ASN1_item_free(a as *mut ASN1_VALUE, &X509_EXTENSION_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_EXTENSION_new() -> *mut X509_EXTENSION {
     return ASN1_item_new(&X509_EXTENSION_it) as *mut X509_EXTENSION;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_EXTENSION(
     mut a: *mut *mut X509_EXTENSION,
     mut in_0: *mut *const libc::c_uchar,
@@ -182,14 +181,14 @@ pub unsafe extern "C" fn d2i_X509_EXTENSION(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &X509_EXTENSION_it)
         as *mut X509_EXTENSION;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_EXTENSIONS(
     mut a: *const X509_EXTENSIONS,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &X509_EXTENSIONS_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_EXTENSIONS(
     mut a: *mut *mut X509_EXTENSIONS,
     mut in_0: *mut *const libc::c_uchar,
@@ -198,7 +197,7 @@ pub unsafe extern "C" fn d2i_X509_EXTENSIONS(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &X509_EXTENSIONS_it)
         as *mut X509_EXTENSIONS;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_EXTENSION_dup(
     mut x: *const X509_EXTENSION,
 ) -> *mut X509_EXTENSION {

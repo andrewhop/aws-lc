@@ -9,7 +9,7 @@
 )]
 #![feature(asm, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn __assert_fail(
         __assertion: *const libc::c_char,
         __file: *const libc::c_char,
@@ -163,7 +163,7 @@ unsafe extern "C" fn conv_bin2ascii(mut a: uint8_t) -> uint8_t {
     );
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_EncodedLength(
     mut out_len: *mut size_t,
     mut len: size_t,
@@ -185,16 +185,16 @@ pub unsafe extern "C" fn EVP_EncodedLength(
     *out_len = len;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_ENCODE_CTX_new() -> *mut EVP_ENCODE_CTX {
     return OPENSSL_zalloc(::core::mem::size_of::<EVP_ENCODE_CTX>() as libc::c_ulong)
         as *mut EVP_ENCODE_CTX;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_ENCODE_CTX_free(mut ctx: *mut EVP_ENCODE_CTX) {
     OPENSSL_free(ctx as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_EncodeInit(mut ctx: *mut EVP_ENCODE_CTX) {
     OPENSSL_memset(
         ctx as *mut libc::c_void,
@@ -202,7 +202,7 @@ pub unsafe extern "C" fn EVP_EncodeInit(mut ctx: *mut EVP_ENCODE_CTX) {
         ::core::mem::size_of::<EVP_ENCODE_CTX>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_EncodeUpdate(
     mut ctx: *mut EVP_ENCODE_CTX,
     mut out: *mut uint8_t,
@@ -326,7 +326,7 @@ pub unsafe extern "C" fn EVP_EncodeUpdate(
     *out_len = total as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_EncodeFinal(
     mut ctx: *mut EVP_ENCODE_CTX,
     mut out: *mut uint8_t,
@@ -376,7 +376,7 @@ pub unsafe extern "C" fn EVP_EncodeFinal(
     };
     *out_len = encoded as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_EncodeBlock(
     mut dst: *mut uint8_t,
     mut src: *const uint8_t,
@@ -437,7 +437,7 @@ pub unsafe extern "C" fn EVP_EncodeBlock(
     *dst = '\0' as i32 as uint8_t;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DecodedLength(
     mut out_len: *mut size_t,
     mut len: size_t,
@@ -448,7 +448,7 @@ pub unsafe extern "C" fn EVP_DecodedLength(
     *out_len = len / 4 as libc::c_int as size_t * 3 as libc::c_int as size_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DecodeInit(mut ctx: *mut EVP_ENCODE_CTX) {
     OPENSSL_memset(
         ctx as *mut libc::c_void,
@@ -547,7 +547,7 @@ unsafe extern "C" fn base64_decode_quad(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DecodeUpdate(
     mut ctx: *mut EVP_ENCODE_CTX,
     mut out: *mut uint8_t,
@@ -608,7 +608,7 @@ pub unsafe extern "C" fn EVP_DecodeUpdate(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DecodeFinal(
     mut ctx: *mut EVP_ENCODE_CTX,
     mut out: *mut uint8_t,
@@ -622,7 +622,7 @@ pub unsafe extern "C" fn EVP_DecodeFinal(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DecodeBase64(
     mut out: *mut uint8_t,
     mut out_len: *mut size_t,
@@ -660,7 +660,7 @@ pub unsafe extern "C" fn EVP_DecodeBase64(
     *out_len = bytes_out;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DecodeBlock(
     mut dst: *mut uint8_t,
     mut src: *const uint8_t,

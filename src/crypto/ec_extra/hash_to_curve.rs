@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     pub type engine_st;
     pub type evp_md_pctx_ops;
@@ -1301,7 +1300,7 @@ static mut kP384Sqrt12: [uint8_t; 48] = [
     0x26 as libc::c_int as uint8_t,
     0xb3 as libc::c_int as uint8_t,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_hash_to_curve_p256_xmd_sha256_sswu(
     mut group: *const EC_GROUP,
     mut out: *mut EC_JACOBIAN,
@@ -1347,7 +1346,7 @@ pub unsafe extern "C" fn ec_hash_to_curve_p256_xmd_sha256_sswu(
         msg_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_hash_to_curve_p256_xmd_sha256_sswu(
     mut group: *const EC_GROUP,
     mut out: *mut EC_POINT,
@@ -1376,7 +1375,7 @@ pub unsafe extern "C" fn EC_hash_to_curve_p256_xmd_sha256_sswu(
         msg_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_hash_to_curve_p384_xmd_sha384_sswu(
     mut group: *const EC_GROUP,
     mut out: *mut EC_JACOBIAN,
@@ -1422,7 +1421,7 @@ pub unsafe extern "C" fn ec_hash_to_curve_p384_xmd_sha384_sswu(
         msg_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_hash_to_curve_p384_xmd_sha384_sswu(
     mut group: *const EC_GROUP,
     mut out: *mut EC_POINT,
@@ -1451,7 +1450,7 @@ pub unsafe extern "C" fn EC_hash_to_curve_p384_xmd_sha384_sswu(
         msg_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_hash_to_scalar_p384_xmd_sha384(
     mut group: *const EC_GROUP,
     mut out: *mut EC_SCALAR,
@@ -1482,7 +1481,7 @@ pub unsafe extern "C" fn ec_hash_to_scalar_p384_xmd_sha384(
         msg_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_hash_to_curve_p384_xmd_sha512_sswu_draft07(
     mut group: *const EC_GROUP,
     mut out: *mut EC_JACOBIAN,
@@ -1528,7 +1527,7 @@ pub unsafe extern "C" fn ec_hash_to_curve_p384_xmd_sha512_sswu_draft07(
         msg_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_hash_to_scalar_p384_xmd_sha512_draft07(
     mut group: *const EC_GROUP,
     mut out: *mut EC_SCALAR,

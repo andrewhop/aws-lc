@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn BN_new() -> *mut BIGNUM;
     fn BN_free(bn: *mut BIGNUM);
@@ -137,7 +136,7 @@ unsafe extern "C" fn get_params(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_get_rfc3526_prime_1536(mut ret: *mut BIGNUM) -> *mut BIGNUM {
     static mut kWords: [BN_ULONG; 24] = [
         (0xffffffff as libc::c_uint as BN_ULONG) << 32 as libc::c_int
@@ -196,7 +195,7 @@ pub unsafe extern "C" fn BN_get_rfc3526_prime_1536(mut ret: *mut BIGNUM) -> *mut
             .wrapping_div(::core::mem::size_of::<BN_ULONG>() as libc::c_ulong),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_get_rfc3526_prime_2048(mut ret: *mut BIGNUM) -> *mut BIGNUM {
     static mut kWords: [BN_ULONG; 32] = [
         (0xffffffff as libc::c_uint as BN_ULONG) << 32 as libc::c_int
@@ -271,7 +270,7 @@ pub unsafe extern "C" fn BN_get_rfc3526_prime_2048(mut ret: *mut BIGNUM) -> *mut
             .wrapping_div(::core::mem::size_of::<BN_ULONG>() as libc::c_ulong),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_get_rfc3526_prime_3072(mut ret: *mut BIGNUM) -> *mut BIGNUM {
     static mut kWords: [BN_ULONG; 48] = [
         (0xffffffff as libc::c_uint as BN_ULONG) << 32 as libc::c_int
@@ -378,7 +377,7 @@ pub unsafe extern "C" fn BN_get_rfc3526_prime_3072(mut ret: *mut BIGNUM) -> *mut
             .wrapping_div(::core::mem::size_of::<BN_ULONG>() as libc::c_ulong),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_get_rfc3526_prime_4096(mut ret: *mut BIGNUM) -> *mut BIGNUM {
     static mut kWords: [BN_ULONG; 64] = [
         (0xffffffff as libc::c_uint as BN_ULONG) << 32 as libc::c_int
@@ -517,7 +516,7 @@ pub unsafe extern "C" fn BN_get_rfc3526_prime_4096(mut ret: *mut BIGNUM) -> *mut
             .wrapping_div(::core::mem::size_of::<BN_ULONG>() as libc::c_ulong),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_get_rfc3526_prime_6144(mut ret: *mut BIGNUM) -> *mut BIGNUM {
     static mut kWords: [BN_ULONG; 96] = [
         (0xffffffff as libc::c_uint as BN_ULONG) << 32 as libc::c_int
@@ -720,7 +719,7 @@ pub unsafe extern "C" fn BN_get_rfc3526_prime_6144(mut ret: *mut BIGNUM) -> *mut
             .wrapping_div(::core::mem::size_of::<BN_ULONG>() as libc::c_ulong),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_get_rfc3526_prime_8192(mut ret: *mut BIGNUM) -> *mut BIGNUM {
     static mut kWords: [BN_ULONG; 128] = [
         (0xffffffff as libc::c_uint as BN_ULONG) << 32 as libc::c_int
@@ -987,7 +986,7 @@ pub unsafe extern "C" fn BN_get_rfc3526_prime_8192(mut ret: *mut BIGNUM) -> *mut
             .wrapping_div(::core::mem::size_of::<BN_ULONG>() as libc::c_ulong),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_generate_parameters_ex(
     mut dh: *mut DH,
     mut prime_bits: libc::c_int,
@@ -1165,7 +1164,7 @@ unsafe extern "C" fn int_dh_param_copy(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DHparams_dup(mut dh: *const DH) -> *mut DH {
     let mut ret: *mut DH = DH_new();
     if ret.is_null() {
@@ -1200,7 +1199,7 @@ static mut dh2048_256: standard_parameters = standard_parameters {
         flags: 0,
     },
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_get_2048_256() -> *mut DH {
     static mut dh2048_256_p: [BN_ULONG; 32] = [
         (0xdb094ae9 as libc::c_uint as BN_ULONG) << 32 as libc::c_int

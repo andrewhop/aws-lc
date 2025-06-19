@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_null_st;
     pub type asn1_object_st;
     pub type ASN1_VALUE_st;
@@ -294,7 +293,7 @@ unsafe extern "C" fn OPENSSL_memcpy(
     }
     return memcpy(dst, src, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REQUEST_get_ext_by_NID(
     mut req: *mut OCSP_REQUEST,
     mut nid: libc::c_int,
@@ -302,14 +301,14 @@ pub unsafe extern "C" fn OCSP_REQUEST_get_ext_by_NID(
 ) -> libc::c_int {
     return X509v3_get_ext_by_NID((*(*req).tbsRequest).requestExtensions, nid, lastpos);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REQUEST_get_ext(
     mut req: *mut OCSP_REQUEST,
     mut loc: libc::c_int,
 ) -> *mut X509_EXTENSION {
     return X509v3_get_ext((*(*req).tbsRequest).requestExtensions, loc);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_BASICRESP_add_ext(
     mut bs: *mut OCSP_BASICRESP,
     mut ex: *mut X509_EXTENSION,
@@ -318,7 +317,7 @@ pub unsafe extern "C" fn OCSP_BASICRESP_add_ext(
     return (X509v3_add_ext(&mut (*(*bs).tbsResponseData).responseExtensions, ex, loc)
         != 0 as *mut libc::c_void as *mut stack_st_X509_EXTENSION) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_BASICRESP_get_ext_by_NID(
     mut bs: *mut OCSP_BASICRESP,
     mut nid: libc::c_int,
@@ -330,21 +329,21 @@ pub unsafe extern "C" fn OCSP_BASICRESP_get_ext_by_NID(
         lastpos,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_BASICRESP_get_ext(
     mut bs: *mut OCSP_BASICRESP,
     mut loc: libc::c_int,
 ) -> *mut X509_EXTENSION {
     return X509v3_get_ext((*(*bs).tbsResponseData).responseExtensions, loc);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_BASICRESP_delete_ext(
     mut x: *mut OCSP_BASICRESP,
     mut loc: libc::c_int,
 ) -> *mut X509_EXTENSION {
     return X509v3_delete_ext((*(*x).tbsResponseData).responseExtensions, loc);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_SINGLERESP_add_ext(
     mut sresp: *mut OCSP_SINGLERESP,
     mut ex: *mut X509_EXTENSION,
@@ -364,7 +363,7 @@ pub unsafe extern "C" fn OCSP_SINGLERESP_add_ext(
     return (X509v3_add_ext(&mut (*sresp).singleExtensions, ex, loc)
         != 0 as *mut libc::c_void as *mut stack_st_X509_EXTENSION) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_SINGLERESP_get_ext_count(
     mut sresp: *mut OCSP_SINGLERESP,
 ) -> libc::c_int {
@@ -381,7 +380,7 @@ pub unsafe extern "C" fn OCSP_SINGLERESP_get_ext_count(
     }
     return X509v3_get_ext_count((*sresp).singleExtensions);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_SINGLERESP_get_ext(
     mut sresp: *mut OCSP_SINGLERESP,
     mut loc: libc::c_int,
@@ -461,7 +460,7 @@ unsafe extern "C" fn ocsp_add_nonce(
     OPENSSL_free(os.data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_request_add1_nonce(
     mut req: *mut OCSP_REQUEST,
     mut val: *mut libc::c_uchar,
@@ -491,7 +490,7 @@ pub unsafe extern "C" fn OCSP_request_add1_nonce(
     }
     return ocsp_add_nonce(&mut (*(*req).tbsRequest).requestExtensions, val, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_basic_add1_nonce(
     mut resp: *mut OCSP_BASICRESP,
     mut val: *mut libc::c_uchar,
@@ -521,7 +520,7 @@ pub unsafe extern "C" fn OCSP_basic_add1_nonce(
     }
     return ocsp_add_nonce(&mut (*(*resp).tbsResponseData).responseExtensions, val, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_check_nonce(
     mut req: *mut OCSP_REQUEST,
     mut bs: *mut OCSP_BASICRESP,
@@ -567,7 +566,7 @@ pub unsafe extern "C" fn OCSP_check_nonce(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_copy_nonce(
     mut resp: *mut OCSP_BASICRESP,
     mut req: *mut OCSP_REQUEST,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn BN_new() -> *mut BIGNUM;
     fn BN_free(bn: *mut BIGNUM);
@@ -92,7 +91,7 @@ pub struct bn_blinding_st {
     pub Ai: *mut BIGNUM,
     pub counter: libc::c_uint,
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_BLINDING_new() -> *mut BN_BLINDING {
     let mut ret: *mut BN_BLINDING = OPENSSL_zalloc(
         ::core::mem::size_of::<BN_BLINDING>() as libc::c_ulong,
@@ -111,7 +110,7 @@ pub unsafe extern "C" fn BN_BLINDING_new() -> *mut BN_BLINDING {
     BN_BLINDING_free(ret);
     return 0 as *mut BN_BLINDING;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_BLINDING_free(mut r: *mut BN_BLINDING) {
     if r.is_null() {
         return;
@@ -120,7 +119,7 @@ pub unsafe extern "C" fn BN_BLINDING_free(mut r: *mut BN_BLINDING) {
     BN_free((*r).Ai);
     OPENSSL_free(r as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_BLINDING_invalidate(mut b: *mut BN_BLINDING) {
     (*b).counter = (32 as libc::c_int - 1 as libc::c_int) as libc::c_uint;
 }
@@ -154,7 +153,7 @@ unsafe extern "C" fn bn_blinding_update(
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_BLINDING_convert(
     mut n: *mut BIGNUM,
     mut b: *mut BN_BLINDING,
@@ -169,7 +168,7 @@ pub unsafe extern "C" fn BN_BLINDING_convert(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_BLINDING_invert(
     mut n: *mut BIGNUM,
     mut b: *const BN_BLINDING,

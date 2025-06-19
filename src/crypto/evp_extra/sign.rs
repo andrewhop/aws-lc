@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     pub type dsa_st;
     pub type ec_key_st;
@@ -367,7 +366,7 @@ pub struct evp_pkey_method_st {
 }
 pub type EVP_MD_CTX = env_md_ctx_st;
 pub type EVP_MD = env_md_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_SignInit_ex(
     mut ctx: *mut EVP_MD_CTX,
     mut type_0: *const EVP_MD,
@@ -375,14 +374,14 @@ pub unsafe extern "C" fn EVP_SignInit_ex(
 ) -> libc::c_int {
     return EVP_DigestInit_ex(ctx, type_0, impl_0);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_SignInit(
     mut ctx: *mut EVP_MD_CTX,
     mut type_0: *const EVP_MD,
 ) -> libc::c_int {
     return EVP_DigestInit(ctx, type_0);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_SignUpdate(
     mut ctx: *mut EVP_MD_CTX,
     mut data: *const libc::c_void,
@@ -390,7 +389,7 @@ pub unsafe extern "C" fn EVP_SignUpdate(
 ) -> libc::c_int {
     return EVP_DigestUpdate(ctx, data, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_SignFinal(
     mut ctx: *const EVP_MD_CTX,
     mut sig: *mut uint8_t,
@@ -438,7 +437,7 @@ pub unsafe extern "C" fn EVP_SignFinal(
     EVP_PKEY_CTX_free(pkctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_VerifyInit_ex(
     mut ctx: *mut EVP_MD_CTX,
     mut type_0: *const EVP_MD,
@@ -446,14 +445,14 @@ pub unsafe extern "C" fn EVP_VerifyInit_ex(
 ) -> libc::c_int {
     return EVP_DigestInit_ex(ctx, type_0, impl_0);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_VerifyInit(
     mut ctx: *mut EVP_MD_CTX,
     mut type_0: *const EVP_MD,
 ) -> libc::c_int {
     return EVP_DigestInit(ctx, type_0);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_VerifyUpdate(
     mut ctx: *mut EVP_MD_CTX,
     mut data: *const libc::c_void,
@@ -461,7 +460,7 @@ pub unsafe extern "C" fn EVP_VerifyUpdate(
 ) -> libc::c_int {
     return EVP_DigestUpdate(ctx, data, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_VerifyFinal(
     mut ctx: *mut EVP_MD_CTX,
     mut sig: *const uint8_t,

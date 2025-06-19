@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn OPENSSL_cleanse(ptr: *mut libc::c_void, len: size_t);
     fn ERR_put_error(
         library: libc::c_int,
@@ -95,7 +95,7 @@ unsafe extern "C" fn OPENSSL_memcpy(
     }
     return memcpy(dst, src, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bio_ip_and_port_to_socket_and_addr(
     mut out_sock: *mut libc::c_int,
     mut out_addr: *mut sockaddr_storage,
@@ -174,7 +174,7 @@ pub unsafe extern "C" fn bio_ip_and_port_to_socket_and_addr(
     freeaddrinfo(result);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bio_socket_nbio(
     mut sock: libc::c_int,
     mut on: libc::c_int,
@@ -190,11 +190,11 @@ pub unsafe extern "C" fn bio_socket_nbio(
     }
     return (fcntl(sock, 4 as libc::c_int, flags) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bio_clear_socket_error(mut sock: libc::c_int) {
     bio_sock_error_get_and_clear(sock);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bio_sock_error_get_and_clear(
     mut sock: libc::c_int,
 ) -> libc::c_int {
@@ -213,7 +213,7 @@ pub unsafe extern "C" fn bio_sock_error_get_and_clear(
     }
     return error;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bio_socket_should_retry(
     mut return_value: libc::c_int,
 ) -> libc::c_int {

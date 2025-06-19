@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     fn BIO_new(method: *const BIO_METHOD) -> *mut BIO;
     fn BIO_ctrl(
@@ -185,7 +184,7 @@ unsafe extern "C" fn OPENSSL_memmove(
     }
     return memmove(dst, src, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_new_mem_buf(
     mut buf: *const libc::c_void,
     mut len: ossl_ssize_t,
@@ -452,11 +451,11 @@ static mut mem_method: BIO_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_s_mem() -> *const BIO_METHOD {
     return &mem_method;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_mem_contents(
     mut bio: *const BIO,
     mut out_contents: *mut *const uint8_t,
@@ -475,7 +474,7 @@ pub unsafe extern "C" fn BIO_mem_contents(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_get_mem_ptr(
     mut bio: *mut BIO,
     mut out: *mut *mut BUF_MEM,
@@ -487,7 +486,7 @@ pub unsafe extern "C" fn BIO_get_mem_ptr(
         out as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_mem_buf(
     mut bio: *mut BIO,
     mut b: *mut BUF_MEM,
@@ -500,7 +499,7 @@ pub unsafe extern "C" fn BIO_set_mem_buf(
         b as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_mem_eof_return(
     mut bio: *mut BIO,
     mut eof_value: libc::c_int,
@@ -512,7 +511,7 @@ pub unsafe extern "C" fn BIO_set_mem_eof_return(
         0 as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_s_secmem() -> *const BIO_METHOD {
     return BIO_s_mem();
 }

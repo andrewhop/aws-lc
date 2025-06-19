@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -223,7 +222,7 @@ static mut OTHERNAME_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut OTHERNAME_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -233,11 +232,11 @@ pub static mut OTHERNAME_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OTHERNAME_free(mut a: *mut OTHERNAME) {
     ASN1_item_free(a as *mut ASN1_VALUE, &OTHERNAME_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OTHERNAME_new() -> *mut OTHERNAME {
     return ASN1_item_new(&OTHERNAME_it) as *mut OTHERNAME;
 }
@@ -269,7 +268,7 @@ static mut EDIPARTYNAME_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut EDIPARTYNAME_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -279,11 +278,11 @@ pub static mut EDIPARTYNAME_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EDIPARTYNAME_free(mut a: *mut EDIPARTYNAME) {
     ASN1_item_free(a as *mut ASN1_VALUE, &EDIPARTYNAME_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EDIPARTYNAME_new() -> *mut EDIPARTYNAME {
     return ASN1_item_new(&EDIPARTYNAME_it) as *mut EDIPARTYNAME;
 }
@@ -400,7 +399,7 @@ static mut GENERAL_NAME_ch_tt: [ASN1_TEMPLATE; 9] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut GENERAL_NAME_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -410,22 +409,22 @@ pub static mut GENERAL_NAME_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_GENERAL_NAME(
     mut a: *mut GENERAL_NAME,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &GENERAL_NAME_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn GENERAL_NAME_free(mut a: *mut GENERAL_NAME) {
     ASN1_item_free(a as *mut ASN1_VALUE, &GENERAL_NAME_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn GENERAL_NAME_new() -> *mut GENERAL_NAME {
     return ASN1_item_new(&GENERAL_NAME_it) as *mut GENERAL_NAME;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_GENERAL_NAME(
     mut a: *mut *mut GENERAL_NAME,
     mut in_0: *mut *const libc::c_uchar,
@@ -446,7 +445,7 @@ static mut GENERAL_NAMES_item_tt: ASN1_TEMPLATE = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut GENERAL_NAMES_it: ASN1_ITEM = unsafe {
     {
         let mut init = ASN1_ITEM_st {
@@ -461,22 +460,22 @@ pub static mut GENERAL_NAMES_it: ASN1_ITEM = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn GENERAL_NAMES_free(mut a: *mut GENERAL_NAMES) {
     ASN1_item_free(a as *mut ASN1_VALUE, &GENERAL_NAMES_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_GENERAL_NAMES(
     mut a: *mut GENERAL_NAMES,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &GENERAL_NAMES_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn GENERAL_NAMES_new() -> *mut GENERAL_NAMES {
     return ASN1_item_new(&GENERAL_NAMES_it) as *mut GENERAL_NAMES;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_GENERAL_NAMES(
     mut a: *mut *mut GENERAL_NAMES,
     mut in_0: *mut *const libc::c_uchar,
@@ -485,7 +484,7 @@ pub unsafe extern "C" fn d2i_GENERAL_NAMES(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &GENERAL_NAMES_it)
         as *mut GENERAL_NAMES;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn GENERAL_NAME_dup(
     mut x: *mut GENERAL_NAME,
 ) -> *mut GENERAL_NAME {
@@ -521,7 +520,7 @@ unsafe extern "C" fn othername_cmp(
     result = ASN1_TYPE_cmp((*a).value, (*b).value);
     return result;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn GENERAL_NAME_cmp(
     mut a: *const GENERAL_NAME,
     mut b: *const GENERAL_NAME,
@@ -541,7 +540,7 @@ pub unsafe extern "C" fn GENERAL_NAME_cmp(
     }
     return -(1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn GENERAL_NAME_set0_value(
     mut a: *mut GENERAL_NAME,
     mut type_0: libc::c_int,
@@ -573,7 +572,7 @@ pub unsafe extern "C" fn GENERAL_NAME_set0_value(
     }
     (*a).type_0 = type_0;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn GENERAL_NAME_get0_value(
     mut a: *const GENERAL_NAME,
     mut out_type: *mut libc::c_int,
@@ -592,7 +591,7 @@ pub unsafe extern "C" fn GENERAL_NAME_get0_value(
         _ => return 0 as *mut libc::c_void,
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn GENERAL_NAME_set0_othername(
     mut gen: *mut GENERAL_NAME,
     mut oid: *mut ASN1_OBJECT,
@@ -609,7 +608,7 @@ pub unsafe extern "C" fn GENERAL_NAME_set0_othername(
     GENERAL_NAME_set0_value(gen, 0 as libc::c_int, oth as *mut libc::c_void);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn GENERAL_NAME_get0_otherName(
     mut gen: *const GENERAL_NAME,
     mut out_oid: *mut *mut ASN1_OBJECT,

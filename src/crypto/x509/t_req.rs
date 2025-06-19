@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
     pub type _IO_marker;
@@ -427,7 +426,7 @@ unsafe extern "C" fn sk_X509_ATTRIBUTE_value(
 ) -> *mut X509_ATTRIBUTE {
     return OPENSSL_sk_value(sk as *const OPENSSL_STACK, i) as *mut X509_ATTRIBUTE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_print_fp(
     mut fp: *mut FILE,
     mut x: *mut X509_REQ,
@@ -448,7 +447,7 @@ pub unsafe extern "C" fn X509_REQ_print_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_print_ex(
     mut bio: *mut BIO,
     mut x: *mut X509_REQ,
@@ -885,7 +884,7 @@ pub unsafe extern "C" fn X509_REQ_print_ex(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_print(
     mut bio: *mut BIO,
     mut req: *mut X509_REQ,

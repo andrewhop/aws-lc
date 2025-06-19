@@ -10,7 +10,7 @@
 pub type size_t = libc::c_ulong;
 pub type __uint32_t = libc::c_uint;
 pub type uint32_t = __uint32_t;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut kOpenSSLReasonValues: [uint32_t; 845] = [
     0xc320885 as libc::c_int as uint32_t,
     0xc32889f as libc::c_int as uint32_t,
@@ -858,9 +858,9 @@ pub static mut kOpenSSLReasonValues: [uint32_t; 845] = [
     0x8038b961 as libc::c_uint,
     0x80393976 as libc::c_uint,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut kOpenSSLReasonValuesLen: size_t = 0;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut kOpenSSLReasonStringData: [libc::c_char; 16915] = unsafe {
     *::core::mem::transmute::<
         &[u8; 16915],
@@ -875,7 +875,7 @@ unsafe extern "C" fn run_static_initializers() {
         .wrapping_div(::core::mem::size_of::<uint32_t>() as libc::c_ulong);
 }
 #[used]
-#[cfg_attr(target_os = "linux", link_section = ".init_array")]
-#[cfg_attr(target_os = "windows", link_section = ".CRT$XIB")]
-#[cfg_attr(target_os = "macos", link_section = "__DATA,__mod_init_func")]
+#[cfg_attr(target_os = "linux", unsafe(link_section = ".init_array"))]
+#[cfg_attr(target_os = "windows", unsafe(link_section = ".CRT$XIB"))]
+#[cfg_attr(target_os = "macos", unsafe(link_section = "__DATA,__mod_init_func"))]
 static INIT_ARRAY: [unsafe extern "C" fn(); 1] = [run_static_initializers];

@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn CBS_init(cbs: *mut CBS, data: *const uint8_t, len: size_t);
     fn CBS_skip(cbs: *mut CBS, len: size_t) -> libc::c_int;
     fn CBS_data(cbs: *const CBS) -> *const uint8_t;
@@ -313,7 +313,7 @@ unsafe extern "C" fn cbs_convert_ber(
     }
     return (looking_for_eoc == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_asn1_ber_to_der(
     mut in_0: *mut CBS,
     mut out: *mut CBS,
@@ -361,7 +361,7 @@ pub unsafe extern "C" fn CBS_asn1_ber_to_der(
     CBS_init(out, *out_storage, len);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_asn1_implicit_string(
     mut in_0: *mut CBS,
     mut out: *mut CBS,

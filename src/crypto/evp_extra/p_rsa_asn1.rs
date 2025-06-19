@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     pub type dh_st;
     pub type dsa_st;
@@ -755,7 +754,7 @@ unsafe extern "C" fn rsa_bits(mut pkey: *const EVP_PKEY) -> libc::c_int {
 unsafe extern "C" fn int_rsa_free(mut pkey: *mut EVP_PKEY) {
     RSA_free((*pkey).pkey.rsa);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut rsa_asn1_meth: EVP_PKEY_ASN1_METHOD = unsafe {
     {
         let mut init = evp_pkey_asn1_method_st {
@@ -832,7 +831,7 @@ pub static mut rsa_asn1_meth: EVP_PKEY_ASN1_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut rsa_pss_asn1_meth: EVP_PKEY_ASN1_METHOD = unsafe {
     {
         let mut init = evp_pkey_asn1_method_st {

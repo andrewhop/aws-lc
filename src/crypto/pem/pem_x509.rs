@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
     pub type _IO_marker;
@@ -205,7 +204,7 @@ pub type pem_password_cb = unsafe extern "C" fn(
     libc::c_int,
     *mut libc::c_void,
 ) -> libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_X509(
     mut bp: *mut BIO,
     mut x: *mut *mut X509,
@@ -228,7 +227,7 @@ pub unsafe extern "C" fn PEM_read_bio_X509(
         u,
     ) as *mut X509;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_X509(
     mut bp: *mut BIO,
     mut x: *mut X509,
@@ -264,7 +263,7 @@ unsafe extern "C" fn pem_write_bio_X509_i2d(
 ) -> libc::c_int {
     return i2d_X509(x as *mut X509, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_X509(
     mut fp: *mut FILE,
     mut x: *mut X509,
@@ -300,7 +299,7 @@ unsafe extern "C" fn pem_read_bio_X509_d2i(
 ) -> *mut libc::c_void {
     return d2i_X509(x as *mut *mut X509, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_X509(
     mut fp: *mut FILE,
     mut x: *mut *mut X509,

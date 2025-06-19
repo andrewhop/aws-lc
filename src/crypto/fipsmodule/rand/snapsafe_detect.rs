@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn abort() -> !;
     fn open(__file: *const libc::c_char, __oflag: libc::c_int, _: ...) -> libc::c_int;
     fn mmap(
@@ -129,7 +129,7 @@ unsafe extern "C" fn aws_snapsafe_read_sgn() -> uint32_t {
     }
     return 0 as libc::c_int as uint32_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_get_snapsafe_generation(
     mut snapsafe_generation_number: *mut uint32_t,
 ) -> libc::c_int {
@@ -156,7 +156,7 @@ pub unsafe extern "C" fn CRYPTO_get_snapsafe_generation(
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_get_snapsafe_active() -> libc::c_int {
     CRYPTO_once(
         aws_snapsafe_init_bss_get(),
@@ -167,7 +167,7 @@ pub unsafe extern "C" fn CRYPTO_get_snapsafe_active() -> libc::c_int {
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_get_snapsafe_supported() -> libc::c_int {
     CRYPTO_once(
         aws_snapsafe_init_bss_get(),
@@ -178,7 +178,7 @@ pub unsafe extern "C" fn CRYPTO_get_snapsafe_supported() -> libc::c_int {
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_get_sysgenid_path() -> *const libc::c_char {
     return b"/dev/sysgenid\0" as *const u8 as *const libc::c_char;
 }

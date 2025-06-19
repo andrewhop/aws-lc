@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -1996,7 +1995,7 @@ unsafe extern "C" fn asn1_object_cmp(
 ) -> libc::c_int {
     return OBJ_cmp(*a, *b);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_policy_check(
     mut certs: *const stack_st_X509,
     mut user_policies: *const stack_st_ASN1_OBJECT,

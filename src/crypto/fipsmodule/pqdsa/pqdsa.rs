@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     pub type dsa_st;
     pub type ec_key_st;
@@ -426,7 +425,7 @@ static mut kOIDMLDSA87: [uint8_t; 9] = [
     0x3 as libc::c_int as uint8_t,
     0x13 as libc::c_int as uint8_t,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PQDSA_KEY_new() -> *mut PQDSA_KEY {
     let mut ret: *mut PQDSA_KEY = OPENSSL_zalloc(
         ::core::mem::size_of::<PQDSA_KEY>() as libc::c_ulong,
@@ -445,7 +444,7 @@ unsafe extern "C" fn PQDSA_KEY_clear(mut key: *mut PQDSA_KEY) {
     (*key).private_key = 0 as *mut uint8_t;
     (*key).seed = 0 as *mut uint8_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PQDSA_KEY_init(
     mut key: *mut PQDSA_KEY,
     mut pqdsa: *const PQDSA,
@@ -466,7 +465,7 @@ pub unsafe extern "C" fn PQDSA_KEY_init(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PQDSA_KEY_free(mut key: *mut PQDSA_KEY) {
     if key.is_null() {
         return;
@@ -474,11 +473,11 @@ pub unsafe extern "C" fn PQDSA_KEY_free(mut key: *mut PQDSA_KEY) {
     PQDSA_KEY_clear(key);
     OPENSSL_free(key as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PQDSA_KEY_get0_dsa(mut key: *mut PQDSA_KEY) -> *const PQDSA {
     return (*key).pqdsa;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PQDSA_KEY_set_raw_public_key(
     mut key: *mut PQDSA_KEY,
     mut in_0: *mut CBS,
@@ -504,7 +503,7 @@ pub unsafe extern "C" fn PQDSA_KEY_set_raw_public_key(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PQDSA_KEY_set_raw_keypair_from_seed(
     mut key: *mut PQDSA_KEY,
     mut in_0: *mut CBS,
@@ -574,7 +573,7 @@ pub unsafe extern "C" fn PQDSA_KEY_set_raw_keypair_from_seed(
     (*key).seed = seed;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PQDSA_KEY_set_raw_private_key(
     mut key: *mut PQDSA_KEY,
     mut in_0: *mut CBS,
@@ -620,7 +619,7 @@ pub unsafe extern "C" fn PQDSA_KEY_set_raw_private_key(
     (*key).public_key = public_key;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PQDSA_KEY_set_raw_keypair_from_both(
     mut key: *mut PQDSA_KEY,
     mut seed: *mut CBS,
@@ -1160,7 +1159,7 @@ unsafe extern "C" fn sig_ml_dsa_87_do_init(mut out: *mut PQDSA) {
 unsafe extern "C" fn sig_ml_dsa_87_storage_bss_get() -> *mut PQDSA {
     return &mut sig_ml_dsa_87_storage;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PQDSA_find_dsa_by_nid(mut nid: libc::c_int) -> *const PQDSA {
     match nid {
         994 => return sig_ml_dsa_44(),
@@ -1169,7 +1168,7 @@ pub unsafe extern "C" fn PQDSA_find_dsa_by_nid(mut nid: libc::c_int) -> *const P
         _ => return 0 as *const PQDSA,
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PQDSA_find_asn1_by_nid(
     mut nid: libc::c_int,
 ) -> *const EVP_PKEY_ASN1_METHOD {

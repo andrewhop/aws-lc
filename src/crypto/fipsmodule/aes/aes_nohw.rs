@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn __assert_fail(
         __assertion: *const libc::c_char,
         __file: *const libc::c_char,
@@ -1442,7 +1442,7 @@ unsafe extern "C" fn aes_nohw_setup_key_256(
         i = i.wrapping_add(2 as libc::c_int as size_t);
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn aes_nohw_set_encrypt_key(
     mut key: *const uint8_t,
     mut bits: libc::c_uint,
@@ -1465,7 +1465,7 @@ pub unsafe extern "C" fn aes_nohw_set_encrypt_key(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn aes_nohw_set_decrypt_key(
     mut key: *const uint8_t,
     mut bits: libc::c_uint,
@@ -1473,7 +1473,7 @@ pub unsafe extern "C" fn aes_nohw_set_decrypt_key(
 ) -> libc::c_int {
     return aes_nohw_set_encrypt_key(key, bits, aeskey);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn aes_nohw_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -1488,7 +1488,7 @@ pub unsafe extern "C" fn aes_nohw_encrypt(
     aes_nohw_encrypt_batch(&mut sched, (*key).rounds as size_t, &mut batch);
     aes_nohw_from_batch(out, 1 as libc::c_int as size_t, &mut batch);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn aes_nohw_decrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -1534,7 +1534,7 @@ unsafe extern "C" fn aes_nohw_xor_block(
             as size_t as size_t;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn aes_nohw_ctr32_encrypt_blocks(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -1607,7 +1607,7 @@ pub unsafe extern "C" fn aes_nohw_ctr32_encrypt_blocks(
         ctr = ctr.wrapping_add(4 as libc::c_int as uint32_t);
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn aes_nohw_cbc_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,

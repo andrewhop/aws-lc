@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn BN_new() -> *mut BIGNUM;
     fn BN_parse_asn1_unsigned(cbs: *mut CBS, ret: *mut BIGNUM) -> libc::c_int;
     fn BN_marshal_asn1(cbb: *mut CBB, bn: *const BIGNUM) -> libc::c_int;
@@ -197,7 +197,7 @@ unsafe extern "C" fn marshal_integer(
     }
     return BN_marshal_asn1(cbb, bn);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_parse_parameters(mut cbs: *mut CBS) -> *mut DH {
     let mut priv_length: uint64_t = 0;
     let mut current_block: u64;
@@ -254,7 +254,7 @@ pub unsafe extern "C" fn DH_parse_parameters(mut cbs: *mut CBS) -> *mut DH {
     DH_free(ret);
     return 0 as *mut DH;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_marshal_parameters(
     mut cbb: *mut CBB,
     mut dh: *const DH,
@@ -294,7 +294,7 @@ pub unsafe extern "C" fn DH_marshal_parameters(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_DHparams(
     mut out: *mut *mut DH,
     mut inp: *mut *const uint8_t,
@@ -319,7 +319,7 @@ pub unsafe extern "C" fn d2i_DHparams(
     *inp = CBS_data(&mut cbs);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_DHparams(
     mut in_0: *const DH,
     mut outp: *mut *mut uint8_t,

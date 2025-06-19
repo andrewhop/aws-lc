@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn EVP_CIPHER_CTX_key_length(ctx: *const EVP_CIPHER_CTX) -> libc::c_uint;
     fn RC4_set_key(rc4key: *mut RC4_KEY, len: libc::c_uint, key: *const uint8_t);
     fn RC4(key: *mut RC4_KEY, len: size_t, in_0: *const uint8_t, out: *mut uint8_t);
@@ -133,7 +133,7 @@ static mut rc4: EVP_CIPHER = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_rc4() -> *const EVP_CIPHER {
     return &rc4;
 }

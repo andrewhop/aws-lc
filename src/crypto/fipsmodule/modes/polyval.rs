@@ -9,7 +9,7 @@
 )]
 #![feature(asm, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn __assert_fail(
         __assertion: *const libc::c_char,
         __file: *const libc::c_char,
@@ -171,7 +171,7 @@ unsafe extern "C" fn reverse_and_mulX_ghash(mut b: *mut uint8_t) {
         CRYPTO_bswap8(hi),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_POLYVAL_init(
     mut ctx: *mut polyval_ctx,
     mut key: *const uint8_t,
@@ -197,7 +197,7 @@ pub unsafe extern "C" fn CRYPTO_POLYVAL_init(
         ::core::mem::size_of::<[uint8_t; 16]>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_POLYVAL_update_blocks(
     mut ctx: *mut polyval_ctx,
     mut in_0: *const uint8_t,
@@ -268,7 +268,7 @@ pub unsafe extern "C" fn CRYPTO_POLYVAL_update_blocks(
         );
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_POLYVAL_finish(
     mut ctx: *const polyval_ctx,
     mut out: *mut uint8_t,

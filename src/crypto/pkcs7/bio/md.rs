@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     pub type engine_st;
     pub type evp_md_pctx_ops;
@@ -464,11 +463,11 @@ static mut methods_md: BIO_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_f_md() -> *const BIO_METHOD {
     return &methods_md;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_get_md_ctx(
     mut b: *mut BIO,
     mut ctx: *mut *mut EVP_MD_CTX,
@@ -480,7 +479,7 @@ pub unsafe extern "C" fn BIO_get_md_ctx(
         ctx as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_md(
     mut b: *mut BIO,
     mut md: *const EVP_MD,

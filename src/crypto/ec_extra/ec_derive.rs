@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     pub type stack_st_void;
     pub type ecdsa_sig_st;
@@ -384,7 +383,7 @@ pub struct EC_WRAPPED_SCALAR {
     pub scalar: EC_SCALAR,
 }
 pub type EVP_MD = env_md_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_derive_from_secret(
     mut group: *const EC_GROUP,
     mut secret: *const uint8_t,

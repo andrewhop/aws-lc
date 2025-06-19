@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     pub type dsa_st;
     pub type ec_key_st;
@@ -623,7 +622,7 @@ unsafe extern "C" fn pkey_ed25519ph_ctrl(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_ed25519ph_pkey_meth() -> *const EVP_PKEY_METHOD {
     CRYPTO_once(
         EVP_PKEY_ed25519ph_pkey_meth_once_bss_get(),

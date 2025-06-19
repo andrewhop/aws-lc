@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_ITEM_st;
     pub type asn1_object_st;
     pub type ASN1_VALUE_st;
@@ -641,7 +640,7 @@ unsafe extern "C" fn sk_CRYPTO_BUFFER_pop_free(
 unsafe extern "C" fn sk_CRYPTO_BUFFER_new_null() -> *mut stack_st_CRYPTO_BUFFER {
     return OPENSSL_sk_new_null() as *mut stack_st_CRYPTO_BUFFER;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_get_certificates(
     mut out_certs: *mut stack_st_X509,
     mut cbs: *mut CBS,
@@ -689,7 +688,7 @@ pub unsafe extern "C" fn PKCS7_get_certificates(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_get_CRLs(
     mut out_crls: *mut stack_st_X509_CRL,
     mut cbs: *mut CBS,
@@ -817,7 +816,7 @@ pub unsafe extern "C" fn PKCS7_get_CRLs(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_get_PEM_certificates(
     mut out_certs: *mut stack_st_X509,
     mut pem_bio: *mut BIO,
@@ -846,7 +845,7 @@ pub unsafe extern "C" fn PKCS7_get_PEM_certificates(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_get_PEM_CRLs(
     mut out_crls: *mut stack_st_X509_CRL,
     mut pem_bio: *mut BIO,
@@ -921,7 +920,7 @@ unsafe extern "C" fn pkcs7_bundle_certificates_cb(
     return (CBB_flush_asn1_set_of(&mut certificates) != 0 && CBB_flush(out) != 0)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_bundle_certificates(
     mut out: *mut CBB,
     mut certs: *const stack_st_X509,
@@ -983,7 +982,7 @@ unsafe extern "C" fn pkcs7_bundle_crls_cb(
     return (CBB_flush_asn1_set_of(&mut crl_data) != 0 && CBB_flush(out) != 0)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_bundle_CRLs(
     mut out: *mut CBB,
     mut crls: *const stack_st_X509_CRL,
@@ -999,7 +998,7 @@ pub unsafe extern "C" fn PKCS7_bundle_CRLs(
         crls as *const libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS7_bio(
     mut bio: *mut BIO,
     mut out: *mut *mut PKCS7,
@@ -1026,34 +1025,34 @@ pub unsafe extern "C" fn d2i_PKCS7_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS7_bio(
     mut bio: *mut BIO,
     mut p7: *const PKCS7,
 ) -> libc::c_int {
     return ASN1_item_i2d_bio(&PKCS7_it, bio, p7 as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_type_is_data(mut p7: *const PKCS7) -> libc::c_int {
     return (OBJ_obj2nid((*p7).type_0) == 21 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_type_is_digest(mut p7: *const PKCS7) -> libc::c_int {
     return (OBJ_obj2nid((*p7).type_0) == 25 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_type_is_encrypted(mut p7: *const PKCS7) -> libc::c_int {
     return (OBJ_obj2nid((*p7).type_0) == 26 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_type_is_enveloped(mut p7: *const PKCS7) -> libc::c_int {
     return (OBJ_obj2nid((*p7).type_0) == 23 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_type_is_signed(mut p7: *const PKCS7) -> libc::c_int {
     return (OBJ_obj2nid((*p7).type_0) == 22 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_type_is_signedAndEnveloped(
     mut p7: *const PKCS7,
 ) -> libc::c_int {
@@ -1409,7 +1408,7 @@ unsafe extern "C" fn pkcs7_do_general_sign(
     PKCS7_free(ret);
     return 0 as *mut PKCS7;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_sign(
     mut sign_cert: *mut X509,
     mut pkey: *mut EVP_PKEY,
@@ -1527,7 +1526,7 @@ pub unsafe extern "C" fn PKCS7_sign(
     OPENSSL_free(der as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_add_certificate(
     mut p7: *mut PKCS7,
     mut x509: *mut X509,
@@ -1583,7 +1582,7 @@ pub unsafe extern "C" fn PKCS7_add_certificate(
     X509_up_ref(x509);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_add_crl(
     mut p7: *mut PKCS7,
     mut crl: *mut X509_CRL,

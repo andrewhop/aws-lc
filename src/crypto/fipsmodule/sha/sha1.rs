@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn memcpy(
         _: *mut libc::c_void,
         _: *const libc::c_void,
@@ -263,7 +263,7 @@ unsafe extern "C" fn crypto_md32_final(
     *num = 0 as libc::c_int as libc::c_uint;
     OPENSSL_memset(data as *mut libc::c_void, 0 as libc::c_int, block_size);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA1_Init(mut sha: *mut SHA_CTX) -> libc::c_int {
     OPENSSL_memset(
         sha as *mut libc::c_void,
@@ -277,7 +277,7 @@ pub unsafe extern "C" fn SHA1_Init(mut sha: *mut SHA_CTX) -> libc::c_int {
     (*sha).h[4 as libc::c_int as usize] = 0xc3d2e1f0 as libc::c_ulong as uint32_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA1_Init_from_state(
     mut sha: *mut SHA_CTX,
     mut h: *const uint8_t,
@@ -305,7 +305,7 @@ pub unsafe extern "C" fn SHA1_Init_from_state(
     (*sha).Nl = (n & 0xffffffff as libc::c_uint as uint64_t) as uint32_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA1(
     mut data: *const uint8_t,
     mut len: size_t,
@@ -332,11 +332,11 @@ pub unsafe extern "C" fn SHA1(
     );
     return out;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA1_Transform(mut c: *mut SHA_CTX, mut data: *const uint8_t) {
     sha1_block_data_order(((*c).h).as_mut_ptr(), data, 1 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA1_Update(
     mut c: *mut SHA_CTX,
     mut data: *const libc::c_void,
@@ -358,7 +358,7 @@ pub unsafe extern "C" fn SHA1_Update(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA1_Final(
     mut out: *mut uint8_t,
     mut c: *mut SHA_CTX,
@@ -396,7 +396,7 @@ pub unsafe extern "C" fn SHA1_Final(
     FIPS_service_indicator_update_state();
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA1_get_state(
     mut ctx: *mut SHA_CTX,
     mut out_h: *mut uint8_t,

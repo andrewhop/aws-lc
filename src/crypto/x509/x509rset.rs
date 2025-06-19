@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_X509_NAME_ENTRY;
     pub type evp_pkey_st;
@@ -169,7 +168,7 @@ pub struct X509_REQ_INFO {
     pub attributes: *mut stack_st_X509_ATTRIBUTE,
 }
 pub type X509_REQ = X509_req_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_set_version(
     mut x: *mut X509_REQ,
     mut version: libc::c_long,
@@ -190,7 +189,7 @@ pub unsafe extern "C" fn X509_REQ_set_version(
     }
     return ASN1_INTEGER_set_int64((*(*x).req_info).version, version);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_set_subject_name(
     mut x: *mut X509_REQ,
     mut name: *mut X509_NAME,
@@ -200,7 +199,7 @@ pub unsafe extern "C" fn X509_REQ_set_subject_name(
     }
     return X509_NAME_set(&mut (*(*x).req_info).subject, name);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_set_pubkey(
     mut x: *mut X509_REQ,
     mut pkey: *mut EVP_PKEY,
@@ -210,7 +209,7 @@ pub unsafe extern "C" fn X509_REQ_set_pubkey(
     }
     return X509_PUBKEY_set(&mut (*(*x).req_info).pubkey, pkey);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_set1_signature_algo(
     mut req: *mut X509_REQ,
     mut algo: *const X509_ALGOR,
@@ -223,7 +222,7 @@ pub unsafe extern "C" fn X509_REQ_set1_signature_algo(
     (*req).sig_alg = copy;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_set1_signature_value(
     mut req: *mut X509_REQ,
     mut sig: *const uint8_t,

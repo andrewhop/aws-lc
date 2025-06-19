@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type bn_blinding_st;
     pub type stack_st_void;
     pub type rsassa_pss_params_st;
@@ -300,7 +299,7 @@ unsafe extern "C" fn marshal_integer(
     }
     return BN_marshal_asn1(cbb, bn);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_parse_public_key(mut cbs: *mut CBS) -> *mut RSA {
     let mut ret: *mut RSA = RSA_new();
     if ret.is_null() {
@@ -343,7 +342,7 @@ pub unsafe extern "C" fn RSA_parse_public_key(mut cbs: *mut CBS) -> *mut RSA {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_public_key_from_bytes(
     mut in_0: *const uint8_t,
     mut in_len: size_t,
@@ -368,7 +367,7 @@ pub unsafe extern "C" fn RSA_public_key_from_bytes(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_marshal_public_key(
     mut cbb: *mut CBB,
     mut rsa: *const RSA,
@@ -405,7 +404,7 @@ pub unsafe extern "C" fn RSA_marshal_public_key(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_public_key_to_bytes(
     mut out_bytes: *mut *mut uint8_t,
     mut out_len: *mut size_t,
@@ -464,7 +463,7 @@ unsafe extern "C" fn detect_stripped_jca_private_key(mut key: *mut RSA) {
         (*key).flags |= 0x40 as libc::c_int;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_parse_private_key(mut cbs: *mut CBS) -> *mut RSA {
     let mut ret: *mut RSA = RSA_new();
     if ret.is_null() {
@@ -535,7 +534,7 @@ pub unsafe extern "C" fn RSA_parse_private_key(mut cbs: *mut CBS) -> *mut RSA {
     RSA_free(ret);
     return 0 as *mut RSA;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_private_key_from_bytes(
     mut in_0: *const uint8_t,
     mut in_len: size_t,
@@ -560,7 +559,7 @@ pub unsafe extern "C" fn RSA_private_key_from_bytes(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_marshal_private_key(
     mut cbb: *mut CBB,
     mut rsa: *const RSA,
@@ -604,7 +603,7 @@ pub unsafe extern "C" fn RSA_marshal_private_key(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_private_key_to_bytes(
     mut out_bytes: *mut *mut uint8_t,
     mut out_len: *mut size_t,
@@ -641,7 +640,7 @@ pub unsafe extern "C" fn RSA_private_key_to_bytes(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_RSAPublicKey(
     mut out: *mut *mut RSA,
     mut inp: *mut *const uint8_t,
@@ -666,7 +665,7 @@ pub unsafe extern "C" fn d2i_RSAPublicKey(
     *inp = CBS_data(&mut cbs);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_RSAPublicKey(
     mut in_0: *const RSA,
     mut outp: *mut *mut uint8_t,
@@ -692,7 +691,7 @@ pub unsafe extern "C" fn i2d_RSAPublicKey(
     }
     return CBB_finish_i2d(&mut cbb, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_RSAPrivateKey(
     mut out: *mut *mut RSA,
     mut inp: *mut *const uint8_t,
@@ -717,7 +716,7 @@ pub unsafe extern "C" fn d2i_RSAPrivateKey(
     *inp = CBS_data(&mut cbs);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_RSAPrivateKey(
     mut in_0: *const RSA,
     mut outp: *mut *mut uint8_t,
@@ -743,7 +742,7 @@ pub unsafe extern "C" fn i2d_RSAPrivateKey(
     }
     return CBB_finish_i2d(&mut cbb, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSAPublicKey_dup(mut rsa: *const RSA) -> *mut RSA {
     let mut der: *mut uint8_t = 0 as *mut uint8_t;
     let mut der_len: size_t = 0;
@@ -754,7 +753,7 @@ pub unsafe extern "C" fn RSAPublicKey_dup(mut rsa: *const RSA) -> *mut RSA {
     OPENSSL_free(der as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSAPrivateKey_dup(mut rsa: *const RSA) -> *mut RSA {
     let mut der: *mut uint8_t = 0 as *mut uint8_t;
     let mut der_len: size_t = 0;

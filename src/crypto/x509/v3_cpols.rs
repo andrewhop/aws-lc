@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -779,7 +778,7 @@ unsafe extern "C" fn sk_CONF_VALUE_value(
 ) -> *mut CONF_VALUE {
     return OPENSSL_sk_value(sk as *const OPENSSL_STACK, i) as *mut CONF_VALUE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_cpols: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {
@@ -828,7 +827,7 @@ static mut CERTIFICATEPOLICIES_item_tt: ASN1_TEMPLATE = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut CERTIFICATEPOLICIES_it: ASN1_ITEM = unsafe {
     {
         let mut init = ASN1_ITEM_st {
@@ -843,22 +842,22 @@ pub static mut CERTIFICATEPOLICIES_it: ASN1_ITEM = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CERTIFICATEPOLICIES_free(mut a: *mut CERTIFICATEPOLICIES) {
     ASN1_item_free(a as *mut ASN1_VALUE, &CERTIFICATEPOLICIES_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_CERTIFICATEPOLICIES(
     mut a: *const CERTIFICATEPOLICIES,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &CERTIFICATEPOLICIES_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CERTIFICATEPOLICIES_new() -> *mut CERTIFICATEPOLICIES {
     return ASN1_item_new(&CERTIFICATEPOLICIES_it) as *mut CERTIFICATEPOLICIES;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_CERTIFICATEPOLICIES(
     mut a: *mut *mut CERTIFICATEPOLICIES,
     mut in_0: *mut *const libc::c_uchar,
@@ -892,7 +891,7 @@ static mut POLICYINFO_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut POLICYINFO_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -902,11 +901,11 @@ pub static mut POLICYINFO_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn POLICYINFO_free(mut a: *mut POLICYINFO) {
     ASN1_item_free(a as *mut ASN1_VALUE, &POLICYINFO_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn POLICYINFO_new() -> *mut POLICYINFO {
     return ASN1_item_new(&POLICYINFO_it) as *mut POLICYINFO;
 }
@@ -992,7 +991,7 @@ static mut POLICYQUALINFO_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut POLICYQUALINFO_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -1002,11 +1001,11 @@ pub static mut POLICYQUALINFO_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn POLICYQUALINFO_free(mut a: *mut POLICYQUALINFO) {
     ASN1_item_free(a as *mut ASN1_VALUE, &POLICYQUALINFO_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn POLICYQUALINFO_new() -> *mut POLICYQUALINFO {
     return ASN1_item_new(&POLICYQUALINFO_it) as *mut POLICYQUALINFO;
 }
@@ -1034,7 +1033,7 @@ static mut USERNOTICE_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut USERNOTICE_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -1044,11 +1043,11 @@ pub static mut USERNOTICE_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn USERNOTICE_free(mut a: *mut USERNOTICE) {
     ASN1_item_free(a as *mut ASN1_VALUE, &USERNOTICE_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn USERNOTICE_new() -> *mut USERNOTICE {
     return ASN1_item_new(&USERNOTICE_it) as *mut USERNOTICE;
 }
@@ -1076,7 +1075,7 @@ static mut NOTICEREF_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut NOTICEREF_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -1086,11 +1085,11 @@ pub static mut NOTICEREF_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NOTICEREF_free(mut a: *mut NOTICEREF) {
     ASN1_item_free(a as *mut ASN1_VALUE, &NOTICEREF_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NOTICEREF_new() -> *mut NOTICEREF {
     return ASN1_item_new(&NOTICEREF_it) as *mut NOTICEREF;
 }

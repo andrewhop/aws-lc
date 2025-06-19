@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     pub type dsa_st;
     pub type ec_key_st;
@@ -237,7 +236,7 @@ unsafe extern "C" fn hmac_get_key(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut hmac_asn1_meth: EVP_PKEY_ASN1_METHOD = unsafe {
     {
         let mut init = evp_pkey_asn1_method_st {

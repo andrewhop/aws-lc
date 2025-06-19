@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn __assert_fail(
         __assertion: *const libc::c_char,
         __file: *const libc::c_char,
@@ -370,7 +370,7 @@ unsafe extern "C" fn utc_from_posix_time(
     *out_seconds = (leftover_seconds % 60 as libc::c_int as int64_t) as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_tm_to_posix(
     mut tm: *const tm,
     mut out: *mut int64_t,
@@ -385,7 +385,7 @@ pub unsafe extern "C" fn OPENSSL_tm_to_posix(
         out,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_posix_to_tm(
     mut time: int64_t,
     mut out_tm: *mut tm,
@@ -436,7 +436,7 @@ pub unsafe extern "C" fn OPENSSL_posix_to_tm(
     *out_tm = tmp_tm;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_timegm(
     mut tm: *const tm,
     mut out: *mut time_t,
@@ -455,7 +455,7 @@ pub unsafe extern "C" fn OPENSSL_timegm(
     *out = posix_time;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_gmtime(
     mut time: *const time_t,
     mut out_tm: *mut tm,
@@ -466,7 +466,7 @@ pub unsafe extern "C" fn OPENSSL_gmtime(
     }
     return out_tm;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_gmtime_adj(
     mut tm: *mut tm,
     mut offset_day: libc::c_int,
@@ -498,7 +498,7 @@ pub unsafe extern "C" fn OPENSSL_gmtime_adj(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_gmtime_diff(
     mut out_days: *mut libc::c_int,
     mut out_secs: *mut libc::c_int,

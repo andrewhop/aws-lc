@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_ASN1_TYPE;
     pub type stack_st;
@@ -169,7 +168,7 @@ static mut X509_ATTRIBUTE_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_ATTRIBUTE_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -179,18 +178,18 @@ pub static mut X509_ATTRIBUTE_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_ATTRIBUTE(
     mut a: *const X509_ATTRIBUTE,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &X509_ATTRIBUTE_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ATTRIBUTE_free(mut a: *mut X509_ATTRIBUTE) {
     ASN1_item_free(a as *mut ASN1_VALUE, &X509_ATTRIBUTE_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_ATTRIBUTE(
     mut a: *mut *mut X509_ATTRIBUTE,
     mut in_0: *mut *const libc::c_uchar,
@@ -199,18 +198,18 @@ pub unsafe extern "C" fn d2i_X509_ATTRIBUTE(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &X509_ATTRIBUTE_it)
         as *mut X509_ATTRIBUTE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ATTRIBUTE_new() -> *mut X509_ATTRIBUTE {
     return ASN1_item_new(&X509_ATTRIBUTE_it) as *mut X509_ATTRIBUTE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ATTRIBUTE_dup(
     mut x: *const X509_ATTRIBUTE,
 ) -> *mut X509_ATTRIBUTE {
     return ASN1_item_dup(&X509_ATTRIBUTE_it, x as *mut libc::c_void)
         as *mut X509_ATTRIBUTE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ATTRIBUTE_create(
     mut nid: libc::c_int,
     mut attrtype: libc::c_int,

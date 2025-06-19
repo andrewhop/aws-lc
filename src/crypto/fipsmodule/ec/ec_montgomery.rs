@@ -9,7 +9,7 @@
 )]
 #![feature(asm)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn ec_felem_add(
         group: *const EC_GROUP,
         out: *mut EC_FELEM,
@@ -492,7 +492,7 @@ unsafe extern "C" fn ec_GFp_mont_felem_inv0(
         &(*group).field,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_mont_felem_mul(
     mut group: *const EC_GROUP,
     mut r: *mut EC_FELEM,
@@ -507,7 +507,7 @@ pub unsafe extern "C" fn ec_GFp_mont_felem_mul(
         &(*group).field,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_mont_felem_sqr(
     mut group: *const EC_GROUP,
     mut r: *mut EC_FELEM,
@@ -521,7 +521,7 @@ pub unsafe extern "C" fn ec_GFp_mont_felem_sqr(
         &(*group).field,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_mont_felem_to_bytes(
     mut group: *const EC_GROUP,
     mut out: *mut uint8_t,
@@ -532,7 +532,7 @@ pub unsafe extern "C" fn ec_GFp_mont_felem_to_bytes(
     ec_GFp_mont_felem_from_montgomery(group, &mut tmp, in_0);
     ec_GFp_simple_felem_to_bytes(group, out, out_len, &mut tmp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_mont_felem_from_bytes(
     mut group: *const EC_GROUP,
     mut out: *mut EC_FELEM,
@@ -545,7 +545,7 @@ pub unsafe extern "C" fn ec_GFp_mont_felem_from_bytes(
     ec_GFp_mont_felem_to_montgomery(group, out, out);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_mont_felem_reduce(
     mut group: *const EC_GROUP,
     mut out: *mut EC_FELEM,
@@ -562,7 +562,7 @@ pub unsafe extern "C" fn ec_GFp_mont_felem_reduce(
     ec_GFp_mont_felem_to_montgomery(group, out, out);
     ec_GFp_mont_felem_to_montgomery(group, out, out);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_mont_felem_exp(
     mut group: *const EC_GROUP,
     mut out: *mut EC_FELEM,
@@ -609,7 +609,7 @@ unsafe extern "C" fn ec_GFp_mont_point_get_affine_coordinates(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_mont_jacobian_to_affine_batch(
     mut group: *const EC_GROUP,
     mut out: *mut EC_AFFINE,
@@ -698,7 +698,7 @@ pub unsafe extern "C" fn ec_GFp_mont_jacobian_to_affine_batch(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_mont_add(
     mut group: *const EC_GROUP,
     mut out: *mut EC_JACOBIAN,
@@ -771,7 +771,7 @@ pub unsafe extern "C" fn ec_GFp_mont_add(
     ec_felem_select(group, &mut z_out, z1nz, &mut z_out, &(*b).Z);
     ec_felem_select(group, &mut (*out).Z, z2nz, &mut z_out, &(*a).Z);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_mont_dbl(
     mut group: *const EC_GROUP,
     mut r: *mut EC_JACOBIAN,
@@ -936,7 +936,7 @@ unsafe extern "C" fn ec_GFp_mont_cmp_x_coordinate(
 unsafe extern "C" fn EC_GFp_mont_method_storage_bss_get() -> *mut EC_METHOD {
     return &mut EC_GFp_mont_method_storage;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GFp_mont_method() -> *const EC_METHOD {
     CRYPTO_once(
         EC_GFp_mont_method_once_bss_get(),

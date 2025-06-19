@@ -20,7 +20,7 @@ pub use core::arch::x86_64::{
     _mm_srli_epi64, _mm_cvtsi32_si128, _mm_cvtsi128_si32, _mm_load_si128,
     _mm_loadl_epi64, _mm_setzero_si128, _mm_unpacklo_epi64, _mm_shuffle_epi32,
 };
-extern "C" {
+unsafe extern "C" {
     fn memcpy(
         _: *mut libc::c_void,
         _: *const libc::c_void,
@@ -193,7 +193,7 @@ unsafe extern "C" fn poly1305_aligned_state(
 unsafe extern "C" fn poly1305_min(mut a: size_t, mut b: size_t) -> size_t {
     return if a < b { a } else { b };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_poly1305_init(
     mut state: *mut poly1305_state,
     mut key: *const uint8_t,
@@ -637,7 +637,7 @@ unsafe extern "C" fn poly1305_blocks(
     (*st).u.H[3 as libc::c_int as usize] = H3;
     (*st).u.H[4 as libc::c_int as usize] = H4;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_poly1305_update(
     mut state: *mut poly1305_state,
     mut m: *const uint8_t,
@@ -721,7 +721,7 @@ pub unsafe extern "C" fn CRYPTO_poly1305_update(
             as uint64_t;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_poly1305_finish(
     mut state: *mut poly1305_state,
     mut mac: *mut uint8_t,

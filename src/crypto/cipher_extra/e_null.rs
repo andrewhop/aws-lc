@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn memcpy(
         _: *mut libc::c_void,
         _: *const libc::c_void,
@@ -137,7 +137,7 @@ static mut n_cipher: EVP_CIPHER = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_enc_null() -> *const EVP_CIPHER {
     return &n_cipher;
 }

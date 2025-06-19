@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn ASN1_STRING_set(
         str: *mut ASN1_STRING,
         data: *const libc::c_void,
@@ -81,7 +81,7 @@ unsafe extern "C" fn OPENSSL_memset(
     }
     return memset(dst, c, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_BIT_STRING_set(
     mut x: *mut ASN1_BIT_STRING,
     mut d: *const libc::c_uchar,
@@ -89,7 +89,7 @@ pub unsafe extern "C" fn ASN1_BIT_STRING_set(
 ) -> libc::c_int {
     return ASN1_STRING_set(x, d as *const libc::c_void, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_bit_string_length(
     mut str: *const ASN1_BIT_STRING,
     mut out_padding_bits: *mut uint8_t,
@@ -156,7 +156,7 @@ pub unsafe extern "C" fn asn1_bit_string_length(
     *out_padding_bits = padding_bits;
     return len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_BIT_STRING_num_bytes(
     mut str: *const ASN1_BIT_STRING,
     mut out: *mut size_t,
@@ -169,7 +169,7 @@ pub unsafe extern "C" fn ASN1_BIT_STRING_num_bytes(
     *out = len as size_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2c_ASN1_BIT_STRING(
     mut a: *const ASN1_BIT_STRING,
     mut pp: *mut *mut libc::c_uchar,
@@ -212,7 +212,7 @@ pub unsafe extern "C" fn i2c_ASN1_BIT_STRING(
     *pp = p;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn c2i_ASN1_BIT_STRING(
     mut a: *mut *mut ASN1_BIT_STRING,
     mut pp: *mut *const libc::c_uchar,
@@ -321,7 +321,7 @@ pub unsafe extern "C" fn c2i_ASN1_BIT_STRING(
     }
     return 0 as *mut ASN1_BIT_STRING;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_BIT_STRING_set_bit(
     mut a: *mut ASN1_BIT_STRING,
     mut n: libc::c_int,
@@ -379,7 +379,7 @@ pub unsafe extern "C" fn ASN1_BIT_STRING_set_bit(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_BIT_STRING_get_bit(
     mut a: *const ASN1_BIT_STRING,
     mut n: libc::c_int,
@@ -394,7 +394,7 @@ pub unsafe extern "C" fn ASN1_BIT_STRING_get_bit(
     return (*((*a).data).offset(w as isize) as libc::c_int & v != 0 as libc::c_int)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_BIT_STRING_check(
     mut a: *const ASN1_BIT_STRING,
     mut flags: *const libc::c_uchar,

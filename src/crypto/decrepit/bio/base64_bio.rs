@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     fn __assert_fail(
         __assertion: *const libc::c_char,
@@ -1377,7 +1376,7 @@ static mut b64_method: BIO_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_f_base64() -> *const BIO_METHOD {
     return &b64_method;
 }

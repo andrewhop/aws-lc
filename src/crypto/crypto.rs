@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ossl_init_settings_st;
     fn abort() -> !;
     fn RAND_bytes(buf: *mut uint8_t, len: size_t) -> libc::c_int;
@@ -27,19 +26,19 @@ pub type OPENSSL_INIT_SETTINGS = ossl_init_settings_st;
 pub type CRYPTO_once_t = pthread_once_t;
 static mut once: CRYPTO_once_t = 0 as libc::c_int;
 unsafe extern "C" fn do_library_init() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_library_init() {
     CRYPTO_once(&mut once, Some(do_library_init as unsafe extern "C" fn() -> ()));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_is_confidential_build() -> libc::c_int {
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_has_asm() -> libc::c_int {
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_pre_sandbox_init() {
     CRYPTO_library_init();
     let mut buf: [uint8_t; 10] = [0; 10];
@@ -47,11 +46,11 @@ pub unsafe extern "C" fn CRYPTO_pre_sandbox_init() {
         abort();
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SSLeay_version(mut which: libc::c_int) -> *const libc::c_char {
     return OpenSSL_version(which);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OpenSSL_version(mut which: libc::c_int) -> *const libc::c_char {
     match which {
         0 => return b"AWS-LC 1.52.1\0" as *const u8 as *const libc::c_char,
@@ -62,35 +61,35 @@ pub unsafe extern "C" fn OpenSSL_version(mut which: libc::c_int) -> *const libc:
         _ => return b"not available\0" as *const u8 as *const libc::c_char,
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SSLeay() -> libc::c_ulong {
     return 0x1010107f as libc::c_int as libc::c_ulong;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OpenSSL_version_num() -> libc::c_ulong {
     return 0x1010107f as libc::c_int as libc::c_ulong;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn awslc_api_version_num() -> libc::c_ulong {
     return 34 as libc::c_int as libc::c_ulong;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_malloc_init() -> libc::c_int {
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_malloc_init() -> libc::c_int {
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ENGINE_load_builtin_engines() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ENGINE_register_all_complete() -> libc::c_int {
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_load_builtin_modules() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_init_crypto(
     mut opts: uint64_t,
     mut settings: *const OPENSSL_INIT_SETTINGS,
@@ -98,7 +97,7 @@ pub unsafe extern "C" fn OPENSSL_init_crypto(
     CRYPTO_library_init();
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_init() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_cleanup() {}

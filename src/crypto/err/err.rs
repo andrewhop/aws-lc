@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(c_variadic, extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
     pub type _IO_marker;
@@ -453,7 +453,7 @@ unsafe extern "C" fn get_error_values(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_get_error() -> uint32_t {
     return get_error_values(
         1 as libc::c_int,
@@ -464,7 +464,7 @@ pub unsafe extern "C" fn ERR_get_error() -> uint32_t {
         0 as *mut libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_get_error_line(
     mut file: *mut *const libc::c_char,
     mut line: *mut libc::c_int,
@@ -478,7 +478,7 @@ pub unsafe extern "C" fn ERR_get_error_line(
         0 as *mut libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_get_error_line_data(
     mut file: *mut *const libc::c_char,
     mut line: *mut libc::c_int,
@@ -487,7 +487,7 @@ pub unsafe extern "C" fn ERR_get_error_line_data(
 ) -> uint32_t {
     return get_error_values(1 as libc::c_int, 0 as libc::c_int, file, line, data, flags);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_peek_error() -> uint32_t {
     return get_error_values(
         0 as libc::c_int,
@@ -498,7 +498,7 @@ pub unsafe extern "C" fn ERR_peek_error() -> uint32_t {
         0 as *mut libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_peek_error_line(
     mut file: *mut *const libc::c_char,
     mut line: *mut libc::c_int,
@@ -512,7 +512,7 @@ pub unsafe extern "C" fn ERR_peek_error_line(
         0 as *mut libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_peek_error_line_data(
     mut file: *mut *const libc::c_char,
     mut line: *mut libc::c_int,
@@ -521,7 +521,7 @@ pub unsafe extern "C" fn ERR_peek_error_line_data(
 ) -> uint32_t {
     return get_error_values(0 as libc::c_int, 0 as libc::c_int, file, line, data, flags);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_peek_last_error() -> uint32_t {
     return get_error_values(
         0 as libc::c_int,
@@ -532,7 +532,7 @@ pub unsafe extern "C" fn ERR_peek_last_error() -> uint32_t {
         0 as *mut libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_peek_last_error_line(
     mut file: *mut *const libc::c_char,
     mut line: *mut libc::c_int,
@@ -546,7 +546,7 @@ pub unsafe extern "C" fn ERR_peek_last_error_line(
         0 as *mut libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_peek_last_error_line_data(
     mut file: *mut *const libc::c_char,
     mut line: *mut libc::c_int,
@@ -555,7 +555,7 @@ pub unsafe extern "C" fn ERR_peek_last_error_line_data(
 ) -> uint32_t {
     return get_error_values(0 as libc::c_int, 1 as libc::c_int, file, line, data, flags);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_clear_error() {
     let state: *mut ERR_STATE = err_get_state();
     let mut i: libc::c_uint = 0;
@@ -573,7 +573,7 @@ pub unsafe extern "C" fn ERR_clear_error() {
     (*state).bottom = 0 as libc::c_int as libc::c_uint;
     (*state).top = (*state).bottom;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_remove_thread_state(mut tid: *const CRYPTO_THREADID) {
     if !tid.is_null() {
         __assert_fail(
@@ -604,7 +604,7 @@ pub unsafe extern "C" fn ERR_remove_thread_state(mut tid: *const CRYPTO_THREADID
     }
     ERR_clear_error();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_get_next_error_library() -> libc::c_int {
     let mut ret: libc::c_int = 0;
     CRYPTO_STATIC_MUTEX_lock_write(&mut global_next_library_mutex);
@@ -614,11 +614,11 @@ pub unsafe extern "C" fn ERR_get_next_error_library() -> libc::c_int {
     CRYPTO_STATIC_MUTEX_unlock_write(&mut global_next_library_mutex);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_remove_state(mut pid: libc::c_ulong) {
     ERR_clear_error();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_clear_system_error() {
     *__errno_location() = 0 as libc::c_int;
 }
@@ -713,7 +713,7 @@ unsafe extern "C" fn err_lib_error_string(
     }
     return kLibraryNames[lib as usize];
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_lib_error_string(
     mut packed_error: uint32_t,
 ) -> *const libc::c_char {
@@ -724,7 +724,7 @@ pub unsafe extern "C" fn ERR_lib_error_string(
         ret
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_func_error_string(
     mut packed_error: uint32_t,
 ) -> *const libc::c_char {
@@ -765,7 +765,7 @@ unsafe extern "C" fn err_reason_error_string(
         kOpenSSLReasonStringData.as_ptr(),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_reason_error_string(
     mut packed_error: uint32_t,
 ) -> *const libc::c_char {
@@ -776,7 +776,7 @@ pub unsafe extern "C" fn ERR_reason_error_string(
         ret
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_error_string(
     mut packed_error: uint32_t,
     mut ret: *mut libc::c_char,
@@ -792,7 +792,7 @@ pub unsafe extern "C" fn ERR_error_string(
     );
     return ERR_error_string_n(packed_error, ret, 120 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_error_string_n(
     mut packed_error: uint32_t,
     mut buf: *mut libc::c_char,
@@ -864,7 +864,7 @@ pub unsafe extern "C" fn ERR_error_string_n(
     }
     return buf;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_print_errors_cb(
     mut callback: ERR_print_errors_callback_t,
     mut ctx: *mut libc::c_void,
@@ -952,7 +952,7 @@ unsafe extern "C" fn print_errors_to_file(
     let mut res: libc::c_int = fputs(msg, fp);
     return if res < 0 as libc::c_int { 0 as libc::c_int } else { 1 as libc::c_int };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_print_errors_fp(mut file: *mut FILE) {
     ERR_print_errors_cb(
         Some(
@@ -978,7 +978,7 @@ unsafe extern "C" fn err_set_error_data(mut data: *mut libc::c_char) {
     free((*error).data as *mut libc::c_void);
     (*error).data = data;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_put_error(
     mut library: libc::c_int,
     mut unused: libc::c_int,
@@ -1086,13 +1086,13 @@ unsafe extern "C" fn err_add_error_vdata(
     }
     err_set_error_data(buf);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_add_error_data(mut count: libc::c_uint, mut args: ...) {
     let mut args_0: ::core::ffi::VaListImpl;
     args_0 = args.clone();
     err_add_error_vdata(count, args_0.as_va_list());
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_add_error_dataf(
     mut format: *const libc::c_char,
     mut args: ...
@@ -1107,7 +1107,7 @@ pub unsafe extern "C" fn ERR_add_error_dataf(
     }
     err_set_error_data(buf);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_set_error_data(
     mut data: *mut libc::c_char,
     mut flags: libc::c_int,
@@ -1147,7 +1147,7 @@ pub unsafe extern "C" fn ERR_set_error_data(
         OPENSSL_free(data as *mut libc::c_void);
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_set_mark() -> libc::c_int {
     let state: *mut ERR_STATE = err_get_state();
     if state.is_null() || (*state).bottom == (*state).top {
@@ -1156,7 +1156,7 @@ pub unsafe extern "C" fn ERR_set_mark() -> libc::c_int {
     ((*state).errors[(*state).top as usize]).set_mark(1 as libc::c_int as libc::c_uint);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_pop_to_mark() -> libc::c_int {
     let state: *mut ERR_STATE = err_get_state();
     if state.is_null() {
@@ -1180,19 +1180,19 @@ pub unsafe extern "C" fn ERR_pop_to_mark() -> libc::c_int {
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_load_CRYPTO_strings() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_load_crypto_strings() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_free_strings() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_load_BIO_strings() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_load_ERR_strings() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_load_RAND_strings() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_SAVE_STATE_free(mut state: *mut ERR_SAVE_STATE) {
     if state.is_null() {
         return;
@@ -1206,7 +1206,7 @@ pub unsafe extern "C" fn ERR_SAVE_STATE_free(mut state: *mut ERR_SAVE_STATE) {
     free((*state).errors as *mut libc::c_void);
     free(state as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_save_state() -> *mut ERR_SAVE_STATE {
     let state: *mut ERR_STATE = err_get_state();
     if state.is_null() || (*state).top == (*state).bottom {
@@ -1281,7 +1281,7 @@ pub unsafe extern "C" fn ERR_save_state() -> *mut ERR_SAVE_STATE {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ERR_restore_state(mut state: *const ERR_SAVE_STATE) {
     if state.is_null() || (*state).num_errors == 0 as libc::c_int as size_t {
         ERR_clear_error();

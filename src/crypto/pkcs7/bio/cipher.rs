@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     pub type engine_st;
     fn BIO_read(bio: *mut BIO, data: *mut libc::c_void, len: libc::c_int) -> libc::c_int;
@@ -738,7 +737,7 @@ unsafe extern "C" fn enc_ctrl(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_cipher(
     mut b: *mut BIO,
     mut c: *const EVP_CIPHER,
@@ -853,11 +852,11 @@ static mut methods_enc: BIO_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_f_cipher() -> *const BIO_METHOD {
     return &methods_enc;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_get_cipher_ctx(
     mut b: *mut BIO,
     mut ctx: *mut *mut EVP_CIPHER_CTX,
@@ -869,7 +868,7 @@ pub unsafe extern "C" fn BIO_get_cipher_ctx(
         ctx as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_get_cipher_status(mut b: *mut BIO) -> libc::c_int {
     return BIO_ctrl(
         b,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type X509_crl_st;
     pub type evp_cipher_st;
     pub type evp_pkey_st;
@@ -335,7 +334,7 @@ unsafe extern "C" fn X509_INFO_new() -> *mut X509_INFO {
     return OPENSSL_zalloc(::core::mem::size_of::<X509_INFO>() as libc::c_ulong)
         as *mut X509_INFO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_INFO_free(mut x: *mut X509_INFO) {
     if x.is_null() {
         return;
@@ -346,7 +345,7 @@ pub unsafe extern "C" fn X509_INFO_free(mut x: *mut X509_INFO) {
     OPENSSL_free((*x).enc_data as *mut libc::c_void);
     OPENSSL_free(x as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_X509_INFO_read(
     mut fp: *mut FILE,
     mut sk: *mut stack_st_X509_INFO,
@@ -443,7 +442,7 @@ unsafe extern "C" fn parse_key(
         parse_error as libc::c_int
     }) as parse_result_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_X509_INFO_read_bio(
     mut bp: *mut BIO,
     mut sk: *mut stack_st_X509_INFO,
@@ -697,7 +696,7 @@ pub unsafe extern "C" fn PEM_X509_INFO_read_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_X509_INFO_write_bio(
     mut bp: *mut BIO,
     mut xi: *mut X509_INFO,

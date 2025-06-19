@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     fn BIO_write(
         bio: *mut BIO,
@@ -205,7 +204,7 @@ pub struct cbs_st {
     pub len: size_t,
 }
 pub type CBS = cbs_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_ASN1_OBJECT(
     mut in_0: *const ASN1_OBJECT,
     mut outp: *mut *mut libc::c_uchar,
@@ -269,7 +268,7 @@ pub unsafe extern "C" fn i2d_ASN1_OBJECT(
     }
     return CBB_finish_i2d(&mut cbb, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2t_ASN1_OBJECT(
     mut buf: *mut libc::c_char,
     mut buf_len: libc::c_int,
@@ -301,7 +300,7 @@ unsafe extern "C" fn write_str(
         -(1 as libc::c_int)
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2a_ASN1_OBJECT(
     mut bp: *mut BIO,
     mut a: *const ASN1_OBJECT,
@@ -336,7 +335,7 @@ pub unsafe extern "C" fn i2a_ASN1_OBJECT(
     OPENSSL_free(allocated as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_ASN1_OBJECT(
     mut out: *mut *mut ASN1_OBJECT,
     mut inp: *mut *const libc::c_uchar,
@@ -408,7 +407,7 @@ pub unsafe extern "C" fn d2i_ASN1_OBJECT(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn c2i_ASN1_OBJECT(
     mut out: *mut *mut ASN1_OBJECT,
     mut inp: *mut *const libc::c_uchar,
@@ -458,7 +457,7 @@ pub unsafe extern "C" fn c2i_ASN1_OBJECT(
     *inp = (*inp).offset(len as isize);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_OBJECT_new() -> *mut ASN1_OBJECT {
     let mut ret: *mut ASN1_OBJECT = 0 as *mut ASN1_OBJECT;
     ret = OPENSSL_zalloc(::core::mem::size_of::<ASN1_OBJECT>() as libc::c_ulong)
@@ -469,7 +468,7 @@ pub unsafe extern "C" fn ASN1_OBJECT_new() -> *mut ASN1_OBJECT {
     (*ret).flags = 0x1 as libc::c_int;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_OBJECT_free(mut a: *mut ASN1_OBJECT) {
     if a.is_null() {
         return;
@@ -489,7 +488,7 @@ pub unsafe extern "C" fn ASN1_OBJECT_free(mut a: *mut ASN1_OBJECT) {
         OPENSSL_free(a as *mut libc::c_void);
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_OBJECT_create(
     mut nid: libc::c_int,
     mut data: *const libc::c_uchar,

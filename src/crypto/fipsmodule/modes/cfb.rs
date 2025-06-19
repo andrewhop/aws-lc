@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn __assert_fail(
         __assertion: *const libc::c_char,
         __file: *const libc::c_char,
@@ -73,7 +73,7 @@ unsafe extern "C" fn CRYPTO_store_word_le(
         ::core::mem::size_of::<crypto_word_t>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_cfb128_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -312,7 +312,7 @@ unsafe extern "C" fn cfbr_encrypt_block(
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_cfb128_1_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -429,7 +429,7 @@ pub unsafe extern "C" fn CRYPTO_cfb128_1_encrypt(
         n;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_cfb128_8_encrypt(
     mut in_0: *const libc::c_uchar,
     mut out: *mut libc::c_uchar,

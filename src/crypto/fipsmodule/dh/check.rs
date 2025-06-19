@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn BN_copy(dest: *mut BIGNUM, src: *const BIGNUM) -> *mut BIGNUM;
     fn BN_value_one() -> *const BIGNUM;
@@ -122,7 +121,7 @@ pub union crypto_mutex_st {
     pub padding: [uint8_t; 56],
 }
 pub type DH = dh_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn dh_check_params_fast(mut dh: *const DH) -> libc::c_int {
     if BN_is_negative((*dh).p) != 0 || BN_is_odd((*dh).p) == 0
         || BN_num_bits((*dh).p) > 10000 as libc::c_int as libc::c_uint
@@ -165,7 +164,7 @@ pub unsafe extern "C" fn dh_check_params_fast(mut dh: *const DH) -> libc::c_int 
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_check_pub_key(
     mut dh: *const DH,
     mut pub_key: *const BIGNUM,
@@ -223,7 +222,7 @@ pub unsafe extern "C" fn DH_check_pub_key(
     BN_CTX_free(ctx);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_check(
     mut dh: *const DH,
     mut out_flags: *mut libc::c_int,

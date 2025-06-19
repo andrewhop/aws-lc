@@ -10,7 +10,7 @@
 pub type __uint64_t = libc::c_ulong;
 pub type uint64_t = __uint64_t;
 pub type crypto_word_t = uint64_t;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_nistp_recode_scalar_bits(
     mut sign: *mut crypto_word_t,
     mut digit: *mut crypto_word_t,

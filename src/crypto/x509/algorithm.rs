@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type kem_key_st;
     pub type ec_key_st;
@@ -529,7 +528,7 @@ unsafe extern "C" fn x509_digest_nid_ok(digest_nid: libc::c_int) -> libc::c_int 
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x509_digest_sign_algorithm(
     mut ctx: *mut EVP_MD_CTX,
     mut algor: *mut X509_ALGOR,
@@ -610,7 +609,7 @@ pub unsafe extern "C" fn x509_digest_sign_algorithm(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x509_digest_verify_init(
     mut ctx: *mut EVP_MD_CTX,
     mut sigalg: *const X509_ALGOR,

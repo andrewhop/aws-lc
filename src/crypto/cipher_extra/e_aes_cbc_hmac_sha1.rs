@@ -67,11 +67,11 @@ pub struct evp_cipher_st {
     >,
 }
 pub type EVP_CIPHER_CTX = evp_cipher_ctx_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_128_cbc_hmac_sha1() -> *const EVP_CIPHER {
     return 0 as *const EVP_CIPHER;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_256_cbc_hmac_sha1() -> *const EVP_CIPHER {
     return 0 as *const EVP_CIPHER;
 }

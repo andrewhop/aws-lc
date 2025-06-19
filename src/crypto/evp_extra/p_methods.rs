@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     pub type dsa_st;
     pub type ec_key_st;
@@ -330,7 +329,7 @@ static mut non_fips_pkey_evp_methods: [*const EVP_PKEY_METHOD; 3] = unsafe {
         &dsa_pkey_meth as *const EVP_PKEY_METHOD,
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut asn1_evp_pkey_methods: [*const EVP_PKEY_ASN1_METHOD; 11] = unsafe {
     [
         &rsa_asn1_meth as *const EVP_PKEY_ASN1_METHOD,
@@ -346,13 +345,13 @@ pub static mut asn1_evp_pkey_methods: [*const EVP_PKEY_ASN1_METHOD; 11] = unsafe
         &ed25519ph_asn1_meth as *const EVP_PKEY_ASN1_METHOD,
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut asn1_evp_pkey_methods_size: size_t = 0;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AWSLC_non_fips_pkey_evp_methods() -> *const *const EVP_PKEY_METHOD {
     return non_fips_pkey_evp_methods.as_ptr();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AWSLC_non_fips_pkey_evp_asn1_methods() -> *const *const EVP_PKEY_ASN1_METHOD {
     return asn1_evp_pkey_methods.as_ptr();
 }

@@ -9,7 +9,7 @@
 )]
 #![feature(asm, extern_types, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     pub type stack_st_void;
     pub type engine_st;
@@ -661,11 +661,11 @@ unsafe extern "C" fn ec_wrapped_scalar_new(
 unsafe extern "C" fn ec_wrapped_scalar_free(mut scalar: *mut EC_WRAPPED_SCALAR) {
     OPENSSL_free(scalar as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_new() -> *mut EC_KEY {
     return EC_KEY_new_method(0 as *const ENGINE);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_new_method(mut engine: *const ENGINE) -> *mut EC_KEY {
     let mut ret: *mut EC_KEY = OPENSSL_zalloc(
         ::core::mem::size_of::<EC_KEY>() as libc::c_ulong,
@@ -695,7 +695,7 @@ pub unsafe extern "C" fn EC_KEY_new_method(mut engine: *const ENGINE) -> *mut EC
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_new_by_curve_name(mut nid: libc::c_int) -> *mut EC_KEY {
     let mut ret: *mut EC_KEY = EC_KEY_new();
     if ret.is_null() {
@@ -708,7 +708,7 @@ pub unsafe extern "C" fn EC_KEY_new_by_curve_name(mut nid: libc::c_int) -> *mut 
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_free(mut r: *mut EC_KEY) {
     if r.is_null() {
         return;
@@ -729,7 +729,7 @@ pub unsafe extern "C" fn EC_KEY_free(mut r: *mut EC_KEY) {
     ec_wrapped_scalar_free((*r).priv_key);
     OPENSSL_free(r as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_dup(mut src: *const EC_KEY) -> *mut EC_KEY {
     if src.is_null() {
         ERR_put_error(
@@ -758,21 +758,21 @@ pub unsafe extern "C" fn EC_KEY_dup(mut src: *const EC_KEY) -> *mut EC_KEY {
     (*ret).conv_form = (*src).conv_form;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_up_ref(mut r: *mut EC_KEY) -> libc::c_int {
     CRYPTO_refcount_inc(&mut (*r).references);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_is_opaque(mut key: *const EC_KEY) -> libc::c_int {
     return (!((*key).eckey_method).is_null()
         && (*(*key).eckey_method).flags & 1 as libc::c_int != 0) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_get0_group(mut key: *const EC_KEY) -> *const EC_GROUP {
     return (*key).group;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_set_group(
     mut key: *mut EC_KEY,
     mut group: *const EC_GROUP,
@@ -851,7 +851,7 @@ pub unsafe extern "C" fn EC_KEY_set_group(
     (*key).group = EC_GROUP_dup(group);
     return ((*key).group != 0 as *mut libc::c_void as *mut EC_GROUP) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_get0_private_key(
     mut key: *const EC_KEY,
 ) -> *const BIGNUM {
@@ -861,7 +861,7 @@ pub unsafe extern "C" fn EC_KEY_get0_private_key(
         0 as *mut BIGNUM
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_set_private_key(
     mut key: *mut EC_KEY,
     mut priv_key: *const BIGNUM,
@@ -901,13 +901,13 @@ pub unsafe extern "C" fn EC_KEY_set_private_key(
     (*key).priv_key = scalar;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_get0_public_key(
     mut key: *const EC_KEY,
 ) -> *const EC_POINT {
     return (*key).pub_key;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_set_public_key(
     mut key: *mut EC_KEY,
     mut pub_key: *const EC_POINT,
@@ -941,24 +941,24 @@ pub unsafe extern "C" fn EC_KEY_set_public_key(
     (*key).pub_key = EC_POINT_dup(pub_key, (*key).group);
     return if ((*key).pub_key).is_null() { 0 as libc::c_int } else { 1 as libc::c_int };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_get_enc_flags(mut key: *const EC_KEY) -> libc::c_uint {
     return (*key).enc_flag;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_set_enc_flags(
     mut key: *mut EC_KEY,
     mut flags: libc::c_uint,
 ) {
     (*key).enc_flag = flags;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_get_conv_form(
     mut key: *const EC_KEY,
 ) -> point_conversion_form_t {
     return (*key).conv_form;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_set_conv_form(
     mut key: *mut EC_KEY,
     mut cform: point_conversion_form_t,
@@ -979,7 +979,7 @@ pub unsafe extern "C" fn EC_KEY_set_conv_form(
         (*(*key).group).conv_form = cform;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_check_key(mut eckey: *const EC_KEY) -> libc::c_int {
     if eckey.is_null() || ((*eckey).group).is_null() || ((*eckey).pub_key).is_null() {
         ERR_put_error(
@@ -1149,7 +1149,7 @@ unsafe extern "C" fn EVP_EC_KEY_check_fips(mut key: *mut EC_KEY) -> libc::c_int 
     OPENSSL_free(sig_der as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_check_fips(mut key: *const EC_KEY) -> libc::c_int {
     let mut pub_key: *mut EC_POINT = 0 as *mut EC_POINT;
     let mut group: *mut EC_GROUP = 0 as *mut EC_GROUP;
@@ -1245,7 +1245,7 @@ pub unsafe extern "C" fn EC_KEY_check_fips(mut key: *const EC_KEY) -> libc::c_in
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_set_public_key_affine_coordinates(
     mut key: *mut EC_KEY,
     mut x: *const BIGNUM,
@@ -1279,7 +1279,7 @@ pub unsafe extern "C" fn EC_KEY_set_public_key_affine_coordinates(
     EC_POINT_free(point);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_key2buf(
     mut key: *const EC_KEY,
     mut form: point_conversion_form_t,
@@ -1311,7 +1311,7 @@ pub unsafe extern "C" fn EC_KEY_key2buf(
     *out_buf = buf;
     return len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_generate_key(mut key: *mut EC_KEY) -> libc::c_int {
     if key.is_null() || ((*key).group).is_null() {
         ERR_put_error(
@@ -1393,7 +1393,7 @@ pub unsafe extern "C" fn EC_KEY_generate_key(mut key: *mut EC_KEY) -> libc::c_in
     (*key).pub_key = pub_key;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_generate_key_fips(
     mut eckey: *mut EC_KEY,
 ) -> libc::c_int {
@@ -1414,7 +1414,7 @@ pub unsafe extern "C" fn EC_KEY_generate_key_fips(
     (*eckey).priv_key = 0 as *mut EC_WRAPPED_SCALAR;
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_get_ex_new_index(
     mut argl: libc::c_long,
     mut argp: *mut libc::c_void,
@@ -1435,7 +1435,7 @@ pub unsafe extern "C" fn EC_KEY_get_ex_new_index(
     }
     return index;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_set_ex_data(
     mut d: *mut EC_KEY,
     mut idx: libc::c_int,
@@ -1443,20 +1443,20 @@ pub unsafe extern "C" fn EC_KEY_set_ex_data(
 ) -> libc::c_int {
     return CRYPTO_set_ex_data(&mut (*d).ex_data, idx, arg);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_get_ex_data(
     mut d: *const EC_KEY,
     mut idx: libc::c_int,
 ) -> *mut libc::c_void {
     return CRYPTO_get_ex_data(&(*d).ex_data, idx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_set_asn1_flag(
     mut key: *mut EC_KEY,
     mut flag: libc::c_int,
 ) {}
 static mut EC_KEY_OpenSSL_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_OpenSSL() -> *const EC_KEY_METHOD {
     CRYPTO_once(
         EC_KEY_OpenSSL_once_bss_get(),
@@ -1487,11 +1487,11 @@ static mut EC_KEY_OpenSSL_storage: EC_KEY_METHOD = ec_key_method_st {
     sign_sig: None,
     flags: 0,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_get_default_method() -> *const EC_KEY_METHOD {
     return EC_KEY_OpenSSL();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_METHOD_new(
     mut eckey_meth: *const EC_KEY_METHOD,
 ) -> *mut EC_KEY_METHOD {
@@ -1506,13 +1506,13 @@ pub unsafe extern "C" fn EC_KEY_METHOD_new(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_METHOD_free(mut eckey_meth: *mut EC_KEY_METHOD) {
     if !eckey_meth.is_null() {
         OPENSSL_free(eckey_meth as *mut libc::c_void);
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_set_method(
     mut ec: *mut EC_KEY,
     mut meth: *const EC_KEY_METHOD,
@@ -1531,7 +1531,7 @@ pub unsafe extern "C" fn EC_KEY_set_method(
     (*ec).eckey_method = meth;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_get_method(
     mut ec: *const EC_KEY,
 ) -> *const EC_KEY_METHOD {
@@ -1548,7 +1548,7 @@ pub unsafe extern "C" fn EC_KEY_get_method(
     }
     return (*ec).eckey_method;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_METHOD_set_init_awslc(
     mut meth: *mut EC_KEY_METHOD,
     mut init: Option::<unsafe extern "C" fn(*mut EC_KEY) -> libc::c_int>,
@@ -1568,7 +1568,7 @@ pub unsafe extern "C" fn EC_KEY_METHOD_set_init_awslc(
     (*meth).init = init;
     (*meth).finish = finish;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_METHOD_set_sign_awslc(
     mut meth: *mut EC_KEY_METHOD,
     mut sign: Option::<
@@ -1607,7 +1607,7 @@ pub unsafe extern "C" fn EC_KEY_METHOD_set_sign_awslc(
     (*meth).sign = sign;
     (*meth).sign_sig = sign_sig;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_METHOD_set_flags(
     mut meth: *mut EC_KEY_METHOD,
     mut flags: libc::c_int,

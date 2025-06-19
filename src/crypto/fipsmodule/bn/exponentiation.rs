@@ -9,7 +9,7 @@
 )]
 #![feature(asm, extern_types, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn abort() -> !;
     fn BN_init(bn: *mut BIGNUM);
@@ -350,7 +350,7 @@ unsafe extern "C" fn exponentiation_s2n_bignum_copy_from_prebuf(
 ) {
     abort();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_exp(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -862,7 +862,7 @@ unsafe extern "C" fn mod_exp_recp(
     BN_RECP_CTX_free(&mut recp);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_exp(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -892,7 +892,7 @@ pub unsafe extern "C" fn BN_mod_exp(
     }
     return mod_exp_recp(r, a, p, m, ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_exp_mont(
     mut rr: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -1194,7 +1194,7 @@ pub unsafe extern "C" fn BN_mod_exp_mont(
     BN_CTX_end(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mod_exp_mont_small(
     mut r: *mut BN_ULONG,
     mut a: *const BN_ULONG,
@@ -1489,7 +1489,7 @@ pub unsafe extern "C" fn bn_mod_exp_mont_small(
         ::core::mem::size_of::<[[BN_ULONG; 9]; 16]>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mod_inverse0_prime_mont_small(
     mut r: *mut BN_ULONG,
     mut a: *const BN_ULONG,
@@ -1606,7 +1606,7 @@ unsafe extern "C" fn copy_from_prebuf(
     (*b).width = top;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_exp_mont_consttime(
     mut rr: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -2025,7 +2025,7 @@ pub unsafe extern "C" fn BN_mod_exp_mont_consttime(
     OPENSSL_free(powerbuf_free as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_exp_mont_consttime_x2(
     mut rr1: *mut BIGNUM,
     mut a1: *const BIGNUM,
@@ -2044,7 +2044,7 @@ pub unsafe extern "C" fn BN_mod_exp_mont_consttime_x2(
     ret &= BN_mod_exp_mont_consttime(rr2, a2, p2, m2, ctx, in_mont2);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_exp_mont_word(
     mut rr: *mut BIGNUM,
     mut a: BN_ULONG,
@@ -2080,7 +2080,7 @@ pub unsafe extern "C" fn BN_mod_exp_mont_word(
     BN_free(&mut a_bignum);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_exp2_mont(
     mut rr: *mut BIGNUM,
     mut a1: *const BIGNUM,

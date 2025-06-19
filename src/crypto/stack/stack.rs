@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn qsort(
         __base: *mut libc::c_void,
         __nmemb: size_t,
@@ -114,7 +114,7 @@ unsafe extern "C" fn OPENSSL_memset(
     return memset(dst, c, n);
 }
 static mut kMinSize: size_t = 4 as libc::c_int as size_t;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_new(
     mut comp: OPENSSL_sk_cmp_func,
 ) -> *mut OPENSSL_STACK {
@@ -138,18 +138,18 @@ pub unsafe extern "C" fn OPENSSL_sk_new(
         return ret;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_new_null() -> *mut OPENSSL_STACK {
     return OPENSSL_sk_new(None);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_num(mut sk: *const OPENSSL_STACK) -> size_t {
     if sk.is_null() {
         return 0 as libc::c_int as size_t;
     }
     return (*sk).num;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_zero(mut sk: *mut OPENSSL_STACK) {
     if sk.is_null() || (*sk).num == 0 as libc::c_int as size_t {
         return;
@@ -163,7 +163,7 @@ pub unsafe extern "C" fn OPENSSL_sk_zero(mut sk: *mut OPENSSL_STACK) {
     (*sk).num = 0 as libc::c_int as size_t;
     (*sk).sorted = 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_value(
     mut sk: *const OPENSSL_STACK,
     mut i: size_t,
@@ -173,7 +173,7 @@ pub unsafe extern "C" fn OPENSSL_sk_value(
     }
     return *((*sk).data).offset(i as isize);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_set(
     mut sk: *mut OPENSSL_STACK,
     mut i: size_t,
@@ -186,7 +186,7 @@ pub unsafe extern "C" fn OPENSSL_sk_set(
     *fresh0 = value;
     return *fresh0;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_free(mut sk: *mut OPENSSL_STACK) {
     if sk.is_null() {
         return;
@@ -194,7 +194,7 @@ pub unsafe extern "C" fn OPENSSL_sk_free(mut sk: *mut OPENSSL_STACK) {
     OPENSSL_free((*sk).data as *mut libc::c_void);
     OPENSSL_free(sk as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_pop_free_ex(
     mut sk: *mut OPENSSL_STACK,
     mut call_free_func: OPENSSL_sk_call_free_func,
@@ -222,7 +222,7 @@ unsafe extern "C" fn call_free_func_legacy(
 ) {
     func.expect("non-null function pointer")(ptr);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn sk_pop_free(
     mut sk: *mut OPENSSL_STACK,
     mut free_func: OPENSSL_sk_free_func,
@@ -236,7 +236,7 @@ pub unsafe extern "C" fn sk_pop_free(
         free_func,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_insert(
     mut sk: *mut OPENSSL_STACK,
     mut p: *mut libc::c_void,
@@ -310,7 +310,7 @@ pub unsafe extern "C" fn OPENSSL_sk_insert(
     (*sk).sorted = 0 as libc::c_int;
     return (*sk).num;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_delete(
     mut sk: *mut OPENSSL_STACK,
     mut where_0: size_t,
@@ -339,7 +339,7 @@ pub unsafe extern "C" fn OPENSSL_sk_delete(
     (*sk).num;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_delete_ptr(
     mut sk: *mut OPENSSL_STACK,
     mut p: *const libc::c_void,
@@ -357,7 +357,7 @@ pub unsafe extern "C" fn OPENSSL_sk_delete_ptr(
     }
     return 0 as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_delete_if(
     mut sk: *mut OPENSSL_STACK,
     mut call_func: OPENSSL_sk_call_delete_if_func,
@@ -385,7 +385,7 @@ pub unsafe extern "C" fn OPENSSL_sk_delete_if(
     }
     (*sk).num = new_num;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_find(
     mut sk: *const OPENSSL_STACK,
     mut out_index: *mut size_t,
@@ -554,14 +554,14 @@ pub unsafe extern "C" fn OPENSSL_sk_find(
     };
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_unshift(
     mut sk: *mut OPENSSL_STACK,
     mut data: *mut libc::c_void,
 ) -> libc::c_int {
     return OPENSSL_sk_insert(sk, data, 0 as libc::c_int as size_t) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_shift(
     mut sk: *mut OPENSSL_STACK,
 ) -> *mut libc::c_void {
@@ -573,14 +573,14 @@ pub unsafe extern "C" fn OPENSSL_sk_shift(
     }
     return OPENSSL_sk_delete(sk, 0 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_push(
     mut sk: *mut OPENSSL_STACK,
     mut p: *mut libc::c_void,
 ) -> size_t {
     return OPENSSL_sk_insert(sk, p, (*sk).num);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_pop(
     mut sk: *mut OPENSSL_STACK,
 ) -> *mut libc::c_void {
@@ -592,7 +592,7 @@ pub unsafe extern "C" fn OPENSSL_sk_pop(
     }
     return OPENSSL_sk_delete(sk, ((*sk).num).wrapping_sub(1 as libc::c_int as size_t));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_dup(
     mut sk: *const OPENSSL_STACK,
 ) -> *mut OPENSSL_STACK {
@@ -622,7 +622,7 @@ pub unsafe extern "C" fn OPENSSL_sk_dup(
         return ret;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_sort(
     mut sk: *mut OPENSSL_STACK,
     mut call_cmp_func: OPENSSL_sk_call_cmp_func,
@@ -651,7 +651,7 @@ pub unsafe extern "C" fn OPENSSL_sk_sort(
     }
     (*sk).sorted = 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_is_sorted(
     mut sk: *const OPENSSL_STACK,
 ) -> libc::c_int {
@@ -662,7 +662,7 @@ pub unsafe extern "C" fn OPENSSL_sk_is_sorted(
         || ((*sk).comp).is_some() && (*sk).num < 2 as libc::c_int as size_t)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_set_cmp_func(
     mut sk: *mut OPENSSL_STACK,
     mut comp: OPENSSL_sk_cmp_func,
@@ -674,7 +674,7 @@ pub unsafe extern "C" fn OPENSSL_sk_set_cmp_func(
     (*sk).comp = comp;
     return old;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_sk_deep_copy(
     mut sk: *const OPENSSL_STACK,
     mut call_copy_func: OPENSSL_sk_call_copy_func,

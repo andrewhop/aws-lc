@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn memcpy(
         _: *mut libc::c_void,
         _: *const libc::c_void,
@@ -101,7 +101,7 @@ unsafe extern "C" fn siphash_round(mut v: *mut uint64_t) {
             2 as libc::c_int as isize,
         ) = CRYPTO_rotl_u64(*v.offset(2 as libc::c_int as isize), 32 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SIPHASH_24(
     mut key: *const uint64_t,
     mut input: *const uint8_t,

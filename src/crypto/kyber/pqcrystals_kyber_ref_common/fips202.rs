@@ -538,14 +538,14 @@ unsafe extern "C" fn keccak_squeezeblocks(
         nblocks = nblocks.wrapping_sub(1 as libc::c_int as size_t);
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake128_init(
     mut state: *mut keccak_state,
 ) {
     keccak_init(((*state).s).as_mut_ptr());
     (*state).pos = 0 as libc::c_int as libc::c_uint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake128_absorb(
     mut state: *mut keccak_state,
     mut in_0: *const uint8_t,
@@ -560,7 +560,7 @@ pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake128_absorb(
         inlen,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake128_finalize(
     mut state: *mut keccak_state,
 ) {
@@ -572,7 +572,7 @@ pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake128_finalize(
     );
     (*state).pos = 168 as libc::c_int as libc::c_uint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake128_squeeze(
     mut out: *mut uint8_t,
     mut outlen: size_t,
@@ -587,7 +587,7 @@ pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake128_squeeze(
         168 as libc::c_int as libc::c_uint,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake128_absorb_once(
     mut state: *mut keccak_state,
     mut in_0: *const uint8_t,
@@ -602,7 +602,7 @@ pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake128_absorb_once(
     );
     (*state).pos = 168 as libc::c_int as libc::c_uint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake128_squeezeblocks(
     mut out: *mut uint8_t,
     mut nblocks: size_t,
@@ -615,14 +615,14 @@ pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake128_squeezeblocks(
         168 as libc::c_int as libc::c_uint,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake256_init(
     mut state: *mut keccak_state,
 ) {
     keccak_init(((*state).s).as_mut_ptr());
     (*state).pos = 0 as libc::c_int as libc::c_uint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake256_absorb(
     mut state: *mut keccak_state,
     mut in_0: *const uint8_t,
@@ -637,7 +637,7 @@ pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake256_absorb(
         inlen,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake256_finalize(
     mut state: *mut keccak_state,
 ) {
@@ -649,7 +649,7 @@ pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake256_finalize(
     );
     (*state).pos = 136 as libc::c_int as libc::c_uint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake256_squeeze(
     mut out: *mut uint8_t,
     mut outlen: size_t,
@@ -664,7 +664,7 @@ pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake256_squeeze(
         136 as libc::c_int as libc::c_uint,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake256_absorb_once(
     mut state: *mut keccak_state,
     mut in_0: *const uint8_t,
@@ -679,7 +679,7 @@ pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake256_absorb_once(
     );
     (*state).pos = 136 as libc::c_int as libc::c_uint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake256_squeezeblocks(
     mut out: *mut uint8_t,
     mut nblocks: size_t,
@@ -692,7 +692,7 @@ pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake256_squeezeblocks(
         136 as libc::c_int as libc::c_uint,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake128(
     mut out: *mut uint8_t,
     mut outlen: size_t,
@@ -708,7 +708,7 @@ pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake128(
     out = out.offset((nblocks * 168 as libc::c_int as size_t) as isize);
     pqcrystals_kyber_fips202_ref_shake128_squeeze(out, outlen, &mut state);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake256(
     mut out: *mut uint8_t,
     mut outlen: size_t,
@@ -724,7 +724,7 @@ pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_shake256(
     out = out.offset((nblocks * 136 as libc::c_int as size_t) as isize);
     pqcrystals_kyber_fips202_ref_shake256_squeeze(out, outlen, &mut state);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_sha3_256(
     mut h: *mut uint8_t,
     mut in_0: *const uint8_t,
@@ -750,7 +750,7 @@ pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_sha3_256(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber_fips202_ref_sha3_512(
     mut h: *mut uint8_t,
     mut in_0: *const uint8_t,

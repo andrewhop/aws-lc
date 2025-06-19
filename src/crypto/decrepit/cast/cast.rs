@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     static CAST_S_table0: [uint32_t; 256];
     static CAST_S_table1: [uint32_t; 256];
     static CAST_S_table2: [uint32_t; 256];
@@ -92,7 +92,7 @@ pub struct evp_cipher_st {
     >,
 }
 pub type EVP_CIPHER_CTX = evp_cipher_ctx_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CAST_ecb_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -162,7 +162,7 @@ pub unsafe extern "C" fn CAST_ecb_encrypt(
     *fresh15 = (d[1 as libc::c_int as usize] & 0xff as libc::c_int as uint32_t)
         as libc::c_uchar;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CAST_encrypt(
     mut data: *mut uint32_t,
     mut key: *const CAST_KEY,
@@ -617,7 +617,7 @@ pub unsafe extern "C" fn CAST_encrypt(
             0 as libc::c_int as isize,
         ) = (r as libc::c_long & 0xffffffff as libc::c_long) as uint32_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CAST_decrypt(
     mut data: *mut uint32_t,
     mut key: *const CAST_KEY,
@@ -1072,7 +1072,7 @@ pub unsafe extern "C" fn CAST_decrypt(
             0 as libc::c_int as isize,
         ) = (r as libc::c_long & 0xffffffff as libc::c_long) as uint32_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CAST_cbc_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -1615,7 +1615,7 @@ pub unsafe extern "C" fn CAST_cbc_encrypt(
         ::core::mem::size_of::<[uint32_t; 2]>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CAST_set_key(
     mut key: *mut CAST_KEY,
     mut len: size_t,
@@ -2228,11 +2228,11 @@ static mut cast5_cbc: EVP_CIPHER = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_cast5_ecb() -> *const EVP_CIPHER {
     return &cast5_ecb;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_cast5_cbc() -> *const EVP_CIPHER {
     return &cast5_cbc;
 }

@@ -9,7 +9,7 @@
 )]
 #![feature(asm)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn ec_GFp_simple_is_at_infinity(
         _: *const EC_GROUP,
         _: *const EC_JACOBIAN,
@@ -13088,7 +13088,7 @@ static mut p521_g_pre_comp: [[[p521_felem; 2]; 16]; 27] = [
 unsafe extern "C" fn p521_methods_storage_bss_get() -> *mut ec_nistp_meth {
     return &mut p521_methods_storage;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn p521_methods() -> *const ec_nistp_meth {
     CRYPTO_once(
         p521_methods_once_bss_get(),
@@ -13607,7 +13607,7 @@ unsafe extern "C" fn EC_GFp_nistp521_method_do_init(mut out: *mut EC_METHOD) {
             ) -> libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GFp_nistp521_method() -> *const EC_METHOD {
     CRYPTO_once(
         EC_GFp_nistp521_method_once_bss_get(),

@@ -9,7 +9,7 @@
 )]
 #![feature(asm, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn ec_GFp_simple_is_at_infinity(
         _: *const EC_GROUP,
         _: *const EC_JACOBIAN,
@@ -2633,7 +2633,7 @@ static mut EC_GFp_nistp224_method_storage: EC_METHOD = ec_method_st {
     scalar_to_montgomery_inv_vartime: None,
     cmp_x_coordinate: None,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GFp_nistp224_method() -> *const EC_METHOD {
     CRYPTO_once(
         EC_GFp_nistp224_method_once_bss_get(),

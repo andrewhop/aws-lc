@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -871,7 +870,7 @@ unsafe extern "C" fn sk_CONF_VALUE_pop_free(
         >(free_func),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_crld: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {
@@ -908,7 +907,7 @@ pub static mut v3_crld: X509V3_EXT_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_freshest_crl: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {
@@ -1512,7 +1511,7 @@ static mut DIST_POINT_NAME_ch_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut DIST_POINT_NAME_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -1522,11 +1521,11 @@ pub static mut DIST_POINT_NAME_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DIST_POINT_NAME_free(mut a: *mut DIST_POINT_NAME) {
     ASN1_item_free(a as *mut ASN1_VALUE, &DIST_POINT_NAME_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DIST_POINT_NAME_new() -> *mut DIST_POINT_NAME {
     return ASN1_item_new(&DIST_POINT_NAME_it) as *mut DIST_POINT_NAME;
 }
@@ -1571,7 +1570,7 @@ static mut DIST_POINT_seq_tt: [ASN1_TEMPLATE; 3] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut DIST_POINT_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -1581,11 +1580,11 @@ pub static mut DIST_POINT_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DIST_POINT_free(mut a: *mut DIST_POINT) {
     ASN1_item_free(a as *mut ASN1_VALUE, &DIST_POINT_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DIST_POINT_new() -> *mut DIST_POINT {
     return ASN1_item_new(&DIST_POINT_it) as *mut DIST_POINT;
 }
@@ -1601,7 +1600,7 @@ static mut CRL_DIST_POINTS_item_tt: ASN1_TEMPLATE = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut CRL_DIST_POINTS_it: ASN1_ITEM = unsafe {
     {
         let mut init = ASN1_ITEM_st {
@@ -1616,18 +1615,18 @@ pub static mut CRL_DIST_POINTS_it: ASN1_ITEM = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_CRL_DIST_POINTS(
     mut a: *mut CRL_DIST_POINTS,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &CRL_DIST_POINTS_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRL_DIST_POINTS_free(mut a: *mut CRL_DIST_POINTS) {
     ASN1_item_free(a as *mut ASN1_VALUE, &CRL_DIST_POINTS_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_CRL_DIST_POINTS(
     mut a: *mut *mut CRL_DIST_POINTS,
     mut in_0: *mut *const libc::c_uchar,
@@ -1636,7 +1635,7 @@ pub unsafe extern "C" fn d2i_CRL_DIST_POINTS(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &CRL_DIST_POINTS_it)
         as *mut CRL_DIST_POINTS;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRL_DIST_POINTS_new() -> *mut CRL_DIST_POINTS {
     return ASN1_item_new(&CRL_DIST_POINTS_it) as *mut CRL_DIST_POINTS;
 }
@@ -1716,7 +1715,7 @@ static mut ISSUING_DIST_POINT_seq_tt: [ASN1_TEMPLATE; 6] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut ISSUING_DIST_POINT_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -1726,18 +1725,18 @@ pub static mut ISSUING_DIST_POINT_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ISSUING_DIST_POINT_free(mut a: *mut ISSUING_DIST_POINT) {
     ASN1_item_free(a as *mut ASN1_VALUE, &ISSUING_DIST_POINT_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_ISSUING_DIST_POINT(
     mut a: *mut ISSUING_DIST_POINT,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &ISSUING_DIST_POINT_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_ISSUING_DIST_POINT(
     mut a: *mut *mut ISSUING_DIST_POINT,
     mut in_0: *mut *const libc::c_uchar,
@@ -1746,11 +1745,11 @@ pub unsafe extern "C" fn d2i_ISSUING_DIST_POINT(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &ISSUING_DIST_POINT_it)
         as *mut ISSUING_DIST_POINT;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ISSUING_DIST_POINT_new() -> *mut ISSUING_DIST_POINT {
     return ASN1_item_new(&ISSUING_DIST_POINT_it) as *mut ISSUING_DIST_POINT;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_idp: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {
@@ -2049,7 +2048,7 @@ unsafe extern "C" fn i2r_crldp(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DIST_POINT_set_dpname(
     mut dpn: *mut DIST_POINT_NAME,
     mut iname: *mut X509_NAME,

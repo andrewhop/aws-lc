@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn ASN1_STRING_type_new(type_0: libc::c_int) -> *mut ASN1_STRING;
     fn ASN1_STRING_free(str: *mut ASN1_STRING);
     fn ASN1_STRING_dup(str: *const ASN1_STRING) -> *mut ASN1_STRING;
@@ -155,13 +155,13 @@ unsafe extern "C" fn CRYPTO_store_u64_be(mut out: *mut libc::c_void, mut v: uint
         ::core::mem::size_of::<uint64_t>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_INTEGER_dup(
     mut x: *const ASN1_INTEGER,
 ) -> *mut ASN1_INTEGER {
     return ASN1_STRING_dup(x);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_INTEGER_cmp(
     mut x: *const ASN1_INTEGER,
     mut y: *const ASN1_INTEGER,
@@ -213,7 +213,7 @@ unsafe extern "C" fn is_all_zeros(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2c_ASN1_INTEGER(
     mut in_0: *const ASN1_INTEGER,
     mut outp: *mut *mut libc::c_uchar,
@@ -371,7 +371,7 @@ pub unsafe extern "C" fn i2c_ASN1_INTEGER(
     *outp = (*outp).offset(len as isize);
     return len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn c2i_ASN1_INTEGER(
     mut out: *mut *mut ASN1_INTEGER,
     mut inp: *mut *const libc::c_uchar,
@@ -530,7 +530,7 @@ pub unsafe extern "C" fn c2i_ASN1_INTEGER(
         return ret;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_INTEGER_set_int64(
     mut a: *mut ASN1_INTEGER,
     mut v: int64_t,
@@ -548,7 +548,7 @@ pub unsafe extern "C" fn ASN1_INTEGER_set_int64(
     (*a).type_0 = 2 as libc::c_int | 0x100 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_ENUMERATED_set_int64(
     mut a: *mut ASN1_ENUMERATED,
     mut v: int64_t,
@@ -566,14 +566,14 @@ pub unsafe extern "C" fn ASN1_ENUMERATED_set_int64(
     (*a).type_0 = 10 as libc::c_int | 0x100 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_INTEGER_set(
     mut a: *mut ASN1_INTEGER,
     mut v: libc::c_long,
 ) -> libc::c_int {
     return ASN1_INTEGER_set_int64(a, v);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_ENUMERATED_set(
     mut a: *mut ASN1_ENUMERATED,
     mut v: libc::c_long,
@@ -608,14 +608,14 @@ unsafe extern "C" fn asn1_string_set_uint64(
     (*out).type_0 = type_0;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_INTEGER_set_uint64(
     mut out: *mut ASN1_INTEGER,
     mut v: uint64_t,
 ) -> libc::c_int {
     return asn1_string_set_uint64(out, v, 2 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_ENUMERATED_set_uint64(
     mut out: *mut ASN1_ENUMERATED,
     mut v: uint64_t,
@@ -684,14 +684,14 @@ unsafe extern "C" fn asn1_string_get_uint64(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_INTEGER_get_uint64(
     mut out: *mut uint64_t,
     mut a: *const ASN1_INTEGER,
 ) -> libc::c_int {
     return asn1_string_get_uint64(out, a, 2 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_ENUMERATED_get_uint64(
     mut out: *mut uint64_t,
     mut a: *const ASN1_ENUMERATED,
@@ -730,14 +730,14 @@ unsafe extern "C" fn asn1_string_get_int64(
     *out = i64;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_INTEGER_get_int64(
     mut out: *mut int64_t,
     mut a: *const ASN1_INTEGER,
 ) -> libc::c_int {
     return asn1_string_get_int64(out, a, 2 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_ENUMERATED_get_int64(
     mut out: *mut int64_t,
     mut a: *const ASN1_ENUMERATED,
@@ -761,11 +761,11 @@ unsafe extern "C" fn asn1_string_get_long(
     }
     return v;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_INTEGER_get(mut a: *const ASN1_INTEGER) -> libc::c_long {
     return asn1_string_get_long(a, 2 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_ENUMERATED_get(
     mut a: *const ASN1_ENUMERATED,
 ) -> libc::c_long {
@@ -810,14 +810,14 @@ unsafe extern "C" fn bn_to_asn1_string(
     }
     return 0 as *mut ASN1_STRING;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_to_ASN1_INTEGER(
     mut bn: *const BIGNUM,
     mut ai: *mut ASN1_INTEGER,
 ) -> *mut ASN1_INTEGER {
     return bn_to_asn1_string(bn, ai, 2 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_to_ASN1_ENUMERATED(
     mut bn: *const BIGNUM,
     mut ai: *mut ASN1_ENUMERATED,
@@ -856,14 +856,14 @@ unsafe extern "C" fn asn1_string_to_bn(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_INTEGER_to_BN(
     mut ai: *const ASN1_INTEGER,
     mut bn: *mut BIGNUM,
 ) -> *mut BIGNUM {
     return asn1_string_to_bn(ai, bn, 2 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_ENUMERATED_to_BN(
     mut ai: *const ASN1_ENUMERATED,
     mut bn: *mut BIGNUM,

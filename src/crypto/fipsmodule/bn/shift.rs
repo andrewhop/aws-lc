@@ -9,7 +9,7 @@
 )]
 #![feature(asm, extern_types)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn BN_copy(dest: *mut BIGNUM, src: *const BIGNUM) -> *mut BIGNUM;
     fn BN_CTX_start(ctx: *mut BN_CTX);
@@ -179,7 +179,7 @@ unsafe extern "C" fn OPENSSL_memset(
     }
     return memset(dst, c, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_lshift(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -240,7 +240,7 @@ pub unsafe extern "C" fn BN_lshift(
     bn_set_minimal_width(r);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_lshift1(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -281,7 +281,7 @@ pub unsafe extern "C" fn BN_lshift1(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_rshift_words(
     mut r: *mut BN_ULONG,
     mut a: *const BN_ULONG,
@@ -333,7 +333,7 @@ pub unsafe extern "C" fn bn_rshift_words(
         shift_words.wrapping_mul(::core::mem::size_of::<BN_ULONG>() as libc::c_ulong),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_rshift(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -359,7 +359,7 @@ pub unsafe extern "C" fn BN_rshift(
     bn_set_minimal_width(r);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_rshift_secret_shift(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -394,7 +394,7 @@ pub unsafe extern "C" fn bn_rshift_secret_shift(
     BN_CTX_end(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_rshift1_words(
     mut r: *mut BN_ULONG,
     mut a: *const BN_ULONG,
@@ -420,7 +420,7 @@ pub unsafe extern "C" fn bn_rshift1_words(
         ) = *a.offset(num.wrapping_sub(1 as libc::c_int as size_t) as isize)
         >> 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_rshift1(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -434,7 +434,7 @@ pub unsafe extern "C" fn BN_rshift1(
     bn_set_minimal_width(r);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_set_bit(
     mut a: *mut BIGNUM,
     mut n: libc::c_int,
@@ -459,7 +459,7 @@ pub unsafe extern "C" fn BN_set_bit(
     *((*a).d).offset(i as isize) |= (1 as libc::c_int as BN_ULONG) << j;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_clear_bit(
     mut a: *mut BIGNUM,
     mut n: libc::c_int,
@@ -478,7 +478,7 @@ pub unsafe extern "C" fn BN_clear_bit(
     bn_set_minimal_width(a);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_is_bit_set_words(
     mut a: *const BN_ULONG,
     mut num: size_t,
@@ -491,7 +491,7 @@ pub unsafe extern "C" fn bn_is_bit_set_words(
     }
     return (*a.offset(i as isize) >> j & 1 as libc::c_int as BN_ULONG) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_is_bit_set(
     mut a: *const BIGNUM,
     mut n: libc::c_int,
@@ -501,7 +501,7 @@ pub unsafe extern "C" fn BN_is_bit_set(
     }
     return bn_is_bit_set_words((*a).d, (*a).width as size_t, n as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mask_bits(
     mut a: *mut BIGNUM,
     mut n: libc::c_int,
@@ -554,7 +554,7 @@ unsafe extern "C" fn bn_count_low_zero_bits_word(mut l: BN_ULONG) -> libc::c_int
         as libc::c_int as libc::c_int;
     return bits;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_count_low_zero_bits(mut bn: *const BIGNUM) -> libc::c_int {
     let mut ret: libc::c_int = 0 as libc::c_int;
     let mut saw_nonzero: crypto_word_t = 0 as libc::c_int as crypto_word_t;

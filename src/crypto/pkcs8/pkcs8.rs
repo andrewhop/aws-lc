@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type evp_cipher_st;
     pub type evp_pkey_st;
     pub type engine_st;
@@ -345,7 +344,7 @@ unsafe extern "C" fn pkcs12_encode_password(
     CBB_cleanup(&mut cbb);
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pkcs12_key_gen(
     mut pass: *const libc::c_char,
     mut pass_len: size_t,
@@ -851,7 +850,7 @@ unsafe extern "C" fn get_pkcs12_pbe_suite(mut pbe_nid: libc::c_int) -> *const pb
     }
     return 0 as *const pbe_suite;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pkcs12_pbe_encrypt_init(
     mut out: *mut CBB,
     mut ctx: *mut EVP_CIPHER_CTX,
@@ -955,7 +954,7 @@ pub unsafe extern "C" fn pkcs12_pbe_encrypt_init(
         1 as libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pkcs8_pbe_decrypt(
     mut out: *mut *mut uint8_t,
     mut out_len: *mut size_t,
@@ -1083,7 +1082,7 @@ pub unsafe extern "C" fn pkcs8_pbe_decrypt(
     EVP_CIPHER_CTX_cleanup(&mut ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS8_parse_encrypted_private_key(
     mut cbs: *mut CBS,
     mut pass: *const libc::c_char,
@@ -1146,7 +1145,7 @@ pub unsafe extern "C" fn PKCS8_parse_encrypted_private_key(
     OPENSSL_free(out as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS8_marshal_encrypted_private_key(
     mut out: *mut CBB,
     mut pbe_nid: libc::c_int,

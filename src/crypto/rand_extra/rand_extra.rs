@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn RAND_bytes(buf: *mut uint8_t, len: size_t) -> libc::c_int;
     fn RAND_pseudo_bytes(buf: *mut uint8_t, len: size_t) -> libc::c_int;
 }
@@ -27,12 +27,12 @@ pub struct rand_meth_st {
     pub status: Option::<unsafe extern "C" fn() -> libc::c_int>,
 }
 pub type RAND_METHOD = rand_meth_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_seed(mut buf: *const libc::c_void, mut num: libc::c_int) {
     let mut unused: uint8_t = 0;
     RAND_bytes(&mut unused, ::core::mem::size_of::<uint8_t>() as libc::c_ulong);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_load_file(
     mut path: *const libc::c_char,
     mut num: libc::c_long,
@@ -45,39 +45,39 @@ pub unsafe extern "C" fn RAND_load_file(
         return 2147483647 as libc::c_int
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_write_file(mut file: *const libc::c_char) -> libc::c_int {
     return -(1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_file_name(
     mut buf: *mut libc::c_char,
     mut num: size_t,
 ) -> *const libc::c_char {
     return 0 as *const libc::c_char;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_add(
     mut buf: *const libc::c_void,
     mut num: libc::c_int,
     mut entropy: libc::c_double,
 ) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_egd(mut path: *const libc::c_char) -> libc::c_int {
     return 255 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_egd_bytes(
     mut path: *const libc::c_char,
     mut bytes: libc::c_int,
 ) -> libc::c_int {
     return bytes;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_poll() -> libc::c_int {
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_status() -> libc::c_int {
     return 1 as libc::c_int;
 }
@@ -108,25 +108,25 @@ static mut kSSLeayMethod: rand_meth_st = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_SSLeay() -> *mut RAND_METHOD {
     return &kSSLeayMethod as *const rand_meth_st as *mut RAND_METHOD;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_OpenSSL() -> *mut RAND_METHOD {
     return RAND_SSLeay();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_get_rand_method() -> *const RAND_METHOD {
     return RAND_SSLeay();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_set_rand_method(
     mut method: *const RAND_METHOD,
 ) -> libc::c_int {
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_keep_random_devices_open(mut a: libc::c_int) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_cleanup() {}

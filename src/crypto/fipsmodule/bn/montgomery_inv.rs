@@ -9,7 +9,7 @@
 )]
 #![feature(asm, extern_types, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn BN_num_bits(bn: *const BIGNUM) -> libc::c_uint;
     fn BN_zero(bn: *mut BIGNUM);
@@ -88,7 +88,7 @@ unsafe extern "C" fn value_barrier_u32(mut a: uint32_t) -> uint32_t {
 unsafe extern "C" fn constant_time_declassify_int(mut v: libc::c_int) -> libc::c_int {
     return value_barrier_u32(v as uint32_t) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mont_n0(mut n: *const BIGNUM) -> uint64_t {
     if BN_is_zero(n) == 0 {} else {
         __assert_fail(
@@ -303,7 +303,7 @@ unsafe extern "C" fn bn_neg_inv_mod_r_u64(mut n: uint64_t) -> uint64_t {
     };
     return v;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mont_ctx_set_RR_consttime(
     mut mont: *mut BN_MONT_CTX,
     mut ctx: *mut BN_CTX,

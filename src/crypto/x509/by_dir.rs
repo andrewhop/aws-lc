@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -817,7 +816,7 @@ static mut x509_dir_lookup: X509_LOOKUP_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_LOOKUP_hash_dir() -> *const X509_LOOKUP_METHOD {
     return &x509_dir_lookup;
 }
@@ -1259,7 +1258,7 @@ unsafe extern "C" fn get_cert_by_subject(
     BUF_MEM_free(b);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_LOOKUP_add_dir(
     mut lookup: *mut X509_LOOKUP,
     mut name: *const libc::c_char,

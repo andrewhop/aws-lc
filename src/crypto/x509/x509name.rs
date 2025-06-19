@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_X509_NAME_ENTRY;
     pub type stack_st;
     fn strlen(_: *const libc::c_char) -> libc::c_ulong;
@@ -148,7 +147,7 @@ unsafe extern "C" fn sk_X509_NAME_ENTRY_delete(
 ) -> *mut X509_NAME_ENTRY {
     return OPENSSL_sk_delete(sk as *mut OPENSSL_STACK, where_0) as *mut X509_NAME_ENTRY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_get_text_by_NID(
     mut name: *const X509_NAME,
     mut nid: libc::c_int,
@@ -162,7 +161,7 @@ pub unsafe extern "C" fn X509_NAME_get_text_by_NID(
     }
     return X509_NAME_get_text_by_OBJ(name, obj, buf, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_get_text_by_OBJ(
     mut name: *const X509_NAME,
     mut obj: *const ASN1_OBJECT,
@@ -215,7 +214,7 @@ pub unsafe extern "C" fn X509_NAME_get_text_by_OBJ(
     OPENSSL_free(text as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_entry_count(
     mut name: *const X509_NAME,
 ) -> libc::c_int {
@@ -224,7 +223,7 @@ pub unsafe extern "C" fn X509_NAME_entry_count(
     }
     return sk_X509_NAME_ENTRY_num((*name).entries) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_get_index_by_NID(
     mut name: *const X509_NAME,
     mut nid: libc::c_int,
@@ -237,7 +236,7 @@ pub unsafe extern "C" fn X509_NAME_get_index_by_NID(
     }
     return X509_NAME_get_index_by_OBJ(name, obj, lastpos);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_get_index_by_OBJ(
     mut name: *const X509_NAME,
     mut obj: *const ASN1_OBJECT,
@@ -266,7 +265,7 @@ pub unsafe extern "C" fn X509_NAME_get_index_by_OBJ(
     }
     return -(1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_get_entry(
     mut name: *const X509_NAME,
     mut loc: libc::c_int,
@@ -279,7 +278,7 @@ pub unsafe extern "C" fn X509_NAME_get_entry(
         return sk_X509_NAME_ENTRY_value((*name).entries, loc as size_t)
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_delete_entry(
     mut name: *mut X509_NAME,
     mut loc: libc::c_int,
@@ -316,7 +315,7 @@ pub unsafe extern "C" fn X509_NAME_delete_entry(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_add_entry_by_OBJ(
     mut name: *mut X509_NAME,
     mut obj: *const ASN1_OBJECT,
@@ -340,7 +339,7 @@ pub unsafe extern "C" fn X509_NAME_add_entry_by_OBJ(
     X509_NAME_ENTRY_free(ne);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_add_entry_by_NID(
     mut name: *mut X509_NAME,
     mut nid: libc::c_int,
@@ -364,7 +363,7 @@ pub unsafe extern "C" fn X509_NAME_add_entry_by_NID(
     X509_NAME_ENTRY_free(ne);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_add_entry_by_txt(
     mut name: *mut X509_NAME,
     mut field: *const libc::c_char,
@@ -388,7 +387,7 @@ pub unsafe extern "C" fn X509_NAME_add_entry_by_txt(
     X509_NAME_ENTRY_free(ne);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_add_entry(
     mut name: *mut X509_NAME,
     mut entry: *const X509_NAME_ENTRY,
@@ -450,7 +449,7 @@ pub unsafe extern "C" fn X509_NAME_add_entry(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_ENTRY_create_by_txt(
     mut ne: *mut *mut X509_NAME_ENTRY,
     mut field: *const libc::c_char,
@@ -481,7 +480,7 @@ pub unsafe extern "C" fn X509_NAME_ENTRY_create_by_txt(
     ASN1_OBJECT_free(obj);
     return nentry;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_ENTRY_create_by_NID(
     mut ne: *mut *mut X509_NAME_ENTRY,
     mut nid: libc::c_int,
@@ -503,7 +502,7 @@ pub unsafe extern "C" fn X509_NAME_ENTRY_create_by_NID(
     }
     return X509_NAME_ENTRY_create_by_OBJ(ne, obj, type_0, bytes, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_ENTRY_create_by_OBJ(
     mut ne: *mut *mut X509_NAME_ENTRY,
     mut obj: *const ASN1_OBJECT,
@@ -533,7 +532,7 @@ pub unsafe extern "C" fn X509_NAME_ENTRY_create_by_OBJ(
     }
     return 0 as *mut X509_NAME_ENTRY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_ENTRY_set_object(
     mut ne: *mut X509_NAME_ENTRY,
     mut obj: *const ASN1_OBJECT,
@@ -553,7 +552,7 @@ pub unsafe extern "C" fn X509_NAME_ENTRY_set_object(
     (*ne).object = OBJ_dup(obj);
     return if ((*ne).object).is_null() { 0 as libc::c_int } else { 1 as libc::c_int };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_ENTRY_set_data(
     mut ne: *mut X509_NAME_ENTRY,
     mut type_0: libc::c_int,
@@ -589,7 +588,7 @@ pub unsafe extern "C" fn X509_NAME_ENTRY_set_data(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_ENTRY_get_object(
     mut ne: *const X509_NAME_ENTRY,
 ) -> *mut ASN1_OBJECT {
@@ -598,7 +597,7 @@ pub unsafe extern "C" fn X509_NAME_ENTRY_get_object(
     }
     return (*ne).object;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_ENTRY_get_data(
     mut ne: *const X509_NAME_ENTRY,
 ) -> *mut ASN1_STRING {

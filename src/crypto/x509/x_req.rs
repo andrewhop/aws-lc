@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_X509_NAME_ENTRY;
     pub type evp_pkey_st;
@@ -322,7 +321,7 @@ static mut X509_REQ_INFO_seq_tt: [ASN1_TEMPLATE; 4] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_REQ_INFO_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -332,22 +331,22 @@ pub static mut X509_REQ_INFO_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_REQ_INFO(
     mut a: *mut X509_REQ_INFO,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &X509_REQ_INFO_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_INFO_free(mut a: *mut X509_REQ_INFO) {
     ASN1_item_free(a as *mut ASN1_VALUE, &X509_REQ_INFO_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_INFO_new() -> *mut X509_REQ_INFO {
     return ASN1_item_new(&X509_REQ_INFO_it) as *mut X509_REQ_INFO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_REQ_INFO(
     mut a: *mut *mut X509_REQ_INFO,
     mut in_0: *mut *const libc::c_uchar,
@@ -390,7 +389,7 @@ static mut X509_REQ_seq_tt: [ASN1_TEMPLATE; 3] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_REQ_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -400,22 +399,22 @@ pub static mut X509_REQ_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_REQ(
     mut a: *mut X509_REQ,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &X509_REQ_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_free(mut a: *mut X509_REQ) {
     ASN1_item_free(a as *mut ASN1_VALUE, &X509_REQ_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_new() -> *mut X509_REQ {
     return ASN1_item_new(&X509_REQ_it) as *mut X509_REQ;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_REQ(
     mut a: *mut *mut X509_REQ,
     mut in_0: *mut *const libc::c_uchar,
@@ -424,7 +423,7 @@ pub unsafe extern "C" fn d2i_X509_REQ(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &X509_REQ_it)
         as *mut X509_REQ;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_dup(mut x: *mut X509_REQ) -> *mut X509_REQ {
     return ASN1_item_dup(&X509_REQ_it, x as *mut libc::c_void) as *mut X509_REQ;
 }

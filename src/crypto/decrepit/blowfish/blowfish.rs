@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn __assert_fail(
         __assertion: *const libc::c_char,
         __file: *const libc::c_char,
@@ -100,7 +100,7 @@ unsafe extern "C" fn OPENSSL_memcpy(
     }
     return memcpy(dst, src, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BF_encrypt(mut data: *mut uint32_t, mut key: *const BF_KEY) {
     let mut l: uint32_t = 0;
     let mut r: uint32_t = 0;
@@ -553,7 +553,7 @@ pub unsafe extern "C" fn BF_encrypt(mut data: *mut uint32_t, mut key: *const BF_
             0 as libc::c_int as isize,
         ) = (r as libc::c_long & 0xffffffff as libc::c_long) as uint32_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BF_decrypt(mut data: *mut uint32_t, mut key: *const BF_KEY) {
     let mut l: uint32_t = 0;
     let mut r: uint32_t = 0;
@@ -1006,7 +1006,7 @@ pub unsafe extern "C" fn BF_decrypt(mut data: *mut uint32_t, mut key: *const BF_
             0 as libc::c_int as isize,
         ) = (r as libc::c_long & 0xffffffff as libc::c_long) as uint32_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BF_ecb_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -1076,7 +1076,7 @@ pub unsafe extern "C" fn BF_ecb_encrypt(
     *fresh15 = (d[1 as libc::c_int as usize] & 0xff as libc::c_int as uint32_t)
         as libc::c_uchar;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BF_cbc_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -2670,7 +2670,7 @@ static mut bf_init: BF_KEY = {
     };
     init
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BF_set_key(
     mut key: *mut BF_KEY,
     mut len: size_t,
@@ -3111,15 +3111,15 @@ static mut bf_cfb: EVP_CIPHER = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_bf_ecb() -> *const EVP_CIPHER {
     return &bf_ecb;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_bf_cbc() -> *const EVP_CIPHER {
     return &bf_cbc;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_bf_cfb() -> *const EVP_CIPHER {
     return &bf_cfb;
 }

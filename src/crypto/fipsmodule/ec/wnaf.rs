@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn ec_GFp_simple_point_copy(_: *mut EC_JACOBIAN, _: *const EC_JACOBIAN);
     fn ec_GFp_simple_point_set_to_infinity(_: *const EC_GROUP, _: *mut EC_JACOBIAN);
     fn ec_GFp_mont_add(
@@ -269,7 +269,7 @@ pub struct EC_AFFINE {
     pub X: EC_FELEM,
     pub Y: EC_FELEM,
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_compute_wNAF(
     mut out: *mut int8_t,
     mut scalar: *const EC_SCALAR,
@@ -643,7 +643,7 @@ unsafe extern "C" fn lookup_precomp(
         );
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_mont_mul_public_batch(
     mut group: *const EC_GROUP,
     mut r: *mut EC_JACOBIAN,

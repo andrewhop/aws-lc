@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     pub type stack_st_void;
     pub type engine_st;
@@ -52946,7 +52945,7 @@ unsafe extern "C" fn boringssl_self_test_hasheddsa() -> libc::c_int {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[inline(never)]
 pub unsafe extern "C" fn boringssl_self_test_sha256() -> libc::c_int {
     static mut kInput: [uint8_t; 16] = [
@@ -53113,7 +53112,7 @@ unsafe extern "C" fn boringssl_self_test_sha512() -> libc::c_int {
         b"SHA-512 KAT\0" as *const u8 as *const libc::c_char,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[inline(never)]
 pub unsafe extern "C" fn boringssl_self_test_hmac_sha256() -> libc::c_int {
     static mut kInput: [uint8_t; 16] = [
@@ -55062,7 +55061,7 @@ unsafe extern "C" fn boringssl_self_test_fast() -> libc::c_int {
     EVP_AEAD_CTX_cleanup(&mut aead_ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BORINGSSL_self_test() -> libc::c_int {
     if boringssl_self_test_fast() == 0 || boringssl_self_test_rsa() == 0
         || boringssl_self_test_ecc() == 0 || boringssl_self_test_ffdh() == 0

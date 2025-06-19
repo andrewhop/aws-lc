@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn BN_num_bits(bn: *const BIGNUM) -> libc::c_uint;
     fn BN_num_bytes(bn: *const BIGNUM) -> libc::c_uint;
     fn BN_is_negative(bn: *const BIGNUM) -> libc::c_int;
@@ -102,7 +102,7 @@ pub struct cbs_st {
     pub len: size_t,
 }
 pub type CBS = cbs_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_parse_asn1_unsigned(
     mut cbs: *mut CBS,
     mut ret: *mut BIGNUM,
@@ -139,7 +139,7 @@ pub unsafe extern "C" fn BN_parse_asn1_unsigned(
     return (BN_bin2bn(CBS_data(&mut child), CBS_len(&mut child), ret)
         != 0 as *mut libc::c_void as *mut BIGNUM) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_marshal_asn1(
     mut cbb: *mut CBB,
     mut bn: *const BIGNUM,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_object_st;
     pub type asn1_pctx_st;
     pub type ASN1_VALUE_st;
@@ -560,7 +559,7 @@ static mut PKCS7_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut PKCS7_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -570,15 +569,15 @@ pub static mut PKCS7_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_free(mut a: *mut PKCS7) {
     ASN1_item_free(a as *mut ASN1_VALUE, &PKCS7_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_new() -> *mut PKCS7 {
     return ASN1_item_new(&PKCS7_it) as *mut PKCS7;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS7(
     mut a: *mut *mut PKCS7,
     mut in_0: *mut *const libc::c_uchar,
@@ -619,14 +618,14 @@ pub unsafe extern "C" fn d2i_PKCS7(
     der_bytes = 0 as *mut uint8_t;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS7(
     mut a: *mut PKCS7,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &PKCS7_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_dup(mut x: *mut PKCS7) -> *mut PKCS7 {
     return ASN1_item_dup(&PKCS7_it, x as *mut libc::c_void) as *mut PKCS7;
 }
@@ -700,7 +699,7 @@ static mut PKCS7_SIGNED_seq_tt: [ASN1_TEMPLATE; 6] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut PKCS7_SIGNED_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -710,22 +709,22 @@ pub static mut PKCS7_SIGNED_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_SIGNED_free(mut a: *mut PKCS7_SIGNED) {
     ASN1_item_free(a as *mut ASN1_VALUE, &PKCS7_SIGNED_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS7_SIGNED(
     mut a: *mut PKCS7_SIGNED,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &PKCS7_SIGNED_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_SIGNED_new() -> *mut PKCS7_SIGNED {
     return ASN1_item_new(&PKCS7_SIGNED_it) as *mut PKCS7_SIGNED;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS7_SIGNED(
     mut a: *mut *mut PKCS7_SIGNED,
     mut in_0: *mut *const libc::c_uchar,
@@ -758,7 +757,7 @@ static mut PKCS7_ISSUER_AND_SERIAL_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut PKCS7_ISSUER_AND_SERIAL_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -768,24 +767,24 @@ pub static mut PKCS7_ISSUER_AND_SERIAL_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_ISSUER_AND_SERIAL_free(
     mut a: *mut PKCS7_ISSUER_AND_SERIAL,
 ) {
     ASN1_item_free(a as *mut ASN1_VALUE, &PKCS7_ISSUER_AND_SERIAL_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS7_ISSUER_AND_SERIAL(
     mut a: *mut PKCS7_ISSUER_AND_SERIAL,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &PKCS7_ISSUER_AND_SERIAL_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_ISSUER_AND_SERIAL_new() -> *mut PKCS7_ISSUER_AND_SERIAL {
     return ASN1_item_new(&PKCS7_ISSUER_AND_SERIAL_it) as *mut PKCS7_ISSUER_AND_SERIAL;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS7_ISSUER_AND_SERIAL(
     mut a: *mut *mut PKCS7_ISSUER_AND_SERIAL,
     mut in_0: *mut *const libc::c_uchar,
@@ -874,7 +873,7 @@ static mut PKCS7_RECIP_INFO_aux: ASN1_AUX = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut PKCS7_RECIP_INFO_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -884,22 +883,22 @@ pub static mut PKCS7_RECIP_INFO_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_RECIP_INFO_free(mut a: *mut PKCS7_RECIP_INFO) {
     ASN1_item_free(a as *mut ASN1_VALUE, &PKCS7_RECIP_INFO_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS7_RECIP_INFO(
     mut a: *mut PKCS7_RECIP_INFO,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &PKCS7_RECIP_INFO_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_RECIP_INFO_new() -> *mut PKCS7_RECIP_INFO {
     return ASN1_item_new(&PKCS7_RECIP_INFO_it) as *mut PKCS7_RECIP_INFO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS7_RECIP_INFO(
     mut a: *mut *mut PKCS7_RECIP_INFO,
     mut in_0: *mut *const libc::c_uchar,
@@ -1020,7 +1019,7 @@ static mut PKCS7_SIGNER_INFO_seq_tt: [ASN1_TEMPLATE; 7] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut PKCS7_SIGNER_INFO_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -1030,22 +1029,22 @@ pub static mut PKCS7_SIGNER_INFO_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_SIGNER_INFO_free(mut a: *mut PKCS7_SIGNER_INFO) {
     ASN1_item_free(a as *mut ASN1_VALUE, &PKCS7_SIGNER_INFO_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS7_SIGNER_INFO(
     mut a: *mut PKCS7_SIGNER_INFO,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &PKCS7_SIGNER_INFO_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_SIGNER_INFO_new() -> *mut PKCS7_SIGNER_INFO {
     return ASN1_item_new(&PKCS7_SIGNER_INFO_it) as *mut PKCS7_SIGNER_INFO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS7_SIGNER_INFO(
     mut a: *mut *mut PKCS7_SIGNER_INFO,
     mut in_0: *mut *const libc::c_uchar,
@@ -1090,7 +1089,7 @@ static mut PKCS7_ENC_CONTENT_seq_tt: [ASN1_TEMPLATE; 3] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut PKCS7_ENC_CONTENT_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -1100,22 +1099,22 @@ pub static mut PKCS7_ENC_CONTENT_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS7_ENC_CONTENT(
     mut a: *mut PKCS7_ENC_CONTENT,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &PKCS7_ENC_CONTENT_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_ENC_CONTENT_free(mut a: *mut PKCS7_ENC_CONTENT) {
     ASN1_item_free(a as *mut ASN1_VALUE, &PKCS7_ENC_CONTENT_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_ENC_CONTENT_new() -> *mut PKCS7_ENC_CONTENT {
     return ASN1_item_new(&PKCS7_ENC_CONTENT_it) as *mut PKCS7_ENC_CONTENT;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS7_ENC_CONTENT(
     mut a: *mut *mut PKCS7_ENC_CONTENT,
     mut in_0: *mut *const libc::c_uchar,
@@ -1204,7 +1203,7 @@ static mut PKCS7_SIGN_ENVELOPE_seq_tt: [ASN1_TEMPLATE; 7] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut PKCS7_SIGN_ENVELOPE_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -1214,22 +1213,22 @@ pub static mut PKCS7_SIGN_ENVELOPE_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS7_SIGN_ENVELOPE(
     mut a: *mut PKCS7_SIGN_ENVELOPE,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &PKCS7_SIGN_ENVELOPE_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_SIGN_ENVELOPE_free(mut a: *mut PKCS7_SIGN_ENVELOPE) {
     ASN1_item_free(a as *mut ASN1_VALUE, &PKCS7_SIGN_ENVELOPE_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_SIGN_ENVELOPE_new() -> *mut PKCS7_SIGN_ENVELOPE {
     return ASN1_item_new(&PKCS7_SIGN_ENVELOPE_it) as *mut PKCS7_SIGN_ENVELOPE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS7_SIGN_ENVELOPE(
     mut a: *mut *mut PKCS7_SIGN_ENVELOPE,
     mut in_0: *mut *const libc::c_uchar,
@@ -1262,7 +1261,7 @@ static mut PKCS7_ENCRYPT_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut PKCS7_ENCRYPT_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -1272,22 +1271,22 @@ pub static mut PKCS7_ENCRYPT_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_ENCRYPT_free(mut a: *mut PKCS7_ENCRYPT) {
     ASN1_item_free(a as *mut ASN1_VALUE, &PKCS7_ENCRYPT_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS7_ENCRYPT(
     mut a: *mut PKCS7_ENCRYPT,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &PKCS7_ENCRYPT_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_ENCRYPT_new() -> *mut PKCS7_ENCRYPT {
     return ASN1_item_new(&PKCS7_ENCRYPT_it) as *mut PKCS7_ENCRYPT;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS7_ENCRYPT(
     mut a: *mut *mut PKCS7_ENCRYPT,
     mut in_0: *mut *const libc::c_uchar,
@@ -1340,7 +1339,7 @@ static mut PKCS7_DIGEST_seq_tt: [ASN1_TEMPLATE; 4] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut PKCS7_DIGEST_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -1350,18 +1349,18 @@ pub static mut PKCS7_DIGEST_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS7_DIGEST(
     mut a: *mut PKCS7_DIGEST,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &PKCS7_DIGEST_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_DIGEST_free(mut a: *mut PKCS7_DIGEST) {
     ASN1_item_free(a as *mut ASN1_VALUE, &PKCS7_DIGEST_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS7_DIGEST(
     mut a: *mut *mut PKCS7_DIGEST,
     mut in_0: *mut *const libc::c_uchar,
@@ -1370,7 +1369,7 @@ pub unsafe extern "C" fn d2i_PKCS7_DIGEST(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &PKCS7_DIGEST_it)
         as *mut PKCS7_DIGEST;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_DIGEST_new() -> *mut PKCS7_DIGEST {
     return ASN1_item_new(&PKCS7_DIGEST_it) as *mut PKCS7_DIGEST;
 }
@@ -1408,7 +1407,7 @@ static mut PKCS7_ENVELOPE_seq_tt: [ASN1_TEMPLATE; 3] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut PKCS7_ENVELOPE_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -1418,22 +1417,22 @@ pub static mut PKCS7_ENVELOPE_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS7_ENVELOPE(
     mut a: *mut PKCS7_ENVELOPE,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &PKCS7_ENVELOPE_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_ENVELOPE_free(mut a: *mut PKCS7_ENVELOPE) {
     ASN1_item_free(a as *mut ASN1_VALUE, &PKCS7_ENVELOPE_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_ENVELOPE_new() -> *mut PKCS7_ENVELOPE {
     return ASN1_item_new(&PKCS7_ENVELOPE_it) as *mut PKCS7_ENVELOPE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS7_ENVELOPE(
     mut a: *mut *mut PKCS7_ENVELOPE,
     mut in_0: *mut *const libc::c_uchar,
@@ -1456,7 +1455,7 @@ static mut PKCS7_ATTR_VERIFY_item_tt: ASN1_TEMPLATE = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut PKCS7_ATTR_VERIFY_it: ASN1_ITEM = unsafe {
     {
         let mut init = ASN1_ITEM_st {
@@ -1471,7 +1470,7 @@ pub static mut PKCS7_ATTR_VERIFY_it: ASN1_ITEM = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_print_ctx(
     mut bio: *mut BIO,
     mut pkcs7: *mut PKCS7,

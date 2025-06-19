@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -397,7 +396,7 @@ static mut trstandard: [X509_TRUST; 6] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_check_trust(
     mut x: *mut X509,
     mut id: libc::c_int,
@@ -420,13 +419,13 @@ pub unsafe extern "C" fn X509_check_trust(
     let mut pt: *const X509_TRUST = X509_TRUST_get0(idx);
     return ((*pt).check_trust).expect("non-null function pointer")(pt, x);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_TRUST_get_count() -> libc::c_int {
     return (::core::mem::size_of::<[X509_TRUST; 6]>() as libc::c_ulong)
         .wrapping_div(::core::mem::size_of::<X509_TRUST>() as libc::c_ulong)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_TRUST_get0(mut idx: libc::c_int) -> *const X509_TRUST {
     if idx < 0 as libc::c_int
         || idx as size_t
@@ -437,7 +436,7 @@ pub unsafe extern "C" fn X509_TRUST_get0(mut idx: libc::c_int) -> *const X509_TR
     }
     return trstandard.as_ptr().offset(idx as isize);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_TRUST_get_by_id(mut id: libc::c_int) -> libc::c_int {
     let mut i: size_t = 0 as libc::c_int as size_t;
     while i
@@ -452,7 +451,7 @@ pub unsafe extern "C" fn X509_TRUST_get_by_id(mut id: libc::c_int) -> libc::c_in
     }
     return -(1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_TRUST_set(
     mut t: *mut libc::c_int,
     mut trust: libc::c_int,
@@ -471,21 +470,21 @@ pub unsafe extern "C" fn X509_TRUST_set(
     *t = trust;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_TRUST_get_flags(mut xp: *const X509_TRUST) -> libc::c_int {
     return (*xp).flags;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_TRUST_get0_name(
     mut xp: *const X509_TRUST,
 ) -> *mut libc::c_char {
     return (*xp).name;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_TRUST_get_trust(mut xp: *const X509_TRUST) -> libc::c_int {
     return (*xp).trust;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_TRUST_cleanup() {}
 unsafe extern "C" fn trust_1oidany(
     mut trust: *const X509_TRUST,

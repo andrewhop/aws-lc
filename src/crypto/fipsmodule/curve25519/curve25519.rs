@@ -9,7 +9,7 @@
 )]
 #![feature(asm, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn abort() -> !;
     fn RAND_bytes(buf: *mut uint8_t, len: size_t) -> libc::c_int;
     fn SHA512_Init(sha: *mut SHA512_CTX) -> libc::c_int;
@@ -165,7 +165,7 @@ unsafe extern "C" fn FIPS_service_indicator_update_state() {}
 unsafe extern "C" fn FIPS_service_indicator_lock_state() {}
 #[inline]
 unsafe extern "C" fn FIPS_service_indicator_unlock_state() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut RFC8032_DOM2_PREFIX: [uint8_t; 32] = [
     'S' as i32 as uint8_t,
     'i' as i32 as uint8_t,
@@ -200,7 +200,7 @@ pub static mut RFC8032_DOM2_PREFIX: [uint8_t; 32] = [
     'n' as i32 as uint8_t,
     's' as i32 as uint8_t,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ed25519_sha512(
     mut out: *mut uint8_t,
     mut input1: *const libc::c_void,
@@ -231,7 +231,7 @@ pub unsafe extern "C" fn ed25519_sha512(
     }
     SHA512_Final(out, &mut hash_ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519_keypair_from_seed(
     mut out_public_key: *mut uint8_t,
     mut out_private_key: *mut uint8_t,
@@ -267,7 +267,7 @@ unsafe extern "C" fn ed25519_keypair_pct(
 ) -> libc::c_int {
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519_keypair_internal(
     mut out_public_key: *mut uint8_t,
     mut out_private_key: *mut uint8_t,
@@ -289,7 +289,7 @@ pub unsafe extern "C" fn ED25519_keypair_internal(
     }
     return result;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519_keypair(
     mut out_public_key: *mut uint8_t,
     mut out_private_key: *mut uint8_t,
@@ -325,7 +325,7 @@ pub unsafe extern "C" fn ED25519_keypair(
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519_sign(
     mut out_sig: *mut uint8_t,
     mut message: *const uint8_t,
@@ -346,7 +346,7 @@ pub unsafe extern "C" fn ED25519_sign(
     }
     return res;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519_sign_no_self_test(
     mut out_sig: *mut uint8_t,
     mut message: *const uint8_t,
@@ -436,7 +436,7 @@ unsafe extern "C" fn dom2(
         .wrapping_add(context_len);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ed25519_sign_internal(
     mut alg: ed25519_algorithm_t,
     mut out_sig: *mut uint8_t,
@@ -798,7 +798,7 @@ pub unsafe extern "C" fn ed25519_sign_internal(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519_verify(
     mut message: *const uint8_t,
     mut message_len: size_t,
@@ -819,7 +819,7 @@ pub unsafe extern "C" fn ED25519_verify(
     }
     return res;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519_verify_no_self_test(
     mut message: *const uint8_t,
     mut message_len: size_t,
@@ -836,7 +836,7 @@ pub unsafe extern "C" fn ED25519_verify_no_self_test(
         0 as libc::c_int as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519ctx_sign(
     mut out_sig: *mut uint8_t,
     mut message: *const uint8_t,
@@ -858,7 +858,7 @@ pub unsafe extern "C" fn ED25519ctx_sign(
     FIPS_service_indicator_unlock_state();
     return res;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519ctx_sign_no_self_test(
     mut out_sig: *mut uint8_t,
     mut message: *const uint8_t,
@@ -877,7 +877,7 @@ pub unsafe extern "C" fn ED25519ctx_sign_no_self_test(
         context_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519ctx_verify(
     mut message: *const uint8_t,
     mut message_len: size_t,
@@ -899,7 +899,7 @@ pub unsafe extern "C" fn ED25519ctx_verify(
     FIPS_service_indicator_unlock_state();
     return res;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519ctx_verify_no_self_test(
     mut message: *const uint8_t,
     mut message_len: size_t,
@@ -918,7 +918,7 @@ pub unsafe extern "C" fn ED25519ctx_verify_no_self_test(
         context_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519ph_sign(
     mut out_sig: *mut uint8_t,
     mut message: *const uint8_t,
@@ -943,7 +943,7 @@ pub unsafe extern "C" fn ED25519ph_sign(
     }
     return res;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519ph_sign_no_self_test(
     mut out_sig: *mut uint8_t,
     mut message: *const uint8_t,
@@ -1037,7 +1037,7 @@ pub unsafe extern "C" fn ED25519ph_sign_no_self_test(
         context_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519ph_sign_digest(
     mut out_sig: *mut uint8_t,
     mut digest: *const uint8_t,
@@ -1060,7 +1060,7 @@ pub unsafe extern "C" fn ED25519ph_sign_digest(
     }
     return res;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519ph_sign_digest_no_self_test(
     mut out_sig: *mut uint8_t,
     mut digest: *const uint8_t,
@@ -1078,7 +1078,7 @@ pub unsafe extern "C" fn ED25519ph_sign_digest_no_self_test(
         context_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519ph_verify(
     mut message: *const uint8_t,
     mut message_len: size_t,
@@ -1103,7 +1103,7 @@ pub unsafe extern "C" fn ED25519ph_verify(
     }
     return res;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519ph_verify_no_self_test(
     mut message: *const uint8_t,
     mut message_len: size_t,
@@ -1197,7 +1197,7 @@ pub unsafe extern "C" fn ED25519ph_verify_no_self_test(
         context_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519ph_verify_digest(
     mut digest: *const uint8_t,
     mut signature: *const uint8_t,
@@ -1220,7 +1220,7 @@ pub unsafe extern "C" fn ED25519ph_verify_digest(
     }
     return res;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519ph_verify_digest_no_self_test(
     mut digest: *const uint8_t,
     mut signature: *const uint8_t,
@@ -1238,7 +1238,7 @@ pub unsafe extern "C" fn ED25519ph_verify_digest_no_self_test(
         context_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ed25519_verify_internal(
     mut alg: ed25519_algorithm_t,
     mut message: *const uint8_t,
@@ -1612,20 +1612,20 @@ pub unsafe extern "C" fn ed25519_verify_internal(
             ::core::mem::size_of::<[uint8_t; 32]>() as libc::c_ulong,
         ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ED25519_check_public_key(
     mut public_key: *const uint8_t,
 ) -> libc::c_int {
     return ed25519_check_public_key_nohw(public_key);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X25519_public_from_private(
     mut out_public_value: *mut uint8_t,
     mut private_key: *const uint8_t,
 ) {
     x25519_public_from_private_nohw(out_public_value, private_key);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X25519_keypair(
     mut out_public_value: *mut uint8_t,
     mut out_private_key: *mut uint8_t,
@@ -1639,7 +1639,7 @@ pub unsafe extern "C" fn X25519_keypair(
     *fresh2 = (*fresh2 as libc::c_int | !(127 as libc::c_int)) as uint8_t;
     X25519_public_from_private(out_public_value, out_private_key as *const uint8_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X25519(
     mut out_shared_key: *mut uint8_t,
     mut private_key: *const uint8_t,

@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn aes_ctr_set_key(
         aes_key: *mut AES_KEY,
         gcm_key: *mut GCM128_KEY,
@@ -1357,7 +1357,7 @@ static mut EVP_aead_aes_128_ccm_bluetooth_storage: EVP_AEAD = evp_aead_st {
     serialize_state: None,
     deserialize_state: None,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_128_ccm_bluetooth() -> *const EVP_AEAD {
     CRYPTO_once(
         EVP_aead_aes_128_ccm_bluetooth_once_bss_get(),
@@ -1411,7 +1411,7 @@ unsafe extern "C" fn EVP_aead_aes_128_ccm_bluetooth_8_storage_bss_get() -> *mut 
 unsafe extern "C" fn EVP_aead_aes_128_ccm_bluetooth_8_once_bss_get() -> *mut CRYPTO_once_t {
     return &mut EVP_aead_aes_128_ccm_bluetooth_8_once;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_128_ccm_bluetooth_8() -> *const EVP_AEAD {
     CRYPTO_once(
         EVP_aead_aes_128_ccm_bluetooth_8_once_bss_get(),
@@ -1502,7 +1502,7 @@ unsafe extern "C" fn aead_aes_ccm_matter_init(
         2 as libc::c_int as libc::c_uint,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_128_ccm_matter() -> *const EVP_AEAD {
     CRYPTO_once(
         EVP_aead_aes_128_ccm_matter_once_bss_get(),
@@ -1958,7 +1958,7 @@ unsafe extern "C" fn EVP_aes_128_ccm_storage_bss_get() -> *mut EVP_CIPHER {
     return &mut EVP_aes_128_ccm_storage;
 }
 static mut EVP_aes_128_ccm_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_128_ccm() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_128_ccm_once_bss_get(),
@@ -2103,7 +2103,7 @@ unsafe extern "C" fn EVP_aes_192_ccm_do_init(mut out: *mut EVP_CIPHER) {
             ) -> libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_192_ccm() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_192_ccm_once_bss_get(),
@@ -2177,7 +2177,7 @@ static mut EVP_aes_256_ccm_storage: EVP_CIPHER = evp_cipher_st {
     cleanup: None,
     ctrl: None,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_256_ccm() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_256_ccm_once_bss_get(),

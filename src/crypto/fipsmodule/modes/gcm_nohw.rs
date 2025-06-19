@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn memcpy(
         _: *mut libc::c_void,
         _: *const libc::c_void,
@@ -109,7 +109,7 @@ unsafe extern "C" fn gcm_mul64_nohw(
         ^ (c3 >> 64 as libc::c_int) as uint64_t & 0x8888888888888888 as libc::c_ulong
         ^ (extra >> 64 as libc::c_int) as uint64_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn gcm_init_nohw(
     mut Htable: *mut u128_0,
     mut Xi: *const uint64_t,
@@ -164,7 +164,7 @@ unsafe extern "C" fn gcm_polyval_nohw(mut Xi: *mut uint64_t, mut H: *const u128_
     *Xi.offset(0 as libc::c_int as isize) = r2;
     *Xi.offset(1 as libc::c_int as isize) = r3;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn gcm_gmult_nohw(
     mut Xi: *mut uint8_t,
     mut Htable: *const u128_0,
@@ -182,7 +182,7 @@ pub unsafe extern "C" fn gcm_gmult_nohw(
         swapped[0 as libc::c_int as usize],
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn gcm_ghash_nohw(
     mut Xi: *mut uint8_t,
     mut Htable: *const u128_0,

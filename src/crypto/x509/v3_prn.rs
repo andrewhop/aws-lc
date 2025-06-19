@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
     pub type _IO_marker;
@@ -713,7 +712,7 @@ unsafe extern "C" fn X509V3_EXT_val_prn(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_print(
     mut out: *mut BIO,
     mut ext: *const X509_EXTENSION,
@@ -824,7 +823,7 @@ pub unsafe extern "C" fn X509V3_EXT_print(
     x509v3_ext_free_with_method(method, ext_str);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_extensions_print(
     mut bp: *mut BIO,
     mut title: *const libc::c_char,
@@ -936,7 +935,7 @@ unsafe extern "C" fn unknown_ext_print(
         _ => return 1 as libc::c_int,
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_print_fp(
     mut fp: *mut FILE,
     mut ext: *const X509_EXTENSION,

@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn abort() -> !;
     fn EVP_CIPHER_CTX_encrypting(ctx: *const EVP_CIPHER_CTX) -> libc::c_int;
     fn memcpy(
@@ -1182,11 +1182,11 @@ static mut aead_xchacha20_poly1305: EVP_AEAD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_chacha20_poly1305() -> *const EVP_AEAD {
     return &aead_chacha20_poly1305;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_xchacha20_poly1305() -> *const EVP_AEAD {
     return &aead_xchacha20_poly1305;
 }
@@ -1699,7 +1699,7 @@ static mut cipher_chacha20_poly1305: EVP_CIPHER = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_chacha20_poly1305() -> *const EVP_CIPHER {
     return &mut cipher_chacha20_poly1305;
 }

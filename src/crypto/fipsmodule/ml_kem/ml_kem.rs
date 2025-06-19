@@ -9,7 +9,7 @@
 )]
 #![feature(asm)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn RAND_bytes(buf: *mut uint8_t, len: size_t) -> libc::c_int;
     fn OPENSSL_cleanse(ptr: *mut libc::c_void, len: size_t);
     fn memcpy(
@@ -4798,7 +4798,7 @@ unsafe extern "C" fn set_written_len_on_success(
         *data.length = data.expected_length;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_512_keypair_deterministic(
     mut public_key: *mut uint8_t,
     mut public_len: *mut size_t,
@@ -4815,7 +4815,7 @@ pub unsafe extern "C" fn ml_kem_512_keypair_deterministic(
         seed,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_512_keypair_deterministic_no_self_test(
     mut public_key: *mut uint8_t,
     mut public_len: *mut size_t,
@@ -4847,7 +4847,7 @@ pub unsafe extern "C" fn ml_kem_512_keypair_deterministic_no_self_test(
     set_written_len_on_success(res, skey);
     return res;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_512_keypair(
     mut public_key: *mut uint8_t,
     mut public_len: *mut size_t,
@@ -4879,7 +4879,7 @@ pub unsafe extern "C" fn ml_kem_512_keypair(
         skey,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_512_encapsulate_deterministic(
     mut ciphertext: *mut uint8_t,
     mut ciphertext_len: *mut size_t,
@@ -4898,7 +4898,7 @@ pub unsafe extern "C" fn ml_kem_512_encapsulate_deterministic(
         seed,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_512_encapsulate_deterministic_no_self_test(
     mut ciphertext: *mut uint8_t,
     mut ciphertext_len: *mut size_t,
@@ -4939,7 +4939,7 @@ pub unsafe extern "C" fn ml_kem_512_encapsulate_deterministic_no_self_test(
         seed,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_512_encapsulate(
     mut ciphertext: *mut uint8_t,
     mut ciphertext_len: *mut size_t,
@@ -4977,7 +4977,7 @@ pub unsafe extern "C" fn ml_kem_512_encapsulate(
         public_key,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_512_decapsulate(
     mut shared_secret: *mut uint8_t,
     mut shared_secret_len: *mut size_t,
@@ -4992,7 +4992,7 @@ pub unsafe extern "C" fn ml_kem_512_decapsulate(
         secret_key,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_512_decapsulate_no_self_test(
     mut shared_secret: *mut uint8_t,
     mut shared_secret_len: *mut size_t,
@@ -5021,7 +5021,7 @@ pub unsafe extern "C" fn ml_kem_512_decapsulate_no_self_test(
         secret_key,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_768_keypair_deterministic(
     mut public_key: *mut uint8_t,
     mut public_len: *mut size_t,
@@ -5038,7 +5038,7 @@ pub unsafe extern "C" fn ml_kem_768_keypair_deterministic(
         seed,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_768_keypair_deterministic_no_self_test(
     mut public_key: *mut uint8_t,
     mut public_len: *mut size_t,
@@ -5070,7 +5070,7 @@ pub unsafe extern "C" fn ml_kem_768_keypair_deterministic_no_self_test(
     set_written_len_on_success(res, skey);
     return res;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_768_keypair(
     mut public_key: *mut uint8_t,
     mut public_len: *mut size_t,
@@ -5102,7 +5102,7 @@ pub unsafe extern "C" fn ml_kem_768_keypair(
         skey,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_768_encapsulate_deterministic(
     mut ciphertext: *mut uint8_t,
     mut ciphertext_len: *mut size_t,
@@ -5121,7 +5121,7 @@ pub unsafe extern "C" fn ml_kem_768_encapsulate_deterministic(
         seed,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_768_encapsulate_deterministic_no_self_test(
     mut ciphertext: *mut uint8_t,
     mut ciphertext_len: *mut size_t,
@@ -5162,7 +5162,7 @@ pub unsafe extern "C" fn ml_kem_768_encapsulate_deterministic_no_self_test(
         seed,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_768_encapsulate(
     mut ciphertext: *mut uint8_t,
     mut ciphertext_len: *mut size_t,
@@ -5200,7 +5200,7 @@ pub unsafe extern "C" fn ml_kem_768_encapsulate(
         public_key,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_768_decapsulate(
     mut shared_secret: *mut uint8_t,
     mut shared_secret_len: *mut size_t,
@@ -5215,7 +5215,7 @@ pub unsafe extern "C" fn ml_kem_768_decapsulate(
         secret_key,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_768_decapsulate_no_self_test(
     mut shared_secret: *mut uint8_t,
     mut shared_secret_len: *mut size_t,
@@ -5244,7 +5244,7 @@ pub unsafe extern "C" fn ml_kem_768_decapsulate_no_self_test(
         secret_key,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_1024_keypair_deterministic(
     mut public_key: *mut uint8_t,
     mut public_len: *mut size_t,
@@ -5261,7 +5261,7 @@ pub unsafe extern "C" fn ml_kem_1024_keypair_deterministic(
         seed,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_1024_keypair_deterministic_no_self_test(
     mut public_key: *mut uint8_t,
     mut public_len: *mut size_t,
@@ -5293,7 +5293,7 @@ pub unsafe extern "C" fn ml_kem_1024_keypair_deterministic_no_self_test(
     set_written_len_on_success(res, skey);
     return res;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_1024_keypair(
     mut public_key: *mut uint8_t,
     mut public_len: *mut size_t,
@@ -5325,7 +5325,7 @@ pub unsafe extern "C" fn ml_kem_1024_keypair(
         skey,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_1024_encapsulate_deterministic(
     mut ciphertext: *mut uint8_t,
     mut ciphertext_len: *mut size_t,
@@ -5344,7 +5344,7 @@ pub unsafe extern "C" fn ml_kem_1024_encapsulate_deterministic(
         seed,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_1024_encapsulate_deterministic_no_self_test(
     mut ciphertext: *mut uint8_t,
     mut ciphertext_len: *mut size_t,
@@ -5385,7 +5385,7 @@ pub unsafe extern "C" fn ml_kem_1024_encapsulate_deterministic_no_self_test(
         seed,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_1024_encapsulate(
     mut ciphertext: *mut uint8_t,
     mut ciphertext_len: *mut size_t,
@@ -5423,7 +5423,7 @@ pub unsafe extern "C" fn ml_kem_1024_encapsulate(
         public_key,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_1024_decapsulate(
     mut shared_secret: *mut uint8_t,
     mut shared_secret_len: *mut size_t,
@@ -5438,7 +5438,7 @@ pub unsafe extern "C" fn ml_kem_1024_decapsulate(
         secret_key,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_1024_decapsulate_no_self_test(
     mut shared_secret: *mut uint8_t,
     mut shared_secret_len: *mut size_t,
@@ -5467,7 +5467,7 @@ pub unsafe extern "C" fn ml_kem_1024_decapsulate_no_self_test(
         secret_key,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_common_keypair(
     mut keypair: Option::<
         unsafe extern "C" fn(*mut uint8_t, *mut uint8_t) -> libc::c_int,
@@ -5485,7 +5485,7 @@ pub unsafe extern "C" fn ml_kem_common_keypair(
     set_written_len_on_success(res, secret_key);
     return res;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_common_encapsulate_deterministic(
     mut encapsulate: Option::<
         unsafe extern "C" fn(
@@ -5511,7 +5511,7 @@ pub unsafe extern "C" fn ml_kem_common_encapsulate_deterministic(
     set_written_len_on_success(res, shared_secret);
     return res;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_common_encapsulate(
     mut encapsulate: Option::<
         unsafe extern "C" fn(*mut uint8_t, *mut uint8_t, *const uint8_t) -> libc::c_int,
@@ -5532,7 +5532,7 @@ pub unsafe extern "C" fn ml_kem_common_encapsulate(
     set_written_len_on_success(res, shared_secret);
     return res;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_kem_common_decapsulate(
     mut decapsulate: Option::<
         unsafe extern "C" fn(*mut uint8_t, *const uint8_t, *const uint8_t) -> libc::c_int,

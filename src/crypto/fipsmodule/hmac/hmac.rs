@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type engine_st;
     pub type env_md_st;
     fn EVP_md5() -> *const EVP_MD;
@@ -1254,7 +1253,7 @@ unsafe extern "C" fn GetInPlaceMethods(mut evp_md: *const EVP_MD) -> *const Hmac
     }
     return 0 as *const HmacMethods;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC(
     mut evp_md: *const EVP_MD,
     mut key: *const libc::c_void,
@@ -1319,7 +1318,7 @@ pub unsafe extern "C" fn HMAC(
         return 0 as *mut uint8_t;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_with_precompute(
     mut evp_md: *const EVP_MD,
     mut key: *const libc::c_void,
@@ -1398,7 +1397,7 @@ pub unsafe extern "C" fn HMAC_with_precompute(
         return 0 as *mut uint8_t;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_CTX_init(mut ctx: *mut HMAC_CTX) {
     OPENSSL_memset(
         ctx as *mut libc::c_void,
@@ -1406,7 +1405,7 @@ pub unsafe extern "C" fn HMAC_CTX_init(mut ctx: *mut HMAC_CTX) {
         ::core::mem::size_of::<HMAC_CTX>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_CTX_new() -> *mut HMAC_CTX {
     let mut ctx: *mut HMAC_CTX = OPENSSL_zalloc(
         ::core::mem::size_of::<HMAC_CTX>() as libc::c_ulong,
@@ -1414,18 +1413,18 @@ pub unsafe extern "C" fn HMAC_CTX_new() -> *mut HMAC_CTX {
     !ctx.is_null();
     return ctx;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_CTX_cleanup(mut ctx: *mut HMAC_CTX) {
     OPENSSL_cleanse(
         ctx as *mut libc::c_void,
         ::core::mem::size_of::<HMAC_CTX>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_CTX_cleanse(mut ctx: *mut HMAC_CTX) {
     HMAC_CTX_cleanup(ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_CTX_free(mut ctx: *mut HMAC_CTX) {
     if ctx.is_null() {
         return;
@@ -1452,7 +1451,7 @@ unsafe extern "C" fn hmac_ctx_set_md_methods(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_Init_ex(
     mut ctx: *mut HMAC_CTX,
     mut key: *const libc::c_void,
@@ -1742,7 +1741,7 @@ pub unsafe extern "C" fn HMAC_Init_ex(
     }
     return result;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_Update(
     mut ctx: *mut HMAC_CTX,
     mut data: *const uint8_t,
@@ -1763,7 +1762,7 @@ pub unsafe extern "C" fn HMAC_Update(
         data_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_Final(
     mut ctx: *mut HMAC_CTX,
     mut out: *mut uint8_t,
@@ -1829,15 +1828,15 @@ pub unsafe extern "C" fn HMAC_Final(
         return 0 as libc::c_int;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_size(mut ctx: *const HMAC_CTX) -> size_t {
     return EVP_MD_size((*ctx).md);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_CTX_get_md(mut ctx: *const HMAC_CTX) -> *const EVP_MD {
     return (*ctx).md;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_CTX_copy_ex(
     mut dest: *mut HMAC_CTX,
     mut src: *const HMAC_CTX,
@@ -1849,11 +1848,11 @@ pub unsafe extern "C" fn HMAC_CTX_copy_ex(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_CTX_reset(mut ctx: *mut HMAC_CTX) {
     HMAC_CTX_cleanup(ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_set_precomputed_key_export(
     mut ctx: *mut HMAC_CTX,
 ) -> libc::c_int {
@@ -1873,7 +1872,7 @@ pub unsafe extern "C" fn HMAC_set_precomputed_key_export(
     (*ctx).state = 4 as libc::c_int as int8_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_get_precomputed_key(
     mut ctx: *mut HMAC_CTX,
     mut out: *mut uint8_t,
@@ -2052,7 +2051,7 @@ pub unsafe extern "C" fn HMAC_get_precomputed_key(
     (*ctx).state = 1 as libc::c_int as int8_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_Init_from_precomputed_key(
     mut ctx: *mut HMAC_CTX,
     mut precomputed_key: *const uint8_t,
@@ -2195,7 +2194,7 @@ pub unsafe extern "C" fn HMAC_Init_from_precomputed_key(
     }
     return result;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_Init(
     mut ctx: *mut HMAC_CTX,
     mut key: *const libc::c_void,
@@ -2207,7 +2206,7 @@ pub unsafe extern "C" fn HMAC_Init(
     }
     return HMAC_Init_ex(ctx, key, key_len as size_t, md, 0 as *mut ENGINE);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_CTX_copy(
     mut dest: *mut HMAC_CTX,
     mut src: *const HMAC_CTX,

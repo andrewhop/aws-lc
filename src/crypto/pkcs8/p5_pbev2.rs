@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type evp_cipher_st;
     pub type engine_st;
     pub type env_md_st;
@@ -419,7 +418,7 @@ unsafe extern "C" fn pkcs5_pbe2_cipher_init(
     OPENSSL_cleanse(key.as_mut_ptr() as *mut libc::c_void, 64 as libc::c_int as size_t);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS5_pbe2_encrypt_init(
     mut out: *mut CBB,
     mut ctx: *mut EVP_CIPHER_CTX,
@@ -628,7 +627,7 @@ pub unsafe extern "C" fn PKCS5_pbe2_encrypt_init(
         1 as libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS5_pbe2_decrypt_init(
     mut suite: *const pbe_suite,
     mut ctx: *mut EVP_CIPHER_CTX,

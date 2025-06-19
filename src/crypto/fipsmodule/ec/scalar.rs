@@ -9,7 +9,7 @@
 )]
 #![feature(asm)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn BN_num_bytes(bn: *const BIGNUM) -> libc::c_uint;
     fn OPENSSL_cleanse(ptr: *mut libc::c_void, len: size_t);
     fn ERR_put_error(
@@ -386,7 +386,7 @@ unsafe extern "C" fn OPENSSL_memset(
     }
     return memset(dst, c, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_bignum_to_scalar(
     mut group: *const EC_GROUP,
     mut out: *mut EC_SCALAR,
@@ -414,7 +414,7 @@ pub unsafe extern "C" fn ec_bignum_to_scalar(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_scalar_equal_vartime(
     mut group: *const EC_GROUP,
     mut a: *const EC_SCALAR,
@@ -427,7 +427,7 @@ pub unsafe extern "C" fn ec_scalar_equal_vartime(
             .wrapping_mul(::core::mem::size_of::<BN_ULONG>() as libc::c_ulong),
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_scalar_is_zero(
     mut group: *const EC_GROUP,
     mut a: *const EC_SCALAR,
@@ -441,7 +441,7 @@ pub unsafe extern "C" fn ec_scalar_is_zero(
     }
     return (mask == 0 as libc::c_int as BN_ULONG) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_random_nonzero_scalar(
     mut group: *const EC_GROUP,
     mut out: *mut EC_SCALAR,
@@ -455,7 +455,7 @@ pub unsafe extern "C" fn ec_random_nonzero_scalar(
         additional_data,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_scalar_to_bytes(
     mut group: *const EC_GROUP,
     mut out: *mut uint8_t,
@@ -471,7 +471,7 @@ pub unsafe extern "C" fn ec_scalar_to_bytes(
     );
     *out_len = len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_scalar_from_bytes(
     mut group: *const EC_GROUP,
     mut out: *mut EC_SCALAR,
@@ -513,7 +513,7 @@ pub unsafe extern "C" fn ec_scalar_from_bytes(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_scalar_reduce(
     mut group: *const EC_GROUP,
     mut out: *mut EC_SCALAR,
@@ -529,7 +529,7 @@ pub unsafe extern "C" fn ec_scalar_reduce(
     );
     ec_scalar_to_montgomery(group, out, out);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_scalar_add(
     mut group: *const EC_GROUP,
     mut r: *mut EC_SCALAR,
@@ -551,7 +551,7 @@ pub unsafe extern "C" fn ec_scalar_add(
         ::core::mem::size_of::<[BN_ULONG; 9]>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_scalar_sub(
     mut group: *const EC_GROUP,
     mut r: *mut EC_SCALAR,
@@ -573,7 +573,7 @@ pub unsafe extern "C" fn ec_scalar_sub(
         ::core::mem::size_of::<[BN_ULONG; 9]>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_scalar_neg(
     mut group: *const EC_GROUP,
     mut r: *mut EC_SCALAR,
@@ -587,7 +587,7 @@ pub unsafe extern "C" fn ec_scalar_neg(
     );
     ec_scalar_sub(group, r, &mut zero, a);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_scalar_select(
     mut group: *const EC_GROUP,
     mut out: *mut EC_SCALAR,
@@ -604,7 +604,7 @@ pub unsafe extern "C" fn ec_scalar_select(
         (*order).width as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_scalar_to_montgomery(
     mut group: *const EC_GROUP,
     mut r: *mut EC_SCALAR,
@@ -618,7 +618,7 @@ pub unsafe extern "C" fn ec_scalar_to_montgomery(
         &(*group).order,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_scalar_from_montgomery(
     mut group: *const EC_GROUP,
     mut r: *mut EC_SCALAR,
@@ -633,7 +633,7 @@ pub unsafe extern "C" fn ec_scalar_from_montgomery(
         &(*group).order,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_scalar_mul_montgomery(
     mut group: *const EC_GROUP,
     mut r: *mut EC_SCALAR,
@@ -649,7 +649,7 @@ pub unsafe extern "C" fn ec_scalar_mul_montgomery(
         &(*group).order,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_simple_scalar_inv0_montgomery(
     mut group: *const EC_GROUP,
     mut r: *mut EC_SCALAR,
@@ -663,7 +663,7 @@ pub unsafe extern "C" fn ec_simple_scalar_inv0_montgomery(
         &(*group).order,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_simple_scalar_to_montgomery_inv_vartime(
     mut group: *const EC_GROUP,
     mut r: *mut EC_SCALAR,
@@ -676,7 +676,7 @@ pub unsafe extern "C" fn ec_simple_scalar_to_montgomery_inv_vartime(
     ec_scalar_from_montgomery(group, r, r);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_scalar_inv0_montgomery(
     mut group: *const EC_GROUP,
     mut r: *mut EC_SCALAR,
@@ -685,7 +685,7 @@ pub unsafe extern "C" fn ec_scalar_inv0_montgomery(
     ((*(*group).meth).scalar_inv0_montgomery)
         .expect("non-null function pointer")(group, r, a);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_scalar_to_montgomery_inv_vartime(
     mut group: *const EC_GROUP,
     mut r: *mut EC_SCALAR,

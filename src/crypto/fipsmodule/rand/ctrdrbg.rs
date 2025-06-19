@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn aes_ctr_set_key(
         aes_key: *mut AES_KEY,
         gcm_key: *mut GCM128_KEY,
@@ -149,7 +149,7 @@ unsafe extern "C" fn CRYPTO_store_u32_be(mut out: *mut libc::c_void, mut v: uint
 #[inline]
 unsafe extern "C" fn FIPS_service_indicator_update_state() {}
 static mut kMaxReseedCount: uint64_t = (1 as libc::c_ulong) << 48 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CTR_DRBG_new(
     mut entropy: *const uint8_t,
     mut personalization: *const uint8_t,
@@ -166,11 +166,11 @@ pub unsafe extern "C" fn CTR_DRBG_new(
     }
     return drbg;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CTR_DRBG_free(mut state: *mut CTR_DRBG_STATE) {
     OPENSSL_free(state as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CTR_DRBG_init(
     mut drbg: *mut CTR_DRBG_STATE,
     mut entropy: *const uint8_t,
@@ -334,7 +334,7 @@ unsafe extern "C" fn ctr_drbg_update(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CTR_DRBG_reseed(
     mut drbg: *mut CTR_DRBG_STATE,
     mut entropy: *const uint8_t,
@@ -376,7 +376,7 @@ pub unsafe extern "C" fn CTR_DRBG_reseed(
     (*drbg).reseed_counter = 1 as libc::c_int as uint64_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CTR_DRBG_generate(
     mut drbg: *mut CTR_DRBG_STATE,
     mut out: *mut uint8_t,
@@ -463,7 +463,7 @@ pub unsafe extern "C" fn CTR_DRBG_generate(
     FIPS_service_indicator_update_state();
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CTR_DRBG_clear(mut drbg: *mut CTR_DRBG_STATE) {
     OPENSSL_cleanse(
         drbg as *mut libc::c_void,

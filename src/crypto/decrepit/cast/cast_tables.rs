@@ -9,7 +9,7 @@
 )]
 pub type __uint32_t = libc::c_uint;
 pub type uint32_t = __uint32_t;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut CAST_S_table0: [uint32_t; 256] = [
     0x30fb40d4 as libc::c_int as uint32_t,
     0x9fa0ff0b as libc::c_uint,
@@ -268,7 +268,7 @@ pub static mut CAST_S_table0: [uint32_t; 256] = [
     0xdd8f0f00 as libc::c_uint,
     0x5c8165bf as libc::c_int as uint32_t,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut CAST_S_table1: [uint32_t; 256] = [
     0x1f201094 as libc::c_int as uint32_t,
     0xef0ba75b as libc::c_uint,
@@ -527,7 +527,7 @@ pub static mut CAST_S_table1: [uint32_t; 256] = [
     0x83877605 as libc::c_uint,
     0x4523ecf1 as libc::c_int as uint32_t,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut CAST_S_table2: [uint32_t; 256] = [
     0x8defc240 as libc::c_uint,
     0x25fa5d9f as libc::c_int as uint32_t,
@@ -786,7 +786,7 @@ pub static mut CAST_S_table2: [uint32_t; 256] = [
     0xe9d3531c as libc::c_uint,
     0xee353783 as libc::c_uint,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut CAST_S_table3: [uint32_t; 256] = [
     0x9db30420 as libc::c_uint,
     0x1fb6e9de as libc::c_int as uint32_t,
@@ -1045,7 +1045,7 @@ pub static mut CAST_S_table3: [uint32_t; 256] = [
     0x3f85c5c1 as libc::c_int as uint32_t,
     0xaef7ed2 as libc::c_int as uint32_t,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut CAST_S_table4: [uint32_t; 256] = [
     0x7ec90c04 as libc::c_int as uint32_t,
     0x2c6e74b9 as libc::c_int as uint32_t,
@@ -1304,7 +1304,7 @@ pub static mut CAST_S_table4: [uint32_t; 256] = [
     0x6d47de08 as libc::c_int as uint32_t,
     0xefe9e7d4 as libc::c_uint,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut CAST_S_table5: [uint32_t; 256] = [
     0xf6fa8f9d as libc::c_uint,
     0x2cac6ce1 as libc::c_int as uint32_t,
@@ -1563,7 +1563,7 @@ pub static mut CAST_S_table5: [uint32_t; 256] = [
     0x851c97bd as libc::c_uint,
     0xd675cf2f as libc::c_uint,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut CAST_S_table6: [uint32_t; 256] = [
     0x85e04019 as libc::c_uint,
     0x332bf567 as libc::c_int as uint32_t,
@@ -1822,7 +1822,7 @@ pub static mut CAST_S_table6: [uint32_t; 256] = [
     0x90716f4b as libc::c_uint,
     0x954b8aa3 as libc::c_uint,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut CAST_S_table7: [uint32_t; 256] = [
     0xe216300d as libc::c_uint,
     0xbbddfffc as libc::c_uint,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(c_variadic, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn malloc(_: libc::c_ulong) -> *mut libc::c_void;
     fn realloc(_: *mut libc::c_void, _: libc::c_ulong) -> *mut libc::c_void;
     fn free(_: *mut libc::c_void);
@@ -94,7 +93,7 @@ unsafe extern "C" fn __asan_unpoison_memory_region(
     mut addr: *const libc::c_void,
     mut size: size_t,
 ) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_mem_ctrl(mut mode: libc::c_int) -> libc::c_int {
     return 0 as libc::c_int;
 }
@@ -112,7 +111,7 @@ static mut realloc_impl: Option::<
 static mut free_impl: Option::<
     unsafe extern "C" fn(*mut libc::c_void, *const libc::c_char, libc::c_int) -> (),
 > = None;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_set_mem_functions(
     mut m: Option::<
         unsafe extern "C" fn(
@@ -168,7 +167,7 @@ pub unsafe extern "C" fn CRYPTO_set_mem_functions(
     free_impl = f;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_malloc(mut size: size_t) -> *mut libc::c_void {
     let mut ptr_0: *mut libc::c_void = 0 as *mut libc::c_void;
     if malloc_impl.is_some() {
@@ -482,7 +481,7 @@ pub unsafe extern "C" fn OPENSSL_malloc(mut size: size_t) -> *mut libc::c_void {
     );
     return 0 as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_zalloc(mut size: size_t) -> *mut libc::c_void {
     let mut ret: *mut libc::c_void = OPENSSL_malloc(size);
     if !ret.is_null() {
@@ -490,7 +489,7 @@ pub unsafe extern "C" fn OPENSSL_zalloc(mut size: size_t) -> *mut libc::c_void {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_calloc(
     mut num: size_t,
     mut size: size_t,
@@ -510,7 +509,7 @@ pub unsafe extern "C" fn OPENSSL_calloc(
     }
     return OPENSSL_zalloc(num * size);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_free(mut orig_ptr: *mut libc::c_void) {
     if orig_ptr.is_null() {
         return;
@@ -750,7 +749,7 @@ pub unsafe extern "C" fn OPENSSL_free(mut orig_ptr: *mut libc::c_void) {
         free(ptr);
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_realloc(
     mut orig_ptr: *mut libc::c_void,
     mut new_size: size_t,
@@ -1119,51 +1118,51 @@ pub unsafe extern "C" fn OPENSSL_realloc(
     OPENSSL_free(orig_ptr);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_cleanse(mut ptr: *mut libc::c_void, mut len: size_t) {
     if ptr.is_null() || len == 0 as libc::c_int as size_t {
         return;
     }
     OPENSSL_memset(ptr, 0 as libc::c_int, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_clear_free(
     mut ptr: *mut libc::c_void,
     mut unused: size_t,
 ) {
     OPENSSL_free(ptr);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_secure_malloc_init(
     mut size: size_t,
     mut min_size: size_t,
 ) -> libc::c_int {
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_secure_malloc_initialized() -> libc::c_int {
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_secure_used() -> size_t {
     return 0 as libc::c_int as size_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_secure_malloc(mut size: size_t) -> *mut libc::c_void {
     return OPENSSL_malloc(size);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_secure_zalloc(mut size: size_t) -> *mut libc::c_void {
     return OPENSSL_zalloc(size);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_secure_clear_free(
     mut ptr: *mut libc::c_void,
     mut len: size_t,
 ) {
     OPENSSL_clear_free(ptr, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_memcmp(
     mut in_a: *const libc::c_void,
     mut in_b: *const libc::c_void,
@@ -1178,11 +1177,10 @@ pub unsafe extern "C" fn CRYPTO_memcmp(
             | *a.offset(i as isize) as libc::c_int
                 ^ *b.offset(i as isize) as libc::c_int) as uint8_t;
         i = i.wrapping_add(1);
-        i;
     }
     return x as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_hash32(
     mut ptr: *const libc::c_void,
     mut len: size_t,
@@ -1196,15 +1194,14 @@ pub unsafe extern "C" fn OPENSSL_hash32(
         h ^= *in_0.offset(i as isize) as uint32_t;
         h = h * kPrime;
         i = i.wrapping_add(1);
-        i;
     }
     return h;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_strhash(mut s: *const libc::c_char) -> uint32_t {
     return OPENSSL_hash32(s as *const libc::c_void, strlen(s));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_strnlen(
     mut s: *const libc::c_char,
     mut len: size_t,
@@ -1215,11 +1212,10 @@ pub unsafe extern "C" fn OPENSSL_strnlen(
             return i;
         }
         i = i.wrapping_add(1);
-        i;
     }
     return len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_strdup(
     mut s: *const libc::c_char,
 ) -> *mut libc::c_char {
@@ -1231,21 +1227,21 @@ pub unsafe extern "C" fn OPENSSL_strdup(
         (strlen(s)).wrapping_add(1 as libc::c_int as libc::c_ulong),
     ) as *mut libc::c_char;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_isalpha(mut c: libc::c_int) -> libc::c_int {
     return (c >= 'a' as i32 && c <= 'z' as i32 || c >= 'A' as i32 && c <= 'Z' as i32)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_isdigit(mut c: libc::c_int) -> libc::c_int {
     return (c >= '0' as i32 && c <= '9' as i32) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_isxdigit(mut c: libc::c_int) -> libc::c_int {
     return (OPENSSL_isdigit(c) != 0 || c >= 'a' as i32 && c <= 'f' as i32
         || c >= 'A' as i32 && c <= 'F' as i32) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_fromxdigit(
     mut out: *mut uint8_t,
     mut c: libc::c_int,
@@ -1264,7 +1260,7 @@ pub unsafe extern "C" fn OPENSSL_fromxdigit(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_hexstr2buf(
     mut str: *const libc::c_char,
     mut len: *mut size_t,
@@ -1306,28 +1302,27 @@ pub unsafe extern "C" fn OPENSSL_hexstr2buf(
                 i as isize,
             ) = ((hi as libc::c_int) << 4 as libc::c_int | lo as libc::c_int) as uint8_t;
         i = i.wrapping_add(1);
-        i;
     }
     *len = buflen;
     return buf;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_isalnum(mut c: libc::c_int) -> libc::c_int {
     return (OPENSSL_isalpha(c) != 0 || OPENSSL_isdigit(c) != 0) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_tolower(mut c: libc::c_int) -> libc::c_int {
     if c >= 'A' as i32 && c <= 'Z' as i32 {
         return c + ('a' as i32 - 'A' as i32);
     }
     return c;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_isspace(mut c: libc::c_int) -> libc::c_int {
     return (c == '\t' as i32 || c == '\n' as i32 || c == '\u{b}' as i32
         || c == '\u{c}' as i32 || c == '\r' as i32 || c == ' ' as i32) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_strcasecmp(
     mut a: *const libc::c_char,
     mut b: *const libc::c_char,
@@ -1344,10 +1339,9 @@ pub unsafe extern "C" fn OPENSSL_strcasecmp(
             return 0 as libc::c_int
         }
         i = i.wrapping_add(1);
-        i;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_strncasecmp(
     mut a: *const libc::c_char,
     mut b: *const libc::c_char,
@@ -1365,11 +1359,10 @@ pub unsafe extern "C" fn OPENSSL_strncasecmp(
             return 0 as libc::c_int
         }
         i = i.wrapping_add(1);
-        i;
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_snprintf(
     mut buf: *mut libc::c_char,
     mut n: size_t,
@@ -1381,7 +1374,7 @@ pub unsafe extern "C" fn BIO_snprintf(
     let mut ret: libc::c_int = BIO_vsnprintf(buf, n, format, args_0.as_va_list());
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_vsnprintf(
     mut buf: *mut libc::c_char,
     mut n: size_t,
@@ -1390,7 +1383,7 @@ pub unsafe extern "C" fn BIO_vsnprintf(
 ) -> libc::c_int {
     return vsnprintf(buf, n, format, args.as_va_list());
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_vasprintf_internal(
     mut str: *mut *mut libc::c_char,
     mut format: *const libc::c_char,
@@ -1434,7 +1427,7 @@ pub unsafe extern "C" fn OPENSSL_vasprintf_internal(
     candidate = allocate.expect("non-null function pointer")(candidate_len)
         as *mut libc::c_char;
     if !candidate.is_null() {
-        args_copy = args.clone();
+        let mut args_copy = args.clone();
         ret = vsnprintf(candidate, candidate_len, format, args_copy.as_va_list());
         if !(ret < 0 as libc::c_int) {
             if ret as size_t >= candidate_len {
@@ -1471,7 +1464,7 @@ pub unsafe extern "C" fn OPENSSL_vasprintf_internal(
     *__errno_location() = 12 as libc::c_int;
     return -(1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_vasprintf(
     mut str: *mut *mut libc::c_char,
     mut format: *const libc::c_char,
@@ -1479,7 +1472,7 @@ pub unsafe extern "C" fn OPENSSL_vasprintf(
 ) -> libc::c_int {
     return OPENSSL_vasprintf_internal(str, format, args.as_va_list(), 0 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_asprintf(
     mut str: *mut *mut libc::c_char,
     mut format: *const libc::c_char,
@@ -1490,7 +1483,7 @@ pub unsafe extern "C" fn OPENSSL_asprintf(
     let mut ret: libc::c_int = OPENSSL_vasprintf(str, format, args_0.as_va_list());
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_strndup(
     mut str: *const libc::c_char,
     mut size: size_t,
@@ -1516,7 +1509,7 @@ pub unsafe extern "C" fn OPENSSL_strndup(
     *ret.offset(size as isize) = '\0' as i32 as libc::c_char;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_strlcpy(
     mut dst: *mut libc::c_char,
     mut src: *const libc::c_char,
@@ -1530,16 +1523,14 @@ pub unsafe extern "C" fn OPENSSL_strlcpy(
         dst = dst.offset(1);
         *fresh1 = *fresh0;
         l = l.wrapping_add(1);
-        l;
         dst_size = dst_size.wrapping_sub(1);
-        dst_size;
     }
     if dst_size != 0 {
         *dst = 0 as libc::c_int as libc::c_char;
     }
     return l.wrapping_add(strlen(src));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_strlcat(
     mut dst: *mut libc::c_char,
     mut src: *const libc::c_char,
@@ -1550,13 +1541,11 @@ pub unsafe extern "C" fn OPENSSL_strlcat(
         l = l.wrapping_add(1);
         l;
         dst_size = dst_size.wrapping_sub(1);
-        dst_size;
         dst = dst.offset(1);
-        dst;
     }
     return l.wrapping_add(OPENSSL_strlcpy(dst, src, dst_size));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_memdup(
     mut data: *const libc::c_void,
     mut size: size_t,
@@ -1571,7 +1560,7 @@ pub unsafe extern "C" fn OPENSSL_memdup(
     OPENSSL_memcpy(ret, data, size);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_malloc(
     mut size: size_t,
     mut file: *const libc::c_char,
@@ -1579,7 +1568,7 @@ pub unsafe extern "C" fn CRYPTO_malloc(
 ) -> *mut libc::c_void {
     return OPENSSL_malloc(size);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_realloc(
     mut ptr: *mut libc::c_void,
     mut new_size: size_t,
@@ -1588,7 +1577,7 @@ pub unsafe extern "C" fn CRYPTO_realloc(
 ) -> *mut libc::c_void {
     return OPENSSL_realloc(ptr, new_size);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_free(
     mut ptr: *mut libc::c_void,
     mut file: *const libc::c_char,

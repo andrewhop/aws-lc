@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -265,14 +264,14 @@ pub struct X509_val_st {
     pub notAfter: *mut ASN1_TIME,
 }
 pub type EVP_MD = env_md_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_version(mut x509: *const X509) -> libc::c_long {
     if ((*(*x509).cert_info).version).is_null() {
         return 0 as libc::c_int as libc::c_long;
     }
     return ASN1_INTEGER_get((*(*x509).cert_info).version);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_set_version(
     mut x: *mut X509,
     mut version: libc::c_long,
@@ -306,7 +305,7 @@ pub unsafe extern "C" fn X509_set_version(
     }
     return ASN1_INTEGER_set_int64((*(*x).cert_info).version, version);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_set_serialNumber(
     mut x: *mut X509,
     mut serial: *const ASN1_INTEGER,
@@ -338,7 +337,7 @@ pub unsafe extern "C" fn X509_set_serialNumber(
     }
     return (in_0 != 0 as *mut libc::c_void as *mut ASN1_INTEGER) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_set_issuer_name(
     mut x: *mut X509,
     mut name: *mut X509_NAME,
@@ -348,7 +347,7 @@ pub unsafe extern "C" fn X509_set_issuer_name(
     }
     return X509_NAME_set(&mut (*(*x).cert_info).issuer, name);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_set_subject_name(
     mut x: *mut X509,
     mut name: *mut X509_NAME,
@@ -358,7 +357,7 @@ pub unsafe extern "C" fn X509_set_subject_name(
     }
     return X509_NAME_set(&mut (*(*x).cert_info).subject, name);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_set1_notBefore(
     mut x: *mut X509,
     mut tm: *const ASN1_TIME,
@@ -377,26 +376,26 @@ pub unsafe extern "C" fn X509_set1_notBefore(
     }
     return (in_0 != 0 as *mut libc::c_void as *mut ASN1_TIME) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_set_notBefore(
     mut x: *mut X509,
     mut tm: *const ASN1_TIME,
 ) -> libc::c_int {
     return X509_set1_notBefore(x, tm);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get0_notBefore(mut x: *const X509) -> *const ASN1_TIME {
     return (*(*(*x).cert_info).validity).notBefore;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_getm_notBefore(mut x: *mut X509) -> *mut ASN1_TIME {
     return (*(*(*x).cert_info).validity).notBefore;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_notBefore(mut x509: *const X509) -> *mut ASN1_TIME {
     return (*(*(*x509).cert_info).validity).notBefore;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_set1_notAfter(
     mut x: *mut X509,
     mut tm: *const ASN1_TIME,
@@ -415,26 +414,26 @@ pub unsafe extern "C" fn X509_set1_notAfter(
     }
     return (in_0 != 0 as *mut libc::c_void as *mut ASN1_TIME) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_set_notAfter(
     mut x: *mut X509,
     mut tm: *const ASN1_TIME,
 ) -> libc::c_int {
     return X509_set1_notAfter(x, tm);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get0_notAfter(mut x: *const X509) -> *const ASN1_TIME {
     return (*(*(*x).cert_info).validity).notAfter;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_getm_notAfter(mut x: *mut X509) -> *mut ASN1_TIME {
     return (*(*(*x).cert_info).validity).notAfter;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_notAfter(mut x509: *const X509) -> *mut ASN1_TIME {
     return (*(*(*x509).cert_info).validity).notAfter;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get0_uids(
     mut x509: *const X509,
     mut out_issuer_uid: *mut *const ASN1_BIT_STRING,
@@ -447,7 +446,7 @@ pub unsafe extern "C" fn X509_get0_uids(
         *out_subject_uid = (*(*x509).cert_info).subjectUID;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_set_pubkey(
     mut x: *mut X509,
     mut pkey: *mut EVP_PKEY,
@@ -457,17 +456,17 @@ pub unsafe extern "C" fn X509_set_pubkey(
     }
     return X509_PUBKEY_set(&mut (*(*x).cert_info).key, pkey);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get0_extensions(
     mut x: *const X509,
 ) -> *const stack_st_X509_EXTENSION {
     return (*(*x).cert_info).extensions;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get0_tbs_sigalg(mut x: *const X509) -> *const X509_ALGOR {
     return (*(*x).cert_info).signature;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_X509_PUBKEY(
     mut x509: *const X509,
 ) -> *mut X509_PUBKEY {
@@ -506,7 +505,7 @@ unsafe extern "C" fn X509_SIG_INFO_get(
     return ((*sig_info).flags & 0x1 as libc::c_int as uint32_t
         != 0 as libc::c_int as uint32_t) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_signature_info(
     mut x509: *mut X509,
     mut digest_nid: *mut libc::c_int,
@@ -534,7 +533,7 @@ pub unsafe extern "C" fn X509_get_signature_info(
         flags,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x509_init_signature_info(mut x509: *mut X509) -> libc::c_int {
     let mut pubkey_nid: libc::c_int = 0;
     let mut digest_nid: libc::c_int = 0;

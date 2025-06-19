@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -662,7 +661,7 @@ unsafe extern "C" fn sk_CONF_VALUE_pop_free(
         >(free_func),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_akey_id: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {

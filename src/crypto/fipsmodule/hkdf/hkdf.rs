@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type engine_st;
     pub type env_md_st;
     pub type hmac_methods_st;
@@ -158,7 +157,7 @@ unsafe extern "C" fn HKDF_verify_service_indicator(
 ) {}
 #[inline]
 unsafe extern "C" fn HKDFExpand_verify_service_indicator(mut evp_md: *const EVP_MD) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HKDF(
     mut out_key: *mut uint8_t,
     mut out_len: size_t,
@@ -202,7 +201,7 @@ pub unsafe extern "C" fn HKDF(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HKDF_extract(
     mut out_key: *mut uint8_t,
     mut out_len: *mut size_t,
@@ -274,7 +273,7 @@ pub unsafe extern "C" fn HKDF_extract(
     FIPS_service_indicator_unlock_state();
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HKDF_expand(
     mut out_key: *mut uint8_t,
     mut out_len: size_t,

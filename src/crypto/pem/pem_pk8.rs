@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type evp_cipher_st;
     pub type evp_pkey_st;
     pub type X509_sig_st;
@@ -260,7 +259,7 @@ pub type pem_password_cb = unsafe extern "C" fn(
     libc::c_int,
     *mut libc::c_void,
 ) -> libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_PKCS8PrivateKey_nid(
     mut bp: *mut BIO,
     mut x: *const EVP_PKEY,
@@ -282,7 +281,7 @@ pub unsafe extern "C" fn PEM_write_bio_PKCS8PrivateKey_nid(
         u,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_PKCS8PrivateKey(
     mut bp: *mut BIO,
     mut x: *const EVP_PKEY,
@@ -304,7 +303,7 @@ pub unsafe extern "C" fn PEM_write_bio_PKCS8PrivateKey(
         u,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS8PrivateKey_bio(
     mut bp: *mut BIO,
     mut x: *const EVP_PKEY,
@@ -326,7 +325,7 @@ pub unsafe extern "C" fn i2d_PKCS8PrivateKey_bio(
         u,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS8PrivateKey_nid_bio(
     mut bp: *mut BIO,
     mut x: *const EVP_PKEY,
@@ -437,7 +436,7 @@ unsafe extern "C" fn do_pk8pkey(
         return ret;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS8PrivateKey_bio(
     mut bp: *mut BIO,
     mut x: *mut *mut EVP_PKEY,
@@ -499,7 +498,7 @@ pub unsafe extern "C" fn d2i_PKCS8PrivateKey_bio(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS8PrivateKey_fp(
     mut fp: *mut FILE,
     mut x: *const EVP_PKEY,
@@ -521,7 +520,7 @@ pub unsafe extern "C" fn i2d_PKCS8PrivateKey_fp(
         u,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS8PrivateKey_nid_fp(
     mut fp: *mut FILE,
     mut x: *const EVP_PKEY,
@@ -543,7 +542,7 @@ pub unsafe extern "C" fn i2d_PKCS8PrivateKey_nid_fp(
         u,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_PKCS8PrivateKey_nid(
     mut fp: *mut FILE,
     mut x: *const EVP_PKEY,
@@ -565,7 +564,7 @@ pub unsafe extern "C" fn PEM_write_PKCS8PrivateKey_nid(
         u,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_PKCS8PrivateKey(
     mut fp: *mut FILE,
     mut x: *const EVP_PKEY,
@@ -616,7 +615,7 @@ unsafe extern "C" fn do_pk8pkey_fp(
     BIO_free(bp);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS8PrivateKey_fp(
     mut fp: *mut FILE,
     mut x: *mut *mut EVP_PKEY,
@@ -641,7 +640,7 @@ pub unsafe extern "C" fn d2i_PKCS8PrivateKey_fp(
     BIO_free(bp);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_PKCS8(
     mut fp: *mut FILE,
     mut x: *mut X509_SIG,
@@ -664,7 +663,7 @@ pub unsafe extern "C" fn PEM_write_PKCS8(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_PKCS8(
     mut bp: *mut BIO,
     mut x: *mut X509_SIG,
@@ -693,7 +692,7 @@ unsafe extern "C" fn pem_write_PKCS8_i2d(
 ) -> libc::c_int {
     return i2d_X509_SIG(x as *mut X509_SIG, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_PKCS8(
     mut bp: *mut BIO,
     mut x: *mut *mut X509_SIG,
@@ -736,7 +735,7 @@ unsafe extern "C" fn pem_write_bio_PKCS8_i2d(
 ) -> libc::c_int {
     return i2d_X509_SIG(x as *mut X509_SIG, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_PKCS8(
     mut fp: *mut FILE,
     mut x: *mut *mut X509_SIG,
@@ -759,7 +758,7 @@ pub unsafe extern "C" fn PEM_read_PKCS8(
         u,
     ) as *mut X509_SIG;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_PKCS8_PRIV_KEY_INFO(
     mut bp: *mut BIO,
     mut x: *mut PKCS8_PRIV_KEY_INFO,
@@ -782,7 +781,7 @@ pub unsafe extern "C" fn PEM_write_bio_PKCS8_PRIV_KEY_INFO(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_PKCS8_PRIV_KEY_INFO(
     mut fp: *mut FILE,
     mut x: *mut *mut PKCS8_PRIV_KEY_INFO,
@@ -813,7 +812,7 @@ unsafe extern "C" fn pem_read_PKCS8_PRIV_KEY_INFO_d2i(
     return d2i_PKCS8_PRIV_KEY_INFO(x as *mut *mut PKCS8_PRIV_KEY_INFO, inp, len)
         as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_PKCS8_PRIV_KEY_INFO(
     mut fp: *mut FILE,
     mut x: *mut PKCS8_PRIV_KEY_INFO,
@@ -848,7 +847,7 @@ unsafe extern "C" fn pem_write_bio_PKCS8_PRIV_KEY_INFO_i2d(
 ) -> libc::c_int {
     return i2d_PKCS8_PRIV_KEY_INFO(x as *mut PKCS8_PRIV_KEY_INFO, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_PKCS8_PRIV_KEY_INFO(
     mut bp: *mut BIO,
     mut x: *mut *mut PKCS8_PRIV_KEY_INFO,

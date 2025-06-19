@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_ASN1_TYPE;
     pub type stack_st;
@@ -155,7 +154,7 @@ unsafe extern "C" fn sk_ASN1_TYPE_push(
 ) -> size_t {
     return OPENSSL_sk_push(sk as *mut OPENSSL_STACK, p as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ATTRIBUTE_create_by_NID(
     mut attr: *mut *mut X509_ATTRIBUTE,
     mut nid: libc::c_int,
@@ -178,7 +177,7 @@ pub unsafe extern "C" fn X509_ATTRIBUTE_create_by_NID(
     }
     return X509_ATTRIBUTE_create_by_OBJ(attr, obj, attrtype, data, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ATTRIBUTE_create_by_OBJ(
     mut attr: *mut *mut X509_ATTRIBUTE,
     mut obj: *const ASN1_OBJECT,
@@ -208,7 +207,7 @@ pub unsafe extern "C" fn X509_ATTRIBUTE_create_by_OBJ(
     }
     return 0 as *mut X509_ATTRIBUTE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ATTRIBUTE_create_by_txt(
     mut attr: *mut *mut X509_ATTRIBUTE,
     mut attrname: *const libc::c_char,
@@ -245,7 +244,7 @@ pub unsafe extern "C" fn X509_ATTRIBUTE_create_by_txt(
     ASN1_OBJECT_free(obj);
     return nattr;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ATTRIBUTE_set1_object(
     mut attr: *mut X509_ATTRIBUTE,
     mut obj: *const ASN1_OBJECT,
@@ -257,7 +256,7 @@ pub unsafe extern "C" fn X509_ATTRIBUTE_set1_object(
     (*attr).object = OBJ_dup(obj);
     return ((*attr).object != 0 as *mut libc::c_void as *mut ASN1_OBJECT) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ATTRIBUTE_set1_data(
     mut attr: *mut X509_ATTRIBUTE,
     mut attrtype: libc::c_int,
@@ -322,7 +321,7 @@ pub unsafe extern "C" fn X509_ATTRIBUTE_set1_data(
     ASN1_TYPE_free(typ);
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ATTRIBUTE_count(
     mut attr: *const X509_ATTRIBUTE,
 ) -> libc::c_int {
@@ -331,7 +330,7 @@ pub unsafe extern "C" fn X509_ATTRIBUTE_count(
     }
     return sk_ASN1_TYPE_num((*attr).set) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ATTRIBUTE_get0_object(
     mut attr: *mut X509_ATTRIBUTE,
 ) -> *mut ASN1_OBJECT {
@@ -340,7 +339,7 @@ pub unsafe extern "C" fn X509_ATTRIBUTE_get0_object(
     }
     return (*attr).object;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ATTRIBUTE_get0_data(
     mut attr: *mut X509_ATTRIBUTE,
     mut idx: libc::c_int,
@@ -365,7 +364,7 @@ pub unsafe extern "C" fn X509_ATTRIBUTE_get0_data(
     }
     return asn1_type_value_as_pointer(ttmp) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ATTRIBUTE_get0_type(
     mut attr: *mut X509_ATTRIBUTE,
     mut idx: libc::c_int,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type dsa_st;
     pub type ec_key_st;
     pub type evp_pkey_st;
@@ -34,7 +33,7 @@ pub type DSA = dsa_st;
 pub type EC_KEY = ec_key_st;
 pub type EVP_PKEY = evp_pkey_st;
 pub type RSA = rsa_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PrivateKey(
     mut a: *const EVP_PKEY,
     mut pp: *mut *mut uint8_t,

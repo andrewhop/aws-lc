@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -726,7 +725,7 @@ unsafe extern "C" fn OPENSSL_memcmp(
     }
     return memcmp(s1, s2, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_generate_v3(
     mut str: *const libc::c_char,
     mut cnf: *const X509V3_CTX,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_ITEM_st;
     pub type asn1_object_st;
     pub type ASN1_VALUE_st;
@@ -844,7 +843,7 @@ static mut kPKCS7SignedData: [uint8_t; 9] = [
     0x7 as libc::c_int as uint8_t,
     0x2 as libc::c_int as uint8_t,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pkcs7_parse_header(
     mut der_bytes: *mut *mut uint8_t,
     mut out: *mut CBS,
@@ -936,7 +935,7 @@ pub unsafe extern "C" fn pkcs7_parse_header(
     *der_bytes = 0 as *mut uint8_t;
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_get_raw_certificates(
     mut out_certs: *mut stack_st_CRYPTO_BUFFER,
     mut cbs: *mut CBS,
@@ -1058,7 +1057,7 @@ unsafe extern "C" fn pkcs7_bundle_raw_certificates_cb(
     return (CBB_flush_asn1_set_of(&mut certificates) != 0 && CBB_flush(out) != 0)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_bundle_raw_certificates(
     mut out: *mut CBB,
     mut certs: *const stack_st_CRYPTO_BUFFER,
@@ -1074,7 +1073,7 @@ pub unsafe extern "C" fn PKCS7_bundle_raw_certificates(
         certs as *const libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pkcs7_add_signed_data(
     mut out: *mut CBB,
     mut digest_algos_cb: Option::<
@@ -1248,7 +1247,7 @@ pub unsafe extern "C" fn pkcs7_add_signed_data(
     }
     return CBB_flush(out);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_set_type(
     mut p7: *mut PKCS7,
     mut type_0: libc::c_int,
@@ -1390,7 +1389,7 @@ pub unsafe extern "C" fn PKCS7_set_type(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_set_cipher(
     mut p7: *mut PKCS7,
     mut cipher: *const EVP_CIPHER,
@@ -1440,7 +1439,7 @@ pub unsafe extern "C" fn PKCS7_set_cipher(
     (*ec).cipher = cipher;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_set_content(
     mut p7: *mut PKCS7,
     mut p7_data: *mut PKCS7,
@@ -1479,7 +1478,7 @@ pub unsafe extern "C" fn PKCS7_set_content(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_content_new(
     mut p7: *mut PKCS7,
     mut type_0: libc::c_int,
@@ -1495,7 +1494,7 @@ pub unsafe extern "C" fn PKCS7_content_new(
     PKCS7_free(ret);
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_add_recipient_info(
     mut p7: *mut PKCS7,
     mut ri: *mut PKCS7_RECIP_INFO,
@@ -1536,7 +1535,7 @@ pub unsafe extern "C" fn PKCS7_add_recipient_info(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_add_signer(
     mut p7: *mut PKCS7,
     mut p7i: *mut PKCS7_SIGNER_INFO,
@@ -1654,7 +1653,7 @@ unsafe extern "C" fn get_attribute(
     }
     return 0 as *mut ASN1_TYPE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_get_signed_attribute(
     mut si: *const PKCS7_SIGNER_INFO,
     mut nid: libc::c_int,
@@ -1692,7 +1691,7 @@ unsafe extern "C" fn PKCS7_digest_from_attributes(
     }
     return (*astype).value.octet_string;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_get_signer_info(
     mut p7: *mut PKCS7,
 ) -> *mut stack_st_PKCS7_SIGNER_INFO {
@@ -1713,7 +1712,7 @@ pub unsafe extern "C" fn PKCS7_get_signer_info(
         _ => return 0 as *mut stack_st_PKCS7_SIGNER_INFO,
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_SIGNER_INFO_set(
     mut p7i: *mut PKCS7_SIGNER_INFO,
     mut x509: *mut X509,
@@ -1815,7 +1814,7 @@ pub unsafe extern "C" fn PKCS7_SIGNER_INFO_set(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_RECIP_INFO_set(
     mut p7i: *mut PKCS7_RECIP_INFO,
     mut x509: *mut X509,
@@ -1869,7 +1868,7 @@ pub unsafe extern "C" fn PKCS7_RECIP_INFO_set(
     (*p7i).cert = x509;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_SIGNER_INFO_get0_algs(
     mut si: *mut PKCS7_SIGNER_INFO,
     mut pk: *mut *mut EVP_PKEY,
@@ -1889,7 +1888,7 @@ pub unsafe extern "C" fn PKCS7_SIGNER_INFO_get0_algs(
         *psig = (*si).digest_enc_alg;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_RECIP_INFO_get0_alg(
     mut ri: *mut PKCS7_RECIP_INFO,
     mut penc: *mut *mut X509_ALGOR,
@@ -2067,7 +2066,7 @@ unsafe extern "C" fn pkcs7_encode_rinfo(
     OPENSSL_free(ek as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_dataInit(
     mut p7: *mut PKCS7,
     mut bio: *mut BIO,
@@ -2353,7 +2352,7 @@ pub unsafe extern "C" fn PKCS7_dataInit(
     BIO_free_all(btmp);
     return 0 as *mut BIO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_is_detached(mut p7: *mut PKCS7) -> libc::c_int {
     if p7.is_null() {
         ERR_put_error(
@@ -2372,7 +2371,7 @@ pub unsafe extern "C" fn PKCS7_is_detached(mut p7: *mut PKCS7) -> libc::c_int {
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_set_detached(
     mut p7: *mut PKCS7,
     mut detach: libc::c_int,
@@ -2420,7 +2419,7 @@ pub unsafe extern "C" fn PKCS7_set_detached(
         return 0 as libc::c_int;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_get_detached(mut p7: *mut PKCS7) -> libc::c_int {
     return PKCS7_is_detached(p7);
 }
@@ -2471,7 +2470,7 @@ unsafe extern "C" fn pkcs7_find_digest(
     );
     return 0 as *mut BIO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_set_digest(
     mut p7: *mut PKCS7,
     mut md: *const EVP_MD,
@@ -2553,7 +2552,7 @@ pub unsafe extern "C" fn PKCS7_set_digest(
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_get_recipient_info(
     mut p7: *mut PKCS7,
 ) -> *mut stack_st_PKCS7_RECIP_INFO {
@@ -2584,7 +2583,7 @@ pub unsafe extern "C" fn PKCS7_get_recipient_info(
         _ => return 0 as *mut stack_st_PKCS7_RECIP_INFO,
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_dataFinal(
     mut p7: *mut PKCS7,
     mut bio: *mut BIO,
@@ -2927,7 +2926,7 @@ unsafe extern "C" fn pkcs7_bio_copy_content(
     );
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pkcs7_final(
     mut p7: *mut PKCS7,
     mut data: *mut BIO,
@@ -2961,7 +2960,7 @@ pub unsafe extern "C" fn pkcs7_final(
     BIO_free_all(p7bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_encrypt(
     mut certs: *mut stack_st_X509,
     mut in_0: *mut BIO,
@@ -3432,7 +3431,7 @@ unsafe extern "C" fn pkcs7_data_decode(
     BIO_free_all(data_bio);
     return 0 as *mut BIO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_add_recipient(
     mut p7: *mut PKCS7,
     mut x509: *mut X509,
@@ -3469,7 +3468,7 @@ pub unsafe extern "C" fn PKCS7_add_recipient(
     }
     return ri;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_decrypt(
     mut p7: *mut PKCS7,
     mut pkey: *mut EVP_PKEY,
@@ -3592,7 +3591,7 @@ unsafe extern "C" fn pkcs7_get0_certificates(
         _ => return 0 as *mut stack_st_X509,
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_get0_signers(
     mut p7: *mut PKCS7,
     mut certs: *mut stack_st_X509,
@@ -3982,7 +3981,7 @@ unsafe extern "C" fn pkcs7_signature_verify(
     EVP_MD_CTX_free(mdc_tmp);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS7_verify(
     mut p7: *mut PKCS7,
     mut certs: *mut stack_st_X509,
@@ -4192,14 +4191,14 @@ pub unsafe extern "C" fn PKCS7_verify(
     sk_X509_free(untrusted);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SMIME_read_PKCS7(
     mut in_0: *mut BIO,
     mut bcont: *mut *mut BIO,
 ) -> *mut PKCS7 {
     return 0 as *mut PKCS7;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SMIME_write_PKCS7(
     mut out: *mut BIO,
     mut p7: *mut PKCS7,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_pctx_st;
     pub type ASN1_VALUE_st;
     pub type stack_st_void;
@@ -304,21 +303,21 @@ unsafe extern "C" fn sk_ASN1_VALUE_value(
 unsafe extern "C" fn sk_ASN1_VALUE_num(mut sk: *const stack_st_ASN1_VALUE) -> size_t {
     return OPENSSL_sk_num(sk as *const OPENSSL_STACK);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_free(
     mut val: *mut ASN1_VALUE,
     mut it: *const ASN1_ITEM,
 ) {
     asn1_item_combine_free(&mut val, it, 0 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_ex_free(
     mut pval: *mut *mut ASN1_VALUE,
     mut it: *const ASN1_ITEM,
 ) {
     asn1_item_combine_free(pval, it, 0 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_item_combine_free(
     mut pval: *mut *mut ASN1_VALUE,
     mut it: *const ASN1_ITEM,
@@ -435,7 +434,7 @@ pub unsafe extern "C" fn asn1_item_combine_free(
         _ => {}
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_template_free(
     mut pval: *mut *mut ASN1_VALUE,
     mut tt: *const ASN1_TEMPLATE,
@@ -460,7 +459,7 @@ pub unsafe extern "C" fn ASN1_template_free(
         );
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_primitive_free(
     mut pval: *mut *mut ASN1_VALUE,
     mut it: *const ASN1_ITEM,

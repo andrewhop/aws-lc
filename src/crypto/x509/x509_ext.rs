@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -347,11 +346,11 @@ pub struct x509_revoked_st {
     pub reason: libc::c_int,
 }
 pub type X509_REVOKED = x509_revoked_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get_ext_count(mut x: *const X509_CRL) -> libc::c_int {
     return X509v3_get_ext_count((*(*x).crl).extensions);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get_ext_by_NID(
     mut x: *const X509_CRL,
     mut nid: libc::c_int,
@@ -359,7 +358,7 @@ pub unsafe extern "C" fn X509_CRL_get_ext_by_NID(
 ) -> libc::c_int {
     return X509v3_get_ext_by_NID((*(*x).crl).extensions, nid, lastpos);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get_ext_by_OBJ(
     mut x: *const X509_CRL,
     mut obj: *const ASN1_OBJECT,
@@ -367,7 +366,7 @@ pub unsafe extern "C" fn X509_CRL_get_ext_by_OBJ(
 ) -> libc::c_int {
     return X509v3_get_ext_by_OBJ((*(*x).crl).extensions, obj, lastpos);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get_ext_by_critical(
     mut x: *const X509_CRL,
     mut crit: libc::c_int,
@@ -375,21 +374,21 @@ pub unsafe extern "C" fn X509_CRL_get_ext_by_critical(
 ) -> libc::c_int {
     return X509v3_get_ext_by_critical((*(*x).crl).extensions, crit, lastpos);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get_ext(
     mut x: *const X509_CRL,
     mut loc: libc::c_int,
 ) -> *mut X509_EXTENSION {
     return X509v3_get_ext((*(*x).crl).extensions, loc);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_delete_ext(
     mut x: *mut X509_CRL,
     mut loc: libc::c_int,
 ) -> *mut X509_EXTENSION {
     return X509v3_delete_ext((*(*x).crl).extensions, loc);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get_ext_d2i(
     mut crl: *const X509_CRL,
     mut nid: libc::c_int,
@@ -398,7 +397,7 @@ pub unsafe extern "C" fn X509_CRL_get_ext_d2i(
 ) -> *mut libc::c_void {
     return X509V3_get_d2i((*(*crl).crl).extensions, nid, out_critical, out_idx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_add1_ext_i2d(
     mut x: *mut X509_CRL,
     mut nid: libc::c_int,
@@ -408,7 +407,7 @@ pub unsafe extern "C" fn X509_CRL_add1_ext_i2d(
 ) -> libc::c_int {
     return X509V3_add1_i2d(&mut (*(*x).crl).extensions, nid, value, crit, flags);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_add_ext(
     mut x: *mut X509_CRL,
     mut ex: *const X509_EXTENSION,
@@ -417,11 +416,11 @@ pub unsafe extern "C" fn X509_CRL_add_ext(
     return (X509v3_add_ext(&mut (*(*x).crl).extensions, ex, loc)
         != 0 as *mut libc::c_void as *mut stack_st_X509_EXTENSION) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_ext_count(mut x: *const X509) -> libc::c_int {
     return X509v3_get_ext_count((*(*x).cert_info).extensions);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_ext_by_NID(
     mut x: *const X509,
     mut nid: libc::c_int,
@@ -429,7 +428,7 @@ pub unsafe extern "C" fn X509_get_ext_by_NID(
 ) -> libc::c_int {
     return X509v3_get_ext_by_NID((*(*x).cert_info).extensions, nid, lastpos);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_ext_by_OBJ(
     mut x: *const X509,
     mut obj: *const ASN1_OBJECT,
@@ -437,7 +436,7 @@ pub unsafe extern "C" fn X509_get_ext_by_OBJ(
 ) -> libc::c_int {
     return X509v3_get_ext_by_OBJ((*(*x).cert_info).extensions, obj, lastpos);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_ext_by_critical(
     mut x: *const X509,
     mut crit: libc::c_int,
@@ -445,21 +444,21 @@ pub unsafe extern "C" fn X509_get_ext_by_critical(
 ) -> libc::c_int {
     return X509v3_get_ext_by_critical((*(*x).cert_info).extensions, crit, lastpos);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_ext(
     mut x: *const X509,
     mut loc: libc::c_int,
 ) -> *mut X509_EXTENSION {
     return X509v3_get_ext((*(*x).cert_info).extensions, loc);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_delete_ext(
     mut x: *mut X509,
     mut loc: libc::c_int,
 ) -> *mut X509_EXTENSION {
     return X509v3_delete_ext((*(*x).cert_info).extensions, loc);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_add_ext(
     mut x: *mut X509,
     mut ex: *const X509_EXTENSION,
@@ -468,7 +467,7 @@ pub unsafe extern "C" fn X509_add_ext(
     return (X509v3_add_ext(&mut (*(*x).cert_info).extensions, ex, loc)
         != 0 as *mut libc::c_void as *mut stack_st_X509_EXTENSION) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_ext_d2i(
     mut x509: *const X509,
     mut nid: libc::c_int,
@@ -477,7 +476,7 @@ pub unsafe extern "C" fn X509_get_ext_d2i(
 ) -> *mut libc::c_void {
     return X509V3_get_d2i((*(*x509).cert_info).extensions, nid, out_critical, out_idx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_add1_ext_i2d(
     mut x: *mut X509,
     mut nid: libc::c_int,
@@ -487,13 +486,13 @@ pub unsafe extern "C" fn X509_add1_ext_i2d(
 ) -> libc::c_int {
     return X509V3_add1_i2d(&mut (*(*x).cert_info).extensions, nid, value, crit, flags);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_get_ext_count(
     mut x: *const X509_REVOKED,
 ) -> libc::c_int {
     return X509v3_get_ext_count((*x).extensions);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_get_ext_by_NID(
     mut x: *const X509_REVOKED,
     mut nid: libc::c_int,
@@ -501,7 +500,7 @@ pub unsafe extern "C" fn X509_REVOKED_get_ext_by_NID(
 ) -> libc::c_int {
     return X509v3_get_ext_by_NID((*x).extensions, nid, lastpos);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_get_ext_by_OBJ(
     mut x: *const X509_REVOKED,
     mut obj: *const ASN1_OBJECT,
@@ -509,7 +508,7 @@ pub unsafe extern "C" fn X509_REVOKED_get_ext_by_OBJ(
 ) -> libc::c_int {
     return X509v3_get_ext_by_OBJ((*x).extensions, obj, lastpos);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_get_ext_by_critical(
     mut x: *const X509_REVOKED,
     mut crit: libc::c_int,
@@ -517,21 +516,21 @@ pub unsafe extern "C" fn X509_REVOKED_get_ext_by_critical(
 ) -> libc::c_int {
     return X509v3_get_ext_by_critical((*x).extensions, crit, lastpos);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_get_ext(
     mut x: *const X509_REVOKED,
     mut loc: libc::c_int,
 ) -> *mut X509_EXTENSION {
     return X509v3_get_ext((*x).extensions, loc);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_delete_ext(
     mut x: *mut X509_REVOKED,
     mut loc: libc::c_int,
 ) -> *mut X509_EXTENSION {
     return X509v3_delete_ext((*x).extensions, loc);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_add_ext(
     mut x: *mut X509_REVOKED,
     mut ex: *const X509_EXTENSION,
@@ -540,7 +539,7 @@ pub unsafe extern "C" fn X509_REVOKED_add_ext(
     return (X509v3_add_ext(&mut (*x).extensions, ex, loc)
         != 0 as *mut libc::c_void as *mut stack_st_X509_EXTENSION) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_get_ext_d2i(
     mut revoked: *const X509_REVOKED,
     mut nid: libc::c_int,
@@ -549,7 +548,7 @@ pub unsafe extern "C" fn X509_REVOKED_get_ext_d2i(
 ) -> *mut libc::c_void {
     return X509V3_get_d2i((*revoked).extensions, nid, out_critical, out_idx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_add1_ext_i2d(
     mut x: *mut X509_REVOKED,
     mut nid: libc::c_int,

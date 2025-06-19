@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn ASN1_STRING_type_new(type_0: libc::c_int) -> *mut ASN1_STRING;
     fn ASN1_STRING_free(str: *mut ASN1_STRING);
     fn ASN1_STRING_set(
@@ -112,7 +112,7 @@ pub struct cbs_st {
     pub len: size_t,
 }
 pub type CBS = cbs_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_mbstring_copy(
     mut out: *mut *mut ASN1_STRING,
     mut in_0: *const libc::c_uchar,
@@ -130,7 +130,7 @@ pub unsafe extern "C" fn ASN1_mbstring_copy(
         0 as libc::c_int as ossl_ssize_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_mbstring_ncopy(
     mut out: *mut *mut ASN1_STRING,
     mut in_0: *const libc::c_uchar,
@@ -437,7 +437,7 @@ pub unsafe extern "C" fn ASN1_mbstring_ncopy(
     CBB_cleanup(&mut cbb);
     return -(1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_is_printable(mut value: uint32_t) -> libc::c_int {
     if value > 0x7f as libc::c_int as uint32_t {
         return 0 as libc::c_int;

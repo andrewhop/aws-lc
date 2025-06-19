@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_object_st;
     pub type ASN1_VALUE_st;
     pub type X509_name_st;
@@ -289,7 +288,7 @@ unsafe extern "C" fn sk_X509_REVOKED_value(
 ) -> *mut X509_REVOKED {
     return OPENSSL_sk_value(sk as *const OPENSSL_STACK, i) as *mut X509_REVOKED;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_print_fp(
     mut fp: *mut FILE,
     mut x: *mut X509_CRL,
@@ -310,7 +309,7 @@ pub unsafe extern "C" fn X509_CRL_print_fp(
     BIO_free(b);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_print(
     mut out: *mut BIO,
     mut x: *mut X509_CRL,

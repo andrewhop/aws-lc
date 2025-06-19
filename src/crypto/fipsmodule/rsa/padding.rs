@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type engine_st;
     pub type evp_md_pctx_ops;
     pub type evp_pkey_ctx_st;
@@ -262,7 +261,7 @@ unsafe extern "C" fn OPENSSL_memset(
 unsafe extern "C" fn FIPS_service_indicator_lock_state() {}
 #[inline]
 unsafe extern "C" fn FIPS_service_indicator_unlock_state() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_padding_add_PKCS1_type_1(
     mut to: *mut uint8_t,
     mut to_len: size_t,
@@ -310,7 +309,7 @@ pub unsafe extern "C" fn RSA_padding_add_PKCS1_type_1(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_padding_check_PKCS1_type_1(
     mut out: *mut uint8_t,
     mut out_len: *mut size_t,
@@ -405,7 +404,7 @@ pub unsafe extern "C" fn RSA_padding_check_PKCS1_type_1(
     *out_len = from_len.wrapping_sub(pad);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_padding_add_none(
     mut to: *mut uint8_t,
     mut to_len: size_t,
@@ -437,7 +436,7 @@ pub unsafe extern "C" fn RSA_padding_add_none(
     OPENSSL_memcpy(to as *mut libc::c_void, from as *const libc::c_void, from_len);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS1_MGF1(
     mut out: *mut uint8_t,
     mut len: size_t,
@@ -525,7 +524,7 @@ static mut kPSSZeroes: [uint8_t; 8] = [
     0 as libc::c_int as uint8_t,
     0 as libc::c_int as uint8_t,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_verify_PKCS1_PSS_mgf1(
     mut rsa: *const RSA,
     mut mHash: *const uint8_t,
@@ -742,7 +741,7 @@ pub unsafe extern "C" fn RSA_verify_PKCS1_PSS_mgf1(
     FIPS_service_indicator_unlock_state();
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_padding_add_PKCS1_PSS_mgf1(
     mut rsa: *const RSA,
     mut EM: *mut libc::c_uchar,

@@ -9,7 +9,7 @@
 )]
 #![feature(asm, extern_types, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     pub type env_md_st;
     fn __assert_fail(
         __assertion: *const libc::c_char,
@@ -244,7 +244,7 @@ unsafe extern "C" fn CRYPTO_store_u64_be(mut out: *mut libc::c_void, mut v: uint
         ::core::mem::size_of::<uint64_t>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_tls_cbc_remove_padding(
     mut out_padding_ok: *mut crypto_word_t,
     mut out_len: *mut size_t,
@@ -287,7 +287,7 @@ pub unsafe extern "C" fn EVP_tls_cbc_remove_padding(
     *out_padding_ok = good;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_tls_cbc_copy_mac(
     mut out: *mut uint8_t,
     mut md_size: size_t,
@@ -505,7 +505,7 @@ pub unsafe extern "C" fn EVP_tls_cbc_copy_mac(
         md_size,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_final_with_secret_suffix_sha1(
     mut ctx: *mut SHA_CTX,
     mut out: *mut uint8_t,
@@ -809,7 +809,7 @@ unsafe extern "C" fn EVP_tls_cbc_digest_record_sha1(
     *md_out_size = 20 as libc::c_int as size_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_final_with_secret_suffix_sha256(
     mut ctx: *mut SHA256_CTX,
     mut out: *mut uint8_t,
@@ -1114,7 +1114,7 @@ unsafe extern "C" fn EVP_tls_cbc_digest_record_sha256(
     *md_out_size = 32 as libc::c_int as size_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_final_with_secret_suffix_sha384(
     mut ctx: *mut SHA512_CTX,
     mut out: *mut uint8_t,
@@ -1514,14 +1514,14 @@ unsafe extern "C" fn EVP_tls_cbc_digest_record_sha384(
     *md_out_size = 48 as libc::c_int as size_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_tls_cbc_record_digest_supported(
     mut md: *const EVP_MD,
 ) -> libc::c_int {
     return (EVP_MD_type(md) == 64 as libc::c_int || EVP_MD_type(md) == 672 as libc::c_int
         || EVP_MD_type(md) == 673 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_tls_cbc_digest_record(
     mut md: *const EVP_MD,
     mut md_out: *mut uint8_t,

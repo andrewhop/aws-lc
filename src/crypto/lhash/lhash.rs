@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn __assert_fail(
         __assertion: *const libc::c_char,
         __file: *const libc::c_char,
@@ -60,7 +60,7 @@ pub type lhash_hash_func_helper = Option::<
 static mut kMinNumBuckets: size_t = 16 as libc::c_int as size_t;
 static mut kMaxAverageChainLength: size_t = 2 as libc::c_int as size_t;
 static mut kMinAverageChainLength: size_t = 1 as libc::c_int as size_t;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_lh_new(
     mut hash: lhash_hash_func,
     mut comp: lhash_cmp_func,
@@ -85,7 +85,7 @@ pub unsafe extern "C" fn OPENSSL_lh_new(
     (*ret).hash = hash;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_lh_free(mut lh: *mut _LHASH) {
     if lh.is_null() {
         return;
@@ -105,7 +105,7 @@ pub unsafe extern "C" fn OPENSSL_lh_free(mut lh: *mut _LHASH) {
     OPENSSL_free((*lh).buckets as *mut libc::c_void);
     OPENSSL_free(lh as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_lh_num_items(mut lh: *const _LHASH) -> size_t {
     return (*lh).num_items;
 }
@@ -159,7 +159,7 @@ unsafe extern "C" fn get_next_ptr_by_key(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_lh_retrieve(
     mut lh: *const _LHASH,
     mut data: *const libc::c_void,
@@ -179,7 +179,7 @@ pub unsafe extern "C" fn OPENSSL_lh_retrieve(
         (**next_ptr).data
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_lh_retrieve_key(
     mut lh: *const _LHASH,
     mut key: *const libc::c_void,
@@ -287,7 +287,7 @@ unsafe extern "C" fn lh_maybe_resize(mut lh: *mut _LHASH) {
         lh_rebucket(lh, new_num_buckets_0);
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_lh_insert(
     mut lh: *mut _LHASH,
     mut old_data: *mut *mut libc::c_void,
@@ -318,7 +318,7 @@ pub unsafe extern "C" fn OPENSSL_lh_insert(
     lh_maybe_resize(lh);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_lh_delete(
     mut lh: *mut _LHASH,
     mut data: *const libc::c_void,
@@ -347,7 +347,7 @@ pub unsafe extern "C" fn OPENSSL_lh_delete(
     lh_maybe_resize(lh);
     return ret as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_lh_doall_arg(
     mut lh: *mut _LHASH,
     mut func: Option::<unsafe extern "C" fn(*mut libc::c_void, *mut libc::c_void) -> ()>,
@@ -386,7 +386,7 @@ pub unsafe extern "C" fn OPENSSL_lh_doall_arg(
     }
     lh_maybe_resize(lh);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn lh_doall_arg(
     mut lh: *mut _LHASH,
     mut func: Option::<unsafe extern "C" fn(*mut libc::c_void, *mut libc::c_void) -> ()>,

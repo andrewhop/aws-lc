@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     fn BIO_new(method: *const BIO_METHOD) -> *mut BIO;
     fn BIO_free(bio: *mut BIO) -> libc::c_int;
@@ -1189,7 +1188,7 @@ static mut methods_biop: BIO_METHOD = unsafe {
 unsafe extern "C" fn bio_s_bio() -> *const BIO_METHOD {
     return &methods_biop;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_new_bio_pair(
     mut bio1_p: *mut *mut BIO,
     mut writebuf1_len: size_t,
@@ -1211,7 +1210,7 @@ pub unsafe extern "C" fn BIO_new_bio_pair(
     *bio2_p = bio2;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_destroy_bio_pair(mut b: *mut BIO) -> libc::c_int {
     if b.is_null() {
         return 0 as libc::c_int;
@@ -1219,7 +1218,7 @@ pub unsafe extern "C" fn BIO_destroy_bio_pair(mut b: *mut BIO) -> libc::c_int {
     bio_destroy_pair(b);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_ctrl_get_read_request(mut bio: *mut BIO) -> size_t {
     return BIO_ctrl(
         bio,
@@ -1228,7 +1227,7 @@ pub unsafe extern "C" fn BIO_ctrl_get_read_request(mut bio: *mut BIO) -> size_t 
         0 as *mut libc::c_void,
     ) as size_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_ctrl_get_write_guarantee(mut bio: *mut BIO) -> size_t {
     return BIO_ctrl(
         bio,
@@ -1237,7 +1236,7 @@ pub unsafe extern "C" fn BIO_ctrl_get_write_guarantee(mut bio: *mut BIO) -> size
         0 as *mut libc::c_void,
     ) as size_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_shutdown_wr(mut bio: *mut BIO) -> libc::c_int {
     return BIO_ctrl(
         bio,

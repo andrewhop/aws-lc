@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type evp_pkey_ctx_st;
     fn RIPEMD160_Init(ctx: *mut RIPEMD160_CTX) -> libc::c_int;
     fn RIPEMD160_Update(
@@ -347,7 +346,7 @@ static mut EVP_md4_storage: EVP_MD = env_md_st {
     finalXOF: None,
     squeezeXOF: None,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_md4() -> *const EVP_MD {
     CRYPTO_once(
         EVP_md4_once_bss_get(),
@@ -476,7 +475,7 @@ unsafe extern "C" fn EVP_md5_do_init(mut out: *mut EVP_MD) {
     (*out).block_size = 64 as libc::c_int as libc::c_uint;
     (*out).ctx_size = ::core::mem::size_of::<MD5_CTX>() as libc::c_ulong as libc::c_uint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_md5() -> *const EVP_MD {
     CRYPTO_once(
         EVP_md5_once_bss_get(),
@@ -552,7 +551,7 @@ unsafe extern "C" fn ripemd160_final(mut ctx: *mut EVP_MD_CTX, mut out: *mut uin
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_ripemd160() -> *const EVP_MD {
     CRYPTO_once(
         EVP_ripemd160_once_bss_get(),
@@ -703,7 +702,7 @@ unsafe extern "C" fn EVP_sha1_init() {
 unsafe extern "C" fn EVP_sha1_once_bss_get() -> *mut CRYPTO_once_t {
     return &mut EVP_sha1_once;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_sha1() -> *const EVP_MD {
     CRYPTO_once(
         EVP_sha1_once_bss_get(),
@@ -841,7 +840,7 @@ static mut EVP_sha224_storage: EVP_MD = env_md_st {
 unsafe extern "C" fn EVP_sha224_storage_bss_get() -> *mut EVP_MD {
     return &mut EVP_sha224_storage;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_sha224() -> *const EVP_MD {
     CRYPTO_once(
         EVP_sha224_once_bss_get(),
@@ -916,7 +915,7 @@ unsafe extern "C" fn sha256_final(mut ctx: *mut EVP_MD_CTX, mut md: *mut uint8_t
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_sha256() -> *const EVP_MD {
     CRYPTO_once(
         EVP_sha256_once_bss_get(),
@@ -1066,7 +1065,7 @@ unsafe extern "C" fn EVP_sha384_do_init(mut out: *mut EVP_MD) {
 unsafe extern "C" fn EVP_sha384_once_bss_get() -> *mut CRYPTO_once_t {
     return &mut EVP_sha384_once;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_sha384() -> *const EVP_MD {
     CRYPTO_once(
         EVP_sha384_once_bss_get(),
@@ -1179,7 +1178,7 @@ static mut EVP_sha512_once: CRYPTO_once_t = 0 as libc::c_int;
 unsafe extern "C" fn EVP_sha512_init() {
     EVP_sha512_do_init(EVP_sha512_storage_bss_get());
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_sha512() -> *const EVP_MD {
     CRYPTO_once(
         EVP_sha512_once_bss_get(),
@@ -1324,7 +1323,7 @@ unsafe extern "C" fn EVP_sha512_224_do_init(mut out: *mut EVP_MD) {
         .ctx_size = ::core::mem::size_of::<SHA512_CTX>() as libc::c_ulong
         as libc::c_uint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_sha512_224() -> *const EVP_MD {
     CRYPTO_once(
         EVP_sha512_224_once_bss_get(),
@@ -1448,7 +1447,7 @@ static mut EVP_sha512_256_storage: EVP_MD = env_md_st {
 unsafe extern "C" fn EVP_sha512_256_storage_bss_get() -> *mut EVP_MD {
     return &mut EVP_sha512_256_storage;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_sha512_256() -> *const EVP_MD {
     CRYPTO_once(
         EVP_sha512_256_once_bss_get(),
@@ -1530,7 +1529,7 @@ unsafe extern "C" fn sha3_224_final(mut ctx: *mut EVP_MD_CTX, mut md: *mut uint8
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_sha3_224() -> *const EVP_MD {
     CRYPTO_once(
         EVP_sha3_224_once_bss_get(),
@@ -1658,7 +1657,7 @@ unsafe extern "C" fn sha3_256_final(mut ctx: *mut EVP_MD_CTX, mut md: *mut uint8
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_sha3_256() -> *const EVP_MD {
     CRYPTO_once(
         EVP_sha3_256_once_bss_get(),
@@ -1793,7 +1792,7 @@ static mut EVP_sha3_384_once: CRYPTO_once_t = 0 as libc::c_int;
 unsafe extern "C" fn EVP_sha3_384_storage_bss_get() -> *mut EVP_MD {
     return &mut EVP_sha3_384_storage;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_sha3_384() -> *const EVP_MD {
     CRYPTO_once(
         EVP_sha3_384_once_bss_get(),
@@ -1944,7 +1943,7 @@ unsafe extern "C" fn EVP_sha3_512_do_init(mut out: *mut EVP_MD) {
 unsafe extern "C" fn EVP_sha3_512_storage_bss_get() -> *mut EVP_MD {
     return &mut EVP_sha3_512_storage;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_sha3_512() -> *const EVP_MD {
     CRYPTO_once(
         EVP_sha3_512_once_bss_get(),
@@ -2079,7 +2078,7 @@ unsafe extern "C" fn EVP_shake128_once_bss_get() -> *mut CRYPTO_once_t {
     return &mut EVP_shake128_once;
 }
 static mut EVP_shake128_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_shake128() -> *const EVP_MD {
     CRYPTO_once(
         EVP_shake128_once_bss_get(),
@@ -2233,7 +2232,7 @@ static mut EVP_shake256_storage: EVP_MD = env_md_st {
     finalXOF: None,
     squeezeXOF: None,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_shake256() -> *const EVP_MD {
     CRYPTO_once(
         EVP_shake256_once_bss_get(),
@@ -2362,7 +2361,7 @@ unsafe extern "C" fn md5_sha1_final(mut md_ctx: *mut EVP_MD_CTX, mut out: *mut u
 unsafe extern "C" fn EVP_md5_sha1_init() {
     EVP_md5_sha1_do_init(EVP_md5_sha1_storage_bss_get());
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_md5_sha1() -> *const EVP_MD {
     CRYPTO_once(
         EVP_md5_sha1_once_bss_get(),

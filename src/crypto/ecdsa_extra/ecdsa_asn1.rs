@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     fn BN_num_bytes(bn: *const BIGNUM) -> libc::c_uint;
     fn BN_parse_asn1_unsigned(cbs: *mut CBS, ret: *mut BIGNUM) -> libc::c_int;
@@ -394,7 +393,7 @@ pub struct EC_WRAPPED_SCALAR {
     pub bignum: BIGNUM,
     pub scalar: EC_SCALAR,
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_size(mut key: *const EC_KEY) -> size_t {
     if key.is_null() {
         return 0 as libc::c_int as size_t;
@@ -407,7 +406,7 @@ pub unsafe extern "C" fn ECDSA_size(mut key: *const EC_KEY) -> size_t {
     group_order_size = BN_num_bytes(EC_GROUP_get0_order(group)) as size_t;
     return ECDSA_SIG_max_len(group_order_size);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_SIG_parse(mut cbs: *mut CBS) -> *mut ECDSA_SIG {
     let mut ret: *mut ECDSA_SIG = ECDSA_SIG_new();
     if ret.is_null() {
@@ -438,7 +437,7 @@ pub unsafe extern "C" fn ECDSA_SIG_parse(mut cbs: *mut CBS) -> *mut ECDSA_SIG {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_SIG_from_bytes(
     mut in_0: *const uint8_t,
     mut in_len: size_t,
@@ -463,7 +462,7 @@ pub unsafe extern "C" fn ECDSA_SIG_from_bytes(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_SIG_marshal(
     mut cbb: *mut CBB,
     mut sig: *const ECDSA_SIG,
@@ -500,7 +499,7 @@ pub unsafe extern "C" fn ECDSA_SIG_marshal(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_SIG_to_bytes(
     mut out_bytes: *mut *mut uint8_t,
     mut out_len: *mut size_t,
@@ -549,7 +548,7 @@ unsafe extern "C" fn der_len_len(mut len: size_t) -> size_t {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_SIG_max_len(mut order_len: size_t) -> size_t {
     let mut integer_len: size_t = (1 as libc::c_int as size_t)
         .wrapping_add(der_len_len(order_len.wrapping_add(1 as libc::c_int as size_t)))
@@ -570,7 +569,7 @@ pub unsafe extern "C" fn ECDSA_SIG_max_len(mut order_len: size_t) -> size_t {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_ECDSA_SIG(
     mut out: *mut *mut ECDSA_SIG,
     mut inp: *mut *const uint8_t,
@@ -595,7 +594,7 @@ pub unsafe extern "C" fn d2i_ECDSA_SIG(
     *inp = CBS_data(&mut cbs);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_ECDSA_SIG(
     mut sig: *const ECDSA_SIG,
     mut outp: *mut *mut uint8_t,

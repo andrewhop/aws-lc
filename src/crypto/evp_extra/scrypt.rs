@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type env_md_st;
     fn EVP_sha256() -> *const EVP_MD;
     fn OPENSSL_calloc(num: size_t, size: size_t) -> *mut libc::c_void;
@@ -434,7 +433,7 @@ unsafe extern "C" fn scryptROMix(
         i_0;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PBE_scrypt(
     mut password: *const libc::c_char,
     mut password_len: size_t,

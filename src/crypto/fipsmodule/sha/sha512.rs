@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn memcpy(
         _: *mut libc::c_void,
         _: *const libc::c_void,
@@ -101,7 +101,7 @@ unsafe extern "C" fn FIPS_service_indicator_update_state() {}
 unsafe extern "C" fn FIPS_service_indicator_lock_state() {}
 #[inline]
 unsafe extern "C" fn FIPS_service_indicator_unlock_state() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA384_Init(mut sha: *mut SHA512_CTX) -> libc::c_int {
     (*sha).h[0 as libc::c_int as usize] = 0xcbbb9d5dc1059ed8 as libc::c_ulong;
     (*sha).h[1 as libc::c_int as usize] = 0x629a292a367cd507 as libc::c_ulong;
@@ -117,7 +117,7 @@ pub unsafe extern "C" fn SHA384_Init(mut sha: *mut SHA512_CTX) -> libc::c_int {
     (*sha).md_len = 48 as libc::c_int as libc::c_uint;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_Init(mut sha: *mut SHA512_CTX) -> libc::c_int {
     (*sha).h[0 as libc::c_int as usize] = 0x6a09e667f3bcc908 as libc::c_ulong;
     (*sha).h[1 as libc::c_int as usize] = 0xbb67ae8584caa73b as libc::c_ulong;
@@ -133,7 +133,7 @@ pub unsafe extern "C" fn SHA512_Init(mut sha: *mut SHA512_CTX) -> libc::c_int {
     (*sha).md_len = 64 as libc::c_int as libc::c_uint;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_224_Init(mut sha: *mut SHA512_CTX) -> libc::c_int {
     (*sha).h[0 as libc::c_int as usize] = 0x8c3d37c819544da2 as libc::c_ulong;
     (*sha).h[1 as libc::c_int as usize] = 0x73e1996689dcd4d6 as libc::c_ulong;
@@ -149,7 +149,7 @@ pub unsafe extern "C" fn SHA512_224_Init(mut sha: *mut SHA512_CTX) -> libc::c_in
     (*sha).md_len = 28 as libc::c_int as libc::c_uint;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_256_Init(mut sha: *mut SHA512_CTX) -> libc::c_int {
     (*sha).h[0 as libc::c_int as usize] = 0x22312194fc2bf72c as libc::c_ulong;
     (*sha).h[1 as libc::c_int as usize] = 0x9f555fa3c84c64c2 as libc::c_ulong;
@@ -194,7 +194,7 @@ unsafe extern "C" fn sha512_init_from_state_impl(
     (*sha).Nl = n;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA384_Init_from_state(
     mut sha: *mut SHA512_CTX,
     mut h: *const uint8_t,
@@ -202,7 +202,7 @@ pub unsafe extern "C" fn SHA384_Init_from_state(
 ) -> libc::c_int {
     return sha512_init_from_state_impl(sha, 48 as libc::c_int, h, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_Init_from_state(
     mut sha: *mut SHA512_CTX,
     mut h: *const uint8_t,
@@ -210,7 +210,7 @@ pub unsafe extern "C" fn SHA512_Init_from_state(
 ) -> libc::c_int {
     return sha512_init_from_state_impl(sha, 64 as libc::c_int, h, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_224_Init_from_state(
     mut sha: *mut SHA512_CTX,
     mut h: *const uint8_t,
@@ -218,7 +218,7 @@ pub unsafe extern "C" fn SHA512_224_Init_from_state(
 ) -> libc::c_int {
     return sha512_init_from_state_impl(sha, 28 as libc::c_int, h, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_256_Init_from_state(
     mut sha: *mut SHA512_CTX,
     mut h: *const uint8_t,
@@ -226,7 +226,7 @@ pub unsafe extern "C" fn SHA512_256_Init_from_state(
 ) -> libc::c_int {
     return sha512_init_from_state_impl(sha, 32 as libc::c_int, h, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA384(
     mut data: *const uint8_t,
     mut len: size_t,
@@ -254,7 +254,7 @@ pub unsafe extern "C" fn SHA384(
     );
     return out;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512(
     mut data: *const uint8_t,
     mut len: size_t,
@@ -282,7 +282,7 @@ pub unsafe extern "C" fn SHA512(
     );
     return out;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_224(
     mut data: *const uint8_t,
     mut len: size_t,
@@ -310,7 +310,7 @@ pub unsafe extern "C" fn SHA512_224(
     );
     return out;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_256(
     mut data: *const uint8_t,
     mut len: size_t,
@@ -338,7 +338,7 @@ pub unsafe extern "C" fn SHA512_256(
     );
     return out;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA384_Final(
     mut out: *mut uint8_t,
     mut sha: *mut SHA512_CTX,
@@ -374,7 +374,7 @@ pub unsafe extern "C" fn SHA384_Final(
     };
     return sha512_final_impl(out, 48 as libc::c_int as size_t, sha);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA384_Update(
     mut sha: *mut SHA512_CTX,
     mut data: *const libc::c_void,
@@ -382,7 +382,7 @@ pub unsafe extern "C" fn SHA384_Update(
 ) -> libc::c_int {
     return SHA512_Update(sha, data, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_224_Update(
     mut sha: *mut SHA512_CTX,
     mut data: *const libc::c_void,
@@ -390,7 +390,7 @@ pub unsafe extern "C" fn SHA512_224_Update(
 ) -> libc::c_int {
     return SHA512_Update(sha, data, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_224_Final(
     mut out: *mut uint8_t,
     mut sha: *mut SHA512_CTX,
@@ -427,7 +427,7 @@ pub unsafe extern "C" fn SHA512_224_Final(
     };
     return sha512_final_impl(out, 28 as libc::c_int as size_t, sha);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_256_Update(
     mut sha: *mut SHA512_CTX,
     mut data: *const libc::c_void,
@@ -435,7 +435,7 @@ pub unsafe extern "C" fn SHA512_256_Update(
 ) -> libc::c_int {
     return SHA512_Update(sha, data, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_256_Final(
     mut out: *mut uint8_t,
     mut sha: *mut SHA512_CTX,
@@ -472,14 +472,14 @@ pub unsafe extern "C" fn SHA512_256_Final(
     };
     return sha512_final_impl(out, 32 as libc::c_int as size_t, sha);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_Transform(
     mut c: *mut SHA512_CTX,
     mut block: *const uint8_t,
 ) {
     sha512_block_data_order(((*c).h).as_mut_ptr(), block, 1 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_Update(
     mut c: *mut SHA512_CTX,
     mut in_data: *const libc::c_void,
@@ -548,7 +548,7 @@ pub unsafe extern "C" fn SHA512_Update(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_Final(
     mut out: *mut uint8_t,
     mut sha: *mut SHA512_CTX,
@@ -681,7 +681,7 @@ unsafe extern "C" fn sha512_get_state_impl(
     *out_n = (*ctx).Nl;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA384_get_state(
     mut ctx: *mut SHA512_CTX,
     mut out_h: *mut uint8_t,
@@ -689,7 +689,7 @@ pub unsafe extern "C" fn SHA384_get_state(
 ) -> libc::c_int {
     return sha512_get_state_impl(ctx, out_h, out_n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_get_state(
     mut ctx: *mut SHA512_CTX,
     mut out_h: *mut uint8_t,
@@ -697,7 +697,7 @@ pub unsafe extern "C" fn SHA512_get_state(
 ) -> libc::c_int {
     return sha512_get_state_impl(ctx, out_h, out_n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_224_get_state(
     mut ctx: *mut SHA512_CTX,
     mut out_h: *mut uint8_t,
@@ -705,7 +705,7 @@ pub unsafe extern "C" fn SHA512_224_get_state(
 ) -> libc::c_int {
     return sha512_get_state_impl(ctx, out_h, out_n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA512_256_get_state(
     mut ctx: *mut SHA512_CTX,
     mut out_h: *mut uint8_t,

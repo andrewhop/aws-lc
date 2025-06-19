@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     pub type ecdsa_sig_st;
     pub type rsa_meth_st;
@@ -325,17 +324,17 @@ pub struct engine_st {
 }
 pub type RSA_METHOD = rsa_meth_st;
 pub type ENGINE = engine_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ENGINE_new() -> *mut ENGINE {
     return OPENSSL_zalloc(::core::mem::size_of::<ENGINE>() as libc::c_ulong)
         as *mut ENGINE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ENGINE_free(mut engine: *mut ENGINE) -> libc::c_int {
     OPENSSL_free(engine as *mut libc::c_void);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ENGINE_set_RSA(
     mut engine: *mut ENGINE,
     mut method: *const RSA_METHOD,
@@ -354,14 +353,14 @@ pub unsafe extern "C" fn ENGINE_set_RSA(
     (*engine).rsa_method = method as *mut RSA_METHOD;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ENGINE_get_RSA(mut engine: *const ENGINE) -> *const RSA_METHOD {
     if !engine.is_null() {
         return (*engine).rsa_method;
     }
     return 0 as *const RSA_METHOD;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ENGINE_set_EC(
     mut engine: *mut ENGINE,
     mut method: *const EC_KEY_METHOD,
@@ -380,7 +379,7 @@ pub unsafe extern "C" fn ENGINE_set_EC(
     (*engine).eckey_method = method as *mut EC_KEY_METHOD;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ENGINE_get_EC(
     mut engine: *const ENGINE,
 ) -> *const EC_KEY_METHOD {
@@ -389,5 +388,5 @@ pub unsafe extern "C" fn ENGINE_get_EC(
     }
     return 0 as *const EC_KEY_METHOD;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ENGINE_cleanup() {}

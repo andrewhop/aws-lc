@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_ITEM_st;
     pub type ASN1_VALUE_st;
     pub type stack_st_void;
@@ -169,7 +168,7 @@ pub type i2d_of_void = unsafe extern "C" fn(
     *const libc::c_void,
     *mut *mut libc::c_uchar,
 ) -> libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_i2d_bio(
     mut i2d: Option::<i2d_of_void>,
     mut out: *mut BIO,
@@ -230,7 +229,7 @@ pub unsafe extern "C" fn ASN1_i2d_bio(
     OPENSSL_free(buffer as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_i2d_fp(
     mut it: *const ASN1_ITEM,
     mut out: *mut FILE,
@@ -252,7 +251,7 @@ pub unsafe extern "C" fn ASN1_item_i2d_fp(
     BIO_free(b);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_i2d_bio(
     mut it: *const ASN1_ITEM,
     mut out: *mut BIO,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
     pub type _IO_marker;
@@ -332,18 +331,18 @@ unsafe extern "C" fn fill_with_entropy(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_init_sysrand() {
     CRYPTO_once(rand_once_bss_get(), Some(init_once as unsafe extern "C" fn() -> ()));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_sysrand(mut out: *mut uint8_t, mut requested: size_t) {
     if fill_with_entropy(out, requested, 1 as libc::c_int, 0 as libc::c_int) == 0 {
         perror(b"entropy fill failed\0" as *const u8 as *const libc::c_char);
         abort();
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_sysrand_for_seed(
     mut out: *mut uint8_t,
     mut requested: size_t,
@@ -353,7 +352,7 @@ pub unsafe extern "C" fn CRYPTO_sysrand_for_seed(
         abort();
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_sysrand_if_available(
     mut out: *mut uint8_t,
     mut requested: size_t,

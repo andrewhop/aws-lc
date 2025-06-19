@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn __assert_fail(
         __assertion: *const libc::c_char,
         __file: *const libc::c_char,
@@ -474,7 +474,7 @@ unsafe extern "C" fn blake2b_transform(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BLAKE2B256_Init(mut b2b: *mut BLAKE2B_CTX) {
     OPENSSL_memset(
         b2b as *mut libc::c_void,
@@ -490,7 +490,7 @@ pub unsafe extern "C" fn BLAKE2B256_Init(mut b2b: *mut BLAKE2B_CTX) {
         ^= (0x1010000 as libc::c_int | 256 as libc::c_int / 8 as libc::c_int)
             as uint64_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BLAKE2B256_Update(
     mut b2b: *mut BLAKE2B_CTX,
     mut in_data: *const libc::c_void,
@@ -565,7 +565,7 @@ pub unsafe extern "C" fn BLAKE2B256_Update(
     );
     (*b2b).block_used = len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BLAKE2B256_Final(
     mut out: *mut uint8_t,
     mut b2b: *mut BLAKE2B_CTX,
@@ -589,7 +589,7 @@ pub unsafe extern "C" fn BLAKE2B256_Final(
         (256 as libc::c_int / 8 as libc::c_int / 8 as libc::c_int) as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BLAKE2B256(
     mut data: *const uint8_t,
     mut len: size_t,

@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn __assert_fail(
         __assertion: *const libc::c_char,
         __file: *const libc::c_char,
@@ -1211,7 +1211,7 @@ unsafe extern "C" fn aes_ofb_cipher(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn aes_ctr_set_key(
     mut aes_key: *mut AES_KEY,
     mut gcm_key: *mut GCM128_KEY,
@@ -2025,7 +2025,7 @@ unsafe extern "C" fn EVP_aes_128_cbc_once_bss_get() -> *mut CRYPTO_once_t {
     return &mut EVP_aes_128_cbc_once;
 }
 static mut EVP_aes_128_cbc_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_128_cbc() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_128_cbc_once_bss_get(),
@@ -2090,7 +2090,7 @@ static mut EVP_aes_128_ctr_storage: EVP_CIPHER = evp_cipher_st {
 unsafe extern "C" fn EVP_aes_128_ctr_storage_bss_get() -> *mut EVP_CIPHER {
     return &mut EVP_aes_128_ctr_storage;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_128_ctr() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_128_ctr_once_bss_get(),
@@ -2238,7 +2238,7 @@ unsafe extern "C" fn EVP_aes_128_ofb_do_init(mut out: *mut EVP_CIPHER) {
     );
 }
 static mut EVP_aes_128_ofb_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_128_ofb() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_128_ofb_once_bss_get(),
@@ -2268,7 +2268,7 @@ unsafe extern "C" fn EVP_aes_128_ofb_init() {
     EVP_aes_128_ofb_do_init(EVP_aes_128_ofb_storage_bss_get());
 }
 static mut EVP_aes_128_gcm_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_128_gcm() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_128_gcm_once_bss_get(),
@@ -2349,7 +2349,7 @@ unsafe extern "C" fn EVP_aes_128_gcm_do_init(mut out: *mut EVP_CIPHER) {
 unsafe extern "C" fn EVP_aes_128_gcm_once_bss_get() -> *mut CRYPTO_once_t {
     return &mut EVP_aes_128_gcm_once;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_192_cbc() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_192_cbc_once_bss_get(),
@@ -2414,7 +2414,7 @@ unsafe extern "C" fn EVP_aes_192_cbc_once_bss_get() -> *mut CRYPTO_once_t {
     return &mut EVP_aes_192_cbc_once;
 }
 static mut EVP_aes_192_cbc_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_192_ctr() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_192_ctr_once_bss_get(),
@@ -2564,7 +2564,7 @@ unsafe extern "C" fn EVP_aes_192_ofb_once_bss_get() -> *mut CRYPTO_once_t {
 unsafe extern "C" fn EVP_aes_192_ofb_storage_bss_get() -> *mut EVP_CIPHER {
     return &mut EVP_aes_192_ofb_storage;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_192_ofb() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_192_ofb_once_bss_get(),
@@ -2610,7 +2610,7 @@ unsafe extern "C" fn EVP_aes_192_ofb_do_init(mut out: *mut EVP_CIPHER) {
 unsafe extern "C" fn EVP_aes_192_gcm_init() {
     EVP_aes_192_gcm_do_init(EVP_aes_192_gcm_storage_bss_get());
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_192_gcm() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_192_gcm_once_bss_get(),
@@ -2693,7 +2693,7 @@ static mut EVP_aes_256_cbc_once: CRYPTO_once_t = 0 as libc::c_int;
 unsafe extern "C" fn EVP_aes_256_cbc_storage_bss_get() -> *mut EVP_CIPHER {
     return &mut EVP_aes_256_cbc_storage;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_256_cbc() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_256_cbc_once_bss_get(),
@@ -2773,7 +2773,7 @@ static mut EVP_aes_256_ctr_storage: EVP_CIPHER = evp_cipher_st {
     ctrl: None,
 };
 static mut EVP_aes_256_ctr_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_256_ctr() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_256_ctr_once_bss_get(),
@@ -2882,7 +2882,7 @@ unsafe extern "C" fn aes_256_ecb_generic_storage_bss_get() -> *mut EVP_CIPHER {
     return &mut aes_256_ecb_generic_storage;
 }
 static mut aes_256_ecb_generic_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_256_ofb() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_256_ofb_once_bss_get(),
@@ -2953,7 +2953,7 @@ unsafe extern "C" fn EVP_aes_256_wrap_once_bss_get() -> *mut CRYPTO_once_t {
 unsafe extern "C" fn EVP_aes_256_wrap_init() {
     EVP_aes_256_wrap_do_init(EVP_aes_256_wrap_storage_bss_get());
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_256_wrap() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_256_wrap_once_bss_get(),
@@ -3018,7 +3018,7 @@ unsafe extern "C" fn EVP_aes_256_gcm_once_bss_get() -> *mut CRYPTO_once_t {
     return &mut EVP_aes_256_gcm_once;
 }
 static mut EVP_aes_256_gcm_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_256_gcm() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_256_gcm_once_bss_get(),
@@ -3096,7 +3096,7 @@ unsafe extern "C" fn EVP_aes_256_gcm_do_init(mut out: *mut EVP_CIPHER) {
             ) -> libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_256_xts() -> *const EVP_CIPHER {
     CRYPTO_once(
         EVP_aes_256_xts_once_bss_get(),
@@ -3173,15 +3173,15 @@ unsafe extern "C" fn EVP_aes_256_xts_do_init(mut out: *mut EVP_CIPHER) {
     );
 }
 static mut EVP_aes_256_xts_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_128_ecb() -> *const EVP_CIPHER {
     return aes_128_ecb_generic();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_192_ecb() -> *const EVP_CIPHER {
     return aes_192_ecb_generic();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_256_ecb() -> *const EVP_CIPHER {
     return aes_256_ecb_generic();
 }
@@ -3543,7 +3543,7 @@ unsafe extern "C" fn aead_aes_gcm_open_gather(
     return 1 as libc::c_int;
 }
 static mut EVP_aead_aes_128_gcm_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_128_gcm() -> *const EVP_AEAD {
     CRYPTO_once(
         EVP_aead_aes_128_gcm_once_bss_get(),
@@ -3724,7 +3724,7 @@ unsafe extern "C" fn EVP_aead_aes_192_gcm_once_bss_get() -> *mut CRYPTO_once_t {
     return &mut EVP_aead_aes_192_gcm_once;
 }
 static mut EVP_aead_aes_192_gcm_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_192_gcm() -> *const EVP_AEAD {
     CRYPTO_once(
         EVP_aead_aes_192_gcm_once_bss_get(),
@@ -3738,7 +3738,7 @@ unsafe extern "C" fn EVP_aead_aes_192_gcm_init() {
 unsafe extern "C" fn EVP_aead_aes_192_gcm_storage_bss_get() -> *mut EVP_AEAD {
     return &mut EVP_aead_aes_192_gcm_storage;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_256_gcm() -> *const EVP_AEAD {
     CRYPTO_once(
         EVP_aead_aes_256_gcm_once_bss_get(),
@@ -4124,7 +4124,7 @@ static mut EVP_aead_aes_128_gcm_randnonce_once: CRYPTO_once_t = 0 as libc::c_int
 unsafe extern "C" fn EVP_aead_aes_128_gcm_randnonce_once_bss_get() -> *mut CRYPTO_once_t {
     return &mut EVP_aead_aes_128_gcm_randnonce_once;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_128_gcm_randnonce() -> *const EVP_AEAD {
     CRYPTO_once(
         EVP_aead_aes_128_gcm_randnonce_once_bss_get(),
@@ -4224,7 +4224,7 @@ unsafe extern "C" fn EVP_aead_aes_256_gcm_randnonce_do_init(mut out: *mut EVP_AE
             ) -> libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_256_gcm_randnonce() -> *const EVP_AEAD {
     CRYPTO_once(
         EVP_aead_aes_256_gcm_randnonce_once_bss_get(),
@@ -4417,7 +4417,7 @@ static mut EVP_aead_aes_128_gcm_tls12_storage: EVP_AEAD = evp_aead_st {
     serialize_state: None,
     deserialize_state: None,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_128_gcm_tls12() -> *const EVP_AEAD {
     CRYPTO_once(
         EVP_aead_aes_128_gcm_tls12_once_bss_get(),
@@ -4512,7 +4512,7 @@ unsafe extern "C" fn EVP_aead_aes_256_gcm_tls12_once_bss_get() -> *mut CRYPTO_on
 unsafe extern "C" fn EVP_aead_aes_256_gcm_tls12_storage_bss_get() -> *mut EVP_AEAD {
     return &mut EVP_aead_aes_256_gcm_tls12_storage;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_256_gcm_tls12() -> *const EVP_AEAD {
     CRYPTO_once(
         EVP_aead_aes_256_gcm_tls12_once_bss_get(),
@@ -4783,7 +4783,7 @@ unsafe extern "C" fn aead_aes_gcm_tls13_deserialize_state(
     return 1 as libc::c_int;
 }
 static mut EVP_aead_aes_128_gcm_tls13_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_128_gcm_tls13() -> *const EVP_AEAD {
     CRYPTO_once(
         EVP_aead_aes_128_gcm_tls13_once_bss_get(),
@@ -4893,7 +4893,7 @@ static mut EVP_aead_aes_128_gcm_tls13_storage: EVP_AEAD = evp_aead_st {
 unsafe extern "C" fn EVP_aead_aes_256_gcm_tls13_once_bss_get() -> *mut CRYPTO_once_t {
     return &mut EVP_aead_aes_256_gcm_tls13_once;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_256_gcm_tls13() -> *const EVP_AEAD {
     CRYPTO_once(
         EVP_aead_aes_256_gcm_tls13_once_bss_get(),
@@ -4998,7 +4998,7 @@ static mut EVP_aead_aes_256_gcm_tls13_storage: EVP_AEAD = evp_aead_st {
     serialize_state: None,
     deserialize_state: None,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_has_aes_hardware() -> libc::c_int {
     return (hwaes_capable() != 0 && crypto_gcm_clmul_enabled() != 0) as libc::c_int;
 }

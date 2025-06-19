@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_object_st;
     pub type ASN1_VALUE_st;
     pub type X509_name_st;
@@ -483,7 +482,7 @@ unsafe extern "C" fn parse_http_line(mut line: *mut libc::c_char) -> libc::c_int
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REQ_CTX_nbio(mut rctx: *mut OCSP_REQ_CTX) -> libc::c_int {
     let mut write_len: libc::c_int = 0;
     let mut current_block: u64;
@@ -728,14 +727,14 @@ pub unsafe extern "C" fn OCSP_REQ_CTX_nbio(mut rctx: *mut OCSP_REQ_CTX) -> libc:
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_sendreq_nbio(
     mut presp: *mut *mut OCSP_RESPONSE,
     mut rctx: *mut OCSP_REQ_CTX,
 ) -> libc::c_int {
     return OCSP_REQ_CTX_nbio_d2i(rctx, presp as *mut *mut ASN1_VALUE, &OCSP_RESPONSE_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_sendreq_bio(
     mut b: *mut BIO,
     mut path: *const libc::c_char,
@@ -760,7 +759,7 @@ pub unsafe extern "C" fn OCSP_sendreq_bio(
     }
     return 0 as *mut OCSP_RESPONSE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REQ_CTX_nbio_d2i(
     mut rctx: *mut OCSP_REQ_CTX,
     mut pval: *mut *mut ASN1_VALUE,
@@ -787,7 +786,7 @@ pub unsafe extern "C" fn OCSP_REQ_CTX_nbio_d2i(
     (*rctx).state = 0 as libc::c_int | 0x1000 as libc::c_int;
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REQ_CTX_new(
     mut io: *mut BIO,
     mut maxline: libc::c_int,
@@ -814,7 +813,7 @@ pub unsafe extern "C" fn OCSP_REQ_CTX_new(
     }
     return rctx;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REQ_CTX_free(mut rctx: *mut OCSP_REQ_CTX) {
     if rctx.is_null() {
         return;
@@ -823,7 +822,7 @@ pub unsafe extern "C" fn OCSP_REQ_CTX_free(mut rctx: *mut OCSP_REQ_CTX) {
     OPENSSL_free((*rctx).iobuf as *mut libc::c_void);
     OPENSSL_free(rctx as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_sendreq_new(
     mut io: *mut BIO,
     mut path: *const libc::c_char,
@@ -845,7 +844,7 @@ pub unsafe extern "C" fn OCSP_sendreq_new(
     OCSP_REQ_CTX_free(rctx);
     return 0 as *mut OCSP_REQ_CTX;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REQ_CTX_http(
     mut rctx: *mut OCSP_REQ_CTX,
     mut op: *const libc::c_char,
@@ -866,14 +865,14 @@ pub unsafe extern "C" fn OCSP_REQ_CTX_http(
     (*rctx).state = 9 as libc::c_int | 0x1000 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REQ_CTX_set1_req(
     mut rctx: *mut OCSP_REQ_CTX,
     mut req: *mut OCSP_REQUEST,
 ) -> libc::c_int {
     return OCSP_REQ_CTX_i2d(rctx, &OCSP_REQUEST_it, req as *mut ASN1_VALUE);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REQ_CTX_add1_header(
     mut rctx: *mut OCSP_REQ_CTX,
     mut name: *const libc::c_char,
@@ -909,7 +908,7 @@ pub unsafe extern "C" fn OCSP_REQ_CTX_add1_header(
     (*rctx).state = 9 as libc::c_int | 0x1000 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REQ_CTX_i2d(
     mut rctx: *mut OCSP_REQ_CTX,
     mut it: *const ASN1_ITEM,
@@ -931,13 +930,13 @@ pub unsafe extern "C" fn OCSP_REQ_CTX_i2d(
     (*rctx).state = 5 as libc::c_int | 0x1000 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REQ_CTX_get0_mem_bio(
     mut rctx: *mut OCSP_REQ_CTX,
 ) -> *mut BIO {
     return (*rctx).mem;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_set_max_response_length(
     mut rctx: *mut OCSP_REQ_CTX,
     mut len: libc::c_ulong,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     pub type dsa_st;
     pub type ec_key_st;
@@ -601,7 +600,7 @@ static mut EVP_PKEY_hmac_pkey_meth_once: CRYPTO_once_t = 0 as libc::c_int;
 unsafe extern "C" fn EVP_PKEY_hmac_pkey_meth_once_bss_get() -> *mut CRYPTO_once_t {
     return &mut EVP_PKEY_hmac_pkey_meth_once;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_hmac_pkey_meth() -> *const EVP_PKEY_METHOD {
     CRYPTO_once(
         EVP_PKEY_hmac_pkey_meth_once_bss_get(),
@@ -676,12 +675,12 @@ unsafe extern "C" fn EVP_PKEY_hmac_pkey_meth_do_init(mut out: *mut EVP_PKEY_METH
             ) -> libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn used_for_hmac(mut ctx: *mut EVP_MD_CTX) -> libc::c_int {
     return ((*ctx).flags == 0x800 as libc::c_int as libc::c_ulong
         && !((*ctx).pctx).is_null()) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_KEY_new() -> *mut HMAC_KEY {
     let mut key: *mut HMAC_KEY = OPENSSL_zalloc(
         ::core::mem::size_of::<HMAC_KEY>() as libc::c_ulong,
@@ -691,7 +690,7 @@ pub unsafe extern "C" fn HMAC_KEY_new() -> *mut HMAC_KEY {
     }
     return key;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_KEY_set(
     mut hmac_key: *mut HMAC_KEY,
     mut key: *const uint8_t,
@@ -715,7 +714,7 @@ pub unsafe extern "C" fn HMAC_KEY_set(
     (*hmac_key).key_len = key_len;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HMAC_KEY_copy(
     mut dest: *mut HMAC_KEY,
     mut src: *mut HMAC_KEY,

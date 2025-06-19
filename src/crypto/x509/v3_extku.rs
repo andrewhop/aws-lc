@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -622,7 +621,7 @@ unsafe extern "C" fn sk_CONF_VALUE_value(
 ) -> *mut CONF_VALUE {
     return OPENSSL_sk_value(sk as *const OPENSSL_STACK, i) as *mut CONF_VALUE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_ext_ku: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {
@@ -658,7 +657,7 @@ pub static mut v3_ext_ku: X509V3_EXT_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_ocsp_accresp: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {
@@ -706,7 +705,7 @@ static mut EXTENDED_KEY_USAGE_item_tt: ASN1_TEMPLATE = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut EXTENDED_KEY_USAGE_it: ASN1_ITEM = unsafe {
     {
         let mut init = ASN1_ITEM_st {
@@ -721,18 +720,18 @@ pub static mut EXTENDED_KEY_USAGE_it: ASN1_ITEM = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_EXTENDED_KEY_USAGE(
     mut a: *const EXTENDED_KEY_USAGE,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &EXTENDED_KEY_USAGE_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EXTENDED_KEY_USAGE_free(mut a: *mut EXTENDED_KEY_USAGE) {
     ASN1_item_free(a as *mut ASN1_VALUE, &EXTENDED_KEY_USAGE_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_EXTENDED_KEY_USAGE(
     mut a: *mut *mut EXTENDED_KEY_USAGE,
     mut in_0: *mut *const libc::c_uchar,
@@ -741,7 +740,7 @@ pub unsafe extern "C" fn d2i_EXTENDED_KEY_USAGE(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &EXTENDED_KEY_USAGE_it)
         as *mut EXTENDED_KEY_USAGE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EXTENDED_KEY_USAGE_new() -> *mut EXTENDED_KEY_USAGE {
     return ASN1_item_new(&EXTENDED_KEY_USAGE_it) as *mut EXTENDED_KEY_USAGE;
 }

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_pctx_st;
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
@@ -436,7 +435,7 @@ pub struct _IO_FILE {
 }
 pub type _IO_lock_t = ();
 pub type FILE = _IO_FILE;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_print_ex_fp(
     mut fp: *mut FILE,
     mut x: *mut X509,
@@ -459,7 +458,7 @@ pub unsafe extern "C" fn X509_print_ex_fp(
     BIO_free(b);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_print_fp(
     mut fp: *mut FILE,
     mut x: *mut X509,
@@ -471,11 +470,11 @@ pub unsafe extern "C" fn X509_print_fp(
         0 as libc::c_int as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_print(mut bp: *mut BIO, mut x: *mut X509) -> libc::c_int {
     return X509_print_ex(bp, x, 0 as libc::c_ulong, 0 as libc::c_int as libc::c_ulong);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_print_ex(
     mut bp: *mut BIO,
     mut x: *mut X509,
@@ -837,7 +836,7 @@ pub unsafe extern "C" fn X509_print_ex(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_signature_print(
     mut bp: *mut BIO,
     mut sigalg: *const X509_ALGOR,
@@ -867,7 +866,7 @@ pub unsafe extern "C" fn X509_signature_print(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_print(
     mut bp: *mut BIO,
     mut name: *const X509_NAME,

@@ -9,7 +9,7 @@
 )]
 #![feature(asm, extern_types, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     fn DSA_new() -> *mut DSA;
     fn DSA_free(dsa: *mut DSA);
@@ -184,7 +184,7 @@ unsafe extern "C" fn value_barrier_u32(mut a: uint32_t) -> uint32_t {
 unsafe extern "C" fn constant_time_declassify_int(mut v: libc::c_int) -> libc::c_int {
     return value_barrier_u32(v as uint32_t) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn dsa_check_key(mut dsa: *const DSA) -> libc::c_int {
     if ((*dsa).p).is_null() || ((*dsa).q).is_null() || ((*dsa).g).is_null() {
         ERR_put_error(
@@ -330,7 +330,7 @@ unsafe extern "C" fn marshal_integer(
     }
     return BN_marshal_asn1(cbb, bn);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_SIG_parse(mut cbs: *mut CBS) -> *mut DSA_SIG {
     let mut ret: *mut DSA_SIG = DSA_SIG_new();
     if ret.is_null() {
@@ -361,7 +361,7 @@ pub unsafe extern "C" fn DSA_SIG_parse(mut cbs: *mut CBS) -> *mut DSA_SIG {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_SIG_marshal(
     mut cbb: *mut CBB,
     mut sig: *const DSA_SIG,
@@ -398,7 +398,7 @@ pub unsafe extern "C" fn DSA_SIG_marshal(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_parse_public_key(mut cbs: *mut CBS) -> *mut DSA {
     let mut ret: *mut DSA = DSA_new();
     if ret.is_null() {
@@ -432,7 +432,7 @@ pub unsafe extern "C" fn DSA_parse_public_key(mut cbs: *mut CBS) -> *mut DSA {
     DSA_free(ret);
     return 0 as *mut DSA;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_marshal_public_key(
     mut cbb: *mut CBB,
     mut dsa: *const DSA,
@@ -471,7 +471,7 @@ pub unsafe extern "C" fn DSA_marshal_public_key(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_parse_parameters(mut cbs: *mut CBS) -> *mut DSA {
     let mut ret: *mut DSA = DSA_new();
     if ret.is_null() {
@@ -504,7 +504,7 @@ pub unsafe extern "C" fn DSA_parse_parameters(mut cbs: *mut CBS) -> *mut DSA {
     DSA_free(ret);
     return 0 as *mut DSA;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_marshal_parameters(
     mut cbb: *mut CBB,
     mut dsa: *const DSA,
@@ -542,7 +542,7 @@ pub unsafe extern "C" fn DSA_marshal_parameters(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_parse_private_key(mut cbs: *mut CBS) -> *mut DSA {
     let mut ret: *mut DSA = DSA_new();
     if ret.is_null() {
@@ -597,7 +597,7 @@ pub unsafe extern "C" fn DSA_parse_private_key(mut cbs: *mut CBS) -> *mut DSA {
     DSA_free(ret);
     return 0 as *mut DSA;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DSA_marshal_private_key(
     mut cbb: *mut CBB,
     mut dsa: *const DSA,
@@ -638,7 +638,7 @@ pub unsafe extern "C" fn DSA_marshal_private_key(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_DSA_SIG(
     mut out_sig: *mut *mut DSA_SIG,
     mut inp: *mut *const uint8_t,
@@ -663,7 +663,7 @@ pub unsafe extern "C" fn d2i_DSA_SIG(
     *inp = CBS_data(&mut cbs);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_DSA_SIG(
     mut in_0: *const DSA_SIG,
     mut outp: *mut *mut uint8_t,
@@ -689,7 +689,7 @@ pub unsafe extern "C" fn i2d_DSA_SIG(
     }
     return CBB_finish_i2d(&mut cbb, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_DSAPublicKey(
     mut out: *mut *mut DSA,
     mut inp: *mut *const uint8_t,
@@ -714,7 +714,7 @@ pub unsafe extern "C" fn d2i_DSAPublicKey(
     *inp = CBS_data(&mut cbs);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_DSAPublicKey(
     mut in_0: *const DSA,
     mut outp: *mut *mut uint8_t,
@@ -740,7 +740,7 @@ pub unsafe extern "C" fn i2d_DSAPublicKey(
     }
     return CBB_finish_i2d(&mut cbb, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_DSAPrivateKey(
     mut out: *mut *mut DSA,
     mut inp: *mut *const uint8_t,
@@ -765,7 +765,7 @@ pub unsafe extern "C" fn d2i_DSAPrivateKey(
     *inp = CBS_data(&mut cbs);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_DSAPrivateKey(
     mut in_0: *const DSA,
     mut outp: *mut *mut uint8_t,
@@ -791,7 +791,7 @@ pub unsafe extern "C" fn i2d_DSAPrivateKey(
     }
     return CBB_finish_i2d(&mut cbb, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_DSAparams(
     mut out: *mut *mut DSA,
     mut inp: *mut *const uint8_t,
@@ -816,7 +816,7 @@ pub unsafe extern "C" fn d2i_DSAparams(
     *inp = CBS_data(&mut cbs);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_DSAparams(
     mut in_0: *const DSA,
     mut outp: *mut *mut uint8_t,

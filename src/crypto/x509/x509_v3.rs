@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_X509_EXTENSION;
     pub type stack_st;
     fn ASN1_OCTET_STRING_set(
@@ -108,7 +107,7 @@ unsafe extern "C" fn sk_X509_EXTENSION_insert(
 ) -> size_t {
     return OPENSSL_sk_insert(sk as *mut OPENSSL_STACK, p as *mut libc::c_void, where_0);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509v3_get_ext_count(
     mut x: *const stack_st_X509_EXTENSION,
 ) -> libc::c_int {
@@ -117,7 +116,7 @@ pub unsafe extern "C" fn X509v3_get_ext_count(
     }
     return sk_X509_EXTENSION_num(x) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509v3_get_ext_by_NID(
     mut x: *const stack_st_X509_EXTENSION,
     mut nid: libc::c_int,
@@ -129,7 +128,7 @@ pub unsafe extern "C" fn X509v3_get_ext_by_NID(
     }
     return X509v3_get_ext_by_OBJ(x, obj, lastpos);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509v3_get_ext_by_OBJ(
     mut sk: *const stack_st_X509_EXTENSION,
     mut obj: *const ASN1_OBJECT,
@@ -157,7 +156,7 @@ pub unsafe extern "C" fn X509v3_get_ext_by_OBJ(
     }
     return -(1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509v3_get_ext_by_critical(
     mut sk: *const stack_st_X509_EXTENSION,
     mut crit: libc::c_int,
@@ -186,7 +185,7 @@ pub unsafe extern "C" fn X509v3_get_ext_by_critical(
     }
     return -(1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509v3_get_ext(
     mut x: *const stack_st_X509_EXTENSION,
     mut loc: libc::c_int,
@@ -198,7 +197,7 @@ pub unsafe extern "C" fn X509v3_get_ext(
         return sk_X509_EXTENSION_value(x, loc as size_t)
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509v3_delete_ext(
     mut x: *mut stack_st_X509_EXTENSION,
     mut loc: libc::c_int,
@@ -211,7 +210,7 @@ pub unsafe extern "C" fn X509v3_delete_ext(
     ret = sk_X509_EXTENSION_delete(x, loc as size_t);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509v3_add_ext(
     mut x: *mut *mut stack_st_X509_EXTENSION,
     mut ex: *const X509_EXTENSION,
@@ -271,7 +270,7 @@ pub unsafe extern "C" fn X509v3_add_ext(
     }
     return 0 as *mut stack_st_X509_EXTENSION;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_EXTENSION_create_by_NID(
     mut ex: *mut *mut X509_EXTENSION,
     mut nid: libc::c_int,
@@ -295,7 +294,7 @@ pub unsafe extern "C" fn X509_EXTENSION_create_by_NID(
     ret = X509_EXTENSION_create_by_OBJ(ex, obj, crit, data);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_EXTENSION_create_by_OBJ(
     mut ex: *mut *mut X509_EXTENSION,
     mut obj: *const ASN1_OBJECT,
@@ -326,7 +325,7 @@ pub unsafe extern "C" fn X509_EXTENSION_create_by_OBJ(
     }
     return 0 as *mut X509_EXTENSION;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_EXTENSION_set_object(
     mut ex: *mut X509_EXTENSION,
     mut obj: *const ASN1_OBJECT,
@@ -338,7 +337,7 @@ pub unsafe extern "C" fn X509_EXTENSION_set_object(
     (*ex).object = OBJ_dup(obj);
     return ((*ex).object != 0 as *mut libc::c_void as *mut ASN1_OBJECT) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_EXTENSION_set_critical(
     mut ex: *mut X509_EXTENSION,
     mut crit: libc::c_int,
@@ -349,7 +348,7 @@ pub unsafe extern "C" fn X509_EXTENSION_set_critical(
     (*ex).critical = if crit != 0 { 0xff as libc::c_int } else { -(1 as libc::c_int) };
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_EXTENSION_set_data(
     mut ex: *mut X509_EXTENSION,
     mut data: *const ASN1_OCTET_STRING,
@@ -364,7 +363,7 @@ pub unsafe extern "C" fn X509_EXTENSION_set_data(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_EXTENSION_get_object(
     mut ex: *const X509_EXTENSION,
 ) -> *mut ASN1_OBJECT {
@@ -373,7 +372,7 @@ pub unsafe extern "C" fn X509_EXTENSION_get_object(
     }
     return (*ex).object;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_EXTENSION_get_data(
     mut ex: *const X509_EXTENSION,
 ) -> *mut ASN1_OCTET_STRING {
@@ -382,7 +381,7 @@ pub unsafe extern "C" fn X509_EXTENSION_get_data(
     }
     return (*ex).value;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_EXTENSION_get_critical(
     mut ex: *const X509_EXTENSION,
 ) -> libc::c_int {

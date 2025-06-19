@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn __assert_fail(
         __assertion: *const libc::c_char,
         __file: *const libc::c_char,
@@ -165,7 +165,7 @@ unsafe extern "C" fn ctr128_inc(mut counter: *mut uint8_t) {
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_ctr128_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -337,7 +337,7 @@ unsafe extern "C" fn ctr96_inc(mut counter: *mut uint8_t) {
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_ctr128_encrypt_ctr32(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,

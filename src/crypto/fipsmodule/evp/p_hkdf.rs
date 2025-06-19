@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     pub type dsa_st;
     pub type ec_key_st;
@@ -465,7 +464,7 @@ unsafe extern "C" fn pkey_hkdf_cleanup(mut ctx: *mut EVP_PKEY_CTX) {
         (*ctx).data = 0 as *mut libc::c_void;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pkey_hkdf_derive(
     mut ctx: *mut EVP_PKEY_CTX,
     mut out: *mut uint8_t,
@@ -803,7 +802,7 @@ unsafe extern "C" fn EVP_PKEY_hkdf_pkey_meth_do_init(mut out: *mut EVP_PKEY_METH
             ) -> libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_hkdf_pkey_meth() -> *const EVP_PKEY_METHOD {
     CRYPTO_once(
         EVP_PKEY_hkdf_pkey_meth_once_bss_get(),
@@ -811,7 +810,7 @@ pub unsafe extern "C" fn EVP_PKEY_hkdf_pkey_meth() -> *const EVP_PKEY_METHOD {
     );
     return EVP_PKEY_hkdf_pkey_meth_storage_bss_get() as *const EVP_PKEY_METHOD;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_hkdf_mode(
     mut ctx: *mut EVP_PKEY_CTX,
     mut mode: libc::c_int,
@@ -825,7 +824,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_hkdf_mode(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_hkdf_md(
     mut ctx: *mut EVP_PKEY_CTX,
     mut md: *const EVP_MD,
@@ -839,7 +838,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_set_hkdf_md(
         md as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set1_hkdf_key(
     mut ctx: *mut EVP_PKEY_CTX,
     mut key: *const uint8_t,
@@ -859,7 +858,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_set1_hkdf_key(
         &mut cbs as *mut CBS as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set1_hkdf_salt(
     mut ctx: *mut EVP_PKEY_CTX,
     mut salt: *const uint8_t,
@@ -879,7 +878,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_set1_hkdf_salt(
         &mut cbs as *mut CBS as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_add1_hkdf_info(
     mut ctx: *mut EVP_PKEY_CTX,
     mut info: *const uint8_t,

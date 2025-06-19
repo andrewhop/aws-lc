@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     fn ASN1_item_new(it: *const ASN1_ITEM) -> *mut ASN1_VALUE;
     fn ASN1_item_free(val: *mut ASN1_VALUE, it: *const ASN1_ITEM);
@@ -91,7 +90,7 @@ static mut X509_VAL_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_VAL_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -101,18 +100,18 @@ pub static mut X509_VAL_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VAL_free(mut a: *mut X509_VAL) {
     ASN1_item_free(a as *mut ASN1_VALUE, &X509_VAL_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_VAL(
     mut a: *const X509_VAL,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &X509_VAL_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_VAL(
     mut a: *mut *mut X509_VAL,
     mut in_0: *mut *const libc::c_uchar,
@@ -121,7 +120,7 @@ pub unsafe extern "C" fn d2i_X509_VAL(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &X509_VAL_it)
         as *mut X509_VAL;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_VAL_new() -> *mut X509_VAL {
     return ASN1_item_new(&X509_VAL_it) as *mut X509_VAL;
 }

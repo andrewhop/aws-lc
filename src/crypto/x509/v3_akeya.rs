@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     fn ASN1_item_new(it: *const ASN1_ITEM) -> *mut ASN1_VALUE;
@@ -116,7 +115,7 @@ static mut AUTHORITY_KEYID_seq_tt: [ASN1_TEMPLATE; 3] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut AUTHORITY_KEYID_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -126,22 +125,22 @@ pub static mut AUTHORITY_KEYID_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_AUTHORITY_KEYID(
     mut a: *mut AUTHORITY_KEYID,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &AUTHORITY_KEYID_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AUTHORITY_KEYID_free(mut a: *mut AUTHORITY_KEYID) {
     ASN1_item_free(a as *mut ASN1_VALUE, &AUTHORITY_KEYID_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AUTHORITY_KEYID_new() -> *mut AUTHORITY_KEYID {
     return ASN1_item_new(&AUTHORITY_KEYID_it) as *mut AUTHORITY_KEYID;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_AUTHORITY_KEYID(
     mut a: *mut *mut AUTHORITY_KEYID,
     mut in_0: *mut *const libc::c_uchar,

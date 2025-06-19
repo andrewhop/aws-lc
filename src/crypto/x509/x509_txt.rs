@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_verify_cert_error_string(
     mut err: libc::c_long,
 ) -> *const libc::c_char {

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_pctx_st;
     pub type ASN1_VALUE_st;
     pub type evp_pkey_st;
@@ -436,7 +435,7 @@ static mut RSA_PSS_PARAMS_seq_tt: [ASN1_TEMPLATE; 4] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut RSA_PSS_PARAMS_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -446,18 +445,18 @@ pub static mut RSA_PSS_PARAMS_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_PSS_PARAMS_free(mut a: *mut RSA_PSS_PARAMS) {
     ASN1_item_free(a as *mut ASN1_VALUE, &RSA_PSS_PARAMS_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_RSA_PSS_PARAMS(
     mut a: *const RSA_PSS_PARAMS,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &RSA_PSS_PARAMS_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_RSA_PSS_PARAMS(
     mut a: *mut *mut RSA_PSS_PARAMS,
     mut in_0: *mut *const libc::c_uchar,
@@ -466,7 +465,7 @@ pub unsafe extern "C" fn d2i_RSA_PSS_PARAMS(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &RSA_PSS_PARAMS_it)
         as *mut RSA_PSS_PARAMS;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_PSS_PARAMS_new() -> *mut RSA_PSS_PARAMS {
     return ASN1_item_new(&RSA_PSS_PARAMS_it) as *mut RSA_PSS_PARAMS;
 }
@@ -605,7 +604,7 @@ unsafe extern "C" fn rsa_mgf1_to_md(
     }
     return md;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x509_rsa_ctx_to_pss(
     mut ctx: *mut EVP_MD_CTX,
     mut algor: *mut X509_ALGOR,
@@ -691,7 +690,7 @@ pub unsafe extern "C" fn x509_rsa_ctx_to_pss(
     ASN1_STRING_free(os);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x509_rsa_pss_to_ctx(
     mut ctx: *mut EVP_MD_CTX,
     mut sigalg: *const X509_ALGOR,
@@ -810,7 +809,7 @@ pub unsafe extern "C" fn x509_rsa_pss_to_ctx(
     X509_ALGOR_free(maskHash);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x509_print_rsa_pss_params(
     mut bp: *mut BIO,
     mut sigalg: *const X509_ALGOR,

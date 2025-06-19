@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -645,7 +644,7 @@ static mut X509_REVOKED_seq_tt: [ASN1_TEMPLATE; 3] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_REVOKED_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -780,7 +779,7 @@ static mut X509_CRL_INFO_aux: ASN1_AUX = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_CRL_INFO_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -1020,7 +1019,7 @@ static mut X509_CRL_seq_tt: [ASN1_TEMPLATE; 3] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_CRL_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -1030,22 +1029,22 @@ pub static mut X509_CRL_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_REVOKED(
     mut a: *const X509_REVOKED,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &X509_REVOKED_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_free(mut a: *mut X509_REVOKED) {
     ASN1_item_free(a as *mut ASN1_VALUE, &X509_REVOKED_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_new() -> *mut X509_REVOKED {
     return ASN1_item_new(&X509_REVOKED_it) as *mut X509_REVOKED;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_REVOKED(
     mut a: *mut *mut X509_REVOKED,
     mut in_0: *mut *const libc::c_uchar,
@@ -1054,24 +1053,24 @@ pub unsafe extern "C" fn d2i_X509_REVOKED(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &X509_REVOKED_it)
         as *mut X509_REVOKED;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_dup(
     mut x: *const X509_REVOKED,
 ) -> *mut X509_REVOKED {
     return ASN1_item_dup(&X509_REVOKED_it, x as *mut libc::c_void) as *mut X509_REVOKED;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_CRL_INFO(
     mut a: *mut X509_CRL_INFO,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &X509_CRL_INFO_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_INFO_free(mut a: *mut X509_CRL_INFO) {
     ASN1_item_free(a as *mut ASN1_VALUE, &X509_CRL_INFO_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_CRL_INFO(
     mut a: *mut *mut X509_CRL_INFO,
     mut in_0: *mut *const libc::c_uchar,
@@ -1080,26 +1079,26 @@ pub unsafe extern "C" fn d2i_X509_CRL_INFO(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &X509_CRL_INFO_it)
         as *mut X509_CRL_INFO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_INFO_new() -> *mut X509_CRL_INFO {
     return ASN1_item_new(&X509_CRL_INFO_it) as *mut X509_CRL_INFO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_CRL(
     mut a: *mut X509_CRL,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &X509_CRL_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_free(mut a: *mut X509_CRL) {
     ASN1_item_free(a as *mut ASN1_VALUE, &X509_CRL_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_new() -> *mut X509_CRL {
     return ASN1_item_new(&X509_CRL_it) as *mut X509_CRL;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_CRL(
     mut a: *mut *mut X509_CRL,
     mut in_0: *mut *const libc::c_uchar,
@@ -1108,7 +1107,7 @@ pub unsafe extern "C" fn d2i_X509_CRL(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &X509_CRL_it)
         as *mut X509_CRL;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_dup(mut x: *mut X509_CRL) -> *mut X509_CRL {
     return ASN1_item_dup(&X509_CRL_it, x as *mut libc::c_void) as *mut X509_CRL;
 }
@@ -1118,7 +1117,7 @@ unsafe extern "C" fn X509_REVOKED_cmp(
 ) -> libc::c_int {
     return ASN1_STRING_cmp((**a).serialNumber, (**b).serialNumber);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_add0_revoked(
     mut crl: *mut X509_CRL,
     mut rev: *mut X509_REVOKED,
@@ -1143,7 +1142,7 @@ pub unsafe extern "C" fn X509_CRL_add0_revoked(
     asn1_encoding_clear(&mut (*inf).enc);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_verify(
     mut crl: *mut X509_CRL,
     mut pkey: *mut EVP_PKEY,
@@ -1167,7 +1166,7 @@ pub unsafe extern "C" fn X509_CRL_verify(
         pkey,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get0_by_serial(
     mut crl: *mut X509_CRL,
     mut ret: *mut *mut X509_REVOKED,
@@ -1175,7 +1174,7 @@ pub unsafe extern "C" fn X509_CRL_get0_by_serial(
 ) -> libc::c_int {
     return crl_lookup(crl, ret, serial, 0 as *mut X509_NAME);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get0_by_cert(
     mut crl: *mut X509_CRL,
     mut ret: *mut *mut X509_REVOKED,

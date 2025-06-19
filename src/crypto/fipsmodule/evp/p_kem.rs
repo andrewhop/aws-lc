@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     pub type dsa_st;
     pub type ec_key_st;
@@ -1029,7 +1028,7 @@ unsafe extern "C" fn EVP_PKEY_kem_pkey_meth_once_bss_get() -> *mut CRYPTO_once_t
     return &mut EVP_PKEY_kem_pkey_meth_once;
 }
 static mut EVP_PKEY_kem_pkey_meth_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_kem_pkey_meth() -> *const EVP_PKEY_METHOD {
     CRYPTO_once(
         EVP_PKEY_kem_pkey_meth_once_bss_get(),
@@ -1067,7 +1066,7 @@ static mut EVP_PKEY_kem_pkey_meth_storage: EVP_PKEY_METHOD = evp_pkey_method_st 
 unsafe extern "C" fn EVP_PKEY_kem_pkey_meth_storage_bss_get() -> *mut EVP_PKEY_METHOD {
     return &mut EVP_PKEY_kem_pkey_meth_storage;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_kem_set_params(
     mut ctx: *mut EVP_PKEY_CTX,
     mut nid: libc::c_int,
@@ -1143,7 +1142,7 @@ unsafe extern "C" fn EVP_PKEY_kem_new(mut nid: libc::c_int) -> *mut EVP_PKEY {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_kem_new_raw_public_key(
     mut nid: libc::c_int,
     mut in_0: *const uint8_t,
@@ -1180,7 +1179,7 @@ pub unsafe extern "C" fn EVP_PKEY_kem_new_raw_public_key(
     EVP_PKEY_free(ret);
     return 0 as *mut EVP_PKEY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_kem_new_raw_secret_key(
     mut nid: libc::c_int,
     mut in_0: *const uint8_t,
@@ -1217,7 +1216,7 @@ pub unsafe extern "C" fn EVP_PKEY_kem_new_raw_secret_key(
     EVP_PKEY_free(ret);
     return 0 as *mut EVP_PKEY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_kem_new_raw_key(
     mut nid: libc::c_int,
     mut in_public: *const uint8_t,
@@ -1257,7 +1256,7 @@ pub unsafe extern "C" fn EVP_PKEY_kem_new_raw_key(
     EVP_PKEY_free(ret);
     return 0 as *mut EVP_PKEY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_kem_check_key(mut key: *mut EVP_PKEY) -> libc::c_int {
     let mut res: uint8_t = 0;
     if key.is_null() || ((*key).pkey.kem_key).is_null()

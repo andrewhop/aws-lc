@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_null_st;
     pub type ASN1_ITEM_st;
     pub type X509_crl_st;
@@ -259,7 +258,7 @@ unsafe extern "C" fn OPENSSL_memcpy(
     }
     return memcpy(dst, src, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_crl_invdate: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {
@@ -289,7 +288,7 @@ pub static mut v3_crl_invdate: X509V3_EXT_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_ocsp_nonce: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {
@@ -334,7 +333,7 @@ pub static mut v3_ocsp_nonce: X509V3_EXT_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_ocsp_nocheck: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {

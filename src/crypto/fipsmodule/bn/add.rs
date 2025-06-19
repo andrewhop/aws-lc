@@ -9,7 +9,7 @@
 )]
 #![feature(asm, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn BN_set_word(bn: *mut BIGNUM, value: BN_ULONG) -> libc::c_int;
     fn BN_set_negative(bn: *mut BIGNUM, sign: libc::c_int);
     fn BN_ucmp(a: *const BIGNUM, b: *const BIGNUM) -> libc::c_int;
@@ -183,7 +183,7 @@ unsafe extern "C" fn CRYPTO_subc_u64(
         | (x == y) as libc::c_int as uint64_t & borrow;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_add(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -215,7 +215,7 @@ pub unsafe extern "C" fn BN_add(
     (*r).neg = a_neg;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_uadd_consttime(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -250,7 +250,7 @@ pub unsafe extern "C" fn bn_uadd_consttime(
     *((*r).d).offset(max as isize) = carry;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_uadd(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -262,7 +262,7 @@ pub unsafe extern "C" fn BN_uadd(
     bn_set_minimal_width(r);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_add_word(
     mut a: *mut BIGNUM,
     mut w: BN_ULONG,
@@ -301,7 +301,7 @@ pub unsafe extern "C" fn BN_add_word(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_sub(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -343,7 +343,7 @@ pub unsafe extern "C" fn BN_sub(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_usub_consttime(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -397,7 +397,7 @@ pub unsafe extern "C" fn bn_usub_consttime(
     (*r).neg = 0 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_usub(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -409,7 +409,7 @@ pub unsafe extern "C" fn BN_usub(
     bn_set_minimal_width(r);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_sub_word(
     mut a: *mut BIGNUM,
     mut w: BN_ULONG,

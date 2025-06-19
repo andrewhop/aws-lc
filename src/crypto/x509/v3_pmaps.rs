@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -623,7 +622,7 @@ unsafe extern "C" fn sk_CONF_VALUE_value(
 ) -> *mut CONF_VALUE {
     return OPENSSL_sk_value(sk as *const OPENSSL_STACK, i) as *mut CONF_VALUE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_policy_mappings: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {
@@ -683,7 +682,7 @@ static mut POLICY_MAPPING_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut POLICY_MAPPING_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -705,7 +704,7 @@ static mut POLICY_MAPPINGS_item_tt: ASN1_TEMPLATE = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut POLICY_MAPPINGS_it: ASN1_ITEM = unsafe {
     {
         let mut init = ASN1_ITEM_st {
@@ -720,11 +719,11 @@ pub static mut POLICY_MAPPINGS_it: ASN1_ITEM = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn POLICY_MAPPING_free(mut a: *mut POLICY_MAPPING) {
     ASN1_item_free(a as *mut ASN1_VALUE, &POLICY_MAPPING_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn POLICY_MAPPING_new() -> *mut POLICY_MAPPING {
     return ASN1_item_new(&POLICY_MAPPING_it) as *mut POLICY_MAPPING;
 }

@@ -9,7 +9,7 @@
 )]
 #![feature(asm, extern_types)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn BN_new() -> *mut BIGNUM;
     fn BN_init(bn: *mut BIGNUM);
@@ -132,7 +132,7 @@ unsafe extern "C" fn constant_time_declassify_int(mut v: libc::c_int) -> libc::c
 unsafe extern "C" fn bn_secret(mut bn: *mut BIGNUM) {}
 #[inline]
 unsafe extern "C" fn bn_declassify(mut bn: *mut BIGNUM) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_inverse_odd(
     mut out: *mut BIGNUM,
     mut out_no_inverse: *mut libc::c_int,
@@ -304,7 +304,7 @@ pub unsafe extern "C" fn BN_mod_inverse_odd(
     BN_CTX_end(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_inverse(
     mut out: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -366,7 +366,7 @@ pub unsafe extern "C" fn BN_mod_inverse(
     BN_free(a_reduced);
     return out;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_inverse_blinded(
     mut out: *mut BIGNUM,
     mut out_no_inverse: *mut libc::c_int,
@@ -415,7 +415,7 @@ pub unsafe extern "C" fn BN_mod_inverse_blinded(
     BN_free(&mut blinding_factor);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mod_inverse_prime(
     mut out: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -431,7 +431,7 @@ pub unsafe extern "C" fn bn_mod_inverse_prime(
     BN_CTX_end(ctx);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mod_inverse_secret_prime(
     mut out: *mut BIGNUM,
     mut a: *const BIGNUM,

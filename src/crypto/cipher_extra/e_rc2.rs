@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn EVP_CIPHER_CTX_key_length(ctx: *const EVP_CIPHER_CTX) -> libc::c_uint;
 }
 pub type size_t = libc::c_ulong;
@@ -1218,7 +1218,7 @@ static mut rc2_40_cbc: EVP_CIPHER = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_rc2_40_cbc() -> *const EVP_CIPHER {
     return &rc2_40_cbc;
 }
@@ -1265,7 +1265,7 @@ static mut rc2_cbc: EVP_CIPHER = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_rc2_cbc() -> *const EVP_CIPHER {
     return &rc2_cbc;
 }

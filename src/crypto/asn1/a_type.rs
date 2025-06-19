@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     fn ASN1_STRING_free(str: *mut ASN1_STRING);
     fn ASN1_STRING_dup(str: *const ASN1_STRING) -> *mut ASN1_STRING;
@@ -91,7 +90,7 @@ pub union C2RustUnnamed {
 }
 pub type ASN1_VALUE = ASN1_VALUE_st;
 pub type ASN1_TYPE = asn1_type_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TYPE_get(mut a: *const ASN1_TYPE) -> libc::c_int {
     match (*a).type_0 {
         5 | 1 => return (*a).type_0,
@@ -111,7 +110,7 @@ pub unsafe extern "C" fn ASN1_TYPE_get(mut a: *const ASN1_TYPE) -> libc::c_int {
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_type_value_as_pointer(
     mut a: *const ASN1_TYPE,
 ) -> *const libc::c_void {
@@ -128,7 +127,7 @@ pub unsafe extern "C" fn asn1_type_value_as_pointer(
         _ => return (*a).value.asn1_string as *const libc::c_void,
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_type_set0_string(
     mut a: *mut ASN1_TYPE,
     mut str: *mut ASN1_STRING,
@@ -175,7 +174,7 @@ pub unsafe extern "C" fn asn1_type_set0_string(
     };
     ASN1_TYPE_set(a, type_0, str as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_type_cleanup(mut a: *mut ASN1_TYPE) {
     match (*a).type_0 {
         5 => {
@@ -194,7 +193,7 @@ pub unsafe extern "C" fn asn1_type_cleanup(mut a: *mut ASN1_TYPE) {
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TYPE_set(
     mut a: *mut ASN1_TYPE,
     mut type_0: libc::c_int,
@@ -223,7 +222,7 @@ pub unsafe extern "C" fn ASN1_TYPE_set(
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TYPE_set1(
     mut a: *mut ASN1_TYPE,
     mut type_0: libc::c_int,
@@ -249,7 +248,7 @@ pub unsafe extern "C" fn ASN1_TYPE_set1(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TYPE_cmp(
     mut a: *const ASN1_TYPE,
     mut b: *const ASN1_TYPE,

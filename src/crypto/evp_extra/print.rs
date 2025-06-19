@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_pctx_st;
     pub type bignum_ctx;
     pub type stack_st_void;
@@ -1106,7 +1105,7 @@ unsafe extern "C" fn print_unsupported(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_print_public(
     mut out: *mut BIO,
     mut pkey: *const EVP_PKEY,
@@ -1125,7 +1124,7 @@ pub unsafe extern "C" fn EVP_PKEY_print_public(
         b"Public Key\0" as *const u8 as *const libc::c_char,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_print_private(
     mut out: *mut BIO,
     mut pkey: *const EVP_PKEY,
@@ -1144,7 +1143,7 @@ pub unsafe extern "C" fn EVP_PKEY_print_private(
         b"Private Key\0" as *const u8 as *const libc::c_char,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_print_params(
     mut out: *mut BIO,
     mut pkey: *const EVP_PKEY,

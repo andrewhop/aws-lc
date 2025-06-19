@@ -9,7 +9,7 @@
 )]
 #![feature(asm, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn BN_zero(bn: *mut BIGNUM);
     fn RAND_bytes_with_additional_data(
         out: *mut uint8_t,
@@ -143,7 +143,7 @@ unsafe extern "C" fn OPENSSL_memset(
 unsafe extern "C" fn FIPS_service_indicator_lock_state() {}
 #[inline]
 unsafe extern "C" fn FIPS_service_indicator_unlock_state() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_rand(
     mut rnd: *mut BIGNUM,
     mut bits: libc::c_int,
@@ -233,7 +233,7 @@ pub unsafe extern "C" fn BN_rand(
     (*rnd).width = words;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_pseudo_rand(
     mut rnd: *mut BIGNUM,
     mut bits: libc::c_int,
@@ -264,7 +264,7 @@ unsafe extern "C" fn bn_less_than_word_mask(
     mask &= constant_time_lt_w(*a.offset(0 as libc::c_int as isize), b);
     return mask;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_in_range_words(
     mut a: *const BN_ULONG,
     mut min_inclusive: BN_ULONG,
@@ -316,7 +316,7 @@ unsafe extern "C" fn bn_range_to_mask(
     *out_mask = mask;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_rand_range_words(
     mut out: *mut BN_ULONG,
     mut min_inclusive: BN_ULONG,
@@ -383,7 +383,7 @@ pub unsafe extern "C" fn bn_rand_range_words(
     FIPS_service_indicator_unlock_state();
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_rand_range_ex(
     mut r: *mut BIGNUM,
     mut min_inclusive: BN_ULONG,
@@ -438,7 +438,7 @@ pub unsafe extern "C" fn BN_rand_range_ex(
     (*r).width = (*max_exclusive).width;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_rand_secret_range(
     mut r: *mut BIGNUM,
     mut out_is_uniform: *mut libc::c_int,
@@ -611,14 +611,14 @@ pub unsafe extern "C" fn bn_rand_secret_range(
     FIPS_service_indicator_unlock_state();
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_rand_range(
     mut r: *mut BIGNUM,
     mut range: *const BIGNUM,
 ) -> libc::c_int {
     return BN_rand_range_ex(r, 0 as libc::c_int as BN_ULONG, range);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_pseudo_rand_range(
     mut r: *mut BIGNUM,
     mut range: *const BIGNUM,

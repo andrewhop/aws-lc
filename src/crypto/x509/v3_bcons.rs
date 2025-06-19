@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -572,7 +571,7 @@ unsafe extern "C" fn sk_CONF_VALUE_value(
 ) -> *mut CONF_VALUE {
     return OPENSSL_sk_value(sk as *const OPENSSL_STACK, i) as *mut CONF_VALUE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_bcons: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {
@@ -632,7 +631,7 @@ static mut BASIC_CONSTRAINTS_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut BASIC_CONSTRAINTS_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -642,18 +641,18 @@ pub static mut BASIC_CONSTRAINTS_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_BASIC_CONSTRAINTS(
     mut a: *const BASIC_CONSTRAINTS,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &BASIC_CONSTRAINTS_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BASIC_CONSTRAINTS_free(mut a: *mut BASIC_CONSTRAINTS) {
     ASN1_item_free(a as *mut ASN1_VALUE, &BASIC_CONSTRAINTS_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_BASIC_CONSTRAINTS(
     mut a: *mut *mut BASIC_CONSTRAINTS,
     mut in_0: *mut *const libc::c_uchar,
@@ -662,7 +661,7 @@ pub unsafe extern "C" fn d2i_BASIC_CONSTRAINTS(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &BASIC_CONSTRAINTS_it)
         as *mut BASIC_CONSTRAINTS;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BASIC_CONSTRAINTS_new() -> *mut BASIC_CONSTRAINTS {
     return ASN1_item_new(&BASIC_CONSTRAINTS_it) as *mut BASIC_CONSTRAINTS;
 }

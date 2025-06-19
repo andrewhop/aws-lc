@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -659,7 +658,7 @@ static mut x509_file_lookup: X509_LOOKUP_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_LOOKUP_file() -> *const X509_LOOKUP_METHOD {
     return &x509_file_lookup;
 }
@@ -697,7 +696,7 @@ unsafe extern "C" fn by_file_ctrl(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_load_cert_file(
     mut ctx: *mut X509_LOOKUP,
     mut file: *const libc::c_char,
@@ -820,7 +819,7 @@ pub unsafe extern "C" fn X509_load_cert_file(
     BIO_free(in_0);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_load_crl_file(
     mut ctx: *mut X509_LOOKUP,
     mut file: *const libc::c_char,
@@ -943,7 +942,7 @@ pub unsafe extern "C" fn X509_load_crl_file(
     BIO_free(in_0);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_load_cert_crl_file(
     mut ctx: *mut X509_LOOKUP,
     mut file: *const libc::c_char,
@@ -1035,7 +1034,7 @@ pub unsafe extern "C" fn X509_load_cert_crl_file(
     );
     return count;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_LOOKUP_load_file(
     mut lookup: *mut X509_LOOKUP,
     mut name: *const libc::c_char,

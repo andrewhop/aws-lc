@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn memcpy(
         _: *mut libc::c_void,
         _: *const libc::c_void,
@@ -264,7 +264,7 @@ unsafe extern "C" fn crypto_md32_final(
     *num = 0 as libc::c_int as libc::c_uint;
     OPENSSL_memset(data as *mut libc::c_void, 0 as libc::c_int, block_size);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA224_Init(mut sha: *mut SHA256_CTX) -> libc::c_int {
     OPENSSL_memset(
         sha as *mut libc::c_void,
@@ -282,7 +282,7 @@ pub unsafe extern "C" fn SHA224_Init(mut sha: *mut SHA256_CTX) -> libc::c_int {
     (*sha).md_len = 28 as libc::c_int as libc::c_uint;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA256_Init(mut sha: *mut SHA256_CTX) -> libc::c_int {
     OPENSSL_memset(
         sha as *mut libc::c_void,
@@ -329,7 +329,7 @@ unsafe extern "C" fn sha256_init_from_state_impl(
     (*sha).Nl = (n & 0xffffffff as libc::c_uint as uint64_t) as uint32_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA224_Init_from_state(
     mut sha: *mut SHA256_CTX,
     mut h: *const uint8_t,
@@ -337,7 +337,7 @@ pub unsafe extern "C" fn SHA224_Init_from_state(
 ) -> libc::c_int {
     return sha256_init_from_state_impl(sha, 28 as libc::c_int, h, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA256_Init_from_state(
     mut sha: *mut SHA256_CTX,
     mut h: *const uint8_t,
@@ -345,7 +345,7 @@ pub unsafe extern "C" fn SHA256_Init_from_state(
 ) -> libc::c_int {
     return sha256_init_from_state_impl(sha, 32 as libc::c_int, h, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA224(
     mut data: *const uint8_t,
     mut len: size_t,
@@ -373,7 +373,7 @@ pub unsafe extern "C" fn SHA224(
     );
     return out;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA256(
     mut data: *const uint8_t,
     mut len: size_t,
@@ -401,14 +401,14 @@ pub unsafe extern "C" fn SHA256(
     );
     return out;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA256_Transform(
     mut c: *mut SHA256_CTX,
     mut data: *const uint8_t,
 ) {
     sha256_block_data_order(((*c).h).as_mut_ptr(), data, 1 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA256_Update(
     mut c: *mut SHA256_CTX,
     mut data: *const libc::c_void,
@@ -430,7 +430,7 @@ pub unsafe extern "C" fn SHA256_Update(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA224_Update(
     mut ctx: *mut SHA256_CTX,
     mut data: *const libc::c_void,
@@ -498,14 +498,14 @@ unsafe extern "C" fn sha256_final_impl(
     FIPS_service_indicator_update_state();
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA256_Final(
     mut out: *mut uint8_t,
     mut c: *mut SHA256_CTX,
 ) -> libc::c_int {
     return sha256_final_impl(out, 32 as libc::c_int as size_t, c);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA224_Final(
     mut out: *mut uint8_t,
     mut ctx: *mut SHA256_CTX,
@@ -535,7 +535,7 @@ unsafe extern "C" fn sha256_get_state_impl(
         .wrapping_add((*ctx).Nl as uint64_t);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA224_get_state(
     mut ctx: *mut SHA256_CTX,
     mut out_h: *mut uint8_t,
@@ -543,7 +543,7 @@ pub unsafe extern "C" fn SHA224_get_state(
 ) -> libc::c_int {
     return sha256_get_state_impl(ctx, out_h, out_n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA256_get_state(
     mut ctx: *mut SHA256_CTX,
     mut out_h: *mut uint8_t,
@@ -1270,7 +1270,7 @@ unsafe extern "C" fn sha256_block_data_order(
 ) {
     sha256_block_data_order_nohw(state, data, num);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA256_TransformBlocks(
     mut state: *mut uint32_t,
     mut data: *const uint8_t,

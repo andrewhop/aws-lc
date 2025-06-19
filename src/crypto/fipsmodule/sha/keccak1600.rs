@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn __assert_fail(
         __assertion: *const libc::c_char,
         __file: *const libc::c_char,
@@ -548,7 +548,7 @@ unsafe extern "C" fn BitInterleave(mut Ai: uint64_t) -> uint64_t {
 unsafe extern "C" fn BitDeinterleave(mut Ai: uint64_t) -> uint64_t {
     return Ai;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn Keccak1600_Absorb(
     mut A: *mut [uint64_t; 5],
     mut inp: *const uint8_t,
@@ -628,7 +628,7 @@ pub unsafe extern "C" fn Keccak1600_Absorb(
     }
     return len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn Keccak1600_Squeeze(
     mut A: *mut [uint64_t; 5],
     mut out: *mut uint8_t,

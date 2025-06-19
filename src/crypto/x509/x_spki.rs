@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_object_st;
     pub type ASN1_VALUE_st;
     pub type X509_pubkey_st;
@@ -162,7 +161,7 @@ static mut NETSCAPE_SPKAC_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut NETSCAPE_SPKAC_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -172,18 +171,18 @@ pub static mut NETSCAPE_SPKAC_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_NETSCAPE_SPKAC(
     mut a: *const NETSCAPE_SPKAC,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &NETSCAPE_SPKAC_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NETSCAPE_SPKAC_free(mut a: *mut NETSCAPE_SPKAC) {
     ASN1_item_free(a as *mut ASN1_VALUE, &NETSCAPE_SPKAC_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_NETSCAPE_SPKAC(
     mut a: *mut *mut NETSCAPE_SPKAC,
     mut in_0: *mut *const libc::c_uchar,
@@ -192,7 +191,7 @@ pub unsafe extern "C" fn d2i_NETSCAPE_SPKAC(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &NETSCAPE_SPKAC_it)
         as *mut NETSCAPE_SPKAC;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NETSCAPE_SPKAC_new() -> *mut NETSCAPE_SPKAC {
     return ASN1_item_new(&NETSCAPE_SPKAC_it) as *mut NETSCAPE_SPKAC;
 }
@@ -230,7 +229,7 @@ static mut NETSCAPE_SPKI_seq_tt: [ASN1_TEMPLATE; 3] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut NETSCAPE_SPKI_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -240,22 +239,22 @@ pub static mut NETSCAPE_SPKI_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_NETSCAPE_SPKI(
     mut a: *const NETSCAPE_SPKI,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &NETSCAPE_SPKI_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NETSCAPE_SPKI_free(mut a: *mut NETSCAPE_SPKI) {
     ASN1_item_free(a as *mut ASN1_VALUE, &NETSCAPE_SPKI_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NETSCAPE_SPKI_new() -> *mut NETSCAPE_SPKI {
     return ASN1_item_new(&NETSCAPE_SPKI_it) as *mut NETSCAPE_SPKI;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_NETSCAPE_SPKI(
     mut a: *mut *mut NETSCAPE_SPKI,
     mut in_0: *mut *const libc::c_uchar,

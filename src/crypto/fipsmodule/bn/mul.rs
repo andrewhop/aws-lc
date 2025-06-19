@@ -9,7 +9,7 @@
 )]
 #![feature(asm, extern_types, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn abort() -> !;
     fn BN_copy(dest: *mut BIGNUM, src: *const BIGNUM) -> *mut BIGNUM;
@@ -405,7 +405,7 @@ unsafe extern "C" fn bn_abs_sub_part_words(
     bn_select_words(r, borrow, r, tmp, r_len as size_t);
     return borrow;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_abs_sub_consttime(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -1271,7 +1271,7 @@ unsafe extern "C" fn bn_mul_impl(
     BN_CTX_end(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mul(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -1284,7 +1284,7 @@ pub unsafe extern "C" fn BN_mul(
     bn_set_minimal_width(r);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mul_consttime(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -1304,7 +1304,7 @@ pub unsafe extern "C" fn bn_mul_consttime(
     }
     return bn_mul_impl(r, a, b, ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mul_small(
     mut r: *mut BN_ULONG,
     mut num_r: size_t,
@@ -1499,7 +1499,7 @@ unsafe extern "C" fn bn_sqr_recursive(
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mul_word(
     mut bn: *mut BIGNUM,
     mut w: BN_ULONG,
@@ -1522,7 +1522,7 @@ pub unsafe extern "C" fn BN_mul_word(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_sqr_consttime(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -1583,7 +1583,7 @@ pub unsafe extern "C" fn bn_sqr_consttime(
     BN_CTX_end(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_sqr(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -1595,7 +1595,7 @@ pub unsafe extern "C" fn BN_sqr(
     bn_set_minimal_width(r);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_sqr_small(
     mut r: *mut BN_ULONG,
     mut num_r: size_t,

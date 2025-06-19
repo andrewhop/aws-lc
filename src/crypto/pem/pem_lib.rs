@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
     pub type _IO_marker;
@@ -390,7 +389,7 @@ unsafe extern "C" fn OPENSSL_memset(
     }
     return memset(dst, c, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_proc_type(
     mut buf: *mut libc::c_char,
     mut type_0: libc::c_int,
@@ -417,7 +416,7 @@ pub unsafe extern "C" fn PEM_proc_type(
         1024 as libc::c_int as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_dek_info(
     mut buf: *mut libc::c_char,
     mut type_0: *const libc::c_char,
@@ -474,7 +473,7 @@ pub unsafe extern "C" fn PEM_dek_info(
                 .wrapping_add(1 as libc::c_int as size_t) as isize,
         ) = '\0' as i32 as libc::c_char;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_ASN1_read(
     mut d2i: Option::<d2i_of_void>,
     mut name: *const libc::c_char,
@@ -581,7 +580,7 @@ unsafe extern "C" fn cipher_by_name(mut name: *const libc::c_char) -> *const EVP
         return 0 as *const EVP_CIPHER
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_bytes_read_bio(
     mut pdata: *mut *mut libc::c_uchar,
     mut plen: *mut libc::c_long,
@@ -640,7 +639,7 @@ pub unsafe extern "C" fn PEM_bytes_read_bio(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_ASN1_write(
     mut i2d: Option::<i2d_of_void>,
     mut name: *const libc::c_char,
@@ -678,7 +677,7 @@ pub unsafe extern "C" fn PEM_ASN1_write(
     BIO_free(b);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_ASN1_write_bio(
     mut i2d: Option::<i2d_of_void>,
     mut name: *const libc::c_char,
@@ -1002,7 +1001,7 @@ pub unsafe extern "C" fn PEM_ASN1_write_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_do_header(
     mut cipher: *mut EVP_CIPHER_INFO,
     mut data: *mut libc::c_uchar,
@@ -1115,7 +1114,7 @@ pub unsafe extern "C" fn PEM_do_header(
     *plen = j as libc::c_long;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_get_EVP_CIPHER_INFO(
     mut header: *mut libc::c_char,
     mut cipher: *mut EVP_CIPHER_INFO,
@@ -1327,7 +1326,7 @@ unsafe extern "C" fn load_iv(
     *fromp = from;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write(
     mut fp: *mut FILE,
     mut name: *const libc::c_char,
@@ -1351,7 +1350,7 @@ pub unsafe extern "C" fn PEM_write(
     BIO_free(b);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio(
     mut bp: *mut BIO,
     mut name: *const libc::c_char,
@@ -1500,7 +1499,7 @@ pub unsafe extern "C" fn PEM_write_bio(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read(
     mut fp: *mut FILE,
     mut name: *mut *mut libc::c_char,
@@ -1524,7 +1523,7 @@ pub unsafe extern "C" fn PEM_read(
     BIO_free(b);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio(
     mut bp: *mut BIO,
     mut name: *mut *mut libc::c_char,
@@ -1852,7 +1851,7 @@ pub unsafe extern "C" fn PEM_read_bio(
     BUF_MEM_free(dataB);
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_def_callback(
     mut buf: *mut libc::c_char,
     mut size: libc::c_int,

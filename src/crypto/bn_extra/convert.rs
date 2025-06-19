@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -268,7 +267,7 @@ unsafe extern "C" fn OPENSSL_memset(
     }
     return memset(dst, c, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_bn2cbb_padded(
     mut out: *mut CBB,
     mut len: size_t,
@@ -281,7 +280,7 @@ pub unsafe extern "C" fn BN_bn2cbb_padded(
 static mut hextable: [libc::c_char; 17] = unsafe {
     *::core::mem::transmute::<&[u8; 17], &[libc::c_char; 17]>(b"0123456789ABCDEF\0")
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_bn2hex(mut bn: *const BIGNUM) -> *mut libc::c_char {
     let mut width: libc::c_int = bn_minimal_width(bn);
     let mut buf: *mut libc::c_char = OPENSSL_zalloc(
@@ -554,7 +553,7 @@ unsafe extern "C" fn bn_x2bn(
         return num;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_hex2bn(
     mut outp: *mut *mut BIGNUM,
     mut in_0: *const libc::c_char,
@@ -573,7 +572,7 @@ pub unsafe extern "C" fn BN_hex2bn(
         Some(OPENSSL_isxdigit as unsafe extern "C" fn(libc::c_int) -> libc::c_int),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_bn2dec(mut a: *const BIGNUM) -> *mut libc::c_char {
     let mut data: *mut uint8_t = 0 as *mut uint8_t;
     let mut len: size_t = 0;
@@ -712,7 +711,7 @@ pub unsafe extern "C" fn BN_bn2dec(mut a: *const BIGNUM) -> *mut libc::c_char {
     CBB_cleanup(&mut cbb);
     return 0 as *mut libc::c_char;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_dec2bn(
     mut outp: *mut *mut BIGNUM,
     mut in_0: *const libc::c_char,
@@ -731,7 +730,7 @@ pub unsafe extern "C" fn BN_dec2bn(
         Some(OPENSSL_isdigit as unsafe extern "C" fn(libc::c_int) -> libc::c_int),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_asc2bn(
     mut outp: *mut *mut BIGNUM,
     mut in_0: *const libc::c_char,
@@ -756,7 +755,7 @@ pub unsafe extern "C" fn BN_asc2bn(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_print(
     mut bp: *mut BIO,
     mut a: *const BIGNUM,
@@ -819,7 +818,7 @@ pub unsafe extern "C" fn BN_print(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_print_fp(
     mut fp: *mut FILE,
     mut a: *const BIGNUM,
@@ -832,7 +831,7 @@ pub unsafe extern "C" fn BN_print_fp(
     BIO_free(b);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_bn2mpi(
     mut in_0: *const BIGNUM,
     mut out: *mut uint8_t,
@@ -876,7 +875,7 @@ pub unsafe extern "C" fn BN_bn2mpi(
     }
     return len.wrapping_add(4 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mpi2bn(
     mut in_0: *const uint8_t,
     mut len: size_t,
@@ -943,7 +942,7 @@ pub unsafe extern "C" fn BN_mpi2bn(
     }
     return out;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_bn2binpad(
     mut in_0: *const BIGNUM,
     mut out: *mut uint8_t,

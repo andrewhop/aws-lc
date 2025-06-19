@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -1186,7 +1185,7 @@ unsafe extern "C" fn x509V3_add_len_value(
     OPENSSL_free(tvalue as *mut libc::c_void);
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_add_value(
     mut name: *const libc::c_char,
     mut value: *const libc::c_char,
@@ -1200,7 +1199,7 @@ pub unsafe extern "C" fn X509V3_add_value(
         extlist,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x509V3_add_value_asn1_string(
     mut name: *const libc::c_char,
     mut value: *const ASN1_STRING,
@@ -1214,7 +1213,7 @@ pub unsafe extern "C" fn x509V3_add_value_asn1_string(
         extlist,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_conf_free(mut conf: *mut CONF_VALUE) {
     if conf.is_null() {
         return;
@@ -1224,7 +1223,7 @@ pub unsafe extern "C" fn X509V3_conf_free(mut conf: *mut CONF_VALUE) {
     OPENSSL_free((*conf).section as *mut libc::c_void);
     OPENSSL_free(conf as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_add_value_bool(
     mut name: *const libc::c_char,
     mut asn1_bool: libc::c_int,
@@ -1270,7 +1269,7 @@ unsafe extern "C" fn bignum_to_string(mut bn: *const BIGNUM) -> *mut libc::c_cha
     OPENSSL_free(tmp as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2s_ASN1_ENUMERATED(
     mut method: *const X509V3_EXT_METHOD,
     mut a: *const ASN1_ENUMERATED,
@@ -1289,7 +1288,7 @@ pub unsafe extern "C" fn i2s_ASN1_ENUMERATED(
     BN_free(bntmp);
     return strtmp;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2s_ASN1_INTEGER(
     mut method: *const X509V3_EXT_METHOD,
     mut a: *const ASN1_INTEGER,
@@ -1308,7 +1307,7 @@ pub unsafe extern "C" fn i2s_ASN1_INTEGER(
     BN_free(bntmp);
     return strtmp;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn s2i_ASN1_INTEGER(
     mut method: *const X509V3_EXT_METHOD,
     mut value: *const libc::c_char,
@@ -1396,7 +1395,7 @@ pub unsafe extern "C" fn s2i_ASN1_INTEGER(
     }
     return aint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_add_value_int(
     mut name: *const libc::c_char,
     mut aint: *const ASN1_INTEGER,
@@ -1415,7 +1414,7 @@ pub unsafe extern "C" fn X509V3_add_value_int(
     OPENSSL_free(strtmp as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_bool_from_string(
     mut str: *const libc::c_char,
     mut out_bool: *mut ASN1_BOOLEAN,
@@ -1450,7 +1449,7 @@ pub unsafe extern "C" fn X509V3_bool_from_string(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_get_value_bool(
     mut value: *const CONF_VALUE,
     mut out_bool: *mut ASN1_BOOLEAN,
@@ -1479,7 +1478,7 @@ pub unsafe extern "C" fn X509V3_get_value_bool(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_get_value_int(
     mut value: *const CONF_VALUE,
     mut aint: *mut *mut ASN1_INTEGER,
@@ -1502,7 +1501,7 @@ pub unsafe extern "C" fn X509V3_get_value_int(
     *aint = itmp;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_parse_list(
     mut line: *const libc::c_char,
 ) -> *mut stack_st_CONF_VALUE {
@@ -1680,7 +1679,7 @@ unsafe extern "C" fn strip_spaces(mut name: *mut libc::c_char) -> *mut libc::c_c
     }
     return p;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x509v3_bytes_to_hex(
     mut in_0: *const uint8_t,
     mut len: size_t,
@@ -1753,7 +1752,7 @@ pub unsafe extern "C" fn x509v3_bytes_to_hex(
     CBB_cleanup(&mut cbb);
     return 0 as *mut libc::c_char;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x509v3_hex_to_bytes(
     mut str: *const libc::c_char,
     mut len: *mut size_t,
@@ -1845,7 +1844,7 @@ pub unsafe extern "C" fn x509v3_hex_to_bytes(
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x509v3_conf_name_matches(
     mut name: *const libc::c_char,
     mut cmp: *const libc::c_char,
@@ -1863,7 +1862,7 @@ unsafe extern "C" fn sk_strcmp(
 ) -> libc::c_int {
     return strcmp(*a, *b);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get1_email(
     mut x: *const X509,
 ) -> *mut stack_st_OPENSSL_STRING {
@@ -1882,7 +1881,7 @@ pub unsafe extern "C" fn X509_get1_email(
     );
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get1_ocsp(
     mut x: *const X509,
 ) -> *mut stack_st_OPENSSL_STRING {
@@ -1916,7 +1915,7 @@ pub unsafe extern "C" fn X509_get1_ocsp(
     AUTHORITY_INFO_ACCESS_free(info);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_get1_email(
     mut x: *const X509_REQ,
 ) -> *mut stack_st_OPENSSL_STRING {
@@ -2026,7 +2025,7 @@ unsafe extern "C" fn append_ia5(
     *sk = 0 as *mut stack_st_OPENSSL_STRING;
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_email_free(mut sk: *mut stack_st_OPENSSL_STRING) {
     sk_OPENSSL_STRING_pop_free(
         sk,
@@ -2274,7 +2273,7 @@ unsafe extern "C" fn equal_wildcard(
         flags,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x509v3_looks_like_dns_name(
     mut in_0: *const libc::c_uchar,
     mut len: size_t,
@@ -2522,7 +2521,7 @@ unsafe extern "C" fn do_x509_check(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_check_host(
     mut x: *const X509,
     mut chk: *const libc::c_char,
@@ -2542,7 +2541,7 @@ pub unsafe extern "C" fn X509_check_host(
     }
     return do_x509_check(x, chk, chklen, flags, 2 as libc::c_int, peername);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_check_email(
     mut x: *const X509,
     mut chk: *const libc::c_char,
@@ -2568,7 +2567,7 @@ pub unsafe extern "C" fn X509_check_email(
         0 as *mut *mut libc::c_char,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_check_ip(
     mut x: *const X509,
     mut chk: *const libc::c_uchar,
@@ -2587,7 +2586,7 @@ pub unsafe extern "C" fn X509_check_ip(
         0 as *mut *mut libc::c_char,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_check_ip_asc(
     mut x: *const X509,
     mut ipasc: *const libc::c_char,
@@ -2611,7 +2610,7 @@ pub unsafe extern "C" fn X509_check_ip_asc(
         0 as *mut *mut libc::c_char,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn a2i_IPADDRESS(
     mut ipasc: *const libc::c_char,
 ) -> *mut ASN1_OCTET_STRING {
@@ -2632,7 +2631,7 @@ pub unsafe extern "C" fn a2i_IPADDRESS(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn a2i_IPADDRESS_NC(
     mut ipasc: *const libc::c_char,
 ) -> *mut ASN1_OCTET_STRING {
@@ -2674,7 +2673,7 @@ pub unsafe extern "C" fn a2i_IPADDRESS_NC(
     ASN1_OCTET_STRING_free(ret);
     return 0 as *mut ASN1_OCTET_STRING;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x509v3_a2i_ipadd(
     mut ipout: *mut libc::c_uchar,
     mut ipasc: *const libc::c_char,
@@ -2884,7 +2883,7 @@ unsafe extern "C" fn ipv6_hex(
         ) = (num as libc::c_int & 0xff as libc::c_int) as libc::c_uchar;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_NAME_from_section(
     mut nm: *mut X509_NAME,
     mut dn_sk: *const stack_st_CONF_VALUE,

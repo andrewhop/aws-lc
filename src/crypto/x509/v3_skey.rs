@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -540,14 +539,14 @@ pub type X509V3_EXT_D2I = Option::<
 >;
 pub type X509V3_EXT_FREE = Option::<unsafe extern "C" fn(*mut libc::c_void) -> ()>;
 pub type X509V3_EXT_NEW = Option::<unsafe extern "C" fn() -> *mut libc::c_void>;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2s_ASN1_OCTET_STRING(
     mut method: *const X509V3_EXT_METHOD,
     mut oct: *const ASN1_OCTET_STRING,
 ) -> *mut libc::c_char {
     return x509v3_bytes_to_hex((*oct).data, (*oct).length as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn s2i_ASN1_OCTET_STRING(
     mut method: *const X509V3_EXT_METHOD,
     mut ctx: *const X509V3_CTX,
@@ -647,7 +646,7 @@ unsafe extern "C" fn s2i_skey_id(
     ASN1_OCTET_STRING_free(oct);
     return 0 as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_skey_id: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {

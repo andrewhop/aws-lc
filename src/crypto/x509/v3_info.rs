@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -727,7 +726,7 @@ unsafe extern "C" fn sk_CONF_VALUE_new_null() -> *mut stack_st_CONF_VALUE {
 unsafe extern "C" fn sk_CONF_VALUE_num(mut sk: *const stack_st_CONF_VALUE) -> size_t {
     return OPENSSL_sk_num(sk as *const OPENSSL_STACK);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_info: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {
@@ -763,7 +762,7 @@ pub static mut v3_info: X509V3_EXT_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_sinfo: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {
@@ -823,7 +822,7 @@ static mut ACCESS_DESCRIPTION_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut ACCESS_DESCRIPTION_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -833,11 +832,11 @@ pub static mut ACCESS_DESCRIPTION_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ACCESS_DESCRIPTION_free(mut a: *mut ACCESS_DESCRIPTION) {
     ASN1_item_free(a as *mut ASN1_VALUE, &ACCESS_DESCRIPTION_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ACCESS_DESCRIPTION_new() -> *mut ACCESS_DESCRIPTION {
     return ASN1_item_new(&ACCESS_DESCRIPTION_it) as *mut ACCESS_DESCRIPTION;
 }
@@ -853,7 +852,7 @@ static mut AUTHORITY_INFO_ACCESS_item_tt: ASN1_TEMPLATE = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut AUTHORITY_INFO_ACCESS_it: ASN1_ITEM = unsafe {
     {
         let mut init = ASN1_ITEM_st {
@@ -868,22 +867,22 @@ pub static mut AUTHORITY_INFO_ACCESS_it: ASN1_ITEM = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_AUTHORITY_INFO_ACCESS(
     mut a: *mut AUTHORITY_INFO_ACCESS,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &AUTHORITY_INFO_ACCESS_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AUTHORITY_INFO_ACCESS_free(mut a: *mut AUTHORITY_INFO_ACCESS) {
     ASN1_item_free(a as *mut ASN1_VALUE, &AUTHORITY_INFO_ACCESS_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AUTHORITY_INFO_ACCESS_new() -> *mut AUTHORITY_INFO_ACCESS {
     return ASN1_item_new(&AUTHORITY_INFO_ACCESS_it) as *mut AUTHORITY_INFO_ACCESS;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_AUTHORITY_INFO_ACCESS(
     mut a: *mut *mut AUTHORITY_INFO_ACCESS,
     mut in_0: *mut *const libc::c_uchar,

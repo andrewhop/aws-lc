@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn abort() -> !;
     fn BN_init(bn: *mut BIGNUM);
@@ -176,7 +175,7 @@ unsafe extern "C" fn OPENSSL_memset(
     }
     return memset(dst, c, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mont_ctx_init(mut mont: *mut BN_MONT_CTX) {
     OPENSSL_memset(
         mont as *mut libc::c_void,
@@ -186,12 +185,12 @@ pub unsafe extern "C" fn bn_mont_ctx_init(mut mont: *mut BN_MONT_CTX) {
     BN_init(&mut (*mont).RR);
     BN_init(&mut (*mont).N);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mont_ctx_cleanup(mut mont: *mut BN_MONT_CTX) {
     BN_free(&mut (*mont).RR);
     BN_free(&mut (*mont).N);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_MONT_CTX_new() -> *mut BN_MONT_CTX {
     let mut ret: *mut BN_MONT_CTX = OPENSSL_malloc(
         ::core::mem::size_of::<BN_MONT_CTX>() as libc::c_ulong,
@@ -202,7 +201,7 @@ pub unsafe extern "C" fn BN_MONT_CTX_new() -> *mut BN_MONT_CTX {
     bn_mont_ctx_init(ret);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_MONT_CTX_free(mut mont: *mut BN_MONT_CTX) {
     if mont.is_null() {
         return;
@@ -210,7 +209,7 @@ pub unsafe extern "C" fn BN_MONT_CTX_free(mut mont: *mut BN_MONT_CTX) {
     bn_mont_ctx_cleanup(mont);
     OPENSSL_free(mont as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_MONT_CTX_copy(
     mut to: *mut BN_MONT_CTX,
     mut from: *const BN_MONT_CTX,
@@ -297,7 +296,7 @@ unsafe extern "C" fn bn_mont_ctx_set_N_and_n0(
     (*mont).n0[1 as libc::c_int as usize] = 0 as libc::c_int as BN_ULONG;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_MONT_CTX_set(
     mut mont: *mut BN_MONT_CTX,
     mut mod_0: *const BIGNUM,
@@ -331,7 +330,7 @@ pub unsafe extern "C" fn BN_MONT_CTX_set(
     BN_CTX_free(new_ctx);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_MONT_CTX_new_for_modulus(
     mut mod_0: *const BIGNUM,
     mut ctx: *mut BN_CTX,
@@ -343,7 +342,7 @@ pub unsafe extern "C" fn BN_MONT_CTX_new_for_modulus(
     }
     return mont;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_MONT_CTX_new_consttime(
     mut mod_0: *const BIGNUM,
     mut ctx: *mut BN_CTX,
@@ -357,7 +356,7 @@ pub unsafe extern "C" fn BN_MONT_CTX_new_consttime(
     }
     return mont;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_MONT_CTX_set_locked(
     mut pmont: *mut *mut BN_MONT_CTX,
     mut lock: *mut CRYPTO_MUTEX,
@@ -379,7 +378,7 @@ pub unsafe extern "C" fn BN_MONT_CTX_set_locked(
     CRYPTO_MUTEX_unlock_write(lock);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_to_montgomery(
     mut ret: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -471,7 +470,7 @@ unsafe extern "C" fn BN_from_montgomery_word(
         mont,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_from_montgomery(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -488,7 +487,7 @@ pub unsafe extern "C" fn BN_from_montgomery(
     BN_CTX_end(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_one_to_montgomery(
     mut r: *mut BIGNUM,
     mut mont: *const BN_MONT_CTX,
@@ -554,7 +553,7 @@ unsafe extern "C" fn bn_mod_mul_montgomery_fallback(
     BN_CTX_end(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_mul_montgomery(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -575,7 +574,7 @@ pub unsafe extern "C" fn BN_mod_mul_montgomery(
     }
     return bn_mod_mul_montgomery_fallback(r, a, b, mont, ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_less_than_montgomery_R(
     mut bn: *const BIGNUM,
     mut mont: *const BN_MONT_CTX,
@@ -583,7 +582,7 @@ pub unsafe extern "C" fn bn_less_than_montgomery_R(
     return (BN_is_negative(bn) == 0
         && bn_fits_in_words(bn, (*mont).N.width as size_t) != 0) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_to_montgomery_small(
     mut r: *mut BN_ULONG,
     mut a: *const BN_ULONG,
@@ -592,7 +591,7 @@ pub unsafe extern "C" fn bn_to_montgomery_small(
 ) {
     bn_mod_mul_montgomery_small(r, a, (*mont).RR.d, num, mont);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_from_montgomery_small(
     mut r: *mut BN_ULONG,
     mut num_r: size_t,
@@ -646,7 +645,7 @@ pub unsafe extern "C" fn bn_from_montgomery_small(
             .wrapping_mul(::core::mem::size_of::<BN_ULONG>() as libc::c_ulong),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mod_mul_montgomery_small(
     mut r: *mut BN_ULONG,
     mut a: *const BN_ULONG,

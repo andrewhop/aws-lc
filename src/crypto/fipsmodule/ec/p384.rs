@@ -9,7 +9,7 @@
 )]
 #![feature(asm, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn BN_num_bytes(bn: *const BIGNUM) -> libc::c_uint;
     fn ec_GFp_mont_mul_batch(
         group: *const EC_GROUP,
@@ -11147,7 +11147,7 @@ static mut p384_g_pre_comp: [[[p384_felem; 2]; 16]; 20] = [
         ],
     ],
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn p384_methods() -> *const ec_nistp_meth {
     CRYPTO_once(
         p384_methods_once_bss_get(),
@@ -11612,7 +11612,7 @@ unsafe extern "C" fn ec_GFp_nistp384_point_mul_public(
         (res[2 as libc::c_int as usize]).as_mut_ptr() as *const uint64_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GFp_nistp384_method() -> *const EC_METHOD {
     CRYPTO_once(
         EC_GFp_nistp384_method_once_bss_get(),

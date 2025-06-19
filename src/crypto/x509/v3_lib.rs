@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -745,7 +744,7 @@ unsafe extern "C" fn ext_stack_cmp(
 ) -> libc::c_int {
     return (**a).ext_nid - (**b).ext_nid;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_add(mut ext: *mut X509V3_EXT_METHOD) -> libc::c_int {
     if !((*ext).it).is_null() {} else {
         __assert_fail(
@@ -830,7 +829,7 @@ unsafe extern "C" fn x509v3_ext_method_validate(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_get_nid(
     mut nid: libc::c_int,
 ) -> *const X509V3_EXT_METHOD {
@@ -888,7 +887,7 @@ pub unsafe extern "C" fn X509V3_EXT_get_nid(
     }
     return 0 as *const X509V3_EXT_METHOD;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_get(
     mut ext: *const X509_EXTENSION,
 ) -> *const X509V3_EXT_METHOD {
@@ -903,7 +902,7 @@ pub unsafe extern "C" fn X509V3_EXT_get(
     }
     return X509V3_EXT_get_nid(nid);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x509v3_ext_free_with_method(
     mut ext_method: *const X509V3_EXT_METHOD,
     mut ext_data: *mut libc::c_void,
@@ -938,14 +937,14 @@ pub unsafe extern "C" fn x509v3_ext_free_with_method(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_free(
     mut nid: libc::c_int,
     mut ext_data: *mut libc::c_void,
 ) -> libc::c_int {
     return x509v3_ext_free_with_method(X509V3_EXT_get_nid(nid), ext_data);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_add_alias(
     mut nid_to: libc::c_int,
     mut nid_from: libc::c_int,
@@ -977,11 +976,11 @@ pub unsafe extern "C" fn X509V3_EXT_add_alias(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_add_standard_extensions() -> libc::c_int {
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_d2i(
     mut ext: *const X509_EXTENSION,
 ) -> *mut libc::c_void {
@@ -1051,7 +1050,7 @@ pub unsafe extern "C" fn X509V3_EXT_d2i(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_get_d2i(
     mut extensions: *const stack_st_X509_EXTENSION,
     mut nid: libc::c_int,
@@ -1113,7 +1112,7 @@ pub unsafe extern "C" fn X509V3_get_d2i(
     }
     return 0 as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_add1_i2d(
     mut x: *mut *mut stack_st_X509_EXTENSION,
     mut nid: libc::c_int,

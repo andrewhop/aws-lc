@@ -9,7 +9,7 @@
 )]
 #![feature(asm, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn SHA256_Init(sha: *mut SHA256_CTX) -> libc::c_int;
     fn SHA256_Update(
         sha: *mut SHA256_CTX,
@@ -1099,7 +1099,7 @@ unsafe extern "C" fn poly3_mul_aux(
     poly3_span_sub(scratch, &out_high, high_len * 2 as libc::c_int as size_t);
     poly3_span_add(&out_mid, &out_mid, scratch, high_len * 2 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HRSS_poly3_mul(
     mut out: *mut poly3,
     mut x: *const poly3,
@@ -1255,7 +1255,7 @@ pub unsafe extern "C" fn HRSS_poly3_mul(
     }
     poly3_mod_phiN(out);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HRSS_poly3_invert(mut out: *mut poly3, mut in_0: *const poly3) {
     let mut v: poly3 = poly3 {
         s: poly2 { v: [0; 11] },
@@ -2595,7 +2595,7 @@ unsafe extern "C" fn malloc_align32(
     *out_ptr = ptr;
     return align_pointer(ptr, 32 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HRSS_generate_key(
     mut out_pub: *mut HRSS_public_key,
     mut out_priv: *mut HRSS_private_key,
@@ -2694,7 +2694,7 @@ pub unsafe extern "C" fn HRSS_generate_key(
 static mut kSharedKey: [libc::c_char; 11] = unsafe {
     *::core::mem::transmute::<&[u8; 11], &[libc::c_char; 11]>(b"shared key\0")
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HRSS_encap(
     mut out_ciphertext: *mut uint8_t,
     mut out_shared_key: *mut uint8_t,
@@ -2773,7 +2773,7 @@ pub unsafe extern "C" fn HRSS_encap(
     OPENSSL_free(malloc_ptr);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HRSS_decap(
     mut out_shared_key: *mut uint8_t,
     mut in_priv: *const HRSS_private_key,
@@ -2982,7 +2982,7 @@ pub unsafe extern "C" fn HRSS_decap(
     OPENSSL_free(malloc_ptr);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HRSS_marshal_public_key(
     mut out: *mut uint8_t,
     mut in_pub: *const HRSS_public_key,
@@ -2992,7 +2992,7 @@ pub unsafe extern "C" fn HRSS_marshal_public_key(
     );
     poly_marshal(out, &(*pub_0).ph);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn HRSS_parse_public_key(
     mut out: *mut HRSS_public_key,
     mut in_0: *const uint8_t,

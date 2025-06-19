@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type env_md_st;
     pub type evp_cipher_st;
     fn EVP_md4() -> *const EVP_MD;
@@ -47,7 +46,7 @@ extern "C" {
 }
 pub type EVP_MD = env_md_st;
 pub type EVP_CIPHER = evp_cipher_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_CIPHER_do_all_sorted(
     mut callback: Option::<
         unsafe extern "C" fn(
@@ -492,7 +491,7 @@ pub unsafe extern "C" fn EVP_CIPHER_do_all_sorted(
         arg,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_do_all_sorted(
     mut callback: Option::<
         unsafe extern "C" fn(
@@ -685,7 +684,7 @@ pub unsafe extern "C" fn EVP_MD_do_all_sorted(
         arg,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_do_all(
     mut callback: Option::<
         unsafe extern "C" fn(

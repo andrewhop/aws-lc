@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type engine_st;
     pub type evp_md_pctx_ops;
     pub type evp_pkey_ctx_st;
@@ -62,7 +61,7 @@ unsafe extern "C" fn FIPS_service_indicator_lock_state() {}
 unsafe extern "C" fn FIPS_service_indicator_unlock_state() {}
 #[inline]
 unsafe extern "C" fn SSHKDF_verify_service_indicator(mut evp_md: *const EVP_MD) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SSHKDF(
     mut evp_md: *const EVP_MD,
     mut key: *const uint8_t,

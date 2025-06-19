@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     fn BIO_new(method: *const BIO_METHOD) -> *mut BIO;
     fn BIO_set_retry_read(bio: *mut BIO);
@@ -247,11 +246,11 @@ static mut methods_sockp: BIO_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_s_socket() -> *const BIO_METHOD {
     return &methods_sockp;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_new_socket(
     mut fd: libc::c_int,
     mut close_flag: libc::c_int,

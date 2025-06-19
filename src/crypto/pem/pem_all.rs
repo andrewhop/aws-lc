@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type _IO_wide_data;
     pub type _IO_codecvt;
     pub type _IO_marker;
@@ -683,7 +682,7 @@ pub type pem_password_cb = unsafe extern "C" fn(
     libc::c_int,
     *mut libc::c_void,
 ) -> libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_X509_REQ(
     mut fp: *mut FILE,
     mut x: *mut *mut X509_REQ,
@@ -712,7 +711,7 @@ unsafe extern "C" fn pem_write_X509_REQ_i2d(
 ) -> libc::c_int {
     return i2d_X509_REQ(x as *mut X509_REQ, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_X509_REQ(
     mut bp: *mut BIO,
     mut x: *mut *mut X509_REQ,
@@ -748,7 +747,7 @@ unsafe extern "C" fn pem_read_X509_REQ_d2i(
 ) -> *mut libc::c_void {
     return d2i_X509_REQ(x as *mut *mut X509_REQ, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_X509_REQ(
     mut bp: *mut BIO,
     mut x: *mut X509_REQ,
@@ -778,7 +777,7 @@ unsafe extern "C" fn pem_read_bio_X509_REQ_d2i(
 ) -> *mut libc::c_void {
     return d2i_X509_REQ(x as *mut *mut X509_REQ, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_X509_REQ(
     mut fp: *mut FILE,
     mut x: *mut X509_REQ,
@@ -801,7 +800,7 @@ pub unsafe extern "C" fn PEM_write_X509_REQ(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_X509_REQ_NEW(
     mut fp: *mut FILE,
     mut x: *mut X509_REQ,
@@ -830,7 +829,7 @@ unsafe extern "C" fn pem_write_X509_REQ_NEW_i2d(
 ) -> libc::c_int {
     return i2d_X509_REQ(x as *mut X509_REQ, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_X509_REQ_NEW(
     mut bp: *mut BIO,
     mut x: *mut X509_REQ,
@@ -859,7 +858,7 @@ unsafe extern "C" fn pem_write_bio_X509_REQ_NEW_i2d(
 ) -> libc::c_int {
     return i2d_X509_REQ(x as *mut X509_REQ, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_X509_CRL(
     mut bp: *mut BIO,
     mut x: *mut *mut X509_CRL,
@@ -889,7 +888,7 @@ unsafe extern "C" fn pem_read_bio_X509_CRL_d2i(
 ) -> *mut libc::c_void {
     return d2i_X509_CRL(x as *mut *mut X509_CRL, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_X509_CRL(
     mut bp: *mut BIO,
     mut x: *mut X509_CRL,
@@ -912,7 +911,7 @@ pub unsafe extern "C" fn PEM_write_bio_X509_CRL(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_X509_CRL(
     mut fp: *mut FILE,
     mut x: *mut *mut X509_CRL,
@@ -948,7 +947,7 @@ unsafe extern "C" fn pem_write_bio_X509_CRL_i2d(
 ) -> libc::c_int {
     return i2d_X509_CRL(x as *mut X509_CRL, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_X509_CRL(
     mut fp: *mut FILE,
     mut x: *mut X509_CRL,
@@ -977,7 +976,7 @@ unsafe extern "C" fn pem_write_X509_CRL_i2d(
 ) -> libc::c_int {
     return i2d_X509_CRL(x as *mut X509_CRL, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_PKCS7(
     mut bp: *mut BIO,
     mut x: *mut *mut PKCS7,
@@ -1007,7 +1006,7 @@ unsafe extern "C" fn pem_read_bio_PKCS7_d2i(
 ) -> *mut libc::c_void {
     return d2i_PKCS7(x as *mut *mut PKCS7, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_PKCS7(
     mut fp: *mut FILE,
     mut x: *mut *mut PKCS7,
@@ -1037,7 +1036,7 @@ unsafe extern "C" fn pem_read_PKCS7_d2i(
 ) -> *mut libc::c_void {
     return d2i_PKCS7(x as *mut *mut PKCS7, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_PKCS7(
     mut bp: *mut BIO,
     mut x: *mut PKCS7,
@@ -1060,7 +1059,7 @@ pub unsafe extern "C" fn PEM_write_bio_PKCS7(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_PKCS7(
     mut fp: *mut FILE,
     mut x: *mut PKCS7,
@@ -1114,7 +1113,7 @@ unsafe extern "C" fn pkey_get_rsa(
     }
     return rtmp;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_RSAPrivateKey(
     mut bp: *mut BIO,
     mut rsa: *mut *mut RSA,
@@ -1125,7 +1124,7 @@ pub unsafe extern "C" fn PEM_read_bio_RSAPrivateKey(
     pktmp = PEM_read_bio_PrivateKey(bp, 0 as *mut *mut EVP_PKEY, cb, u);
     return pkey_get_rsa(pktmp, rsa);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_RSAPrivateKey(
     mut fp: *mut FILE,
     mut rsa: *mut *mut RSA,
@@ -1136,7 +1135,7 @@ pub unsafe extern "C" fn PEM_read_RSAPrivateKey(
     pktmp = PEM_read_PrivateKey(fp, 0 as *mut *mut EVP_PKEY, cb, u);
     return pkey_get_rsa(pktmp, rsa);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_RSAPrivateKey(
     mut fp: *mut FILE,
     mut x: *mut RSA,
@@ -1164,7 +1163,7 @@ pub unsafe extern "C" fn PEM_write_RSAPrivateKey(
         u,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_RSAPrivateKey(
     mut bp: *mut BIO,
     mut x: *mut RSA,
@@ -1204,7 +1203,7 @@ unsafe extern "C" fn pem_write_bio_RSAPrivateKey_i2d(
 ) -> libc::c_int {
     return i2d_RSAPrivateKey(x as *const RSA, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_RSAPublicKey(
     mut bp: *mut BIO,
     mut x: *mut *mut RSA,
@@ -1234,7 +1233,7 @@ unsafe extern "C" fn pem_read_bio_RSAPublicKey_d2i(
 ) -> *mut libc::c_void {
     return d2i_RSAPublicKey(x as *mut *mut RSA, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_RSAPublicKey(
     mut fp: *mut FILE,
     mut x: *mut *mut RSA,
@@ -1264,7 +1263,7 @@ unsafe extern "C" fn pem_read_RSAPublicKey_d2i(
 ) -> *mut libc::c_void {
     return d2i_RSAPublicKey(x as *mut *mut RSA, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_RSAPublicKey(
     mut bp: *mut BIO,
     mut x: *const RSA,
@@ -1293,7 +1292,7 @@ unsafe extern "C" fn pem_write_bio_RSAPublicKey_i2d(
 ) -> libc::c_int {
     return i2d_RSAPublicKey(x as *const RSA, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_RSAPublicKey(
     mut fp: *mut FILE,
     mut x: *const RSA,
@@ -1335,7 +1334,7 @@ unsafe extern "C" fn pem_read_bio_RSA_PUBKEY_d2i(
 ) -> *mut libc::c_void {
     return d2i_RSA_PUBKEY(x as *mut *mut RSA, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_RSA_PUBKEY(
     mut fp: *mut FILE,
     mut x: *mut *mut RSA,
@@ -1365,7 +1364,7 @@ unsafe extern "C" fn pem_read_RSA_PUBKEY_d2i(
 ) -> *mut libc::c_void {
     return d2i_RSA_PUBKEY(x as *mut *mut RSA, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_RSA_PUBKEY(
     mut bp: *mut BIO,
     mut x: *mut RSA,
@@ -1388,7 +1387,7 @@ pub unsafe extern "C" fn PEM_write_bio_RSA_PUBKEY(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_RSA_PUBKEY(
     mut bp: *mut BIO,
     mut x: *mut *mut RSA,
@@ -1411,7 +1410,7 @@ pub unsafe extern "C" fn PEM_read_bio_RSA_PUBKEY(
         u,
     ) as *mut RSA;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_RSA_PUBKEY(
     mut fp: *mut FILE,
     mut x: *mut RSA,
@@ -1459,7 +1458,7 @@ unsafe extern "C" fn pkey_get_dsa(
     }
     return dtmp;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_DSAPrivateKey(
     mut bp: *mut BIO,
     mut dsa: *mut *mut DSA,
@@ -1470,7 +1469,7 @@ pub unsafe extern "C" fn PEM_read_bio_DSAPrivateKey(
     pktmp = PEM_read_bio_PrivateKey(bp, 0 as *mut *mut EVP_PKEY, cb, u);
     return pkey_get_dsa(pktmp, dsa);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_DSAPrivateKey(
     mut bp: *mut BIO,
     mut x: *mut DSA,
@@ -1504,7 +1503,7 @@ unsafe extern "C" fn pem_write_bio_DSAPrivateKey_i2d(
 ) -> libc::c_int {
     return i2d_DSAPrivateKey(x as *const DSA, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_DSAPrivateKey(
     mut fp: *mut FILE,
     mut x: *mut DSA,
@@ -1538,7 +1537,7 @@ unsafe extern "C" fn pem_write_DSAPrivateKey_i2d(
 ) -> libc::c_int {
     return i2d_DSAPrivateKey(x as *const DSA, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_DSA_PUBKEY(
     mut bp: *mut BIO,
     mut x: *mut *mut DSA,
@@ -1568,7 +1567,7 @@ unsafe extern "C" fn pem_read_bio_DSA_PUBKEY_d2i(
 ) -> *mut libc::c_void {
     return d2i_DSA_PUBKEY(x as *mut *mut DSA, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_DSA_PUBKEY(
     mut fp: *mut FILE,
     mut x: *mut *mut DSA,
@@ -1598,7 +1597,7 @@ unsafe extern "C" fn pem_read_DSA_PUBKEY_d2i(
 ) -> *mut libc::c_void {
     return d2i_DSA_PUBKEY(x as *mut *mut DSA, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_DSA_PUBKEY(
     mut bp: *mut BIO,
     mut x: *mut DSA,
@@ -1627,7 +1626,7 @@ unsafe extern "C" fn pem_write_bio_DSA_PUBKEY_i2d(
 ) -> libc::c_int {
     return i2d_DSA_PUBKEY(x as *mut DSA, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_DSA_PUBKEY(
     mut fp: *mut FILE,
     mut x: *mut DSA,
@@ -1656,7 +1655,7 @@ unsafe extern "C" fn pem_write_DSA_PUBKEY_i2d(
 ) -> libc::c_int {
     return i2d_DSA_PUBKEY(x as *mut DSA, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_DSAPrivateKey(
     mut fp: *mut FILE,
     mut dsa: *mut *mut DSA,
@@ -1674,7 +1673,7 @@ unsafe extern "C" fn pem_read_DSAparams_d2i(
 ) -> *mut libc::c_void {
     return d2i_DSAparams(x as *mut *mut DSA, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_DSAparams(
     mut bp: *mut BIO,
     mut x: *const DSA,
@@ -1697,7 +1696,7 @@ pub unsafe extern "C" fn PEM_write_bio_DSAparams(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_DSAparams(
     mut bp: *mut BIO,
     mut x: *mut *mut DSA,
@@ -1727,7 +1726,7 @@ unsafe extern "C" fn pem_read_bio_DSAparams_d2i(
 ) -> *mut libc::c_void {
     return d2i_DSAparams(x as *mut *mut DSA, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_DSAparams(
     mut fp: *mut FILE,
     mut x: *mut *mut DSA,
@@ -1756,7 +1755,7 @@ unsafe extern "C" fn pem_write_bio_DSAparams_i2d(
 ) -> libc::c_int {
     return i2d_DSAparams(x as *const DSA, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_DSAparams(
     mut fp: *mut FILE,
     mut x: *const DSA,
@@ -1804,7 +1803,7 @@ unsafe extern "C" fn pkey_get_eckey(
     }
     return dtmp;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_ECPrivateKey(
     mut bp: *mut BIO,
     mut key: *mut *mut EC_KEY,
@@ -1815,7 +1814,7 @@ pub unsafe extern "C" fn PEM_read_bio_ECPrivateKey(
     pktmp = PEM_read_bio_PrivateKey(bp, 0 as *mut *mut EVP_PKEY, cb, u);
     return pkey_get_eckey(pktmp, key);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_ECPrivateKey(
     mut fp: *mut FILE,
     mut x: *mut EC_KEY,
@@ -1849,7 +1848,7 @@ unsafe extern "C" fn pem_write_ECPrivateKey_i2d(
 ) -> libc::c_int {
     return i2d_ECPrivateKey(x as *mut EC_KEY, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_ECPrivateKey(
     mut bp: *mut BIO,
     mut x: *mut EC_KEY,
@@ -1883,7 +1882,7 @@ unsafe extern "C" fn pem_write_bio_ECPrivateKey_i2d(
 ) -> libc::c_int {
     return i2d_ECPrivateKey(x as *mut EC_KEY, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_EC_PUBKEY(
     mut fp: *mut FILE,
     mut x: *mut EC_KEY,
@@ -1906,7 +1905,7 @@ pub unsafe extern "C" fn PEM_write_EC_PUBKEY(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_EC_PUBKEY(
     mut bp: *mut BIO,
     mut x: *mut EC_KEY,
@@ -1929,7 +1928,7 @@ pub unsafe extern "C" fn PEM_write_bio_EC_PUBKEY(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_EC_PUBKEY(
     mut bp: *mut BIO,
     mut x: *mut *mut EC_KEY,
@@ -1978,7 +1977,7 @@ unsafe extern "C" fn pem_read_bio_EC_PUBKEY_d2i(
 ) -> *mut libc::c_void {
     return d2i_EC_PUBKEY(x as *mut *mut EC_KEY, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_EC_PUBKEY(
     mut fp: *mut FILE,
     mut x: *mut *mut EC_KEY,
@@ -2001,7 +2000,7 @@ pub unsafe extern "C" fn PEM_read_EC_PUBKEY(
         u,
     ) as *mut EC_KEY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_ECPrivateKey(
     mut fp: *mut FILE,
     mut eckey: *mut *mut EC_KEY,
@@ -2019,7 +2018,7 @@ unsafe extern "C" fn pem_read_bio_DHparams_d2i(
 ) -> *mut libc::c_void {
     return d2i_DHparams(x as *mut *mut DH, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_DHparams(
     mut fp: *mut FILE,
     mut x: *mut *mut DH,
@@ -2042,7 +2041,7 @@ pub unsafe extern "C" fn PEM_read_DHparams(
         u,
     ) as *mut DH;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_DHparams(
     mut bp: *mut BIO,
     mut x: *const DH,
@@ -2065,7 +2064,7 @@ pub unsafe extern "C" fn PEM_write_bio_DHparams(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_DHparams(
     mut bp: *mut BIO,
     mut x: *mut *mut DH,
@@ -2088,7 +2087,7 @@ pub unsafe extern "C" fn PEM_read_bio_DHparams(
         u,
     ) as *mut DH;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_DHparams(
     mut fp: *mut FILE,
     mut x: *const DH,
@@ -2136,7 +2135,7 @@ unsafe extern "C" fn pem_write_PUBKEY_i2d(
 ) -> libc::c_int {
     return i2d_PUBKEY(x as *mut EVP_PKEY, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_PUBKEY(
     mut fp: *mut FILE,
     mut x: *mut EVP_PKEY,
@@ -2166,7 +2165,7 @@ unsafe extern "C" fn pem_read_PUBKEY_d2i(
 ) -> *mut libc::c_void {
     return d2i_PUBKEY(x as *mut *mut EVP_PKEY, inp, len) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_PUBKEY(
     mut fp: *mut FILE,
     mut x: *mut *mut EVP_PKEY,
@@ -2189,7 +2188,7 @@ pub unsafe extern "C" fn PEM_read_PUBKEY(
         u,
     ) as *mut EVP_PKEY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_PUBKEY(
     mut bp: *mut BIO,
     mut x: *mut *mut EVP_PKEY,
@@ -2212,7 +2211,7 @@ pub unsafe extern "C" fn PEM_read_bio_PUBKEY(
         u,
     ) as *mut EVP_PKEY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_PUBKEY(
     mut bp: *mut BIO,
     mut x: *mut EVP_PKEY,
@@ -2248,7 +2247,7 @@ unsafe extern "C" fn pem_write_bio_PUBKEY_i2d(
 ) -> libc::c_int {
     return i2d_PUBKEY(x as *mut EVP_PKEY, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_ECPKParameters(
     mut bio: *mut BIO,
     mut out_group: *mut *mut EC_GROUP,
@@ -2284,7 +2283,7 @@ pub unsafe extern "C" fn PEM_read_bio_ECPKParameters(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_ECPKParameters(
     mut out: *mut BIO,
     mut group: *const EC_GROUP,

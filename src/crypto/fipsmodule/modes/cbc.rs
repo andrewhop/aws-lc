@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn __assert_fail(
         __assertion: *const libc::c_char,
         __file: *const libc::c_char,
@@ -116,7 +116,7 @@ unsafe extern "C" fn CRYPTO_xor16(
             as size_t as size_t;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_cbc128_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -229,7 +229,7 @@ pub unsafe extern "C" fn CRYPTO_cbc128_encrypt(
         16 as libc::c_int as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_cbc128_decrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,

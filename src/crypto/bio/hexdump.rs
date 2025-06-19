@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     fn BIO_new(method: *const BIO_METHOD) -> *mut BIO;
     fn BIO_free(bio: *mut BIO) -> libc::c_int;
@@ -299,7 +298,7 @@ unsafe extern "C" fn finish(mut ctx: *mut hexdump_ctx) -> libc::c_int {
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_hexdump(
     mut bio: *mut BIO,
     mut data: *const uint8_t,
@@ -325,7 +324,7 @@ pub unsafe extern "C" fn BIO_hexdump(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_dump(
     mut bio: *mut BIO,
     mut data: *const libc::c_void,

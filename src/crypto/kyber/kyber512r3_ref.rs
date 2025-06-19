@@ -9,7 +9,7 @@
 )]
 #![feature(asm)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn RAND_bytes(buf: *mut uint8_t, len: size_t) -> libc::c_int;
     fn pqcrystals_kyber_fips202_ref_shake128_absorb_once(
         state: *mut keccak_state,
@@ -86,7 +86,7 @@ pub struct xof_state {
     pub s: [uint64_t; 25],
     pub pos: libc::c_uint,
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_compress(
     mut r: *mut uint8_t,
     mut a: *const poly,
@@ -144,7 +144,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_compress(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_decompress(
     mut r: *mut poly,
     mut a: *const uint8_t,
@@ -171,7 +171,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_decompress(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_tobytes(
     mut r: *mut uint8_t,
     mut a: *const poly,
@@ -216,7 +216,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_tobytes(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_frombytes(
     mut r: *mut poly,
     mut a: *const uint8_t,
@@ -260,7 +260,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_frombytes(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_frommsg(
     mut r: *mut poly,
     mut msg: *const uint8_t,
@@ -293,7 +293,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_frommsg(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_tomsg(
     mut msg: *mut uint8_t,
     mut a: *const poly,
@@ -324,7 +324,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_tomsg(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_getnoise_eta1(
     mut r: *mut poly,
     mut seed: *const uint8_t,
@@ -339,7 +339,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_getnoise_eta1(
     );
     pqcrystals_kyber512_ref_poly_cbd_eta1(r, buf.as_mut_ptr() as *const uint8_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_getnoise_eta2(
     mut r: *mut poly,
     mut seed: *const uint8_t,
@@ -354,16 +354,16 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_getnoise_eta2(
     );
     pqcrystals_kyber512_ref_poly_cbd_eta2(r, buf.as_mut_ptr() as *const uint8_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_ntt(mut r: *mut poly) {
     pqcrystals_kyber512_ref_ntt(((*r).coeffs).as_mut_ptr());
     pqcrystals_kyber512_ref_poly_reduce(r);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_invntt_tomont(mut r: *mut poly) {
     pqcrystals_kyber512_ref_invntt(((*r).coeffs).as_mut_ptr());
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_basemul_montgomery(
     mut r: *mut poly,
     mut a: *const poly,
@@ -414,7 +414,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_basemul_montgomery(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_tomont(mut r: *mut poly) {
     let mut i: libc::c_uint = 0;
     let f: int16_t = ((1 as libc::c_ulonglong) << 32 as libc::c_int)
@@ -430,7 +430,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_tomont(mut r: *mut poly) {
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_reduce(mut r: *mut poly) {
     let mut i: libc::c_uint = 0;
     i = 0 as libc::c_int as libc::c_uint;
@@ -442,7 +442,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_reduce(mut r: *mut poly) {
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_add(
     mut r: *mut poly,
     mut a: *const poly,
@@ -459,7 +459,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_add(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_sub(
     mut r: *mut poly,
     mut a: *const poly,
@@ -569,21 +569,21 @@ unsafe extern "C" fn cbd3(mut r: *mut poly, mut buf: *const uint8_t) {
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_cbd_eta1(
     mut r: *mut poly,
     mut buf: *const uint8_t,
 ) {
     cbd3(r, buf);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_poly_cbd_eta2(
     mut r: *mut poly,
     mut buf: *const uint8_t,
 ) {
     cbd2(r, buf);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_compress(
     mut r: *mut uint8_t,
     mut a: *const polyvec,
@@ -654,7 +654,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_compress(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_decompress(
     mut r: *mut polyvec,
     mut a: *const uint8_t,
@@ -709,7 +709,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_decompress(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_tobytes(
     mut r: *mut uint8_t,
     mut a: *const polyvec,
@@ -725,7 +725,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_tobytes(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_frombytes(
     mut r: *mut polyvec,
     mut a: *const uint8_t,
@@ -741,7 +741,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_frombytes(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_ntt(mut r: *mut polyvec) {
     let mut i: libc::c_uint = 0;
     i = 0 as libc::c_int as libc::c_uint;
@@ -753,7 +753,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_ntt(mut r: *mut polyvec
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_invntt_tomont(
     mut r: *mut polyvec,
 ) {
@@ -767,7 +767,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_invntt_tomont(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_basemul_acc_montgomery(
     mut r: *mut poly,
     mut a: *const polyvec,
@@ -793,7 +793,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_basemul_acc_montgomery(
     }
     pqcrystals_kyber512_ref_poly_reduce(r);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_reduce(mut r: *mut polyvec) {
     let mut i: libc::c_uint = 0;
     i = 0 as libc::c_int as libc::c_uint;
@@ -805,7 +805,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_reduce(mut r: *mut poly
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_polyvec_add(
     mut r: *mut polyvec,
     mut a: *const polyvec,
@@ -927,7 +927,7 @@ unsafe extern "C" fn rej_uniform(
     }
     return ctr;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_gen_matrix(
     mut a: *mut polyvec,
     mut seed: *const uint8_t,
@@ -1012,7 +1012,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_gen_matrix(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_indcpa_keypair_derand(
     mut pk: *mut uint8_t,
     mut sk: *mut uint8_t,
@@ -1087,7 +1087,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_indcpa_keypair_derand(
     pack_sk(sk, &mut skpv);
     pack_pk(pk, &mut pkpv, publicseed);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_indcpa_enc(
     mut c: *mut uint8_t,
     mut m: *const uint8_t,
@@ -1170,7 +1170,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_indcpa_enc(
     pqcrystals_kyber512_ref_poly_reduce(&mut v);
     pack_ciphertext(c, &mut b, &mut v);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_indcpa_dec(
     mut m: *mut uint8_t,
     mut c: *const uint8_t,
@@ -1193,7 +1193,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_indcpa_dec(
     pqcrystals_kyber512_ref_poly_reduce(&mut mp);
     pqcrystals_kyber512_ref_poly_tomsg(m, &mut mp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut pqcrystals_kyber512_ref_zetas: [int16_t; 128] = [
     -(1044 as libc::c_int) as int16_t,
     -(758 as libc::c_int) as int16_t,
@@ -1327,7 +1327,7 @@ pub static mut pqcrystals_kyber512_ref_zetas: [int16_t; 128] = [
 unsafe extern "C" fn fqmul(mut a: int16_t, mut b: int16_t) -> int16_t {
     return pqcrystals_kyber512_ref_montgomery_reduce(a as int32_t * b as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_ntt(mut r: *mut int16_t) {
     let mut len: libc::c_uint = 0;
     let mut start: libc::c_uint = 0;
@@ -1364,7 +1364,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_ntt(mut r: *mut int16_t) {
         len >>= 1 as libc::c_int;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_invntt(mut r: *mut int16_t) {
     let mut start: libc::c_uint = 0;
     let mut len: libc::c_uint = 0;
@@ -1415,7 +1415,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_invntt(mut r: *mut int16_t) {
         j;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_basemul(
     mut r: *mut int16_t,
     mut a: *const int16_t,
@@ -1453,7 +1453,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_basemul(
             *b.offset(0 as libc::c_int as isize),
         ) as libc::c_int) as int16_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_kyber_shake128_absorb(
     mut state: *mut keccak_state,
     mut seed: *const uint8_t,
@@ -1474,7 +1474,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_kyber_shake128_absorb(
         ::core::mem::size_of::<[uint8_t; 34]>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_kyber_shake256_prf(
     mut out: *mut uint8_t,
     mut outlen: size_t,
@@ -1495,7 +1495,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_kyber_shake256_prf(
         ::core::mem::size_of::<[uint8_t; 33]>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_keypair_derand(
     mut pk: *mut uint8_t,
     mut sk: *mut uint8_t,
@@ -1531,7 +1531,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_keypair_derand(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_keypair(
     mut pk: *mut uint8_t,
     mut sk: *mut uint8_t,
@@ -1545,7 +1545,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_keypair(
     pqcrystals_kyber512_ref_keypair_derand(pk, sk, coins.as_mut_ptr() as *const uint8_t);
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_enc_derand(
     mut ct: *mut uint8_t,
     mut ss: *mut uint8_t,
@@ -1588,7 +1588,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_enc_derand(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_enc(
     mut ct: *mut uint8_t,
     mut ss: *mut uint8_t,
@@ -1599,7 +1599,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_enc(
     pqcrystals_kyber512_ref_enc_derand(ct, ss, pk, coins.as_mut_ptr() as *const uint8_t);
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_dec(
     mut ss: *mut uint8_t,
     mut ct: *const uint8_t,
@@ -1668,7 +1668,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_dec(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_verify(
     mut a: *const uint8_t,
     mut b: *const uint8_t,
@@ -1686,7 +1686,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_verify(
     }
     return ((r as uint64_t).wrapping_neg() >> 63 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_cmov(
     mut r: *mut uint8_t,
     mut x: *const uint8_t,
@@ -1696,7 +1696,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_cmov(
     let mut mask: uint8_t = constant_time_is_zero_8(b as crypto_word_t);
     constant_time_select_array_8(r, r, x as *mut uint8_t, mask, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_montgomery_reduce(
     mut a: int32_t,
 ) -> int16_t {
@@ -1705,7 +1705,7 @@ pub unsafe extern "C" fn pqcrystals_kyber512_ref_montgomery_reduce(
     t = (a - t as int32_t * 3329 as libc::c_int >> 16 as libc::c_int) as int16_t;
     return t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pqcrystals_kyber512_ref_barrett_reduce(
     mut a: int16_t,
 ) -> int16_t {

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_object_st;
     pub type X509_name_st;
     pub type X509_name_entry_st;
@@ -373,7 +372,7 @@ unsafe extern "C" fn do_name_ex(
     }
     return outlen;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_print_ex(
     mut out: *mut BIO,
     mut nm: *const X509_NAME,
@@ -385,7 +384,7 @@ pub unsafe extern "C" fn X509_NAME_print_ex(
     }
     return do_name_ex(out, nm, indent, flags);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_print_ex_fp(
     mut fp: *mut FILE,
     mut nm: *const X509_NAME,

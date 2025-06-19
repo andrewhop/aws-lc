@@ -9,7 +9,7 @@
 )]
 #![feature(asm, extern_types)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     pub type engine_st;
     pub type env_md_st;
@@ -594,7 +594,7 @@ unsafe extern "C" fn digest_to_scalar(
         (*order).width as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_SIG_new() -> *mut ECDSA_SIG {
     let mut sig: *mut ECDSA_SIG = OPENSSL_malloc(
         ::core::mem::size_of::<ECDSA_SIG>() as libc::c_ulong,
@@ -610,7 +610,7 @@ pub unsafe extern "C" fn ECDSA_SIG_new() -> *mut ECDSA_SIG {
     }
     return sig;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_SIG_free(mut sig: *mut ECDSA_SIG) {
     if sig.is_null() {
         return;
@@ -619,15 +619,15 @@ pub unsafe extern "C" fn ECDSA_SIG_free(mut sig: *mut ECDSA_SIG) {
     BN_free((*sig).s);
     OPENSSL_free(sig as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_SIG_get0_r(mut sig: *const ECDSA_SIG) -> *const BIGNUM {
     return (*sig).r;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_SIG_get0_s(mut sig: *const ECDSA_SIG) -> *const BIGNUM {
     return (*sig).s;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_SIG_get0(
     mut sig: *const ECDSA_SIG,
     mut out_r: *mut *const BIGNUM,
@@ -640,7 +640,7 @@ pub unsafe extern "C" fn ECDSA_SIG_get0(
         *out_s = (*sig).s;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_SIG_set0(
     mut sig: *mut ECDSA_SIG,
     mut r: *mut BIGNUM,
@@ -655,7 +655,7 @@ pub unsafe extern "C" fn ECDSA_SIG_set0(
     (*sig).s = s;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ecdsa_do_verify_no_self_test(
     mut digest: *const uint8_t,
     mut digest_len: size_t,
@@ -739,7 +739,7 @@ pub unsafe extern "C" fn ecdsa_do_verify_no_self_test(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_do_verify(
     mut digest: *const uint8_t,
     mut digest_len: size_t,
@@ -808,7 +808,7 @@ unsafe extern "C" fn ecdsa_sign_impl(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ecdsa_sign_with_nonce_for_known_answer_test(
     mut digest: *const uint8_t,
     mut digest_len: size_t,
@@ -854,7 +854,7 @@ pub unsafe extern "C" fn ecdsa_sign_with_nonce_for_known_answer_test(
         digest_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_sign_with_nonce_and_leak_private_key_for_testing(
     mut digest: *const uint8_t,
     mut digest_len: size_t,
@@ -871,7 +871,7 @@ pub unsafe extern "C" fn ECDSA_sign_with_nonce_and_leak_private_key_for_testing(
         nonce_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_do_sign(
     mut digest: *const uint8_t,
     mut digest_len: size_t,
@@ -977,7 +977,7 @@ pub unsafe extern "C" fn ECDSA_do_sign(
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_sign(
     mut type_0: libc::c_int,
     mut digest: *const uint8_t,
@@ -1055,7 +1055,7 @@ pub unsafe extern "C" fn ECDSA_sign(
     ECDSA_SIG_free(s);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDSA_verify(
     mut type_0: libc::c_int,
     mut digest: *const uint8_t,
@@ -1094,7 +1094,7 @@ pub unsafe extern "C" fn ECDSA_verify(
     ECDSA_SIG_free(s);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ecdsa_digestsign_no_self_test(
     mut md: *const EVP_MD,
     mut input: *const uint8_t,
@@ -1124,7 +1124,7 @@ pub unsafe extern "C" fn ecdsa_digestsign_no_self_test(
         nonce_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ecdsa_digestverify_no_self_test(
     mut md: *const EVP_MD,
     mut input: *const uint8_t,

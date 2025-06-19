@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_ITEM_st;
     pub type ASN1_VALUE_st;
     fn ASN1_item_d2i(
@@ -42,7 +41,7 @@ pub type i2d_of_void = unsafe extern "C" fn(
     *const libc::c_void,
     *mut *mut libc::c_uchar,
 ) -> libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_dup(
     mut i2d: Option::<i2d_of_void>,
     mut d2i: Option::<d2i_of_void>,
@@ -74,7 +73,7 @@ pub unsafe extern "C" fn ASN1_dup(
     OPENSSL_free(buf as *mut libc::c_void);
     return ret as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_dup(
     mut it: *const ASN1_ITEM,
     mut x: *mut libc::c_void,

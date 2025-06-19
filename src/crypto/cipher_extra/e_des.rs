@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn DES_set_key_ex(key: *const uint8_t, schedule: *mut DES_key_schedule);
     fn DES_ecb_encrypt_ex(
         in_0: *const uint8_t,
@@ -191,7 +191,7 @@ static mut evp_des_cbc: EVP_CIPHER = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_des_cbc() -> *const EVP_CIPHER {
     return &evp_des_cbc;
 }
@@ -252,7 +252,7 @@ static mut evp_des_ecb: EVP_CIPHER = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_des_ecb() -> *const EVP_CIPHER {
     return &evp_des_ecb;
 }
@@ -330,7 +330,7 @@ static mut evp_des_ede3_cbc: EVP_CIPHER = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_des_ede3_cbc() -> *const EVP_CIPHER {
     return &evp_des_ede3_cbc;
 }
@@ -389,7 +389,7 @@ static mut evp_des_ede_cbc: EVP_CIPHER = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_des_ede_cbc() -> *const EVP_CIPHER {
     return &evp_des_ede_cbc;
 }
@@ -452,7 +452,7 @@ static mut evp_des_ede: EVP_CIPHER = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_des_ede() -> *const EVP_CIPHER {
     return &evp_des_ede;
 }
@@ -490,11 +490,11 @@ static mut evp_des_ede3: EVP_CIPHER = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_des_ede3() -> *const EVP_CIPHER {
     return &evp_des_ede3;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_des_ede3_ecb() -> *const EVP_CIPHER {
     return EVP_des_ede3();
 }

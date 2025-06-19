@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -695,7 +694,7 @@ unsafe extern "C" fn OPENSSL_memcmp(
     }
     return memcmp(s1, s2, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_name_constraints: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {
@@ -770,7 +769,7 @@ static mut GENERAL_SUBTREE_seq_tt: [ASN1_TEMPLATE; 3] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut GENERAL_SUBTREE_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -810,7 +809,7 @@ static mut NAME_CONSTRAINTS_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut NAME_CONSTRAINTS_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -820,19 +819,19 @@ pub static mut NAME_CONSTRAINTS_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn GENERAL_SUBTREE_free(mut a: *mut GENERAL_SUBTREE) {
     ASN1_item_free(a as *mut ASN1_VALUE, &GENERAL_SUBTREE_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn GENERAL_SUBTREE_new() -> *mut GENERAL_SUBTREE {
     return ASN1_item_new(&GENERAL_SUBTREE_it) as *mut GENERAL_SUBTREE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NAME_CONSTRAINTS_free(mut a: *mut NAME_CONSTRAINTS) {
     ASN1_item_free(a as *mut ASN1_VALUE, &NAME_CONSTRAINTS_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NAME_CONSTRAINTS_new() -> *mut NAME_CONSTRAINTS {
     return ASN1_item_new(&NAME_CONSTRAINTS_it) as *mut NAME_CONSTRAINTS;
 }
@@ -1036,7 +1035,7 @@ unsafe extern "C" fn print_nc_ipadd(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NAME_CONSTRAINTS_check(
     mut x: *mut X509,
     mut nc: *mut NAME_CONSTRAINTS,

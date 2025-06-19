@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_null_st;
     pub type asn1_object_st;
     pub type ASN1_VALUE_st;
@@ -483,7 +482,7 @@ unsafe extern "C" fn do_table2string(
     }
     return b"(UNKNOWN)\0" as *const u8 as *const libc::c_char;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_response_status_str(
     mut status_code: libc::c_long,
 ) -> *const libc::c_char {
@@ -536,7 +535,7 @@ pub unsafe extern "C" fn OCSP_response_status_str(
         .wrapping_div(::core::mem::size_of::<OCSP_TBLSTR>() as libc::c_ulong);
     return do_table2string(status_code, rstat_tbl.as_ptr(), tbl_size);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_cert_status_str(
     mut status_code: libc::c_long,
 ) -> *const libc::c_char {
@@ -568,7 +567,7 @@ pub unsafe extern "C" fn OCSP_cert_status_str(
         .wrapping_div(::core::mem::size_of::<OCSP_TBLSTR>() as libc::c_ulong);
     return do_table2string(status_code, cstat_tbl.as_ptr(), tbl_size);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_crl_reason_str(
     mut s: libc::c_long,
 ) -> *const libc::c_char {
@@ -649,7 +648,7 @@ pub unsafe extern "C" fn OCSP_crl_reason_str(
         .wrapping_div(::core::mem::size_of::<OCSP_TBLSTR>() as libc::c_ulong);
     return do_table2string(s, reason_tbl.as_ptr(), tbl_size);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REQUEST_print(
     mut bp: *mut BIO,
     mut req: *mut OCSP_REQUEST,
@@ -739,7 +738,7 @@ pub unsafe extern "C" fn OCSP_REQUEST_print(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_RESPONSE_print(
     mut bp: *mut BIO,
     mut resp: *mut OCSP_RESPONSE,

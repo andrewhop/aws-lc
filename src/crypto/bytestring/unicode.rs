@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn CBS_get_u8(cbs: *mut CBS, out: *mut uint8_t) -> libc::c_int;
     fn CBS_get_u16(cbs: *mut CBS, out: *mut uint16_t) -> libc::c_int;
     fn CBS_get_u32(cbs: *mut CBS, out: *mut uint32_t) -> libc::c_int;
@@ -78,7 +78,7 @@ unsafe extern "C" fn is_valid_code_point(mut v: uint32_t) -> libc::c_int {
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn cbs_get_utf8(
     mut cbs: *mut CBS,
     mut out: *mut uint32_t,
@@ -167,7 +167,7 @@ pub unsafe extern "C" fn cbs_get_utf8(
     *out = v;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn cbs_get_latin1(
     mut cbs: *mut CBS,
     mut out: *mut uint32_t,
@@ -179,7 +179,7 @@ pub unsafe extern "C" fn cbs_get_latin1(
     *out = c as uint32_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn cbs_get_ucs2_be(
     mut cbs: *mut CBS,
     mut out: *mut uint32_t,
@@ -191,14 +191,14 @@ pub unsafe extern "C" fn cbs_get_ucs2_be(
     *out = c as uint32_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn cbs_get_utf32_be(
     mut cbs: *mut CBS,
     mut out: *mut uint32_t,
 ) -> libc::c_int {
     return (CBS_get_u32(cbs, out) != 0 && is_valid_code_point(*out) != 0) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn cbb_get_utf8_len(mut u: uint32_t) -> size_t {
     if u <= 0x7f as libc::c_int as uint32_t {
         return 1 as libc::c_int as size_t;
@@ -211,7 +211,7 @@ pub unsafe extern "C" fn cbb_get_utf8_len(mut u: uint32_t) -> size_t {
     }
     return 4 as libc::c_int as size_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn cbb_add_utf8(
     mut cbb: *mut CBB,
     mut u: uint32_t,
@@ -311,7 +311,7 @@ pub unsafe extern "C" fn cbb_add_utf8(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn cbb_add_latin1(
     mut cbb: *mut CBB,
     mut u: uint32_t,
@@ -319,7 +319,7 @@ pub unsafe extern "C" fn cbb_add_latin1(
     return (u <= 0xff as libc::c_int as uint32_t && CBB_add_u8(cbb, u as uint8_t) != 0)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn cbb_add_ucs2_be(
     mut cbb: *mut CBB,
     mut u: uint32_t,
@@ -327,7 +327,7 @@ pub unsafe extern "C" fn cbb_add_ucs2_be(
     return (u <= 0xffff as libc::c_int as uint32_t && is_valid_code_point(u) != 0
         && CBB_add_u16(cbb, u as uint16_t) != 0) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn cbb_add_utf32_be(
     mut cbb: *mut CBB,
     mut u: uint32_t,

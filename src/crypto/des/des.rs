@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn CRYPTO_memcmp(
         a: *const libc::c_void,
         b: *const libc::c_void,
@@ -1163,14 +1163,14 @@ static mut DES_SPtrans: [[uint32_t; 64]; 8] = [
         0x820080 as libc::c_int as uint32_t,
     ],
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_set_key_unchecked(
     mut key: *const DES_cblock,
     mut schedule: *mut DES_key_schedule,
 ) {
     DES_set_key_ex(((*key).bytes).as_ptr(), schedule);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_set_key_ex(
     mut key: *const uint8_t,
     mut schedule: *mut DES_key_schedule,
@@ -1313,7 +1313,7 @@ unsafe extern "C" fn DES_check_key_parity(mut key: *const DES_cblock) -> libc::c
     }
     return result as libc::c_int & 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_set_key(
     mut key: *const DES_cblock,
     mut schedule: *mut DES_key_schedule,
@@ -1328,7 +1328,7 @@ pub unsafe extern "C" fn DES_set_key(
     DES_set_key_unchecked(key, schedule);
     return result;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_key_sched(
     mut key: *const DES_cblock,
     mut schedule: *mut DES_key_schedule,
@@ -1593,7 +1593,7 @@ static mut kOddParity: [uint8_t; 256] = [
     254 as libc::c_int as uint8_t,
     254 as libc::c_int as uint8_t,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_set_odd_parity(mut key: *mut DES_cblock) {
     let mut i: libc::c_uint = 0;
     i = 0 as libc::c_int as libc::c_uint;
@@ -1845,7 +1845,7 @@ static mut weak_keys: [DES_cblock; 16] = [
         init
     },
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_is_weak_key(mut key: *const DES_cblock) -> libc::c_int {
     let mut result: crypto_word_t = 0 as libc::c_int as crypto_word_t;
     let mut i: size_t = 0 as libc::c_int as size_t;
@@ -3739,7 +3739,7 @@ unsafe extern "C" fn DES_encrypt2(
     *data.offset(0 as libc::c_int as isize) = CRYPTO_rotr_u32(l, 3 as libc::c_int);
     *data.offset(1 as libc::c_int as isize) = CRYPTO_rotr_u32(r, 3 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_encrypt3(
     mut data: *mut uint32_t,
     mut ks1: *const DES_key_schedule,
@@ -3802,7 +3802,7 @@ pub unsafe extern "C" fn DES_encrypt3(
     *data.offset(0 as libc::c_int as isize) = l;
     *data.offset(1 as libc::c_int as isize) = r;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_decrypt3(
     mut data: *mut uint32_t,
     mut ks1: *const DES_key_schedule,
@@ -3865,7 +3865,7 @@ pub unsafe extern "C" fn DES_decrypt3(
     *data.offset(0 as libc::c_int as isize) = l;
     *data.offset(1 as libc::c_int as isize) = r;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_ecb_encrypt(
     mut in_block: *const DES_cblock,
     mut out_block: *mut DES_cblock,
@@ -3879,7 +3879,7 @@ pub unsafe extern "C" fn DES_ecb_encrypt(
         is_encrypt,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_ecb_encrypt_ex(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -3899,7 +3899,7 @@ pub unsafe extern "C" fn DES_ecb_encrypt_ex(
         ll[1 as libc::c_int as usize],
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_ncbc_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -3910,7 +3910,7 @@ pub unsafe extern "C" fn DES_ncbc_encrypt(
 ) {
     DES_ncbc_encrypt_ex(in_0, out, len, schedule, ((*ivec).bytes).as_mut_ptr(), enc);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_ncbc_encrypt_ex(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -4428,7 +4428,7 @@ pub unsafe extern "C" fn DES_ncbc_encrypt_ex(
     tin[1 as libc::c_int as usize] = 0 as libc::c_int as uint32_t;
     tin[0 as libc::c_int as usize] = tin[1 as libc::c_int as usize];
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_ecb3_encrypt(
     mut input: *const DES_cblock,
     mut output: *mut DES_cblock,
@@ -4446,7 +4446,7 @@ pub unsafe extern "C" fn DES_ecb3_encrypt(
         enc,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_ecb3_encrypt_ex(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -4472,7 +4472,7 @@ pub unsafe extern "C" fn DES_ecb3_encrypt_ex(
         ll[1 as libc::c_int as usize],
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_ede3_cbc_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -4494,7 +4494,7 @@ pub unsafe extern "C" fn DES_ede3_cbc_encrypt(
         enc,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_ede3_cbc_encrypt_ex(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -5024,7 +5024,7 @@ pub unsafe extern "C" fn DES_ede3_cbc_encrypt_ex(
     tin[1 as libc::c_int as usize] = 0 as libc::c_int as uint32_t;
     tin[0 as libc::c_int as usize] = tin[1 as libc::c_int as usize];
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DES_ede2_cbc_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,

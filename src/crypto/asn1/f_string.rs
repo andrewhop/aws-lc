@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     fn BIO_write(
         bio: *mut BIO,
@@ -114,7 +113,7 @@ pub struct crypto_ex_data_st {
     pub sk: *mut stack_st_void,
 }
 pub type BIO_METHOD = bio_method_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2a_ASN1_STRING(
     mut bp: *mut BIO,
     mut a: *const ASN1_STRING,

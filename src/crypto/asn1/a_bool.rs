@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn CBS_init(cbs: *mut CBS, data: *const uint8_t, len: size_t);
     fn CBS_data(cbs: *const CBS) -> *const uint8_t;
     fn CBS_get_asn1_bool(cbs: *mut CBS, out: *mut libc::c_int) -> libc::c_int;
@@ -71,7 +71,7 @@ pub struct cbs_st {
     pub len: size_t,
 }
 pub type CBS = cbs_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_ASN1_BOOLEAN(
     mut a: ASN1_BOOLEAN,
     mut outp: *mut *mut libc::c_uchar,
@@ -97,7 +97,7 @@ pub unsafe extern "C" fn i2d_ASN1_BOOLEAN(
     }
     return CBB_finish_i2d(&mut cbb, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_ASN1_BOOLEAN(
     mut out: *mut ASN1_BOOLEAN,
     mut inp: *mut *const libc::c_uchar,

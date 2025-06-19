@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type env_md_st;
     pub type rsa_st;
     fn BN_new() -> *mut BIGNUM;
@@ -91,7 +90,7 @@ pub union C2RustUnnamed {
 pub type BN_GENCB = bn_gencb_st;
 pub type EVP_MD = env_md_st;
 pub type RSA = rsa_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_generate_key(
     mut bits: libc::c_int,
     mut e_value: uint64_t,
@@ -167,7 +166,7 @@ pub unsafe extern "C" fn RSA_generate_key(
         return rsa;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_padding_add_PKCS1_PSS(
     mut rsa: *const RSA,
     mut EM: *mut uint8_t,
@@ -184,7 +183,7 @@ pub unsafe extern "C" fn RSA_padding_add_PKCS1_PSS(
         sLen,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_verify_PKCS1_PSS(
     mut rsa: *const RSA,
     mut mHash: *const uint8_t,
@@ -194,7 +193,7 @@ pub unsafe extern "C" fn RSA_verify_PKCS1_PSS(
 ) -> libc::c_int {
     return RSA_verify_PKCS1_PSS_mgf1(rsa, mHash, Hash, 0 as *const EVP_MD, EM, sLen);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_padding_add_PKCS1_OAEP(
     mut to: *mut uint8_t,
     mut to_len: size_t,

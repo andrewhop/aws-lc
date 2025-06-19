@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type engine_st;
     pub type evp_md_pctx_ops;
     pub type evp_pkey_ctx_st;
@@ -319,7 +318,7 @@ unsafe extern "C" fn sskdf_variant_digest_storage_bss_get() -> *mut sskdf_varian
 unsafe extern "C" fn sskdf_variant_digest_once_bss_get() -> *mut CRYPTO_once_t {
     return &mut sskdf_variant_digest_once;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn sskdf_variant_digest() -> *const sskdf_variant {
     CRYPTO_once(
         sskdf_variant_digest_once_bss_get(),
@@ -456,7 +455,7 @@ unsafe extern "C" fn sskdf_variant_hmac_compute(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn sskdf_variant_hmac() -> *const sskdf_variant {
     CRYPTO_once(
         sskdf_variant_hmac_once_bss_get(),
@@ -601,7 +600,7 @@ unsafe extern "C" fn SSKDF(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SSKDF_digest(
     mut out_key: *mut uint8_t,
     mut out_len: size_t,
@@ -643,7 +642,7 @@ pub unsafe extern "C" fn SSKDF_digest(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SSKDF_hmac(
     mut out_key: *mut uint8_t,
     mut out_len: size_t,

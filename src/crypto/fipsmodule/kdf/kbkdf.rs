@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type engine_st;
     pub type env_md_st;
     pub type hmac_methods_st;
@@ -145,7 +144,7 @@ unsafe extern "C" fn KBKDF_ctr_hmac_verify_service_indicator(
     mut dgst: *const EVP_MD,
     mut secret_len: size_t,
 ) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn KBKDF_ctr_hmac(
     mut out_key: *mut uint8_t,
     mut out_len: size_t,

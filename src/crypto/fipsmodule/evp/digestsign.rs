@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     pub type dsa_st;
     pub type ec_key_st;
@@ -724,7 +723,7 @@ unsafe extern "C" fn do_sigver_init(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DigestSignInit(
     mut ctx: *mut EVP_MD_CTX,
     mut pctx: *mut *mut EVP_PKEY_CTX,
@@ -734,7 +733,7 @@ pub unsafe extern "C" fn EVP_DigestSignInit(
 ) -> libc::c_int {
     return do_sigver_init(ctx, pctx, type_0, e, pkey, evp_sign);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DigestVerifyInit(
     mut ctx: *mut EVP_MD_CTX,
     mut pctx: *mut *mut EVP_PKEY_CTX,
@@ -744,7 +743,7 @@ pub unsafe extern "C" fn EVP_DigestVerifyInit(
 ) -> libc::c_int {
     return do_sigver_init(ctx, pctx, type_0, e, pkey, evp_verify);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DigestSignUpdate(
     mut ctx: *mut EVP_MD_CTX,
     mut data: *const libc::c_void,
@@ -763,7 +762,7 @@ pub unsafe extern "C" fn EVP_DigestSignUpdate(
     }
     return EVP_DigestUpdate(ctx, data, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DigestVerifyUpdate(
     mut ctx: *mut EVP_MD_CTX,
     mut data: *const libc::c_void,
@@ -782,7 +781,7 @@ pub unsafe extern "C" fn EVP_DigestVerifyUpdate(
     }
     return EVP_DigestUpdate(ctx, data, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DigestSignFinal(
     mut ctx: *mut EVP_MD_CTX,
     mut out_sig: *mut uint8_t,
@@ -841,7 +840,7 @@ pub unsafe extern "C" fn EVP_DigestSignFinal(
         return EVP_PKEY_sign((*ctx).pctx, out_sig, out_sig_len, 0 as *const uint8_t, s);
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DigestVerifyFinal(
     mut ctx: *mut EVP_MD_CTX,
     mut sig: *const uint8_t,
@@ -882,7 +881,7 @@ pub unsafe extern "C" fn EVP_DigestVerifyFinal(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DigestSign(
     mut ctx: *mut EVP_MD_CTX,
     mut out_sig: *mut uint8_t,
@@ -930,7 +929,7 @@ pub unsafe extern "C" fn EVP_DigestSign(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DigestVerify(
     mut ctx: *mut EVP_MD_CTX,
     mut sig: *const uint8_t,
@@ -973,7 +972,7 @@ pub unsafe extern "C" fn EVP_DigestVerify(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_set_pkey_ctx(
     mut ctx: *mut EVP_MD_CTX,
     mut pctx: *mut EVP_PKEY_CTX,
@@ -989,7 +988,7 @@ pub unsafe extern "C" fn EVP_MD_CTX_set_pkey_ctx(
         (*ctx).flags &= !(0x400 as libc::c_int) as libc::c_ulong;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_get_pkey_ctx(
     mut ctx: *const EVP_MD_CTX,
 ) -> *mut EVP_PKEY_CTX {
@@ -998,7 +997,7 @@ pub unsafe extern "C" fn EVP_MD_CTX_get_pkey_ctx(
     }
     return (*ctx).pctx;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_pkey_ctx(
     mut ctx: *const EVP_MD_CTX,
 ) -> *mut EVP_PKEY_CTX {

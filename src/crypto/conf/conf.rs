@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     pub type lhash_st_CONF_VALUE;
     pub type lhash_st;
@@ -662,7 +661,7 @@ unsafe extern "C" fn conf_value_cmp(
         return if ((*a).name).is_null() { -(1 as libc::c_int) } else { 1 as libc::c_int }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NCONF_new(mut method: *mut libc::c_void) -> *mut CONF {
     let mut conf: *mut CONF = 0 as *mut CONF;
     if !method.is_null() {
@@ -689,7 +688,7 @@ pub unsafe extern "C" fn NCONF_new(mut method: *mut libc::c_void) -> *mut CONF {
     }
     return conf;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CONF_VALUE_new() -> *mut CONF_VALUE {
     return OPENSSL_zalloc(::core::mem::size_of::<CONF_VALUE>() as libc::c_ulong)
         as *mut CONF_VALUE;
@@ -715,7 +714,7 @@ unsafe extern "C" fn value_free_arg(
 ) {
     value_free(value);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NCONF_free(mut conf: *mut CONF) {
     if conf.is_null() || ((*conf).data).is_null() {
         return;
@@ -898,7 +897,7 @@ unsafe extern "C" fn get_section(
     template.section = section as *mut libc::c_char;
     return lh_CONF_VALUE_retrieve((*conf).data, &mut template);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NCONF_get_section(
     mut conf: *const CONF,
     mut section: *const libc::c_char,
@@ -909,7 +908,7 @@ pub unsafe extern "C" fn NCONF_get_section(
     }
     return (*section_value).value as *mut stack_st_CONF_VALUE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NCONF_get_string(
     mut conf: *const CONF,
     mut section: *const libc::c_char,
@@ -1068,7 +1067,7 @@ unsafe extern "C" fn clear_comments(mut conf: *mut CONF, mut p: *mut libc::c_cha
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NCONF_load_bio(
     mut conf: *mut CONF,
     mut in_0: *mut BIO,
@@ -1393,7 +1392,7 @@ pub unsafe extern "C" fn NCONF_load_bio(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NCONF_load(
     mut conf: *mut CONF,
     mut filename: *const libc::c_char,
@@ -1419,7 +1418,7 @@ pub unsafe extern "C" fn NCONF_load(
     BIO_free(in_0);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CONF_parse_list(
     mut list: *const libc::c_char,
     mut sep: libc::c_char,
@@ -1497,7 +1496,7 @@ pub unsafe extern "C" fn CONF_parse_list(
         lstart = p.offset(1 as libc::c_int as isize);
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CONF_modules_load_file(
     mut filename: *const libc::c_char,
     mut appname: *const libc::c_char,
@@ -1505,19 +1504,19 @@ pub unsafe extern "C" fn CONF_modules_load_file(
 ) -> libc::c_int {
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CONF_get1_default_config_file() -> *mut libc::c_char {
     return OPENSSL_strdup(
         b"No support for Config files in AWS-LC.\0" as *const u8 as *const libc::c_char,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CONF_modules_free() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CONF_modules_unload(mut all: libc::c_int) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CONF_modules_finish() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_config(mut config_name: *const libc::c_char) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_no_config() {}

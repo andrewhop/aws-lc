@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     pub type stack_st_void;
     pub type dh_st;
@@ -626,7 +625,7 @@ unsafe extern "C" fn dsa_pub_cmp(
 unsafe extern "C" fn int_dsa_free(mut pkey: *mut EVP_PKEY) {
     DSA_free((*pkey).pkey.dsa);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut dsa_asn1_meth: EVP_PKEY_ASN1_METHOD = unsafe {
     {
         let mut init = evp_pkey_asn1_method_st {

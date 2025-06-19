@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_pctx_st;
     pub type ASN1_VALUE_st;
     pub type stack_st_void;
@@ -295,7 +294,7 @@ pub type ASN1_ex_free_func = unsafe extern "C" fn(
 unsafe extern "C" fn sk_ASN1_VALUE_new_null() -> *mut stack_st_ASN1_VALUE {
     return OPENSSL_sk_new_null() as *mut stack_st_ASN1_VALUE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_new(mut it: *const ASN1_ITEM) -> *mut ASN1_VALUE {
     let mut ret: *mut ASN1_VALUE = 0 as *mut ASN1_VALUE;
     if ASN1_item_ex_new(&mut ret, it) > 0 as libc::c_int {
@@ -303,7 +302,7 @@ pub unsafe extern "C" fn ASN1_item_new(mut it: *const ASN1_ITEM) -> *mut ASN1_VA
     }
     return 0 as *mut ASN1_VALUE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_ex_new(
     mut pval: *mut *mut ASN1_VALUE,
     mut it: *const ASN1_ITEM,

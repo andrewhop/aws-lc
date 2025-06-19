@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn asn1_bit_string_length(
         str: *const ASN1_BIT_STRING,
         out_padding_bits: *mut uint8_t,
@@ -108,7 +108,7 @@ unsafe extern "C" fn OPENSSL_memcpy(
     }
     return memcpy(dst, src, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_get_object(
     mut inp: *mut *const libc::c_uchar,
     mut out_len: *mut libc::c_long,
@@ -191,7 +191,7 @@ pub unsafe extern "C" fn ASN1_get_object(
     *out_class = tag_class;
     return constructed;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_put_object(
     mut pp: *mut *mut libc::c_uchar,
     mut constructed: libc::c_int,
@@ -245,7 +245,7 @@ pub unsafe extern "C" fn ASN1_put_object(
     }
     *pp = p;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_put_eoc(mut pp: *mut *mut libc::c_uchar) -> libc::c_int {
     let mut p: *mut libc::c_uchar = *pp;
     let fresh5 = p;
@@ -293,7 +293,7 @@ unsafe extern "C" fn asn1_put_length(
     }
     *pp = p;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_object_size(
     mut constructed: libc::c_int,
     mut length: libc::c_int,
@@ -329,7 +329,7 @@ pub unsafe extern "C" fn ASN1_object_size(
     }
     return ret + length;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_copy(
     mut dst: *mut ASN1_STRING,
     mut str: *const ASN1_STRING,
@@ -349,7 +349,7 @@ pub unsafe extern "C" fn ASN1_STRING_copy(
     (*dst).flags = (*str).flags;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_dup(
     mut str: *const ASN1_STRING,
 ) -> *mut ASN1_STRING {
@@ -367,7 +367,7 @@ pub unsafe extern "C" fn ASN1_STRING_dup(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_set(
     mut str: *mut ASN1_STRING,
     mut _data: *const libc::c_void,
@@ -423,7 +423,7 @@ pub unsafe extern "C" fn ASN1_STRING_set(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_set0(
     mut str: *mut ASN1_STRING,
     mut data: *mut libc::c_void,
@@ -433,11 +433,11 @@ pub unsafe extern "C" fn ASN1_STRING_set0(
     (*str).data = data as *mut libc::c_uchar;
     (*str).length = len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_new() -> *mut ASN1_STRING {
     return ASN1_STRING_type_new(4 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_type_new(
     mut type_0: libc::c_int,
 ) -> *mut ASN1_STRING {
@@ -450,7 +450,7 @@ pub unsafe extern "C" fn ASN1_STRING_type_new(
     (*ret).type_0 = type_0;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_free(mut str: *mut ASN1_STRING) {
     if str.is_null() {
         return;
@@ -458,11 +458,11 @@ pub unsafe extern "C" fn ASN1_STRING_free(mut str: *mut ASN1_STRING) {
     OPENSSL_free((*str).data as *mut libc::c_void);
     OPENSSL_free(str as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_clear_free(mut str: *mut ASN1_STRING) {
     ASN1_STRING_free(str);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_cmp(
     mut a: *const ASN1_STRING,
     mut b: *const ASN1_STRING,
@@ -505,21 +505,21 @@ pub unsafe extern "C" fn ASN1_STRING_cmp(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_length(mut str: *const ASN1_STRING) -> libc::c_int {
     return (*str).length;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_type(mut str: *const ASN1_STRING) -> libc::c_int {
     return (*str).type_0;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_data(
     mut str: *mut ASN1_STRING,
 ) -> *mut libc::c_uchar {
     return (*str).data;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_get0_data(
     mut str: *const ASN1_STRING,
 ) -> *const libc::c_uchar {

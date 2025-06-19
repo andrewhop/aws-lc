@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type evp_cipher_st;
     pub type engine_st;
     fn EVP_aes_128_cbc() -> *const EVP_CIPHER;
@@ -149,7 +148,7 @@ unsafe extern "C" fn CMAC_CTX_cleanup(mut ctx: *mut CMAC_CTX) {
         ::core::mem::size_of::<[uint8_t; 16]>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AES_CMAC(
     mut out: *mut uint8_t,
     mut key: *const uint8_t,
@@ -207,7 +206,7 @@ pub unsafe extern "C" fn AES_CMAC(
     CMAC_CTX_cleanup(&mut ctx);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CMAC_CTX_new() -> *mut CMAC_CTX {
     let mut ctx: *mut CMAC_CTX = OPENSSL_zalloc(
         ::core::mem::size_of::<CMAC_CTX>() as libc::c_ulong,
@@ -215,7 +214,7 @@ pub unsafe extern "C" fn CMAC_CTX_new() -> *mut CMAC_CTX {
     !ctx.is_null();
     return ctx;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CMAC_CTX_free(mut ctx: *mut CMAC_CTX) {
     if ctx.is_null() {
         return;
@@ -223,7 +222,7 @@ pub unsafe extern "C" fn CMAC_CTX_free(mut ctx: *mut CMAC_CTX) {
     CMAC_CTX_cleanup(ctx);
     OPENSSL_free(ctx as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CMAC_CTX_copy(
     mut out: *mut CMAC_CTX,
     mut in_0: *const CMAC_CTX,
@@ -315,7 +314,7 @@ static mut kZeroIV: [uint8_t; 16] = [
     0,
     0,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CMAC_Init(
     mut ctx: *mut CMAC_CTX,
     mut key: *const libc::c_void,
@@ -376,7 +375,7 @@ pub unsafe extern "C" fn CMAC_Init(
     FIPS_service_indicator_unlock_state();
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CMAC_Reset(mut ctx: *mut CMAC_CTX) -> libc::c_int {
     (*ctx).block_used = 0 as libc::c_int as libc::c_uint;
     return EVP_EncryptInit_ex(
@@ -387,7 +386,7 @@ pub unsafe extern "C" fn CMAC_Reset(mut ctx: *mut CMAC_CTX) -> libc::c_int {
         kZeroIV.as_ptr(),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CMAC_Update(
     mut ctx: *mut CMAC_CTX,
     mut in_0: *const uint8_t,
@@ -528,7 +527,7 @@ pub unsafe extern "C" fn CMAC_Update(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CMAC_Final(
     mut ctx: *mut CMAC_CTX,
     mut out: *mut uint8_t,
@@ -606,7 +605,7 @@ pub unsafe extern "C" fn CMAC_Final(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CMAC_CTX_get0_cipher_ctx(
     mut ctx: *mut CMAC_CTX,
 ) -> *mut EVP_CIPHER_CTX {

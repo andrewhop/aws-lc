@@ -9,7 +9,7 @@
 )]
 #![feature(asm, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn BN_is_zero(bn: *const BIGNUM) -> libc::c_int;
     fn memcpy(
         _: *mut libc::c_void,
@@ -122,7 +122,7 @@ unsafe extern "C" fn OPENSSL_memset(
     }
     return memset(dst, c, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_new() -> *mut BIGNUM {
     let mut bn: *mut BIGNUM = OPENSSL_zalloc(
         ::core::mem::size_of::<BIGNUM>() as libc::c_ulong,
@@ -133,11 +133,11 @@ pub unsafe extern "C" fn BN_new() -> *mut BIGNUM {
     (*bn).flags = 0x1 as libc::c_int;
     return bn;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_secure_new() -> *mut BIGNUM {
     return BN_new();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_init(mut bn: *mut BIGNUM) {
     OPENSSL_memset(
         bn as *mut libc::c_void,
@@ -145,7 +145,7 @@ pub unsafe extern "C" fn BN_init(mut bn: *mut BIGNUM) {
         ::core::mem::size_of::<BIGNUM>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_free(mut bn: *mut BIGNUM) {
     if bn.is_null() {
         return;
@@ -159,11 +159,11 @@ pub unsafe extern "C" fn BN_free(mut bn: *mut BIGNUM) {
         (*bn).d = 0 as *mut BN_ULONG;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_clear_free(mut bn: *mut BIGNUM) {
     BN_free(bn);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_dup(mut src: *const BIGNUM) -> *mut BIGNUM {
     let mut copy: *mut BIGNUM = 0 as *mut BIGNUM;
     if src.is_null() {
@@ -179,7 +179,7 @@ pub unsafe extern "C" fn BN_dup(mut src: *const BIGNUM) -> *mut BIGNUM {
     }
     return copy;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_copy(
     mut dest: *mut BIGNUM,
     mut src: *const BIGNUM,
@@ -200,7 +200,7 @@ pub unsafe extern "C" fn BN_copy(
     (*dest).neg = (*src).neg;
     return dest;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_clear(mut bn: *mut BIGNUM) {
     if !((*bn).d).is_null() {
         OPENSSL_memset(
@@ -238,7 +238,7 @@ unsafe extern "C" fn BN_value_one_do_init(mut out: *mut BIGNUM) {
 unsafe extern "C" fn BN_value_one_storage_bss_get() -> *mut BIGNUM {
     return &mut BN_value_one_storage;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_value_one() -> *const BIGNUM {
     CRYPTO_once(
         BN_value_one_once_bss_get(),
@@ -246,7 +246,7 @@ pub unsafe extern "C" fn BN_value_one() -> *const BIGNUM {
     );
     return BN_value_one_storage_bss_get() as *const BIGNUM;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_num_bits_word(mut l: BN_ULONG) -> libc::c_uint {
     let mut x: BN_ULONG = 0;
     let mut mask: BN_ULONG = 0;
@@ -294,7 +294,7 @@ pub unsafe extern "C" fn BN_num_bits_word(mut l: BN_ULONG) -> libc::c_uint {
         as libc::c_int as libc::c_int;
     return bits as libc::c_uint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_num_bits(mut bn: *const BIGNUM) -> libc::c_uint {
     let width: libc::c_int = bn_minimal_width(bn);
     if width == 0 as libc::c_int {
@@ -305,26 +305,26 @@ pub unsafe extern "C" fn BN_num_bits(mut bn: *const BIGNUM) -> libc::c_uint {
             BN_num_bits_word(*((*bn).d).offset((width - 1 as libc::c_int) as isize)),
         );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_num_bytes(mut bn: *const BIGNUM) -> libc::c_uint {
     return (BN_num_bits(bn))
         .wrapping_add(7 as libc::c_int as libc::c_uint)
         .wrapping_div(8 as libc::c_int as libc::c_uint);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_get_minimal_width(mut bn: *const BIGNUM) -> libc::c_int {
     return bn_minimal_width(bn);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_zero(mut bn: *mut BIGNUM) {
     (*bn).neg = 0 as libc::c_int;
     (*bn).width = (*bn).neg;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_one(mut bn: *mut BIGNUM) -> libc::c_int {
     return BN_set_word(bn, 1 as libc::c_int as BN_ULONG);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_set_word(
     mut bn: *mut BIGNUM,
     mut value: BN_ULONG,
@@ -341,14 +341,14 @@ pub unsafe extern "C" fn BN_set_word(
     (*bn).width = 1 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_set_u64(
     mut bn: *mut BIGNUM,
     mut value: uint64_t,
 ) -> libc::c_int {
     return BN_set_word(bn, value);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_set_words(
     mut bn: *mut BIGNUM,
     mut words: *const BN_ULONG,
@@ -366,7 +366,7 @@ pub unsafe extern "C" fn bn_set_words(
     (*bn).neg = 0 as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_set_static_words(
     mut bn: *mut BIGNUM,
     mut words: *const BN_ULONG,
@@ -414,7 +414,7 @@ pub unsafe extern "C" fn bn_set_static_words(
     (*bn).neg = 0 as libc::c_int;
     (*bn).flags |= 0x2 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_fits_in_words(
     mut bn: *const BIGNUM,
     mut num: size_t,
@@ -428,7 +428,7 @@ pub unsafe extern "C" fn bn_fits_in_words(
     }
     return (mask == 0 as libc::c_int as BN_ULONG) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_copy_words(
     mut out: *mut BN_ULONG,
     mut num: size_t,
@@ -472,11 +472,11 @@ pub unsafe extern "C" fn bn_copy_words(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_is_negative(mut bn: *const BIGNUM) -> libc::c_int {
     return ((*bn).neg != 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_set_negative(mut bn: *mut BIGNUM, mut sign: libc::c_int) {
     if sign != 0 && BN_is_zero(bn) == 0 {
         (*bn).neg = 1 as libc::c_int;
@@ -484,7 +484,7 @@ pub unsafe extern "C" fn BN_set_negative(mut bn: *mut BIGNUM, mut sign: libc::c_
         (*bn).neg = 0 as libc::c_int;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_wexpand(
     mut bn: *mut BIGNUM,
     mut words: size_t,
@@ -533,7 +533,7 @@ pub unsafe extern "C" fn bn_wexpand(
     (*bn).dmax = words as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_expand(
     mut bn: *mut BIGNUM,
     mut bits: size_t,
@@ -559,7 +559,7 @@ pub unsafe extern "C" fn bn_expand(
             .wrapping_sub(1 as libc::c_int as size_t) / 64 as libc::c_int as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_resize_words(
     mut bn: *mut BIGNUM,
     mut words: size_t,
@@ -592,7 +592,7 @@ pub unsafe extern "C" fn bn_resize_words(
     (*bn).width = words as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_select_words(
     mut r: *mut BN_ULONG,
     mut mask: BN_ULONG,
@@ -614,7 +614,7 @@ pub unsafe extern "C" fn bn_select_words(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_minimal_width(mut bn: *const BIGNUM) -> libc::c_int {
     let mut ret: libc::c_int = (*bn).width;
     while ret > 0 as libc::c_int
@@ -626,19 +626,19 @@ pub unsafe extern "C" fn bn_minimal_width(mut bn: *const BIGNUM) -> libc::c_int 
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_set_minimal_width(mut bn: *mut BIGNUM) {
     (*bn).width = bn_minimal_width(bn);
     if (*bn).width == 0 as libc::c_int {
         (*bn).neg = 0 as libc::c_int;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_get_flags(
     mut bn: *const BIGNUM,
     mut flags: libc::c_int,
 ) -> libc::c_int {
     return (*bn).flags & flags;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_set_flags(mut b: *mut BIGNUM, mut n: libc::c_int) {}

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type x509_lookup_st;
     pub type x509_lookup_method_st;
     pub type x509_store_st;
@@ -33,7 +32,7 @@ extern "C" {
 pub type X509_LOOKUP = x509_lookup_st;
 pub type X509_LOOKUP_METHOD = x509_lookup_method_st;
 pub type X509_STORE = x509_store_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_set_default_paths(
     mut ctx: *mut X509_STORE,
 ) -> libc::c_int {
@@ -51,7 +50,7 @@ pub unsafe extern "C" fn X509_STORE_set_default_paths(
     ERR_clear_error();
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_load_locations(
     mut ctx: *mut X509_STORE,
     mut file: *const libc::c_char,

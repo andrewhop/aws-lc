@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_X509_NAME_ENTRY;
     pub type evp_pkey_st;
@@ -280,17 +279,17 @@ unsafe extern "C" fn sk_X509_ATTRIBUTE_push(
 unsafe extern "C" fn sk_X509_ATTRIBUTE_new_null() -> *mut stack_st_X509_ATTRIBUTE {
     return OPENSSL_sk_new_null() as *mut stack_st_X509_ATTRIBUTE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_get_version(mut req: *const X509_REQ) -> libc::c_long {
     return ASN1_INTEGER_get((*(*req).req_info).version);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_get_subject_name(
     mut req: *const X509_REQ,
 ) -> *mut X509_NAME {
     return (*(*req).req_info).subject;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_get_pubkey(mut req: *const X509_REQ) -> *mut EVP_PKEY {
     if req.is_null() || ((*req).req_info).is_null() {
         ERR_put_error(
@@ -305,7 +304,7 @@ pub unsafe extern "C" fn X509_REQ_get_pubkey(mut req: *const X509_REQ) -> *mut E
     }
     return X509_PUBKEY_get((*(*req).req_info).pubkey);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_get0_pubkey(
     mut req: *const X509_REQ,
 ) -> *mut EVP_PKEY {
@@ -322,7 +321,7 @@ pub unsafe extern "C" fn X509_REQ_get0_pubkey(
     }
     return X509_PUBKEY_get0((*(*req).req_info).pubkey);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_check_private_key(
     mut x: *const X509_REQ,
     mut k: *const EVP_PKEY,
@@ -384,14 +383,14 @@ pub unsafe extern "C" fn X509_REQ_check_private_key(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_extension_nid(
     mut req_nid: libc::c_int,
 ) -> libc::c_int {
     return (req_nid == 172 as libc::c_int || req_nid == 171 as libc::c_int)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_get_extensions(
     mut req: *const X509_REQ,
 ) -> *mut stack_st_X509_EXTENSION {
@@ -425,7 +424,7 @@ pub unsafe extern "C" fn X509_REQ_get_extensions(
         &X509_EXTENSIONS_it,
     ) as *mut stack_st_X509_EXTENSION;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_add_extensions_nid(
     mut req: *mut X509_REQ,
     mut exts: *const stack_st_X509_EXTENSION,
@@ -450,20 +449,20 @@ pub unsafe extern "C" fn X509_REQ_add_extensions_nid(
     OPENSSL_free(ext as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_add_extensions(
     mut req: *mut X509_REQ,
     mut exts: *const stack_st_X509_EXTENSION,
 ) -> libc::c_int {
     return X509_REQ_add_extensions_nid(req, exts, 172 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_get_attr_count(
     mut req: *const X509_REQ,
 ) -> libc::c_int {
     return sk_X509_ATTRIBUTE_num((*(*req).req_info).attributes) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_get_attr_by_NID(
     mut req: *const X509_REQ,
     mut nid: libc::c_int,
@@ -475,7 +474,7 @@ pub unsafe extern "C" fn X509_REQ_get_attr_by_NID(
     }
     return X509_REQ_get_attr_by_OBJ(req, obj, lastpos);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_get_attr_by_OBJ(
     mut req: *const X509_REQ,
     mut obj: *const ASN1_OBJECT,
@@ -507,7 +506,7 @@ pub unsafe extern "C" fn X509_REQ_get_attr_by_OBJ(
     }
     return -(1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_get_attr(
     mut req: *const X509_REQ,
     mut loc: libc::c_int,
@@ -519,7 +518,7 @@ pub unsafe extern "C" fn X509_REQ_get_attr(
     }
     return sk_X509_ATTRIBUTE_value((*(*req).req_info).attributes, loc as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_delete_attr(
     mut req: *mut X509_REQ,
     mut loc: libc::c_int,
@@ -545,7 +544,7 @@ unsafe extern "C" fn X509_REQ_add0_attr(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_add1_attr(
     mut req: *mut X509_REQ,
     mut attr: *const X509_ATTRIBUTE,
@@ -557,7 +556,7 @@ pub unsafe extern "C" fn X509_REQ_add1_attr(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_add1_attr_by_OBJ(
     mut req: *mut X509_REQ,
     mut obj: *const ASN1_OBJECT,
@@ -578,7 +577,7 @@ pub unsafe extern "C" fn X509_REQ_add1_attr_by_OBJ(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_add1_attr_by_NID(
     mut req: *mut X509_REQ,
     mut nid: libc::c_int,
@@ -599,7 +598,7 @@ pub unsafe extern "C" fn X509_REQ_add1_attr_by_NID(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_add1_attr_by_txt(
     mut req: *mut X509_REQ,
     mut attrname: *const libc::c_char,
@@ -620,7 +619,7 @@ pub unsafe extern "C" fn X509_REQ_add1_attr_by_txt(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_get0_signature(
     mut req: *const X509_REQ,
     mut psig: *mut *const ASN1_BIT_STRING,
@@ -633,13 +632,13 @@ pub unsafe extern "C" fn X509_REQ_get0_signature(
         *palg = (*req).sig_alg;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_get_signature_nid(
     mut req: *const X509_REQ,
 ) -> libc::c_int {
     return OBJ_obj2nid((*(*req).sig_alg).algorithm);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_re_X509_REQ_tbs(
     mut req: *mut X509_REQ,
     mut pp: *mut *mut libc::c_uchar,

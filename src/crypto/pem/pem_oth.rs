@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     fn OPENSSL_free(ptr: *mut libc::c_void);
     fn ERR_put_error(
@@ -128,7 +127,7 @@ pub type pem_password_cb = unsafe extern "C" fn(
     libc::c_int,
     *mut libc::c_void,
 ) -> libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_ASN1_read_bio(
     mut d2i: Option::<d2i_of_void>,
     mut name: *const libc::c_char,

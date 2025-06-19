@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     pub type stack_st_void;
     pub type ecdsa_sig_st;
@@ -600,7 +599,7 @@ static mut kAllGroups: [ec_group_func; 5] = [
     Some(EC_group_p521 as unsafe extern "C" fn() -> *const EC_GROUP),
     Some(EC_group_secp256k1 as unsafe extern "C" fn() -> *const EC_GROUP),
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_parse_private_key(
     mut cbs: *mut CBS,
     mut group: *const EC_GROUP,
@@ -807,7 +806,7 @@ pub unsafe extern "C" fn EC_KEY_parse_private_key(
     BN_free(priv_key);
     return 0 as *mut EC_KEY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_marshal_private_key(
     mut cbb: *mut CBB,
     mut key: *const EC_KEY,
@@ -1127,7 +1126,7 @@ unsafe extern "C" fn integers_equal(
     }
     return CBS_mem_equal(&mut copy, buf.as_mut_ptr(), CBS_len(&mut copy));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_parse_curve_name(mut cbs: *mut CBS) -> *mut EC_GROUP {
     let mut named_curve: CBS = cbs_st {
         data: 0 as *const uint8_t,
@@ -1172,7 +1171,7 @@ pub unsafe extern "C" fn EC_KEY_parse_curve_name(mut cbs: *mut CBS) -> *mut EC_G
     );
     return 0 as *mut EC_GROUP;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_marshal_curve_name(
     mut cbb: *mut CBB,
     mut group: *const EC_GROUP,
@@ -1205,7 +1204,7 @@ pub unsafe extern "C" fn EC_KEY_marshal_curve_name(
         && CBB_add_bytes(&mut child, ((*group).oid).as_ptr(), (*group).oid_len as size_t)
             != 0 && CBB_flush(cbb) != 0) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_KEY_parse_parameters(mut cbs: *mut CBS) -> *mut EC_GROUP {
     let mut current_block: u64;
     if CBS_peek_asn1_tag(
@@ -1324,7 +1323,7 @@ pub unsafe extern "C" fn EC_KEY_parse_parameters(mut cbs: *mut CBS) -> *mut EC_G
     BN_free(y);
     return ret as *mut EC_GROUP;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_point2cbb(
     mut out: *mut CBB,
     mut group: *const EC_GROUP,
@@ -1347,7 +1346,7 @@ pub unsafe extern "C" fn EC_POINT_point2cbb(
     return (CBB_add_space(out, &mut p, len) != 0
         && EC_POINT_point2oct(group, point, form, p, len, ctx) == len) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_ECPrivateKey(
     mut out: *mut *mut EC_KEY,
     mut inp: *mut *const uint8_t,
@@ -1384,7 +1383,7 @@ pub unsafe extern "C" fn d2i_ECPrivateKey(
     *inp = CBS_data(&mut cbs);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_ECPrivateKey(
     mut key: *const EC_KEY,
     mut outp: *mut *mut uint8_t,
@@ -1410,7 +1409,7 @@ pub unsafe extern "C" fn i2d_ECPrivateKey(
     }
     return CBB_finish_i2d(&mut cbb, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_ECParameters(
     mut out_key: *mut *mut EC_KEY,
     mut inp: *mut *const uint8_t,
@@ -1434,7 +1433,7 @@ pub unsafe extern "C" fn d2i_ECParameters(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_ECPKParameters(
     mut out_group: *mut *mut EC_GROUP,
     mut inp: *mut *const uint8_t,
@@ -1459,7 +1458,7 @@ pub unsafe extern "C" fn d2i_ECPKParameters(
     *inp = CBS_data(&mut cbs);
     return group;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_ECParameters(
     mut key: *const EC_KEY,
     mut outp: *mut *mut uint8_t,
@@ -1477,7 +1476,7 @@ pub unsafe extern "C" fn i2d_ECParameters(
     }
     return i2d_ECPKParameters((*key).group, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_ECPKParameters(
     mut group: *const EC_GROUP,
     mut outp: *mut *mut uint8_t,
@@ -1514,7 +1513,7 @@ pub unsafe extern "C" fn i2d_ECPKParameters(
     }
     return CBB_finish_i2d(&mut cbb, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_ECPKParameters_bio(
     mut bio: *mut BIO,
     mut out_group: *mut *mut EC_GROUP,
@@ -1545,7 +1544,7 @@ pub unsafe extern "C" fn d2i_ECPKParameters_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_ECPKParameters_bio(
     mut bio: *mut BIO,
     mut group: *const EC_GROUP,
@@ -1574,7 +1573,7 @@ pub unsafe extern "C" fn i2d_ECPKParameters_bio(
     OPENSSL_free(out as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn o2i_ECPublicKey(
     mut keyp: *mut *mut EC_KEY,
     mut inp: *mut *const uint8_t,
@@ -1625,7 +1624,7 @@ pub unsafe extern "C" fn o2i_ECPublicKey(
     *inp = (*inp).offset(len as isize);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2o_ECPublicKey(
     mut key: *const EC_KEY,
     mut outp: *mut *mut uint8_t,
@@ -1669,7 +1668,7 @@ pub unsafe extern "C" fn i2o_ECPublicKey(
     let mut ret: libc::c_int = CBB_finish_i2d(&mut cbb, outp);
     return if ret > 0 as libc::c_int { ret } else { 0 as libc::c_int };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_get_builtin_curves(
     mut out_curves: *mut EC_builtin_curve,
     mut max_num_curves: size_t,
@@ -1734,7 +1733,7 @@ unsafe extern "C" fn EC_POINT_point2buf(
     *pbuf = buf;
     return len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_point2bn(
     mut group: *const EC_GROUP,
     mut point: *const EC_POINT,
@@ -1752,7 +1751,7 @@ pub unsafe extern "C" fn EC_POINT_point2bn(
     OPENSSL_free(buf as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_bn2point(
     mut group: *const EC_GROUP,
     mut bn: *const BIGNUM,
@@ -1801,7 +1800,7 @@ pub unsafe extern "C" fn EC_POINT_bn2point(
     OPENSSL_free(buf as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECPKParameters_print(
     mut bio: *mut BIO,
     mut group: *const EC_GROUP,

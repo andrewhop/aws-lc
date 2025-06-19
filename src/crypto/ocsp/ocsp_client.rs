@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_null_st;
     pub type ASN1_VALUE_st;
     pub type X509_name_st;
@@ -379,7 +378,7 @@ unsafe extern "C" fn sk_OCSP_SINGLERESP_value(
 ) -> *mut OCSP_SINGLERESP {
     return OPENSSL_sk_value(sk as *const OPENSSL_STACK, i) as *mut OCSP_SINGLERESP;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_request_add0_id(
     mut req: *mut OCSP_REQUEST,
     mut cid: *mut OCSP_CERTID,
@@ -398,7 +397,7 @@ pub unsafe extern "C" fn OCSP_request_add0_id(
     }
     return one;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_request_set1_name(
     mut req: *mut OCSP_REQUEST,
     mut nm: *mut X509_NAME,
@@ -416,7 +415,7 @@ pub unsafe extern "C" fn OCSP_request_set1_name(
     (*(*req).tbsRequest).requestorName = gen;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_request_add1_cert(
     mut req: *mut OCSP_REQUEST,
     mut cert: *mut X509,
@@ -445,7 +444,7 @@ pub unsafe extern "C" fn OCSP_request_add1_cert(
     X509_up_ref(cert);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_request_sign(
     mut req: *mut OCSP_REQUEST,
     mut signer: *mut X509,
@@ -548,7 +547,7 @@ pub unsafe extern "C" fn OCSP_request_sign(
     (*req).optionalSignature = 0 as *mut OCSP_SIGNATURE;
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_response_status(
     mut resp: *mut OCSP_RESPONSE,
 ) -> libc::c_int {
@@ -565,7 +564,7 @@ pub unsafe extern "C" fn OCSP_response_status(
     }
     return ASN1_ENUMERATED_get((*resp).responseStatus) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_response_get1_basic(
     mut resp: *mut OCSP_RESPONSE,
 ) -> *mut OCSP_BASICRESP {
@@ -605,7 +604,7 @@ pub unsafe extern "C" fn OCSP_response_get1_basic(
     }
     return ASN1_item_unpack((*rb).response, &OCSP_BASICRESP_it) as *mut OCSP_BASICRESP;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_resp_get0(
     mut bs: *mut OCSP_BASICRESP,
     mut idx: size_t,
@@ -634,7 +633,7 @@ pub unsafe extern "C" fn OCSP_resp_get0(
     }
     return sk_OCSP_SINGLERESP_value((*(*bs).tbsResponseData).responses, idx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_resp_find(
     mut bs: *mut OCSP_BASICRESP,
     mut id: *mut OCSP_CERTID,
@@ -681,7 +680,7 @@ pub unsafe extern "C" fn OCSP_resp_find(
     }
     return -(1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_single_get0_status(
     mut single: *mut OCSP_SINGLERESP,
     mut reason: *mut libc::c_int,
@@ -737,7 +736,7 @@ pub unsafe extern "C" fn OCSP_single_get0_status(
     }
     return status;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_resp_find_status(
     mut bs: *mut OCSP_BASICRESP,
     mut id: *mut OCSP_CERTID,
@@ -775,7 +774,7 @@ pub unsafe extern "C" fn OCSP_resp_find_status(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_check_validity(
     mut thisUpdate: *mut ASN1_GENERALIZEDTIME,
     mut nextUpdate: *mut ASN1_GENERALIZEDTIME,
@@ -863,14 +862,14 @@ pub unsafe extern "C" fn OCSP_check_validity(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_resp_count(mut bs: *mut OCSP_BASICRESP) -> libc::c_int {
     if bs.is_null() {
         return -(1 as libc::c_int);
     }
     return sk_OCSP_SINGLERESP_num((*(*bs).tbsResponseData).responses) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_SINGLERESP_get0_id(
     mut single: *const OCSP_SINGLERESP,
 ) -> *const OCSP_CERTID {

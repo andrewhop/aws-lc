@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_pctx_st;
     pub type ASN1_VALUE_st;
     pub type stack_st_X509_NAME_ENTRY;
@@ -474,7 +473,7 @@ static mut X509_NAME_ENTRY_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_NAME_ENTRY_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -484,18 +483,18 @@ pub static mut X509_NAME_ENTRY_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_NAME_ENTRY(
     mut a: *const X509_NAME_ENTRY,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &X509_NAME_ENTRY_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_ENTRY_free(mut a: *mut X509_NAME_ENTRY) {
     ASN1_item_free(a as *mut ASN1_VALUE, &X509_NAME_ENTRY_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_NAME_ENTRY(
     mut a: *mut *mut X509_NAME_ENTRY,
     mut in_0: *mut *const libc::c_uchar,
@@ -504,11 +503,11 @@ pub unsafe extern "C" fn d2i_X509_NAME_ENTRY(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &X509_NAME_ENTRY_it)
         as *mut X509_NAME_ENTRY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_ENTRY_new() -> *mut X509_NAME_ENTRY {
     return ASN1_item_new(&X509_NAME_ENTRY_it) as *mut X509_NAME_ENTRY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_ENTRY_dup(
     mut x: *const X509_NAME_ENTRY,
 ) -> *mut X509_NAME_ENTRY {
@@ -527,7 +526,7 @@ static mut X509_NAME_ENTRIES_item_tt: ASN1_TEMPLATE = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_NAME_ENTRIES_it: ASN1_ITEM = unsafe {
     {
         let mut init = ASN1_ITEM_st {
@@ -554,7 +553,7 @@ static mut X509_NAME_INTERNAL_item_tt: ASN1_TEMPLATE = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_NAME_INTERNAL_it: ASN1_ITEM = unsafe {
     {
         let mut init = ASN1_ITEM_st {
@@ -612,7 +611,7 @@ static mut x509_name_ff: ASN1_EXTERN_FUNCS = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_NAME_it: ASN1_ITEM = unsafe {
     {
         let mut init = ASN1_ITEM_st {
@@ -627,22 +626,22 @@ pub static mut X509_NAME_it: ASN1_ITEM = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_NAME(
     mut a: *mut X509_NAME,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &X509_NAME_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_free(mut a: *mut X509_NAME) {
     ASN1_item_free(a as *mut ASN1_VALUE, &X509_NAME_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_new() -> *mut X509_NAME {
     return ASN1_item_new(&X509_NAME_it) as *mut X509_NAME;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_NAME(
     mut a: *mut *mut X509_NAME,
     mut in_0: *mut *const libc::c_uchar,
@@ -651,7 +650,7 @@ pub unsafe extern "C" fn d2i_X509_NAME(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &X509_NAME_it)
         as *mut X509_NAME;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_dup(mut x: *mut X509_NAME) -> *mut X509_NAME {
     return ASN1_item_dup(&X509_NAME_it, x as *mut libc::c_void) as *mut X509_NAME;
 }
@@ -1128,7 +1127,7 @@ unsafe extern "C" fn i2d_name_canon(
     }
     return len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_set(
     mut xn: *mut *mut X509_NAME,
     mut name: *mut X509_NAME,
@@ -1141,13 +1140,13 @@ pub unsafe extern "C" fn X509_NAME_set(
     *xn = name;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_ENTRY_set(
     mut ne: *const X509_NAME_ENTRY,
 ) -> libc::c_int {
     return (*ne).set;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_get0_der(
     mut nm: *mut X509_NAME,
     mut out_der: *mut *const libc::c_uchar,

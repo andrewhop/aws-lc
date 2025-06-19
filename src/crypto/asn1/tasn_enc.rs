@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_pctx_st;
     pub type ASN1_VALUE_st;
     pub type stack_st_void;
@@ -359,7 +358,7 @@ unsafe extern "C" fn OPENSSL_memcpy(
     }
     return memcpy(dst, src, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_i2d(
     mut val: *mut ASN1_VALUE,
     mut out: *mut *mut libc::c_uchar,
@@ -431,7 +430,7 @@ pub unsafe extern "C" fn ASN1_item_i2d(
     }
     return ASN1_item_ex_i2d(&mut val, out, it, -(1 as libc::c_int), 0 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_ex_i2d(
     mut pval: *mut *mut ASN1_VALUE,
     mut out: *mut *mut libc::c_uchar,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     pub type stack_st_void;
     pub type ecdsa_sig_st;
@@ -353,7 +352,7 @@ unsafe extern "C" fn FIPS_service_indicator_lock_state() {}
 unsafe extern "C" fn FIPS_service_indicator_unlock_state() {}
 #[inline]
 unsafe extern "C" fn ECDH_verify_service_indicator(mut ec_key: *const EC_KEY) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDH_compute_shared_secret(
     mut buf: *mut uint8_t,
     mut buflen: *mut size_t,
@@ -446,7 +445,7 @@ pub unsafe extern "C" fn ECDH_compute_shared_secret(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDH_compute_key_fips(
     mut out: *mut uint8_t,
     mut out_len: size_t,

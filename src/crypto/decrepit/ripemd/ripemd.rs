@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn memcpy(
         _: *mut libc::c_void,
         _: *const libc::c_void,
@@ -254,7 +254,7 @@ unsafe extern "C" fn crypto_md32_final(
     *num = 0 as libc::c_int as libc::c_uint;
     OPENSSL_memset(data as *mut libc::c_void, 0 as libc::c_int, block_size);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RIPEMD160_Init(mut ctx: *mut RIPEMD160_CTX) -> libc::c_int {
     OPENSSL_memset(
         ctx as *mut libc::c_void,
@@ -268,7 +268,7 @@ pub unsafe extern "C" fn RIPEMD160_Init(mut ctx: *mut RIPEMD160_CTX) -> libc::c_
     (*ctx).h[4 as libc::c_int as usize] = 0xc3d2e1f0 as libc::c_long as uint32_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RIPEMD160_Update(
     mut c: *mut RIPEMD160_CTX,
     mut data: *const libc::c_void,
@@ -290,7 +290,7 @@ pub unsafe extern "C" fn RIPEMD160_Update(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RIPEMD160_Final(
     mut out: *mut uint8_t,
     mut c: *mut RIPEMD160_CTX,
@@ -1167,7 +1167,7 @@ unsafe extern "C" fn ripemd160_block_data_order(
         *h.offset(0 as libc::c_int as isize) = D;
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RIPEMD160(
     mut data: *const uint8_t,
     mut len: size_t,

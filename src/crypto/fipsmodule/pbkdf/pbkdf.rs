@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type engine_st;
     pub type env_md_st;
     pub type hmac_methods_st;
@@ -134,7 +133,7 @@ unsafe extern "C" fn PBKDF2_verify_service_indicator(
     mut salt_len: size_t,
     mut iterations: libc::c_uint,
 ) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS5_PBKDF2_HMAC(
     mut password: *const libc::c_char,
     mut password_len: size_t,
@@ -299,7 +298,7 @@ pub unsafe extern "C" fn PKCS5_PBKDF2_HMAC(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS5_PBKDF2_HMAC_SHA1(
     mut password: *const libc::c_char,
     mut password_len: size_t,

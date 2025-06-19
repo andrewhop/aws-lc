@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     fn BIO_new(method: *const BIO_METHOD) -> *mut BIO;
     fn BIO_free(bio: *mut BIO) -> libc::c_int;
@@ -740,7 +739,7 @@ unsafe extern "C" fn conn_callback_ctrl(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_new_connect(mut hostname: *const libc::c_char) -> *mut BIO {
     let mut ret: *mut BIO = 0 as *mut BIO;
     ret = BIO_new(BIO_s_connect());
@@ -799,11 +798,11 @@ static mut methods_connectp: BIO_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_s_connect() -> *const BIO_METHOD {
     return &methods_connectp;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_conn_hostname(
     mut bio: *mut BIO,
     mut name: *const libc::c_char,
@@ -815,7 +814,7 @@ pub unsafe extern "C" fn BIO_set_conn_hostname(
         name as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_conn_port(
     mut bio: *mut BIO,
     mut port_str: *const libc::c_char,
@@ -827,7 +826,7 @@ pub unsafe extern "C" fn BIO_set_conn_port(
         port_str as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_conn_int_port(
     mut bio: *mut BIO,
     mut port: *const libc::c_int,
@@ -841,7 +840,7 @@ pub unsafe extern "C" fn BIO_set_conn_int_port(
     );
     return BIO_set_conn_port(bio, buf.as_mut_ptr());
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_nbio(
     mut bio: *mut BIO,
     mut on: libc::c_int,
@@ -849,7 +848,7 @@ pub unsafe extern "C" fn BIO_set_nbio(
     return BIO_ctrl(bio, 102 as libc::c_int, on as libc::c_long, 0 as *mut libc::c_void)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_do_connect(mut bio: *mut BIO) -> libc::c_int {
     return BIO_ctrl(
         bio,

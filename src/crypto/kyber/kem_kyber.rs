@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn pqcrystals_kyber512_ref_keypair_derand(
         pk: *mut uint8_t,
         sk: *mut uint8_t,
@@ -513,7 +513,7 @@ static mut legacy_kem_kyber512_r3: KEM = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn get_legacy_kem_kyber512_r3() -> *const KEM {
     return &legacy_kem_kyber512_r3;
 }
@@ -535,7 +535,7 @@ static mut legacy_kem_kyber768_r3: KEM = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn get_legacy_kem_kyber768_r3() -> *const KEM {
     return &legacy_kem_kyber768_r3;
 }
@@ -557,7 +557,7 @@ static mut legacy_kem_kyber1024_r3: KEM = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn get_legacy_kem_kyber1024_r3() -> *const KEM {
     return &legacy_kem_kyber1024_r3;
 }

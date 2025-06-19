@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -820,7 +819,7 @@ unsafe extern "C" fn i2v_GENERAL_NAMES_cb(
 ) -> *mut stack_st_CONF_VALUE {
     return i2v_GENERAL_NAMES(method, ext as *const GENERAL_NAMES, ret);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_alt: [X509V3_EXT_METHOD; 3] = unsafe {
     [
         {
@@ -917,7 +916,7 @@ pub static mut v3_alt: [X509V3_EXT_METHOD; 3] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2v_GENERAL_NAMES(
     mut method: *const X509V3_EXT_METHOD,
     mut gens: *const GENERAL_NAMES,
@@ -947,7 +946,7 @@ pub unsafe extern "C" fn i2v_GENERAL_NAMES(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2v_GENERAL_NAME(
     mut method: *const X509V3_EXT_METHOD,
     mut gen: *const GENERAL_NAME,
@@ -1116,7 +1115,7 @@ pub unsafe extern "C" fn i2v_GENERAL_NAME(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn GENERAL_NAME_print(
     mut out: *mut BIO,
     mut gen: *const GENERAL_NAME,
@@ -1460,7 +1459,7 @@ unsafe extern "C" fn copy_email(
     ASN1_IA5STRING_free(email);
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn v2i_GENERAL_NAMES(
     mut method: *const X509V3_EXT_METHOD,
     mut ctx: *const X509V3_CTX,
@@ -1499,7 +1498,7 @@ pub unsafe extern "C" fn v2i_GENERAL_NAMES(
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn v2i_GENERAL_NAME(
     mut method: *const X509V3_EXT_METHOD,
     mut ctx: *const X509V3_CTX,
@@ -1662,7 +1661,7 @@ unsafe extern "C" fn a2i_GENERAL_NAME(
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn v2i_GENERAL_NAME_ex(
     mut out: *mut GENERAL_NAME,
     mut method: *const X509V3_EXT_METHOD,

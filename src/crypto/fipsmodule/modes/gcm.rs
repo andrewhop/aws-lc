@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn abort() -> !;
     fn memcpy(
         _: *mut libc::c_void,
@@ -223,7 +223,7 @@ unsafe extern "C" fn CRYPTO_xor16(
     }
 }
 static mut kSizeTWithoutLower4Bits: size_t = -(16 as libc::c_int) as size_t;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_ghash_init(
     mut out_mult: *mut gmult_func,
     mut out_hash: *mut ghash_func,
@@ -252,7 +252,7 @@ pub unsafe extern "C" fn CRYPTO_ghash_init(
             ) -> (),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_gcm128_init_key(
     mut gcm_key: *mut GCM128_KEY,
     mut aes_key: *const AES_KEY,
@@ -292,7 +292,7 @@ pub unsafe extern "C" fn CRYPTO_gcm128_init_key(
             }) as libc::c_uint,
         );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_gcm128_setiv(
     mut ctx: *mut GCM128_CONTEXT,
     mut key: *const AES_KEY,
@@ -388,7 +388,7 @@ pub unsafe extern "C" fn CRYPTO_gcm128_setiv(
         ctr,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_gcm128_aad(
     mut ctx: *mut GCM128_CONTEXT,
     mut aad: *const uint8_t,
@@ -459,7 +459,7 @@ pub unsafe extern "C" fn CRYPTO_gcm128_aad(
     (*ctx).ares = n;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_gcm128_encrypt(
     mut ctx: *mut GCM128_CONTEXT,
     mut key: *const AES_KEY,
@@ -615,7 +615,7 @@ pub unsafe extern "C" fn CRYPTO_gcm128_encrypt(
     (*ctx).mres = n;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_gcm128_decrypt(
     mut ctx: *mut GCM128_CONTEXT,
     mut key: *const AES_KEY,
@@ -775,7 +775,7 @@ pub unsafe extern "C" fn CRYPTO_gcm128_decrypt(
     (*ctx).mres = n;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_gcm128_encrypt_ctr32(
     mut ctx: *mut GCM128_CONTEXT,
     mut key: *const AES_KEY,
@@ -927,7 +927,7 @@ pub unsafe extern "C" fn CRYPTO_gcm128_encrypt_ctr32(
     (*ctx).mres = n;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_gcm128_decrypt_ctr32(
     mut ctx: *mut GCM128_CONTEXT,
     mut key: *const AES_KEY,
@@ -1083,7 +1083,7 @@ pub unsafe extern "C" fn CRYPTO_gcm128_decrypt_ctr32(
     (*ctx).mres = n;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_gcm128_finish(
     mut ctx: *mut GCM128_CONTEXT,
     mut tag: *const uint8_t,
@@ -1129,7 +1129,7 @@ pub unsafe extern "C" fn CRYPTO_gcm128_finish(
         return 0 as libc::c_int
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_gcm128_tag(
     mut ctx: *mut GCM128_CONTEXT,
     mut tag: *mut libc::c_uchar,
@@ -1146,11 +1146,11 @@ pub unsafe extern "C" fn CRYPTO_gcm128_tag(
         },
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn crypto_gcm_clmul_enabled() -> libc::c_int {
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn crypto_gcm_avx512_enabled() -> libc::c_int {
     return 0 as libc::c_int;
 }

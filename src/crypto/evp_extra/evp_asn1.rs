@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     pub type dsa_st;
     pub type ec_group_st;
@@ -347,7 +346,7 @@ unsafe extern "C" fn parse_key_type(
     }
     return PQDSA_find_asn1_by_nid(OBJ_cbs2nid(&mut oid));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_parse_public_key(mut cbs: *mut CBS) -> *mut EVP_PKEY {
     let mut spki: CBS = cbs_st {
         data: 0 as *const uint8_t,
@@ -438,7 +437,7 @@ pub unsafe extern "C" fn EVP_parse_public_key(mut cbs: *mut CBS) -> *mut EVP_PKE
     EVP_PKEY_free(ret);
     return 0 as *mut EVP_PKEY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_marshal_public_key(
     mut cbb: *mut CBB,
     mut key: *const EVP_PKEY,
@@ -482,7 +481,7 @@ static mut kAttributesTag: libc::c_uint = (0x80 as libc::c_uint) << 24 as libc::
     | 0 as libc::c_int as libc::c_uint;
 static mut kPublicKeyTag: libc::c_uint = (0x80 as libc::c_uint) << 24 as libc::c_int
     | 1 as libc::c_int as libc::c_uint;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_parse_private_key(mut cbs: *mut CBS) -> *mut EVP_PKEY {
     let mut pkcs8: CBS = cbs_st {
         data: 0 as *const uint8_t,
@@ -601,7 +600,7 @@ pub unsafe extern "C" fn EVP_parse_private_key(mut cbs: *mut CBS) -> *mut EVP_PK
     EVP_PKEY_free(ret);
     return 0 as *mut EVP_PKEY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_marshal_private_key(
     mut cbb: *mut CBB,
     mut key: *const EVP_PKEY,
@@ -619,7 +618,7 @@ pub unsafe extern "C" fn EVP_marshal_private_key(
     }
     return ((*(*key).ameth).priv_encode).expect("non-null function pointer")(cbb, key);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_marshal_private_key_v2(
     mut cbb: *mut CBB,
     mut key: *const EVP_PKEY,
@@ -688,7 +687,7 @@ unsafe extern "C" fn old_priv_decode(
     EVP_PKEY_free(ret);
     return 0 as *mut EVP_PKEY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PrivateKey(
     mut type_0: libc::c_int,
     mut out: *mut *mut EVP_PKEY,
@@ -776,7 +775,7 @@ unsafe extern "C" fn num_elements(
     }
     return count;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_AutoPrivateKey(
     mut out: *mut *mut EVP_PKEY,
     mut inp: *mut *const uint8_t,
@@ -814,7 +813,7 @@ pub unsafe extern "C" fn d2i_AutoPrivateKey(
         _ => return d2i_PrivateKey(6 as libc::c_int, out, inp, len),
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PublicKey(
     mut key: *const EVP_PKEY,
     mut outp: *mut *mut uint8_t,
@@ -836,7 +835,7 @@ pub unsafe extern "C" fn i2d_PublicKey(
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PublicKey(
     mut type_0: libc::c_int,
     mut out: *mut *mut EVP_PKEY,
@@ -888,7 +887,7 @@ pub unsafe extern "C" fn d2i_PublicKey(
     EVP_PKEY_free(ret);
     return 0 as *mut EVP_PKEY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PUBKEY(
     mut out: *mut *mut EVP_PKEY,
     mut inp: *mut *const uint8_t,
@@ -913,7 +912,7 @@ pub unsafe extern "C" fn d2i_PUBKEY(
     *inp = CBS_data(&mut cbs);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PUBKEY(
     mut pkey: *const EVP_PKEY,
     mut outp: *mut *mut uint8_t,
@@ -942,7 +941,7 @@ pub unsafe extern "C" fn i2d_PUBKEY(
     }
     return CBB_finish_i2d(&mut cbb, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_RSA_PUBKEY(
     mut out: *mut *mut RSA,
     mut inp: *mut *const uint8_t,
@@ -972,7 +971,7 @@ pub unsafe extern "C" fn d2i_RSA_PUBKEY(
     *inp = CBS_data(&mut cbs);
     return rsa;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_RSA_PUBKEY(
     mut rsa: *const RSA,
     mut outp: *mut *mut uint8_t,
@@ -988,7 +987,7 @@ pub unsafe extern "C" fn i2d_RSA_PUBKEY(
     EVP_PKEY_free(pkey);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_DSA_PUBKEY(
     mut out: *mut *mut DSA,
     mut inp: *mut *const uint8_t,
@@ -1018,7 +1017,7 @@ pub unsafe extern "C" fn d2i_DSA_PUBKEY(
     *inp = CBS_data(&mut cbs);
     return dsa;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_DSA_PUBKEY(
     mut dsa: *const DSA,
     mut outp: *mut *mut uint8_t,
@@ -1034,7 +1033,7 @@ pub unsafe extern "C" fn i2d_DSA_PUBKEY(
     EVP_PKEY_free(pkey);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_EC_PUBKEY(
     mut out: *mut *mut EC_KEY,
     mut inp: *mut *const uint8_t,
@@ -1064,7 +1063,7 @@ pub unsafe extern "C" fn d2i_EC_PUBKEY(
     *inp = CBS_data(&mut cbs);
     return ec_key;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_EC_PUBKEY(
     mut ec_key: *const EC_KEY,
     mut outp: *mut *mut uint8_t,
@@ -1080,11 +1079,11 @@ pub unsafe extern "C" fn i2d_EC_PUBKEY(
     EVP_PKEY_free(pkey);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_asn1_get_count() -> libc::c_int {
     return asn1_evp_pkey_methods_size as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_asn1_get0(
     mut idx: libc::c_int,
 ) -> *const EVP_PKEY_ASN1_METHOD {
@@ -1093,7 +1092,7 @@ pub unsafe extern "C" fn EVP_PKEY_asn1_get0(
     }
     return *asn1_evp_pkey_methods.as_ptr().offset(idx as isize);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_asn1_find(
     mut _pe: *mut *mut ENGINE,
     mut type_0: libc::c_int,
@@ -1111,7 +1110,7 @@ pub unsafe extern "C" fn EVP_PKEY_asn1_find(
     }
     return 0 as *const EVP_PKEY_ASN1_METHOD;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_asn1_find_str(
     mut _pe: *mut *mut ENGINE,
     mut name: *const libc::c_char,
@@ -1138,7 +1137,7 @@ pub unsafe extern "C" fn EVP_PKEY_asn1_find_str(
     }
     return 0 as *const EVP_PKEY_ASN1_METHOD;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_asn1_get0_info(
     mut ppkey_id: *mut libc::c_int,
     mut pkey_base_id: *mut libc::c_int,

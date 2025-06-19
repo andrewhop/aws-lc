@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -854,7 +853,7 @@ unsafe extern "C" fn X509_LOOKUP_new(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_LOOKUP_free(mut ctx: *mut X509_LOOKUP) {
     if ctx.is_null() {
         return;
@@ -865,7 +864,7 @@ pub unsafe extern "C" fn X509_LOOKUP_free(mut ctx: *mut X509_LOOKUP) {
     }
     OPENSSL_free(ctx as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_LOOKUP_ctrl(
     mut ctx: *mut X509_LOOKUP,
     mut cmd: libc::c_int,
@@ -957,7 +956,7 @@ static mut g_ex_data_class: CRYPTO_EX_DATA_CLASS = {
     };
     init
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_new() -> *mut X509_STORE {
     let mut ret: *mut X509_STORE = OPENSSL_zalloc(
         ::core::mem::size_of::<X509_STORE>() as libc::c_ulong,
@@ -988,7 +987,7 @@ pub unsafe extern "C" fn X509_STORE_new() -> *mut X509_STORE {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_lock(mut v: *mut X509_STORE) -> libc::c_int {
     if v.is_null() {
         return 0 as libc::c_int;
@@ -996,7 +995,7 @@ pub unsafe extern "C" fn X509_STORE_lock(mut v: *mut X509_STORE) -> libc::c_int 
     CRYPTO_MUTEX_lock_write(&mut (*v).objs_lock);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_unlock(mut v: *mut X509_STORE) -> libc::c_int {
     if v.is_null() {
         return 0 as libc::c_int;
@@ -1004,12 +1003,12 @@ pub unsafe extern "C" fn X509_STORE_unlock(mut v: *mut X509_STORE) -> libc::c_in
     CRYPTO_MUTEX_unlock_write(&mut (*v).objs_lock);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_up_ref(mut store: *mut X509_STORE) -> libc::c_int {
     CRYPTO_refcount_inc(&mut (*store).references);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_free(mut vfy: *mut X509_STORE) {
     if vfy.is_null() {
         return;
@@ -1034,7 +1033,7 @@ pub unsafe extern "C" fn X509_STORE_free(mut vfy: *mut X509_STORE) {
     X509_VERIFY_PARAM_free((*vfy).param);
     OPENSSL_free(vfy as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_add_lookup(
     mut v: *mut X509_STORE,
     mut m: *const X509_LOOKUP_METHOD,
@@ -1056,7 +1055,7 @@ pub unsafe extern "C" fn X509_STORE_add_lookup(
     }
     return lu_0;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get_by_subject(
     mut vs: *mut X509_STORE_CTX,
     mut type_0: libc::c_int,
@@ -1135,26 +1134,26 @@ unsafe extern "C" fn x509_store_add(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_add_cert(
     mut ctx: *mut X509_STORE,
     mut x: *mut X509,
 ) -> libc::c_int {
     return x509_store_add(ctx, x as *mut libc::c_void, 0 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_add_crl(
     mut ctx: *mut X509_STORE,
     mut x: *mut X509_CRL,
 ) -> libc::c_int {
     return x509_store_add(ctx, x as *mut libc::c_void, 1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_OBJECT_new() -> *mut X509_OBJECT {
     return OPENSSL_zalloc(::core::mem::size_of::<X509_OBJECT>() as libc::c_ulong)
         as *mut X509_OBJECT;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_OBJECT_free(mut obj: *mut X509_OBJECT) {
     if obj.is_null() {
         return;
@@ -1174,7 +1173,7 @@ unsafe extern "C" fn X509_OBJECT_up_ref_count(mut a: *mut X509_OBJECT) -> libc::
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_OBJECT_free_contents(mut a: *mut X509_OBJECT) {
     match (*a).type_0 {
         1 => {
@@ -1191,18 +1190,18 @@ pub unsafe extern "C" fn X509_OBJECT_free_contents(mut a: *mut X509_OBJECT) {
         ::core::mem::size_of::<X509_OBJECT>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_OBJECT_get_type(mut a: *const X509_OBJECT) -> libc::c_int {
     return (*a).type_0;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_OBJECT_get0_X509(mut a: *const X509_OBJECT) -> *mut X509 {
     if a.is_null() || (*a).type_0 != 1 as libc::c_int {
         return 0 as *mut X509;
     }
     return (*a).data.x509;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_OBJECT_get0_X509_CRL(
     mut a: *const X509_OBJECT,
 ) -> *mut X509_CRL {
@@ -1211,7 +1210,7 @@ pub unsafe extern "C" fn X509_OBJECT_get0_X509_CRL(
     }
     return (*a).data.crl;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_OBJECT_set1_X509(
     mut a: *mut X509_OBJECT,
     mut obj: *mut X509,
@@ -1224,7 +1223,7 @@ pub unsafe extern "C" fn X509_OBJECT_set1_X509(
     (*a).data.x509 = obj;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_OBJECT_set1_X509_CRL(
     mut a: *mut X509_OBJECT,
     mut obj: *mut X509_CRL,
@@ -1376,13 +1375,13 @@ unsafe extern "C" fn X509_OBJECT_retrieve_by_subject(
     }
     return sk_X509_OBJECT_value(h, idx as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_get0_objects(
     mut st: *mut X509_STORE,
 ) -> *mut stack_st_X509_OBJECT {
     return (*st).objs;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get1_certs(
     mut ctx: *mut X509_STORE_CTX,
     mut nm: *mut X509_NAME,
@@ -1444,7 +1443,7 @@ pub unsafe extern "C" fn X509_STORE_CTX_get1_certs(
     CRYPTO_MUTEX_unlock_write(&mut (*(*ctx).ctx).objs_lock);
     return sk;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get1_crls(
     mut ctx: *mut X509_STORE_CTX,
     mut nm: *mut X509_NAME,
@@ -1536,7 +1535,7 @@ unsafe extern "C" fn X509_OBJECT_retrieve_match(
     }
     return 0 as *mut X509_OBJECT;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get1_issuer(
     mut issuer: *mut *mut X509,
     mut ctx: *mut X509_STORE_CTX,
@@ -1595,14 +1594,14 @@ pub unsafe extern "C" fn X509_STORE_CTX_get1_issuer(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_set_flags(
     mut ctx: *mut X509_STORE,
     mut flags: libc::c_ulong,
 ) -> libc::c_int {
     return X509_VERIFY_PARAM_set_flags((*ctx).param, flags);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_set_depth(
     mut ctx: *mut X509_STORE,
     mut depth: libc::c_int,
@@ -1610,61 +1609,61 @@ pub unsafe extern "C" fn X509_STORE_set_depth(
     X509_VERIFY_PARAM_set_depth((*ctx).param, depth);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_set_purpose(
     mut ctx: *mut X509_STORE,
     mut purpose: libc::c_int,
 ) -> libc::c_int {
     return X509_VERIFY_PARAM_set_purpose((*ctx).param, purpose);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_set_trust(
     mut ctx: *mut X509_STORE,
     mut trust: libc::c_int,
 ) -> libc::c_int {
     return X509_VERIFY_PARAM_set_trust((*ctx).param, trust);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_set1_param(
     mut ctx: *mut X509_STORE,
     mut param: *const X509_VERIFY_PARAM,
 ) -> libc::c_int {
     return X509_VERIFY_PARAM_set1((*ctx).param, param);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_get0_param(
     mut ctx: *mut X509_STORE,
 ) -> *mut X509_VERIFY_PARAM {
     return (*ctx).param;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_set_verify_cb(
     mut ctx: *mut X509_STORE,
     mut verify_cb: X509_STORE_CTX_verify_cb,
 ) {
     (*ctx).verify_cb = verify_cb;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_set_get_crl(
     mut ctx: *mut X509_STORE,
     mut get_crl: X509_STORE_CTX_get_crl_fn,
 ) {
     (*ctx).get_crl = get_crl;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_set_check_crl(
     mut ctx: *mut X509_STORE,
     mut check_crl: X509_STORE_CTX_check_crl_fn,
 ) {
     (*ctx).check_crl = check_crl;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_CTX_get0_store(
     mut ctx: *mut X509_STORE_CTX,
 ) -> *mut X509_STORE {
     return (*ctx).ctx;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_get_ex_new_index(
     mut argl: libc::c_long,
     mut argp: *mut libc::c_void,
@@ -1680,7 +1679,7 @@ pub unsafe extern "C" fn X509_STORE_get_ex_new_index(
     }
     return index;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_set_ex_data(
     mut ctx: *mut X509_STORE,
     mut idx: libc::c_int,
@@ -1688,7 +1687,7 @@ pub unsafe extern "C" fn X509_STORE_set_ex_data(
 ) -> libc::c_int {
     return CRYPTO_set_ex_data(&mut (*ctx).ex_data, idx, data);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_STORE_get_ex_data(
     mut ctx: *mut X509_STORE,
     mut idx: libc::c_int,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -279,7 +278,7 @@ unsafe extern "C" fn sk_X509_REVOKED_call_cmp_func(
     >(cmp_func))
         .expect("non-null function pointer")(&mut a_ptr, &mut b_ptr);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_set_version(
     mut x: *mut X509_CRL,
     mut version: libc::c_long,
@@ -313,7 +312,7 @@ pub unsafe extern "C" fn X509_CRL_set_version(
     }
     return ASN1_INTEGER_set_int64((*(*x).crl).version, version);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_set_issuer_name(
     mut x: *mut X509_CRL,
     mut name: *mut X509_NAME,
@@ -323,7 +322,7 @@ pub unsafe extern "C" fn X509_CRL_set_issuer_name(
     }
     return X509_NAME_set(&mut (*(*x).crl).issuer, name);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_set1_lastUpdate(
     mut x: *mut X509_CRL,
     mut tm: *const ASN1_TIME,
@@ -342,7 +341,7 @@ pub unsafe extern "C" fn X509_CRL_set1_lastUpdate(
     }
     return (in_0 != 0 as *mut libc::c_void as *mut ASN1_TIME) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_set1_nextUpdate(
     mut x: *mut X509_CRL,
     mut tm: *const ASN1_TIME,
@@ -361,13 +360,13 @@ pub unsafe extern "C" fn X509_CRL_set1_nextUpdate(
     }
     return (in_0 != 0 as *mut libc::c_void as *mut ASN1_TIME) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_sort(mut c: *mut X509_CRL) -> libc::c_int {
     sk_X509_REVOKED_sort((*(*c).crl).revoked);
     asn1_encoding_clear(&mut (*(*c).crl).enc);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_up_ref(mut crl: *mut X509_CRL) -> libc::c_int {
     if crl.is_null() {
         return 0 as libc::c_int;
@@ -375,53 +374,53 @@ pub unsafe extern "C" fn X509_CRL_up_ref(mut crl: *mut X509_CRL) -> libc::c_int 
     CRYPTO_refcount_inc(&mut (*crl).references);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get_version(mut crl: *const X509_CRL) -> libc::c_long {
     return ASN1_INTEGER_get((*(*crl).crl).version);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get0_lastUpdate(
     mut crl: *const X509_CRL,
 ) -> *const ASN1_TIME {
     return (*(*crl).crl).lastUpdate;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get0_nextUpdate(
     mut crl: *const X509_CRL,
 ) -> *const ASN1_TIME {
     return (*(*crl).crl).nextUpdate;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get_lastUpdate(
     mut crl: *mut X509_CRL,
 ) -> *mut ASN1_TIME {
     return (*(*crl).crl).lastUpdate;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get_nextUpdate(
     mut crl: *mut X509_CRL,
 ) -> *mut ASN1_TIME {
     return (*(*crl).crl).nextUpdate;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get_issuer(
     mut crl: *const X509_CRL,
 ) -> *mut X509_NAME {
     return (*(*crl).crl).issuer;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get_REVOKED(
     mut crl: *mut X509_CRL,
 ) -> *mut stack_st_X509_REVOKED {
     return (*(*crl).crl).revoked;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get0_extensions(
     mut crl: *const X509_CRL,
 ) -> *const stack_st_X509_EXTENSION {
     return (*(*crl).crl).extensions;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get0_signature(
     mut crl: *const X509_CRL,
     mut psig: *mut *const ASN1_BIT_STRING,
@@ -434,19 +433,19 @@ pub unsafe extern "C" fn X509_CRL_get0_signature(
         *palg = (*crl).sig_alg;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_get_signature_nid(
     mut crl: *const X509_CRL,
 ) -> libc::c_int {
     return OBJ_obj2nid((*(*crl).sig_alg).algorithm);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_get0_revocationDate(
     mut revoked: *const X509_REVOKED,
 ) -> *const ASN1_TIME {
     return (*revoked).revocationDate;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_set_revocationDate(
     mut revoked: *mut X509_REVOKED,
     mut tm: *const ASN1_TIME,
@@ -465,13 +464,13 @@ pub unsafe extern "C" fn X509_REVOKED_set_revocationDate(
     }
     return (in_0 != 0 as *mut libc::c_void as *mut ASN1_TIME) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_get0_serialNumber(
     mut revoked: *const X509_REVOKED,
 ) -> *const ASN1_INTEGER {
     return (*revoked).serialNumber;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_set_serialNumber(
     mut revoked: *mut X509_REVOKED,
     mut serial: *const ASN1_INTEGER,
@@ -503,13 +502,13 @@ pub unsafe extern "C" fn X509_REVOKED_set_serialNumber(
     }
     return (in_0 != 0 as *mut libc::c_void as *mut ASN1_INTEGER) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REVOKED_get0_extensions(
     mut r: *const X509_REVOKED,
 ) -> *const stack_st_X509_EXTENSION {
     return (*r).extensions;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_re_X509_CRL_tbs(
     mut crl: *mut X509_CRL,
     mut outp: *mut *mut libc::c_uchar,
@@ -517,14 +516,14 @@ pub unsafe extern "C" fn i2d_re_X509_CRL_tbs(
     asn1_encoding_clear(&mut (*(*crl).crl).enc);
     return i2d_X509_CRL_INFO((*crl).crl, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_CRL_tbs(
     mut crl: *mut X509_CRL,
     mut outp: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return i2d_X509_CRL_INFO((*crl).crl, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_set1_signature_algo(
     mut crl: *mut X509_CRL,
     mut algo: *const X509_ALGOR,
@@ -542,7 +541,7 @@ pub unsafe extern "C" fn X509_CRL_set1_signature_algo(
     (*(*crl).crl).sig_alg = copy2;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_set1_signature_value(
     mut crl: *mut X509_CRL,
     mut sig: *const uint8_t,

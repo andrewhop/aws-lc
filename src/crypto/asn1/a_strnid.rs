@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type lhash_st_ASN1_STRING_TABLE;
     pub type lhash_st;
     fn bsearch(
@@ -277,19 +276,19 @@ static mut string_tables_lock: CRYPTO_STATIC_MUTEX = {
     };
     init
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_set_default_mask(mut mask: libc::c_ulong) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_get_default_mask() -> libc::c_ulong {
     return 0x2000 as libc::c_int as libc::c_ulong;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_set_default_mask_asc(
     mut p: *const libc::c_char,
 ) -> libc::c_int {
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_set_by_NID(
     mut out: *mut *mut ASN1_STRING,
     mut in_0: *const libc::c_uchar,
@@ -594,7 +593,7 @@ unsafe extern "C" fn asn1_string_table_get(
     CRYPTO_STATIC_MUTEX_unlock_read(&mut string_tables_lock);
     return tbl;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_TABLE_add(
     mut nid: libc::c_int,
     mut minsize: libc::c_long,
@@ -715,9 +714,9 @@ pub unsafe extern "C" fn ASN1_STRING_TABLE_add(
     CRYPTO_STATIC_MUTEX_unlock_write(&mut string_tables_lock);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_TABLE_cleanup() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_get_string_table_for_testing(
     mut out_ptr: *mut *const ASN1_STRING_TABLE,
     mut out_len: *mut size_t,

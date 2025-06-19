@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -667,7 +666,7 @@ static mut xstandard: [X509_PURPOSE; 9] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_check_purpose(
     mut x: *mut X509,
     mut id: libc::c_int,
@@ -686,7 +685,7 @@ pub unsafe extern "C" fn X509_check_purpose(
     let mut pt: *const X509_PURPOSE = X509_PURPOSE_get0(idx);
     return ((*pt).check_purpose).expect("non-null function pointer")(pt, x, ca);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PURPOSE_set(
     mut p: *mut libc::c_int,
     mut purpose: libc::c_int,
@@ -705,13 +704,13 @@ pub unsafe extern "C" fn X509_PURPOSE_set(
     *p = purpose;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PURPOSE_get_count() -> libc::c_int {
     return (::core::mem::size_of::<[X509_PURPOSE; 9]>() as libc::c_ulong)
         .wrapping_div(::core::mem::size_of::<X509_PURPOSE>() as libc::c_ulong)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PURPOSE_get0(mut idx: libc::c_int) -> *const X509_PURPOSE {
     if idx < 0 as libc::c_int
         || idx as size_t
@@ -722,7 +721,7 @@ pub unsafe extern "C" fn X509_PURPOSE_get0(mut idx: libc::c_int) -> *const X509_
     }
     return xstandard.as_ptr().offset(idx as isize);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PURPOSE_get_by_sname(
     mut sname: *const libc::c_char,
 ) -> libc::c_int {
@@ -738,7 +737,7 @@ pub unsafe extern "C" fn X509_PURPOSE_get_by_sname(
     }
     return -(1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PURPOSE_get_by_id(
     mut purpose: libc::c_int,
 ) -> libc::c_int {
@@ -755,31 +754,31 @@ pub unsafe extern "C" fn X509_PURPOSE_get_by_id(
     }
     return -(1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PURPOSE_get_id(
     mut xp: *const X509_PURPOSE,
 ) -> libc::c_int {
     return (*xp).purpose;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PURPOSE_get0_name(
     mut xp: *const X509_PURPOSE,
 ) -> *mut libc::c_char {
     return (*xp).name;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PURPOSE_get0_sname(
     mut xp: *const X509_PURPOSE,
 ) -> *mut libc::c_char {
     return (*xp).sname;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PURPOSE_get_trust(
     mut xp: *const X509_PURPOSE,
 ) -> libc::c_int {
     return (*xp).trust;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_supported_extension(
     mut ex: *const X509_EXTENSION,
 ) -> libc::c_int {
@@ -829,7 +828,7 @@ unsafe extern "C" fn setup_crldp(mut x: *mut X509) -> libc::c_int {
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x509v3_cache_extensions(mut x: *mut X509) -> libc::c_int {
     let mut bs: *mut BASIC_CONSTRAINTS = 0 as *mut BASIC_CONSTRAINTS;
     let mut usage: *mut ASN1_BIT_STRING = 0 as *mut ASN1_BIT_STRING;
@@ -1034,7 +1033,7 @@ unsafe extern "C" fn check_ca(mut x: *const X509) -> libc::c_int {
     return ((*x).ex_flags & 0x1 as libc::c_int as uint32_t != 0
         && (*x).ex_flags & 0x10 as libc::c_int as uint32_t != 0) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_check_ca(mut x: *mut X509) -> libc::c_int {
     if x509v3_cache_extensions(x) == 0 {
         return 0 as libc::c_int;
@@ -1231,7 +1230,7 @@ unsafe extern "C" fn no_check(
 ) -> libc::c_int {
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_check_issued(
     mut issuer: *mut X509,
     mut subject: *mut X509,
@@ -1255,7 +1254,7 @@ pub unsafe extern "C" fn X509_check_issued(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_check_akid(
     mut issuer: *mut X509,
     mut akid: *const AUTHORITY_KEYID,
@@ -1296,12 +1295,12 @@ pub unsafe extern "C" fn X509_check_akid(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_extension_flags(mut x: *mut X509) -> uint32_t {
     x509v3_cache_extensions(x);
     return (*x).ex_flags;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_key_usage(mut x: *mut X509) -> uint32_t {
     if x509v3_cache_extensions(x) == 0 {
         return 0 as libc::c_int as uint32_t;
@@ -1311,7 +1310,7 @@ pub unsafe extern "C" fn X509_get_key_usage(mut x: *mut X509) -> uint32_t {
     }
     return 4294967295 as libc::c_uint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_extended_key_usage(mut x: *mut X509) -> uint32_t {
     if x509v3_cache_extensions(x) == 0 {
         return 0 as libc::c_int as uint32_t;
@@ -1321,7 +1320,7 @@ pub unsafe extern "C" fn X509_get_extended_key_usage(mut x: *mut X509) -> uint32
     }
     return 4294967295 as libc::c_uint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get0_subject_key_id(
     mut x509: *mut X509,
 ) -> *const ASN1_OCTET_STRING {
@@ -1330,7 +1329,7 @@ pub unsafe extern "C" fn X509_get0_subject_key_id(
     }
     return (*x509).skid;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get0_authority_key_id(
     mut x509: *mut X509,
 ) -> *const ASN1_OCTET_STRING {
@@ -1343,7 +1342,7 @@ pub unsafe extern "C" fn X509_get0_authority_key_id(
         0 as *mut ASN1_OCTET_STRING
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get0_authority_issuer(
     mut x509: *mut X509,
 ) -> *const GENERAL_NAMES {
@@ -1356,7 +1355,7 @@ pub unsafe extern "C" fn X509_get0_authority_issuer(
         0 as *mut GENERAL_NAMES
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get0_authority_serial(
     mut x509: *mut X509,
 ) -> *const ASN1_INTEGER {
@@ -1369,7 +1368,7 @@ pub unsafe extern "C" fn X509_get0_authority_serial(
         0 as *mut ASN1_INTEGER
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_pathlen(mut x509: *mut X509) -> libc::c_long {
     if x509v3_cache_extensions(x509) == 0
         || (*x509).ex_flags & 0x1 as libc::c_int as uint32_t

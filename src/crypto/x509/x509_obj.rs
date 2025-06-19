@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_X509_NAME_ENTRY;
     pub type stack_st;
     fn memcpy(
@@ -115,7 +114,7 @@ unsafe extern "C" fn OPENSSL_memcpy(
     }
     return memcpy(dst, src, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_oneline(
     mut a: *const X509_NAME,
     mut buf: *mut libc::c_char,

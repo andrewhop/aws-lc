@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn BN_copy(dest: *mut BIGNUM, src: *const BIGNUM) -> *mut BIGNUM;
     fn BN_value_one() -> *const BIGNUM;
@@ -354,7 +353,7 @@ unsafe extern "C" fn OPENSSL_memset(
     }
     return memset(dst, c, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_simple_group_set_curve(
     mut group: *mut EC_GROUP,
     mut p: *const BIGNUM,
@@ -396,7 +395,7 @@ pub unsafe extern "C" fn ec_GFp_simple_group_set_curve(
     BN_CTX_end(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_simple_group_get_curve(
     mut group: *const EC_GROUP,
     mut p: *mut BIGNUM,
@@ -411,7 +410,7 @@ pub unsafe extern "C" fn ec_GFp_simple_group_get_curve(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_simple_point_init(mut point: *mut EC_JACOBIAN) {
     OPENSSL_memset(
         &mut (*point).X as *mut EC_FELEM as *mut libc::c_void,
@@ -429,7 +428,7 @@ pub unsafe extern "C" fn ec_GFp_simple_point_init(mut point: *mut EC_JACOBIAN) {
         ::core::mem::size_of::<EC_FELEM>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_simple_point_copy(
     mut dest: *mut EC_JACOBIAN,
     mut src: *const EC_JACOBIAN,
@@ -450,21 +449,21 @@ pub unsafe extern "C" fn ec_GFp_simple_point_copy(
         ::core::mem::size_of::<EC_FELEM>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_simple_point_set_to_infinity(
     mut group: *const EC_GROUP,
     mut point: *mut EC_JACOBIAN,
 ) {
     ec_GFp_simple_point_init(point);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_simple_invert(
     mut group: *const EC_GROUP,
     mut point: *mut EC_JACOBIAN,
 ) {
     ec_felem_neg(group, &mut (*point).Y, &mut (*point).Y);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_simple_is_at_infinity(
     mut group: *const EC_GROUP,
     mut point: *const EC_JACOBIAN,
@@ -472,7 +471,7 @@ pub unsafe extern "C" fn ec_GFp_simple_is_at_infinity(
     return (ec_felem_non_zero_mask(group, &(*point).Z) == 0 as libc::c_int as BN_ULONG)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_simple_is_on_curve(
     mut group: *const EC_GROUP,
     mut point: *const EC_JACOBIAN,
@@ -514,7 +513,7 @@ pub unsafe extern "C" fn ec_GFp_simple_is_on_curve(
     let mut not_infinity: BN_ULONG = ec_felem_non_zero_mask(group, &(*point).Z);
     return (1 as libc::c_int as BN_ULONG & !(not_infinity & not_equal)) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_simple_points_equal(
     mut group: *const EC_GROUP,
     mut a: *const EC_JACOBIAN,
@@ -555,7 +554,7 @@ pub unsafe extern "C" fn ec_GFp_simple_points_equal(
         | a_not_infinity & b_not_infinity & x_and_y_equal;
     return (equal & 1 as libc::c_int as BN_ULONG) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_affine_jacobian_equal(
     mut group: *const EC_GROUP,
     mut a: *const EC_AFFINE,
@@ -587,7 +586,7 @@ pub unsafe extern "C" fn ec_affine_jacobian_equal(
     let equal: BN_ULONG = b_not_infinity & x_and_y_equal;
     return (equal & 1 as libc::c_int as BN_ULONG) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_simple_cmp_x_coordinate(
     mut group: *const EC_GROUP,
     mut p: *const EC_JACOBIAN,
@@ -600,7 +599,7 @@ pub unsafe extern "C" fn ec_GFp_simple_cmp_x_coordinate(
     return (ec_get_x_coordinate_as_scalar(group, &mut x, p) != 0
         && ec_scalar_equal_vartime(group, &mut x, r) != 0) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_simple_felem_to_bytes(
     mut group: *const EC_GROUP,
     mut out: *mut uint8_t,
@@ -616,7 +615,7 @@ pub unsafe extern "C" fn ec_GFp_simple_felem_to_bytes(
     );
     *out_len = len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_GFp_simple_felem_from_bytes(
     mut group: *const EC_GROUP,
     mut out: *mut EC_FELEM,

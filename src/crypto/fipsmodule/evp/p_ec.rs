@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     pub type dh_st;
     pub type dsa_st;
@@ -1064,7 +1063,7 @@ unsafe extern "C" fn EVP_PKEY_ec_pkey_meth_do_init(mut out: *mut EVP_PKEY_METHOD
 unsafe extern "C" fn EVP_PKEY_ec_pkey_meth_init() {
     EVP_PKEY_ec_pkey_meth_do_init(EVP_PKEY_ec_pkey_meth_storage_bss_get());
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_ec_pkey_meth() -> *const EVP_PKEY_METHOD {
     CRYPTO_once(
         EVP_PKEY_ec_pkey_meth_once_bss_get(),
@@ -1100,7 +1099,7 @@ unsafe extern "C" fn EVP_PKEY_ec_pkey_meth_once_bss_get() -> *mut CRYPTO_once_t 
     return &mut EVP_PKEY_ec_pkey_meth_once;
 }
 static mut EVP_PKEY_ec_pkey_meth_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_ec_paramgen_curve_nid(
     mut ctx: *mut EVP_PKEY_CTX,
     mut nid: libc::c_int,
@@ -1114,7 +1113,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_set_ec_paramgen_curve_nid(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_ec_param_enc(
     mut ctx: *mut EVP_PKEY_CTX,
     mut encoding: libc::c_int,

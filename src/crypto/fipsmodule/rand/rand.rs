@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn malloc(_: libc::c_ulong) -> *mut libc::c_void;
     fn free(_: *mut libc::c_void);
     fn abort() -> !;
@@ -149,7 +149,7 @@ unsafe extern "C" fn rand_get_seed(
     CRYPTO_sysrand_for_seed(seed, 48 as libc::c_int as size_t);
     *out_want_additional_input = 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_bytes_with_additional_data(
     mut out: *mut uint8_t,
     mut out_len: size_t,
@@ -396,7 +396,7 @@ pub unsafe extern "C" fn RAND_bytes_with_additional_data(
         }
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_bytes(
     mut out: *mut uint8_t,
     mut out_len: size_t,
@@ -438,21 +438,21 @@ pub unsafe extern "C" fn RAND_bytes(
     RAND_bytes_with_additional_data(out, out_len, kZeroAdditionalData.as_ptr());
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_priv_bytes(
     mut out: *mut uint8_t,
     mut out_len: size_t,
 ) -> libc::c_int {
     return RAND_bytes(out, out_len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_pseudo_bytes(
     mut buf: *mut uint8_t,
     mut len: size_t,
 ) -> libc::c_int {
     return RAND_bytes(buf, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_get_system_entropy_for_custom_prng(
     mut buf: *mut uint8_t,
     mut len: size_t,

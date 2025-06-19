@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     pub type ecdsa_sig_st;
     fn ECDH_compute_shared_secret(
@@ -336,7 +335,7 @@ unsafe extern "C" fn OPENSSL_memcpy(
     }
     return memcpy(dst, src, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ECDH_compute_key(
     mut out: *mut libc::c_void,
     mut out_len: size_t,

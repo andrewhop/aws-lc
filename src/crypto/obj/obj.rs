@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type lhash_st_ASN1_OBJECT;
     pub type lhash_st;
     fn abort() -> !;
@@ -9664,7 +9663,7 @@ unsafe extern "C" fn obj_next_nid() -> libc::c_int {
     CRYPTO_STATIC_MUTEX_unlock_write(&mut global_next_nid_lock);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_dup(mut o: *const ASN1_OBJECT) -> *mut ASN1_OBJECT {
     let mut current_block: u64;
     let mut r: *mut ASN1_OBJECT = 0 as *mut ASN1_OBJECT;
@@ -9741,7 +9740,7 @@ pub unsafe extern "C" fn OBJ_dup(mut o: *const ASN1_OBJECT) -> *mut ASN1_OBJECT 
     OPENSSL_free(r as *mut libc::c_void);
     return 0 as *mut ASN1_OBJECT;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_cmp(
     mut a: *const ASN1_OBJECT,
     mut b: *const ASN1_OBJECT,
@@ -9757,14 +9756,14 @@ pub unsafe extern "C" fn OBJ_cmp(
         (*a).length as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_get0_data(mut obj: *const ASN1_OBJECT) -> *const uint8_t {
     if obj.is_null() {
         return 0 as *const uint8_t;
     }
     return (*obj).data;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_length(mut obj: *const ASN1_OBJECT) -> size_t {
     if obj.is_null() || (*obj).length < 0 as libc::c_int {
         return 0 as libc::c_int as size_t;
@@ -9785,7 +9784,7 @@ unsafe extern "C" fn obj_cmp(
     let mut nid: uint16_t = *(element as *const uint16_t);
     return OBJ_cmp(key as *const ASN1_OBJECT, get_builtin_object(nid as libc::c_int));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_obj2nid(mut obj: *const ASN1_OBJECT) -> libc::c_int {
     if obj.is_null() {
         return 0 as libc::c_int;
@@ -9822,7 +9821,7 @@ pub unsafe extern "C" fn OBJ_obj2nid(mut obj: *const ASN1_OBJECT) -> libc::c_int
     }
     return (*get_builtin_object(*nid_ptr as libc::c_int)).nid;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_cbs2nid(mut cbs: *const CBS) -> libc::c_int {
     if CBS_len(cbs) > 2147483647 as libc::c_int as size_t {
         return 0 as libc::c_int;
@@ -9852,7 +9851,7 @@ unsafe extern "C" fn short_name_cmp(
     let mut nid: uint16_t = *(element as *const uint16_t);
     return strcmp(name, (*get_builtin_object(nid as libc::c_int)).sn);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_sn2nid(mut short_name: *const libc::c_char) -> libc::c_int {
     CRYPTO_STATIC_MUTEX_lock_read(&mut global_added_lock);
     if !global_added_by_short_name.is_null() {
@@ -9900,7 +9899,7 @@ unsafe extern "C" fn long_name_cmp(
     let mut nid: uint16_t = *(element as *const uint16_t);
     return strcmp(name, (*get_builtin_object(nid as libc::c_int)).ln);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_ln2nid(mut long_name: *const libc::c_char) -> libc::c_int {
     CRYPTO_STATIC_MUTEX_lock_read(&mut global_added_lock);
     if !global_added_by_long_name.is_null() {
@@ -9940,7 +9939,7 @@ pub unsafe extern "C" fn OBJ_ln2nid(mut long_name: *const libc::c_char) -> libc:
     }
     return (*get_builtin_object(*nid_ptr as libc::c_int)).nid;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_txt2nid(mut s: *const libc::c_char) -> libc::c_int {
     let mut obj: *mut ASN1_OBJECT = 0 as *mut ASN1_OBJECT;
     let mut nid: libc::c_int = 0;
@@ -9949,7 +9948,7 @@ pub unsafe extern "C" fn OBJ_txt2nid(mut s: *const libc::c_char) -> libc::c_int 
     ASN1_OBJECT_free(obj);
     return nid;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_nid2cbb(
     mut out: *mut CBB,
     mut nid: libc::c_int,
@@ -9976,7 +9975,7 @@ pub unsafe extern "C" fn OBJ_nid2cbb(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_get_undef() -> *const ASN1_OBJECT {
     static mut kUndef: ASN1_OBJECT = {
         let mut init = asn1_object_st {
@@ -9991,7 +9990,7 @@ pub unsafe extern "C" fn OBJ_get_undef() -> *const ASN1_OBJECT {
     };
     return &kUndef;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_nid2obj(mut nid: libc::c_int) -> *mut ASN1_OBJECT {
     if nid == 0 as libc::c_int {
         return OBJ_get_undef() as *mut ASN1_OBJECT;
@@ -10032,7 +10031,7 @@ pub unsafe extern "C" fn OBJ_nid2obj(mut nid: libc::c_int) -> *mut ASN1_OBJECT {
     );
     return 0 as *mut ASN1_OBJECT;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_nid2sn(mut nid: libc::c_int) -> *const libc::c_char {
     let mut obj: *const ASN1_OBJECT = OBJ_nid2obj(nid);
     if obj.is_null() {
@@ -10040,7 +10039,7 @@ pub unsafe extern "C" fn OBJ_nid2sn(mut nid: libc::c_int) -> *const libc::c_char
     }
     return (*obj).sn;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_nid2ln(mut nid: libc::c_int) -> *const libc::c_char {
     let mut obj: *const ASN1_OBJECT = OBJ_nid2obj(nid);
     if obj.is_null() {
@@ -10098,7 +10097,7 @@ unsafe extern "C" fn create_object_with_text_oid(
     OPENSSL_free(buf as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_txt2obj(
     mut s: *const libc::c_char,
     mut dont_search_names: libc::c_int,
@@ -10146,7 +10145,7 @@ unsafe extern "C" fn strlcpy_int(
     }
     return ret as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_obj2txt(
     mut out: *mut libc::c_char,
     mut out_len: libc::c_int,
@@ -10292,7 +10291,7 @@ unsafe extern "C" fn obj_add_object(mut obj: *mut ASN1_OBJECT) -> libc::c_int {
     CRYPTO_STATIC_MUTEX_unlock_write(&mut global_added_lock);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_create(
     mut oid: *const libc::c_char,
     mut short_name: *const libc::c_char,
@@ -10309,7 +10308,7 @@ pub unsafe extern "C" fn OBJ_create(
     }
     return (*op).nid;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_cleanup() {}
 unsafe extern "C" fn run_static_initializers() {
     kObjects = [

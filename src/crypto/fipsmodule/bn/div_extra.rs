@@ -9,7 +9,7 @@
 )]
 #![feature(asm, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn BN_num_bits_word(l: BN_ULONG) -> libc::c_uint;
     fn __assert_fail(
         __assertion: *const libc::c_char,
@@ -115,7 +115,7 @@ unsafe extern "C" fn shift_and_add_mod_u16(
     t = mod_u16(t, d, p, m) as uint32_t;
     return t as uint16_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mod_u16_consttime(
     mut bn: *const BIGNUM,
     mut d: uint16_t,

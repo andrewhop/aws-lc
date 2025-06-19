@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     pub type dsa_st;
     pub type ec_key_st;
@@ -698,7 +697,7 @@ unsafe extern "C" fn pkey_dh_ctrl_str(
     }
     return -(2 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut dh_pkey_meth: EVP_PKEY_METHOD = unsafe {
     {
         let mut init = evp_pkey_method_st {
@@ -772,7 +771,7 @@ pub static mut dh_pkey_meth: EVP_PKEY_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_dh_pad(
     mut ctx: *mut EVP_PKEY_CTX,
     mut pad: libc::c_int,
@@ -786,7 +785,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_set_dh_pad(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_dh_paramgen_prime_len(
     mut ctx: *mut EVP_PKEY_CTX,
     mut pbits: libc::c_int,
@@ -800,7 +799,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_set_dh_paramgen_prime_len(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_dh_paramgen_generator(
     mut ctx: *mut EVP_PKEY_CTX,
     mut gen: libc::c_int,

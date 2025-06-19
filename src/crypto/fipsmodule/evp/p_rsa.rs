@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     pub type dh_st;
     pub type dsa_st;
@@ -1776,7 +1775,7 @@ unsafe extern "C" fn EVP_PKEY_rsa_pkey_meth_once_bss_get() -> *mut CRYPTO_once_t
     return &mut EVP_PKEY_rsa_pkey_meth_once;
 }
 static mut EVP_PKEY_rsa_pkey_meth_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_rsa_pkey_meth() -> *const EVP_PKEY_METHOD {
     CRYPTO_once(
         EVP_PKEY_rsa_pkey_meth_once_bss_get(),
@@ -1915,7 +1914,7 @@ static mut EVP_PKEY_rsa_pkey_meth_storage: EVP_PKEY_METHOD = evp_pkey_method_st 
     encapsulate: None,
     decapsulate: None,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_rsa_pss_pkey_meth() -> *const EVP_PKEY_METHOD {
     CRYPTO_once(
         EVP_PKEY_rsa_pss_pkey_meth_once_bss_get(),
@@ -2034,7 +2033,7 @@ unsafe extern "C" fn EVP_PKEY_rsa_pss_pkey_meth_once_bss_get() -> *mut CRYPTO_on
     return &mut EVP_PKEY_rsa_pss_pkey_meth_once;
 }
 static mut EVP_PKEY_rsa_pss_pkey_meth_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_RSA_PKEY_CTX_ctrl(
     mut ctx: *mut EVP_PKEY_CTX,
     mut optype: libc::c_int,
@@ -2058,7 +2057,7 @@ pub unsafe extern "C" fn EVP_RSA_PKEY_CTX_ctrl(
     }
     return EVP_PKEY_CTX_ctrl(ctx, -(1 as libc::c_int), optype, cmd, p1, p2);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_rsa_padding(
     mut ctx: *mut EVP_PKEY_CTX,
     mut padding: libc::c_int,
@@ -2071,7 +2070,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_set_rsa_padding(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_get_rsa_padding(
     mut ctx: *mut EVP_PKEY_CTX,
     mut out_padding: *mut libc::c_int,
@@ -2084,28 +2083,28 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_get_rsa_padding(
         out_padding as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_rsa_pss_keygen_md(
     mut ctx: *mut EVP_PKEY_CTX,
     mut md: *const EVP_MD,
 ) -> libc::c_int {
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_rsa_pss_keygen_saltlen(
     mut ctx: *mut EVP_PKEY_CTX,
     mut salt_len: libc::c_int,
 ) -> libc::c_int {
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_rsa_pss_keygen_mgf1_md(
     mut ctx: *mut EVP_PKEY_CTX,
     mut md: *const EVP_MD,
 ) -> libc::c_int {
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_rsa_pss_saltlen(
     mut ctx: *mut EVP_PKEY_CTX,
     mut salt_len: libc::c_int,
@@ -2118,7 +2117,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_set_rsa_pss_saltlen(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_get_rsa_pss_saltlen(
     mut ctx: *mut EVP_PKEY_CTX,
     mut out_salt_len: *mut libc::c_int,
@@ -2131,7 +2130,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_get_rsa_pss_saltlen(
         out_salt_len as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_rsa_keygen_bits(
     mut ctx: *mut EVP_PKEY_CTX,
     mut bits: libc::c_int,
@@ -2144,7 +2143,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_set_rsa_keygen_bits(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_rsa_keygen_pubexp(
     mut ctx: *mut EVP_PKEY_CTX,
     mut e: *mut BIGNUM,
@@ -2157,7 +2156,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_set_rsa_keygen_pubexp(
         e as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_rsa_oaep_md(
     mut ctx: *mut EVP_PKEY_CTX,
     mut md: *const EVP_MD,
@@ -2171,7 +2170,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_set_rsa_oaep_md(
         md as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_get_rsa_oaep_md(
     mut ctx: *mut EVP_PKEY_CTX,
     mut out_md: *mut *const EVP_MD,
@@ -2185,7 +2184,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_get_rsa_oaep_md(
         out_md as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set_rsa_mgf1_md(
     mut ctx: *mut EVP_PKEY_CTX,
     mut md: *const EVP_MD,
@@ -2201,7 +2200,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_set_rsa_mgf1_md(
         md as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_get_rsa_mgf1_md(
     mut ctx: *mut EVP_PKEY_CTX,
     mut out_md: *mut *const EVP_MD,
@@ -2217,7 +2216,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_get_rsa_mgf1_md(
         out_md as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_set0_rsa_oaep_label(
     mut ctx: *mut EVP_PKEY_CTX,
     mut label: *mut uint8_t,
@@ -2239,7 +2238,7 @@ pub unsafe extern "C" fn EVP_PKEY_CTX_set0_rsa_oaep_label(
         &mut params as *mut RSA_OAEP_LABEL_PARAMS as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_CTX_get0_rsa_oaep_label(
     mut ctx: *mut EVP_PKEY_CTX,
     mut out_label: *mut *const uint8_t,

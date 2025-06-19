@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -590,7 +589,7 @@ static mut X509_CINF_seq_tt: [ASN1_TEMPLATE; 10] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_CINF_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -600,22 +599,22 @@ pub static mut X509_CINF_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_CINF(
     mut a: *mut X509_CINF,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &X509_CINF_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CINF_free(mut a: *mut X509_CINF) {
     ASN1_item_free(a as *mut ASN1_VALUE, &X509_CINF_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CINF_new() -> *mut X509_CINF {
     return ASN1_item_new(&X509_CINF_it) as *mut X509_CINF;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_CINF(
     mut a: *mut *mut X509_CINF,
     mut in_0: *mut *const libc::c_uchar,
@@ -766,7 +765,7 @@ static mut X509_seq_tt: [ASN1_TEMPLATE; 3] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -776,18 +775,18 @@ pub static mut X509_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_free(mut a: *mut X509) {
     ASN1_item_free(a as *mut ASN1_VALUE, &X509_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509(
     mut a: *mut X509,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &X509_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509(
     mut a: *mut *mut X509,
     mut in_0: *mut *const libc::c_uchar,
@@ -795,15 +794,15 @@ pub unsafe extern "C" fn d2i_X509(
 ) -> *mut X509 {
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &X509_it) as *mut X509;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_new() -> *mut X509 {
     return ASN1_item_new(&X509_it) as *mut X509;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_dup(mut x: *mut X509) -> *mut X509 {
     return ASN1_item_dup(&X509_it, x as *mut libc::c_void) as *mut X509;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_parse_from_buffer(
     mut buf: *mut CRYPTO_BUFFER,
 ) -> *mut X509 {
@@ -898,7 +897,7 @@ pub unsafe extern "C" fn X509_parse_from_buffer(
     (*ret).buf = buf;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_up_ref(mut x: *mut X509) -> libc::c_int {
     if x.is_null() {
         return 0 as libc::c_int;
@@ -906,7 +905,7 @@ pub unsafe extern "C" fn X509_up_ref(mut x: *mut X509) -> libc::c_int {
     CRYPTO_refcount_inc(&mut (*x).references);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_ex_new_index(
     mut argl: libc::c_long,
     mut argp: *mut libc::c_void,
@@ -922,7 +921,7 @@ pub unsafe extern "C" fn X509_get_ex_new_index(
     }
     return index;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_set_ex_data(
     mut r: *mut X509,
     mut idx: libc::c_int,
@@ -930,14 +929,14 @@ pub unsafe extern "C" fn X509_set_ex_data(
 ) -> libc::c_int {
     return CRYPTO_set_ex_data(&mut (*r).ex_data, idx, arg);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_ex_data(
     mut r: *mut X509,
     mut idx: libc::c_int,
 ) -> *mut libc::c_void {
     return CRYPTO_get_ex_data(&mut (*r).ex_data, idx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_AUX(
     mut a: *mut *mut X509,
     mut pp: *mut *const libc::c_uchar,
@@ -1024,7 +1023,7 @@ unsafe extern "C" fn i2d_x509_aux_internal(
     }
     return length;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_AUX(
     mut a: *mut X509,
     mut pp: *mut *mut libc::c_uchar,
@@ -1050,7 +1049,7 @@ pub unsafe extern "C" fn i2d_X509_AUX(
     }
     return length;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_re_X509_tbs(
     mut x509: *mut X509,
     mut outp: *mut *mut libc::c_uchar,
@@ -1058,14 +1057,14 @@ pub unsafe extern "C" fn i2d_re_X509_tbs(
     asn1_encoding_clear(&mut (*(*x509).cert_info).enc);
     return i2d_X509_CINF((*x509).cert_info, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_tbs(
     mut x509: *mut X509,
     mut outp: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return i2d_X509_CINF((*x509).cert_info, outp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_set1_signature_algo(
     mut x509: *mut X509,
     mut algo: *const X509_ALGOR,
@@ -1083,7 +1082,7 @@ pub unsafe extern "C" fn X509_set1_signature_algo(
     (*(*x509).cert_info).signature = copy2;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_set1_signature_value(
     mut x509: *mut X509,
     mut sig: *const uint8_t,
@@ -1102,7 +1101,7 @@ pub unsafe extern "C" fn X509_set1_signature_value(
     (*(*x509).signature).flags |= 0x8 as libc::c_int as libc::c_long;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get0_signature(
     mut psig: *mut *const ASN1_BIT_STRING,
     mut palg: *mut *const X509_ALGOR,
@@ -1115,7 +1114,7 @@ pub unsafe extern "C" fn X509_get0_signature(
         *palg = (*x).sig_alg;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_signature_nid(mut x: *const X509) -> libc::c_int {
     return OBJ_obj2nid((*(*x).sig_alg).algorithm);
 }

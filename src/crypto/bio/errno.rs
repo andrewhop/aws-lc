@@ -7,10 +7,10 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn __errno_location() -> *mut libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bio_errno_should_retry(
     mut return_value: libc::c_int,
 ) -> libc::c_int {

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     fn BIO_new(method: *const BIO_METHOD) -> *mut BIO;
     fn BIO_free(bio: *mut BIO) -> libc::c_int;
@@ -822,11 +821,11 @@ static mut methods_dgramp: BIO_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_s_datagram() -> *const BIO_METHOD {
     return &methods_dgramp;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_new_dgram(
     mut fd: libc::c_int,
     mut close_flag: libc::c_int,
@@ -842,7 +841,7 @@ pub unsafe extern "C" fn BIO_new_dgram(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_ctrl_dgram_connect(
     mut bp: *mut BIO,
     mut peer: *const BIO_ADDR,
@@ -860,7 +859,7 @@ pub unsafe extern "C" fn BIO_ctrl_dgram_connect(
     }
     return ret as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_ctrl_set_connected(
     mut bp: *mut BIO,
     mut peer: *const BIO_ADDR,
@@ -878,7 +877,7 @@ pub unsafe extern "C" fn BIO_ctrl_set_connected(
     }
     return ret as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_dgram_recv_timedout(mut bp: *mut BIO) -> libc::c_int {
     let ret: libc::c_long = BIO_ctrl(
         bp,
@@ -893,7 +892,7 @@ pub unsafe extern "C" fn BIO_dgram_recv_timedout(mut bp: *mut BIO) -> libc::c_in
     }
     return ret as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_dgram_send_timedout(mut bp: *mut BIO) -> libc::c_int {
     let ret: libc::c_long = BIO_ctrl(
         bp,
@@ -908,7 +907,7 @@ pub unsafe extern "C" fn BIO_dgram_send_timedout(mut bp: *mut BIO) -> libc::c_in
     }
     return ret as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_dgram_get_peer(
     mut bp: *mut BIO,
     mut peer: *mut BIO_ADDR,
@@ -926,7 +925,7 @@ pub unsafe extern "C" fn BIO_dgram_get_peer(
     }
     return ret as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_dgram_set_peer(
     mut bp: *mut BIO,
     mut peer: *const BIO_ADDR,

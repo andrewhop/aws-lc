@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_ITEM_st;
     pub type X509_crl_st;
     pub type x509_st;
@@ -234,7 +233,7 @@ unsafe extern "C" fn s2i_asn1_int(
 ) -> *mut libc::c_void {
     return s2i_ASN1_INTEGER(meth, value) as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_crl_num: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {
@@ -262,7 +261,7 @@ pub static mut v3_crl_num: X509V3_EXT_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_delta_crl: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {
@@ -290,7 +289,7 @@ pub static mut v3_delta_crl: X509V3_EXT_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_inhibit_anyp: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {

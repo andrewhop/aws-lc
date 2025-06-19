@@ -9,7 +9,7 @@
 )]
 #![feature(asm, extern_types, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     pub type bn_blinding_st;
     pub type stack_st_void;
@@ -701,7 +701,7 @@ unsafe extern "C" fn freeze_private_key(
     CRYPTO_MUTEX_unlock_write(&mut (*rsa).lock);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn rsa_invalidate_key(mut rsa: *mut RSA) {
     (*rsa).set_private_key_frozen(0 as libc::c_int as libc::c_uint);
     BN_MONT_CTX_free((*rsa).mont_n);
@@ -731,7 +731,7 @@ pub unsafe extern "C" fn rsa_invalidate_key(mut rsa: *mut RSA) {
     (*rsa).blindings_inuse = 0 as *mut libc::c_uchar;
     (*rsa).blinding_fork_generation = 0 as libc::c_int as uint64_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn rsa_default_size(mut rsa: *const RSA) -> size_t {
     return BN_num_bytes((*rsa).n) as size_t;
 }
@@ -1021,7 +1021,7 @@ unsafe extern "C" fn rsa_blinding_release(
         .offset(blinding_index as isize) = 0 as libc::c_int as libc::c_uchar;
     CRYPTO_MUTEX_unlock_write(&mut (*rsa).lock);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn rsa_default_sign_raw(
     mut rsa: *mut RSA,
     mut out_len: *mut size_t,
@@ -1091,7 +1091,7 @@ pub unsafe extern "C" fn rsa_default_sign_raw(
     OPENSSL_free(buf as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn rsa_verify_raw_no_self_test(
     mut rsa: *mut RSA,
     mut out_len: *mut size_t,
@@ -1268,7 +1268,7 @@ pub unsafe extern "C" fn rsa_verify_raw_no_self_test(
     }
     return ret_0;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_verify_raw(
     mut rsa: *mut RSA,
     mut out_len: *mut size_t,
@@ -1289,7 +1289,7 @@ pub unsafe extern "C" fn RSA_verify_raw(
         padding,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn rsa_default_private_transform(
     mut rsa: *mut RSA,
     mut out: *mut uint8_t,
@@ -1961,7 +1961,7 @@ unsafe extern "C" fn ensure_bignum(mut out: *mut *mut BIGNUM) -> libc::c_int {
     }
     return (*out != 0 as *mut libc::c_void as *mut BIGNUM) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut kBoringSSLRSASqrtTwo: [BN_ULONG; 32] = [
     (0x4d7c60a5 as libc::c_int as BN_ULONG) << 32 as libc::c_int
         | 0xe633e3e1 as libc::c_uint as BN_ULONG,
@@ -2028,7 +2028,7 @@ pub static mut kBoringSSLRSASqrtTwo: [BN_ULONG; 32] = [
     (0xb504f333 as libc::c_uint as BN_ULONG) << 32 as libc::c_int
         | 0xf9de6484 as libc::c_uint as BN_ULONG,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut kBoringSSLRSASqrtTwoLen: size_t = 0;
 unsafe extern "C" fn generate_prime(
     mut out: *mut BIGNUM,
@@ -2679,7 +2679,7 @@ unsafe extern "C" fn RSA_generate_key_ex_maybe_fips(
     RSA_free(tmp);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_generate_key_ex(
     mut rsa: *mut RSA,
     mut bits: libc::c_int,
@@ -2688,7 +2688,7 @@ pub unsafe extern "C" fn RSA_generate_key_ex(
 ) -> libc::c_int {
     return RSA_generate_key_ex_maybe_fips(rsa, bits, e_value, cb, 0 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_generate_key_fips(
     mut rsa: *mut RSA,
     mut bits: libc::c_int,
@@ -2737,7 +2737,7 @@ static mut RSA_get_default_method_storage: RSA_METHOD = rsa_meth_st {
     private_transform: None,
     flags: 0,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_get_default_method() -> *const RSA_METHOD {
     CRYPTO_once(
         RSA_get_default_method_once_bss_get(),

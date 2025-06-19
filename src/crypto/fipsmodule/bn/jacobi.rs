@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn BN_copy(dest: *mut BIGNUM, src: *const BIGNUM) -> *mut BIGNUM;
     fn BN_is_negative(bn: *const BIGNUM) -> libc::c_int;
@@ -48,7 +47,7 @@ pub struct bignum_st {
 }
 pub type BN_ULONG = uint64_t;
 pub type BIGNUM = bignum_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_jacobi(
     mut a: *const BIGNUM,
     mut b: *const BIGNUM,

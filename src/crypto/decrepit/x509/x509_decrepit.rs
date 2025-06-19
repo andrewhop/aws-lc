@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type X509_crl_st;
     pub type X509_extension_st;
     pub type x509_st;
@@ -54,7 +53,7 @@ pub struct v3_ext_ctx {
     pub db: *const CONF,
 }
 pub type X509V3_CTX = v3_ext_ctx;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_conf_nid(
     mut conf: *mut lhash_st_CONF_VALUE,
     mut ctx: *const X509V3_CTX,
@@ -95,7 +94,7 @@ pub unsafe extern "C" fn X509V3_EXT_conf_nid(
     };
     return X509V3_EXT_nconf_nid(0 as *const CONF, ctx, ext_nid, value);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_conf(
     mut conf: *mut lhash_st_CONF_VALUE,
     mut ctx: *mut X509V3_CTX,

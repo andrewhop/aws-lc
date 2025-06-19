@@ -9,7 +9,7 @@
 )]
 #![feature(asm, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn ec_GFp_mont_felem_reduce(
         group: *const EC_GROUP,
         out: *mut EC_FELEM,
@@ -5138,7 +5138,7 @@ unsafe extern "C" fn fiat_p256_point_add(
 ) {
     ec_nistp_point_add(p256_methods(), x3, y3, z3, x1, y1, z1, mixed, x2, y2, z2);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn p256_methods() -> *const ec_nistp_meth {
     CRYPTO_once(
         p256_methods_once_bss_get(),
@@ -5725,7 +5725,7 @@ static mut EC_GFp_nistp256_method_storage: EC_METHOD = ec_method_st {
     scalar_to_montgomery_inv_vartime: None,
     cmp_x_coordinate: None,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GFp_nistp256_method() -> *const EC_METHOD {
     CRYPTO_once(
         EC_GFp_nistp256_method_once_bss_get(),

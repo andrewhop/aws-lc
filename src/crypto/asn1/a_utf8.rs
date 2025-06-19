@@ -9,7 +9,7 @@
 )]
 pub type __uint32_t = libc::c_uint;
 pub type uint32_t = __uint32_t;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn UTF8_getc(
     mut str: *const libc::c_uchar,
     mut len: libc::c_int,
@@ -203,7 +203,7 @@ pub unsafe extern "C" fn UTF8_getc(
     *val = value;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn UTF8_putc(
     mut str: *mut libc::c_uchar,
     mut len: libc::c_int,

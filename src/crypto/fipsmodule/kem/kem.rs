@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn OPENSSL_malloc(size: size_t) -> *mut libc::c_void;
     fn OPENSSL_zalloc(size: size_t) -> *mut libc::c_void;
     fn OPENSSL_free(ptr: *mut libc::c_void);
@@ -807,7 +807,7 @@ unsafe extern "C" fn KEM_ml_kem_1024_do_init(mut out: *mut KEM) {
     (*out).encaps_seed_len = 32 as libc::c_int as size_t;
     (*out).method = kem_ml_kem_1024_method();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn KEM_find_kem_by_nid(mut nid: libc::c_int) -> *const KEM {
     match nid {
         988 => return KEM_ml_kem_512(),
@@ -819,7 +819,7 @@ pub unsafe extern "C" fn KEM_find_kem_by_nid(mut nid: libc::c_int) -> *const KEM
         _ => return 0 as *const KEM,
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn KEM_KEY_new() -> *mut KEM_KEY {
     let mut ret: *mut KEM_KEY = OPENSSL_zalloc(
         ::core::mem::size_of::<KEM_KEY>() as libc::c_ulong,
@@ -836,7 +836,7 @@ unsafe extern "C" fn KEM_KEY_clear(mut key: *mut KEM_KEY) {
     (*key).public_key = 0 as *mut uint8_t;
     (*key).secret_key = 0 as *mut uint8_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn KEM_KEY_init(
     mut key: *mut KEM_KEY,
     mut kem: *const KEM,
@@ -854,7 +854,7 @@ pub unsafe extern "C" fn KEM_KEY_init(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn KEM_KEY_free(mut key: *mut KEM_KEY) {
     if key.is_null() {
         return;
@@ -862,11 +862,11 @@ pub unsafe extern "C" fn KEM_KEY_free(mut key: *mut KEM_KEY) {
     KEM_KEY_clear(key);
     OPENSSL_free(key as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn KEM_KEY_get0_kem(mut key: *mut KEM_KEY) -> *const KEM {
     return (*key).kem;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn KEM_KEY_set_raw_public_key(
     mut key: *mut KEM_KEY,
     mut in_0: *const uint8_t,
@@ -881,7 +881,7 @@ pub unsafe extern "C" fn KEM_KEY_set_raw_public_key(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn KEM_KEY_set_raw_secret_key(
     mut key: *mut KEM_KEY,
     mut in_0: *const uint8_t,
@@ -896,7 +896,7 @@ pub unsafe extern "C" fn KEM_KEY_set_raw_secret_key(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn KEM_KEY_set_raw_key(
     mut key: *mut KEM_KEY,
     mut in_public: *const uint8_t,

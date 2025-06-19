@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     pub type dh_st;
     pub type dsa_st;
@@ -598,7 +597,7 @@ unsafe extern "C" fn int_ec_free(mut pkey: *mut EVP_PKEY) {
 unsafe extern "C" fn eckey_opaque(mut pkey: *const EVP_PKEY) -> libc::c_int {
     return EC_KEY_is_opaque((*pkey).pkey.ec);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut ec_asn1_meth: EVP_PKEY_ASN1_METHOD = unsafe {
     {
         let mut init = evp_pkey_asn1_method_st {

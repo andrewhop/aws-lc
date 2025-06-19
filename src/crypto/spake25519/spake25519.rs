@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn CBS_init(cbs: *mut CBS, data: *const uint8_t, len: size_t);
     fn CBS_stow(
         cbs: *const CBS,
@@ -2145,7 +2145,7 @@ static mut kSpakeMSmallPrecomp: [uint8_t; 960] = [
     0x39 as libc::c_int as uint8_t,
     0x6 as libc::c_int as uint8_t,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SPAKE2_CTX_new(
     mut my_role: spake2_role_t,
     mut my_name: *const uint8_t,
@@ -2182,7 +2182,7 @@ pub unsafe extern "C" fn SPAKE2_CTX_new(
     }
     return ctx;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SPAKE2_CTX_free(mut ctx: *mut SPAKE2_CTX) {
     if ctx.is_null() {
         return;
@@ -2255,7 +2255,7 @@ unsafe extern "C" fn scalar_add(mut dest: *mut scalar, mut src: *const scalar) {
             .wrapping_div(::core::mem::size_of::<BN_ULONG>() as libc::c_ulong),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SPAKE2_generate_msg(
     mut ctx: *mut SPAKE2_CTX,
     mut out: *mut uint8_t,
@@ -2477,7 +2477,7 @@ unsafe extern "C" fn update_with_length_prefix(
     );
     SHA512_Update(sha, data as *const libc::c_void, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SPAKE2_process_msg(
     mut ctx: *mut SPAKE2_CTX,
     mut out_key: *mut uint8_t,

@@ -9,7 +9,7 @@
 )]
 #![feature(asm, extern_types, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn BN_copy(dest: *mut BIGNUM, src: *const BIGNUM) -> *mut BIGNUM;
     fn BN_zero(bn: *mut BIGNUM);
@@ -322,7 +322,7 @@ unsafe extern "C" fn bn_gcd_consttime(
     BN_CTX_end(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_gcd(
     mut r: *mut BIGNUM,
     mut x: *const BIGNUM,
@@ -333,7 +333,7 @@ pub unsafe extern "C" fn BN_gcd(
     return (bn_gcd_consttime(r, &mut shift, x, y, ctx) != 0
         && BN_lshift(r, r, shift as libc::c_int) != 0) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_is_relatively_prime(
     mut out_relatively_prime: *mut libc::c_int,
     mut x: *const BIGNUM,
@@ -365,7 +365,7 @@ pub unsafe extern "C" fn bn_is_relatively_prime(
     BN_CTX_end(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_lcm_consttime(
     mut r: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -388,7 +388,7 @@ pub unsafe extern "C" fn bn_lcm_consttime(
     BN_CTX_end(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_mod_inverse_consttime(
     mut r: *mut BIGNUM,
     mut out_no_inverse: *mut libc::c_int,

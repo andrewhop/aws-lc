@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     pub type dsa_st;
     pub type ec_key_st;
@@ -445,7 +444,7 @@ unsafe extern "C" fn pkey_x25519_ctrl(
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut x25519_pkey_meth: EVP_PKEY_METHOD = unsafe {
     {
         let mut init = evp_pkey_method_st {

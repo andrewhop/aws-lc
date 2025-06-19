@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn BN_num_bytes(bn: *const BIGNUM) -> libc::c_uint;
     fn BN_is_negative(bn: *const BIGNUM) -> libc::c_int;
@@ -414,7 +413,7 @@ unsafe extern "C" fn is_hybrid_bytes_consistent(
                     .wrapping_sub(1 as libc::c_int as size_t) as isize,
             ) as libc::c_int & 1 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_point_byte_len(
     mut group: *const EC_GROUP,
     mut form: point_conversion_form_t,
@@ -444,7 +443,7 @@ pub unsafe extern "C" fn ec_point_byte_len(
     }
     return output_len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_point_to_bytes(
     mut group: *const EC_GROUP,
     mut point: *const EC_AFFINE,
@@ -572,7 +571,7 @@ pub unsafe extern "C" fn ec_point_to_bytes(
     }
     return output_len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_point_from_uncompressed(
     mut group: *const EC_GROUP,
     mut out: *mut EC_AFFINE,
@@ -769,7 +768,7 @@ unsafe extern "C" fn ec_GFp_simple_oct2point(
     BN_CTX_free(new_ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_oct2point(
     mut group: *const EC_GROUP,
     mut point: *mut EC_POINT,
@@ -790,7 +789,7 @@ pub unsafe extern "C" fn EC_POINT_oct2point(
     }
     return ec_GFp_simple_oct2point(group, point, buf, len, ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_point2oct(
     mut group: *const EC_GROUP,
     mut point: *const EC_POINT,
@@ -839,7 +838,7 @@ pub unsafe extern "C" fn EC_POINT_point2oct(
     }
     return ec_point_to_bytes(group, &mut affine, form, buf, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_set_compressed_coordinates_GFp(
     mut group: *const EC_GROUP,
     mut point: *mut EC_POINT,

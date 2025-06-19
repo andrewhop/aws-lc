@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     fn ASN1_item_new(it: *const ASN1_ITEM) -> *mut ASN1_VALUE;
     fn ASN1_item_free(val: *mut ASN1_VALUE, it: *const ASN1_ITEM);
@@ -178,7 +177,7 @@ pub struct tm {
     pub __tm_gmtoff: libc::c_long,
     pub __tm_zone: *const libc::c_char,
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut ASN1_TIME_it: ASN1_ITEM = {
     let mut init = ASN1_ITEM_st {
         itype: 0x5 as libc::c_int as libc::c_char,
@@ -191,22 +190,22 @@ pub static mut ASN1_TIME_it: ASN1_ITEM = {
     };
     init
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_ASN1_TIME(
     mut a: *const ASN1_TIME,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &ASN1_TIME_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TIME_free(mut a: *mut ASN1_TIME) {
     ASN1_item_free(a as *mut ASN1_VALUE, &ASN1_TIME_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TIME_new() -> *mut ASN1_TIME {
     return ASN1_item_new(&ASN1_TIME_it) as *mut ASN1_TIME;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_ASN1_TIME(
     mut a: *mut *mut ASN1_TIME,
     mut in_0: *mut *const libc::c_uchar,
@@ -215,7 +214,7 @@ pub unsafe extern "C" fn d2i_ASN1_TIME(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &ASN1_TIME_it)
         as *mut ASN1_TIME;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TIME_set_posix(
     mut s: *mut ASN1_TIME,
     mut posix_time: int64_t,
@@ -227,7 +226,7 @@ pub unsafe extern "C" fn ASN1_TIME_set_posix(
         0 as libc::c_int as libc::c_long,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TIME_set(
     mut s: *mut ASN1_TIME,
     mut time_0: time_t,
@@ -238,7 +237,7 @@ unsafe extern "C" fn fits_in_utc_time(mut tm: *const tm) -> libc::c_int {
     return (50 as libc::c_int <= (*tm).tm_year && (*tm).tm_year < 150 as libc::c_int)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TIME_adj(
     mut s: *mut ASN1_TIME,
     mut posix_time: int64_t,
@@ -279,7 +278,7 @@ pub unsafe extern "C" fn ASN1_TIME_adj(
     }
     return ASN1_GENERALIZEDTIME_adj(s, posix_time, offset_day, offset_sec);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TIME_check(mut t: *const ASN1_TIME) -> libc::c_int {
     if (*t).type_0 == 24 as libc::c_int {
         return ASN1_GENERALIZEDTIME_check(t)
@@ -288,7 +287,7 @@ pub unsafe extern "C" fn ASN1_TIME_check(mut t: *const ASN1_TIME) -> libc::c_int
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TIME_to_generalizedtime(
     mut t: *const ASN1_TIME,
     mut out: *mut *mut ASN1_GENERALIZEDTIME,
@@ -369,7 +368,7 @@ pub unsafe extern "C" fn ASN1_TIME_to_generalizedtime(
     }
     return 0 as *mut ASN1_GENERALIZEDTIME;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TIME_set_string(
     mut s: *mut ASN1_TIME,
     mut str: *const libc::c_char,
@@ -377,7 +376,7 @@ pub unsafe extern "C" fn ASN1_TIME_set_string(
     return (ASN1_UTCTIME_set_string(s, str) != 0
         || ASN1_GENERALIZEDTIME_set_string(s, str) != 0) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TIME_set_string_X509(
     mut s: *mut ASN1_TIME,
     mut str: *const libc::c_char,
@@ -443,7 +442,7 @@ unsafe extern "C" fn asn1_time_to_tm(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TIME_diff(
     mut out_days: *mut libc::c_int,
     mut out_seconds: *mut libc::c_int,
@@ -484,14 +483,14 @@ pub unsafe extern "C" fn ASN1_TIME_diff(
     }
     return OPENSSL_gmtime_diff(out_days, out_seconds, &mut tm_from, &mut tm_to);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TIME_to_tm(
     mut s: *const ASN1_TIME,
     mut tm: *mut tm,
 ) -> libc::c_int {
     return asn1_time_to_tm(tm, s, 0 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TIME_to_time_t(
     mut t: *const ASN1_TIME,
     mut out_time: *mut time_t,
@@ -514,7 +513,7 @@ pub unsafe extern "C" fn ASN1_TIME_to_time_t(
     }
     return OPENSSL_timegm(&mut tm, out_time);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TIME_to_posix(
     mut t: *const ASN1_TIME,
     mut out_time: *mut int64_t,

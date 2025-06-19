@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type evp_cipher_st;
     pub type pqdsa_key_st;
     pub type kem_key_st;
@@ -401,7 +400,7 @@ pub type pem_password_cb = unsafe extern "C" fn(
     libc::c_int,
     *mut libc::c_void,
 ) -> libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_PrivateKey(
     mut bp: *mut BIO,
     mut x: *mut *mut EVP_PKEY,
@@ -538,7 +537,7 @@ pub unsafe extern "C" fn PEM_read_bio_PrivateKey(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_PrivateKey(
     mut bp: *mut BIO,
     mut x: *mut EVP_PKEY,
@@ -558,7 +557,7 @@ pub unsafe extern "C" fn PEM_write_bio_PrivateKey(
         u,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_bio_Parameters(
     mut bio: *mut BIO,
     mut pkey: *mut *mut EVP_PKEY,
@@ -694,7 +693,7 @@ unsafe extern "C" fn i2d_DHparams_void(
 ) -> libc::c_int {
     return i2d_DHparams(key as *mut DH, out);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_Parameters(
     mut bio: *mut BIO,
     mut pkey: *mut EVP_PKEY,
@@ -793,7 +792,7 @@ unsafe extern "C" fn i2d_PrivateKey_void(
 ) -> libc::c_int {
     return i2d_PrivateKey(key as *const EVP_PKEY, out);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_bio_PrivateKey_traditional(
     mut bp: *mut BIO,
     mut x: *mut EVP_PKEY,
@@ -841,7 +840,7 @@ pub unsafe extern "C" fn PEM_write_bio_PrivateKey_traditional(
         u,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_read_PrivateKey(
     mut fp: *mut FILE,
     mut x: *mut *mut EVP_PKEY,
@@ -864,7 +863,7 @@ pub unsafe extern "C" fn PEM_read_PrivateKey(
     BIO_free(b);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PEM_write_PrivateKey(
     mut fp: *mut FILE,
     mut x: *mut EVP_PKEY,

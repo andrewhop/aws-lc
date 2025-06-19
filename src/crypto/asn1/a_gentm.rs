@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn abort() -> !;
     fn ASN1_STRING_set(
         str: *mut ASN1_STRING,
@@ -83,7 +83,7 @@ pub struct tm {
     pub __tm_gmtoff: libc::c_long,
     pub __tm_zone: *const libc::c_char,
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn asn1_generalizedtime_to_tm(
     mut tm: *mut tm,
     mut d: *const ASN1_GENERALIZEDTIME,
@@ -101,13 +101,13 @@ pub unsafe extern "C" fn asn1_generalizedtime_to_tm(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_GENERALIZEDTIME_check(
     mut d: *const ASN1_GENERALIZEDTIME,
 ) -> libc::c_int {
     return asn1_generalizedtime_to_tm(0 as *mut tm, d);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_GENERALIZEDTIME_set_string(
     mut s: *mut ASN1_GENERALIZEDTIME,
     mut str: *const libc::c_char,
@@ -129,7 +129,7 @@ pub unsafe extern "C" fn ASN1_GENERALIZEDTIME_set_string(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_GENERALIZEDTIME_set(
     mut s: *mut ASN1_GENERALIZEDTIME,
     mut posix_time: int64_t,
@@ -141,7 +141,7 @@ pub unsafe extern "C" fn ASN1_GENERALIZEDTIME_set(
         0 as libc::c_int as libc::c_long,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_GENERALIZEDTIME_adj(
     mut s: *mut ASN1_GENERALIZEDTIME,
     mut posix_time: int64_t,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_TRUST_TOKEN_PRETOKEN;
     pub type stack_st_TRUST_TOKEN;
     pub type stack_st;
@@ -3026,14 +3025,14 @@ static mut voprf_exp2_method: VOPRF_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_exp2_generate_key(
     mut out_private: *mut CBB,
     mut out_public: *mut CBB,
 ) -> libc::c_int {
     return voprf_generate_key(&mut voprf_exp2_method, out_private, out_public);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_exp2_derive_key_from_secret(
     mut out_private: *mut CBB,
     mut out_public: *mut CBB,
@@ -3048,7 +3047,7 @@ pub unsafe extern "C" fn voprf_exp2_derive_key_from_secret(
         secret_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_exp2_client_key_from_bytes(
     mut key: *mut TRUST_TOKEN_CLIENT_KEY,
     mut in_0: *const uint8_t,
@@ -3056,7 +3055,7 @@ pub unsafe extern "C" fn voprf_exp2_client_key_from_bytes(
 ) -> libc::c_int {
     return voprf_client_key_from_bytes(&mut voprf_exp2_method, key, in_0, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_exp2_issuer_key_from_bytes(
     mut key: *mut TRUST_TOKEN_ISSUER_KEY,
     mut in_0: *const uint8_t,
@@ -3064,7 +3063,7 @@ pub unsafe extern "C" fn voprf_exp2_issuer_key_from_bytes(
 ) -> libc::c_int {
     return voprf_issuer_key_from_bytes(&mut voprf_exp2_method, key, in_0, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_exp2_blind(
     mut cbb: *mut CBB,
     mut count: size_t,
@@ -3081,7 +3080,7 @@ pub unsafe extern "C" fn voprf_exp2_blind(
         msg_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_exp2_sign(
     mut key: *const TRUST_TOKEN_ISSUER_KEY,
     mut cbb: *mut CBB,
@@ -3102,7 +3101,7 @@ pub unsafe extern "C" fn voprf_exp2_sign(
         num_to_issue,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_exp2_unblind(
     mut key: *const TRUST_TOKEN_CLIENT_KEY,
     mut pretokens: *const stack_st_TRUST_TOKEN_PRETOKEN,
@@ -3112,7 +3111,7 @@ pub unsafe extern "C" fn voprf_exp2_unblind(
 ) -> *mut stack_st_TRUST_TOKEN {
     return voprf_unblind_tt(&mut voprf_exp2_method, key, pretokens, cbs, count, key_id);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_exp2_read(
     mut key: *const TRUST_TOKEN_ISSUER_KEY,
     mut out_nonce: *mut uint8_t,
@@ -3198,14 +3197,14 @@ static mut voprf_pst1_method: VOPRF_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_pst1_generate_key(
     mut out_private: *mut CBB,
     mut out_public: *mut CBB,
 ) -> libc::c_int {
     return voprf_generate_key(&mut voprf_pst1_method, out_private, out_public);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_pst1_derive_key_from_secret(
     mut out_private: *mut CBB,
     mut out_public: *mut CBB,
@@ -3220,7 +3219,7 @@ pub unsafe extern "C" fn voprf_pst1_derive_key_from_secret(
         secret_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_pst1_client_key_from_bytes(
     mut key: *mut TRUST_TOKEN_CLIENT_KEY,
     mut in_0: *const uint8_t,
@@ -3228,7 +3227,7 @@ pub unsafe extern "C" fn voprf_pst1_client_key_from_bytes(
 ) -> libc::c_int {
     return voprf_client_key_from_bytes(&mut voprf_pst1_method, key, in_0, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_pst1_issuer_key_from_bytes(
     mut key: *mut TRUST_TOKEN_ISSUER_KEY,
     mut in_0: *const uint8_t,
@@ -3236,7 +3235,7 @@ pub unsafe extern "C" fn voprf_pst1_issuer_key_from_bytes(
 ) -> libc::c_int {
     return voprf_issuer_key_from_bytes(&mut voprf_pst1_method, key, in_0, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_pst1_blind(
     mut cbb: *mut CBB,
     mut count: size_t,
@@ -3253,7 +3252,7 @@ pub unsafe extern "C" fn voprf_pst1_blind(
         msg_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_pst1_sign(
     mut key: *const TRUST_TOKEN_ISSUER_KEY,
     mut cbb: *mut CBB,
@@ -3274,7 +3273,7 @@ pub unsafe extern "C" fn voprf_pst1_sign(
         num_to_issue,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_pst1_sign_with_proof_scalar_for_testing(
     mut key: *const TRUST_TOKEN_ISSUER_KEY,
     mut cbb: *mut CBB,
@@ -3299,7 +3298,7 @@ pub unsafe extern "C" fn voprf_pst1_sign_with_proof_scalar_for_testing(
         proof_scalar_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_pst1_unblind(
     mut key: *const TRUST_TOKEN_CLIENT_KEY,
     mut pretokens: *const stack_st_TRUST_TOKEN_PRETOKEN,
@@ -3309,7 +3308,7 @@ pub unsafe extern "C" fn voprf_pst1_unblind(
 ) -> *mut stack_st_TRUST_TOKEN {
     return voprf_unblind(&mut voprf_pst1_method, key, pretokens, cbs, count, key_id);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn voprf_pst1_read(
     mut key: *const TRUST_TOKEN_ISSUER_KEY,
     mut out_nonce: *mut uint8_t,

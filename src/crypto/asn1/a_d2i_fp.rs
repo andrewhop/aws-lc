@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_ITEM_st;
     pub type ASN1_VALUE_st;
     pub type stack_st_void;
@@ -168,7 +167,7 @@ pub struct _IO_FILE {
 }
 pub type _IO_lock_t = ();
 pub type FILE = _IO_FILE;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_d2i_bio(
     mut it: *const ASN1_ITEM,
     mut in_0: *mut BIO,
@@ -190,7 +189,7 @@ pub unsafe extern "C" fn ASN1_item_d2i_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_d2i_fp(
     mut it: *const ASN1_ITEM,
     mut in_0: *mut FILE,

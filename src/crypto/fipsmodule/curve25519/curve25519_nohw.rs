@@ -9,7 +9,7 @@
 )]
 #![feature(asm, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn __assert_fail(
         __assertion: *const libc::c_char,
         __file: *const libc::c_char,
@@ -13459,7 +13459,7 @@ unsafe extern "C" fn fe_pow22523(mut out: *mut fe, mut z: *const fe) {
     }
     fe_mul_ttt(out, &mut t0, z);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x25519_ge_tobytes(mut s: *mut uint8_t, mut h: *const ge_p2) {
     let mut recip: fe = fe { v: [0; 5] };
     let mut x: fe = fe { v: [0; 5] };
@@ -13484,7 +13484,7 @@ unsafe extern "C" fn ge_p3_tobytes(mut s: *mut uint8_t, mut h: *const ge_p3) {
     *fresh1 = (*fresh1 as libc::c_int ^ fe_isnegative(&mut x) << 7 as libc::c_int)
         as uint8_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x25519_ge_frombytes_vartime(
     mut h: *mut ge_p3,
     mut s: *const uint8_t,
@@ -13551,7 +13551,7 @@ unsafe extern "C" fn ge_p3_to_p2(mut r: *mut ge_p2, mut p: *const ge_p3) {
     fe_copy(&mut (*r).Y, &(*p).Y);
     fe_copy(&mut (*r).Z, &(*p).Z);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x25519_ge_p3_to_cached(
     mut r: *mut ge_cached,
     mut p: *const ge_p3,
@@ -13561,13 +13561,13 @@ pub unsafe extern "C" fn x25519_ge_p3_to_cached(
     fe_copy_lt(&mut (*r).Z, &(*p).Z);
     fe_mul_ltt(&mut (*r).T2d, &(*p).T, &k25519d2);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x25519_ge_p1p1_to_p2(mut r: *mut ge_p2, mut p: *const ge_p1p1) {
     fe_mul_tll(&mut (*r).X, &(*p).X, &(*p).T);
     fe_mul_tll(&mut (*r).Y, &(*p).Y, &(*p).Z);
     fe_mul_tll(&mut (*r).Z, &(*p).Z, &(*p).T);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x25519_ge_p1p1_to_p3(mut r: *mut ge_p3, mut p: *const ge_p1p1) {
     fe_mul_tll(&mut (*r).X, &(*p).X, &(*p).T);
     fe_mul_tll(&mut (*r).Y, &(*p).Y, &(*p).Z);
@@ -13650,7 +13650,7 @@ unsafe extern "C" fn ge_msub(
     fe_sub(&mut (*r).Z, &mut trZ, &mut trT);
     fe_add(&mut (*r).T, &mut trZ, &mut trT);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x25519_ge_add(
     mut r: *mut ge_p1p1,
     mut p: *const ge_p3,
@@ -13673,7 +13673,7 @@ pub unsafe extern "C" fn x25519_ge_add(
     fe_add(&mut (*r).Z, &mut trZ, &mut trT);
     fe_sub(&mut (*r).T, &mut trZ, &mut trT);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x25519_ge_sub(
     mut r: *mut ge_p1p1,
     mut p: *const ge_p3,
@@ -13714,7 +13714,7 @@ unsafe extern "C" fn cmov(
     fe_cmov(&mut (*t).yminusx, &(*u).yminusx, b as fe_limb_t);
     fe_cmov(&mut (*t).xy2d, &(*u).xy2d, b as fe_limb_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x25519_ge_scalarmult_small_precomp(
     mut h: *mut ge_p3,
     mut a: *const uint8_t,
@@ -13889,7 +13889,7 @@ unsafe extern "C" fn table_select(
     fe_neg(&mut minust.xy2d, &mut tmp);
     cmov(t, &mut minust, bnegative);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x25519_ge_scalarmult_base(
     mut h: *mut ge_p3,
     mut a: *const uint8_t,
@@ -13975,7 +13975,7 @@ unsafe extern "C" fn cmov_cached(
     fe_cmov(&mut (*t).Z, &mut (*u).Z, b as fe_limb_t);
     fe_cmov(&mut (*t).T2d, &mut (*u).T2d, b as fe_limb_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x25519_ge_scalarmult(
     mut r: *mut ge_p2,
     mut scalar: *const uint8_t,
@@ -14323,7 +14323,7 @@ unsafe extern "C" fn ge_double_scalarmult_vartime(
 unsafe extern "C" fn int64_lshift21(mut a: int64_t) -> int64_t {
     return ((a as uint64_t) << 21 as libc::c_int) as int64_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x25519_sc_reduce(mut s: *mut uint8_t) {
     let mut s0: int64_t = (2097151 as libc::c_int as uint64_t
         & load_3(s as *const uint8_t)) as int64_t;
@@ -15302,7 +15302,7 @@ unsafe extern "C" fn sc_muladd(
     *s.offset(30 as libc::c_int as isize) = (s11 >> 9 as libc::c_int) as uint8_t;
     *s.offset(31 as libc::c_int as isize) = (s11 >> 17 as libc::c_int) as uint8_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x25519_scalar_mult_generic_nohw(
     mut out_shared_key: *mut uint8_t,
     mut private_key: *const uint8_t,
@@ -15378,7 +15378,7 @@ pub unsafe extern "C" fn x25519_scalar_mult_generic_nohw(
     fe_mul_ttt(&mut x2, &mut x2, &mut z2);
     fe_tobytes(out_shared_key, &mut x2);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x25519_public_from_private_nohw(
     mut out_public_value: *mut uint8_t,
     mut private_key: *const uint8_t,
@@ -15414,7 +15414,7 @@ pub unsafe extern "C" fn x25519_public_from_private_nohw(
     fe_mul_tlt(&mut zminusy_inv, &mut zplusy, &mut zminusy_inv);
     fe_tobytes(out_public_value, &mut zminusy_inv);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ed25519_public_key_from_hashed_seed_nohw(
     mut out_public_key: *mut uint8_t,
     mut az: *mut uint8_t,
@@ -15428,7 +15428,7 @@ pub unsafe extern "C" fn ed25519_public_key_from_hashed_seed_nohw(
     x25519_ge_scalarmult_base(&mut A, az as *const uint8_t);
     ge_p3_tobytes(out_public_key, &mut A);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ed25519_sign_nohw(
     mut out_sig: *mut uint8_t,
     mut r: *mut uint8_t,
@@ -15482,7 +15482,7 @@ pub unsafe extern "C" fn ed25519_sign_nohw(
         r as *const uint8_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ed25519_verify_nohw(
     mut R_computed_encoded: *mut uint8_t,
     mut public_key: *const uint8_t,
@@ -15548,7 +15548,7 @@ pub unsafe extern "C" fn ed25519_verify_nohw(
     x25519_ge_tobytes(R_computed_encoded, &mut R_computed);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ed25519_check_public_key_nohw(
     mut public_key: *const uint8_t,
 ) -> libc::c_int {

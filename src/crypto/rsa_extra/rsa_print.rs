@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_pctx_st;
     pub type stack_st_void;
     pub type evp_pkey_st;
@@ -170,7 +169,7 @@ pub struct _IO_FILE {
 }
 pub type _IO_lock_t = ();
 pub type FILE = _IO_FILE;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_print(
     mut bio: *mut BIO,
     mut rsa: *const RSA,
@@ -184,7 +183,7 @@ pub unsafe extern "C" fn RSA_print(
     EVP_PKEY_free(pkey);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_print_fp(
     mut fp: *mut FILE,
     mut rsa: *const RSA,

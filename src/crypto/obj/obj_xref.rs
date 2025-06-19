@@ -201,7 +201,7 @@ static mut kTriples: [nid_triple; 23] = [
         init
     },
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_find_sigid_algs(
     mut sign_nid: libc::c_int,
     mut out_digest_nid: *mut libc::c_int,
@@ -226,7 +226,7 @@ pub unsafe extern "C" fn OBJ_find_sigid_algs(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_find_sigid_by_algs(
     mut out_sign_nid: *mut libc::c_int,
     mut digest_nid: libc::c_int,

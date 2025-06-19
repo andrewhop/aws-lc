@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     pub type dsa_st;
     pub type ec_key_st;
@@ -529,7 +528,7 @@ static mut EVP_PKEY_ed25519_pkey_meth_storage: EVP_PKEY_METHOD = evp_pkey_method
     encapsulate: None,
     decapsulate: None,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY_ed25519_pkey_meth() -> *const EVP_PKEY_METHOD {
     CRYPTO_once(
         EVP_PKEY_ed25519_pkey_meth_once_bss_get(),

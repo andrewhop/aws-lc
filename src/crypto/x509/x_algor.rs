@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type env_md_st;
     fn ASN1_item_new(it: *const ASN1_ITEM) -> *mut ASN1_VALUE;
@@ -165,7 +164,7 @@ static mut X509_ALGOR_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_ALGOR_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -175,22 +174,22 @@ pub static mut X509_ALGOR_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ALGOR_free(mut a: *mut X509_ALGOR) {
     ASN1_item_free(a as *mut ASN1_VALUE, &X509_ALGOR_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_ALGOR(
     mut a: *const X509_ALGOR,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &X509_ALGOR_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ALGOR_new() -> *mut X509_ALGOR {
     return ASN1_item_new(&X509_ALGOR_it) as *mut X509_ALGOR;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_ALGOR(
     mut a: *mut *mut X509_ALGOR,
     mut in_0: *mut *const libc::c_uchar,
@@ -199,11 +198,11 @@ pub unsafe extern "C" fn d2i_X509_ALGOR(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &X509_ALGOR_it)
         as *mut X509_ALGOR;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ALGOR_dup(mut x: *const X509_ALGOR) -> *mut X509_ALGOR {
     return ASN1_item_dup(&X509_ALGOR_it, x as *mut libc::c_void) as *mut X509_ALGOR;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ALGOR_set0(
     mut alg: *mut X509_ALGOR,
     mut aobj: *mut ASN1_OBJECT,
@@ -238,7 +237,7 @@ pub unsafe extern "C" fn X509_ALGOR_set0(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ALGOR_get0(
     mut out_obj: *mut *const ASN1_OBJECT,
     mut out_param_type: *mut libc::c_int,
@@ -261,7 +260,7 @@ pub unsafe extern "C" fn X509_ALGOR_get0(
         }
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ALGOR_set_md(
     mut alg: *mut X509_ALGOR,
     mut md: *const EVP_MD,
@@ -279,7 +278,7 @@ pub unsafe extern "C" fn X509_ALGOR_set_md(
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_ALGOR_cmp(
     mut a: *const X509_ALGOR,
     mut b: *const X509_ALGOR,

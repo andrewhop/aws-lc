@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type engine_st;
     pub type env_md_st;
     pub type hmac_methods_st;
@@ -2497,43 +2496,43 @@ static mut aead_null_sha1_tls: EVP_AEAD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_128_cbc_sha1_tls() -> *const EVP_AEAD {
     return &aead_aes_128_cbc_sha1_tls;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_128_cbc_sha1_tls_implicit_iv() -> *const EVP_AEAD {
     return &aead_aes_128_cbc_sha1_tls_implicit_iv;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_256_cbc_sha1_tls() -> *const EVP_AEAD {
     return &aead_aes_256_cbc_sha1_tls;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_256_cbc_sha1_tls_implicit_iv() -> *const EVP_AEAD {
     return &aead_aes_256_cbc_sha1_tls_implicit_iv;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_128_cbc_sha256_tls() -> *const EVP_AEAD {
     return &aead_aes_128_cbc_sha256_tls;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_128_cbc_sha256_tls_implicit_iv() -> *const EVP_AEAD {
     return &aead_aes_128_cbc_sha256_tls_implicit_iv;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_256_cbc_sha384_tls() -> *const EVP_AEAD {
     return &aead_aes_256_cbc_sha384_tls;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_des_ede3_cbc_sha1_tls() -> *const EVP_AEAD {
     return &aead_des_ede3_cbc_sha1_tls;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_des_ede3_cbc_sha1_tls_implicit_iv() -> *const EVP_AEAD {
     return &aead_des_ede3_cbc_sha1_tls_implicit_iv;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_null_sha1_tls() -> *const EVP_AEAD {
     return &aead_null_sha1_tls;
 }

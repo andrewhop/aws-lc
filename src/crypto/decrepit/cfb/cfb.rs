@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn AES_set_encrypt_key(
         key: *const uint8_t,
         bits: libc::c_uint,
@@ -563,51 +563,51 @@ static mut aes_256_cfb128: EVP_CIPHER = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_128_cfb1() -> *const EVP_CIPHER {
     return &aes_128_cfb1;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_128_cfb8() -> *const EVP_CIPHER {
     return &aes_128_cfb8;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_128_cfb128() -> *const EVP_CIPHER {
     return &aes_128_cfb128;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_128_cfb() -> *const EVP_CIPHER {
     return &aes_128_cfb128;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_192_cfb1() -> *const EVP_CIPHER {
     return &aes_192_cfb1;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_192_cfb8() -> *const EVP_CIPHER {
     return &aes_192_cfb8;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_192_cfb128() -> *const EVP_CIPHER {
     return &aes_192_cfb128;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_192_cfb() -> *const EVP_CIPHER {
     return &aes_192_cfb128;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_256_cfb1() -> *const EVP_CIPHER {
     return &aes_256_cfb1;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_256_cfb8() -> *const EVP_CIPHER {
     return &aes_256_cfb8;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_256_cfb128() -> *const EVP_CIPHER {
     return &aes_256_cfb128;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aes_256_cfb() -> *const EVP_CIPHER {
     return &aes_256_cfb128;
 }

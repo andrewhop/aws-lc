@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_ASN1_OBJECT;
     pub type stack_st_void;
     pub type stack_st;
@@ -159,7 +158,7 @@ unsafe extern "C" fn sk_ASN1_OBJECT_value(
 ) -> *mut ASN1_OBJECT {
     return OPENSSL_sk_value(sk as *const OPENSSL_STACK, i) as *mut ASN1_OBJECT;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CERT_AUX_print(
     mut out: *mut BIO,
     mut aux: *mut X509_CERT_AUX,

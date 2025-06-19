@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type evp_pkey_st;
     pub type engine_st;
@@ -177,7 +176,7 @@ pub struct env_md_ctx_st {
 pub type EVP_PKEY_CTX = evp_pkey_ctx_st;
 pub type EVP_MD_CTX = env_md_ctx_st;
 pub type EVP_MD = env_md_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_sign(
     mut it: *const ASN1_ITEM,
     mut algor1: *mut X509_ALGOR,
@@ -220,7 +219,7 @@ pub unsafe extern "C" fn ASN1_item_sign(
     }
     return ASN1_item_sign_ctx(it, algor1, algor2, signature, asn, &mut ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_item_sign_ctx(
     mut it: *const ASN1_ITEM,
     mut algor1: *mut X509_ALGOR,

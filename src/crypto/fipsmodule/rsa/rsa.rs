@@ -9,7 +9,7 @@
 )]
 #![feature(asm, extern_types, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     pub type stack_st_void;
     pub type dh_st;
@@ -922,7 +922,7 @@ unsafe extern "C" fn bn_dup_into(
     *dst = BN_dup(src);
     return (*dst != 0 as *mut libc::c_void as *mut BIGNUM) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_new_public_key(
     mut n: *const BIGNUM,
     mut e: *const BIGNUM,
@@ -936,7 +936,7 @@ pub unsafe extern "C" fn RSA_new_public_key(
     }
     return rsa;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_new_private_key(
     mut n: *const BIGNUM,
     mut e: *const BIGNUM,
@@ -960,7 +960,7 @@ pub unsafe extern "C" fn RSA_new_private_key(
     }
     return rsa;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_new_private_key_no_crt(
     mut n: *const BIGNUM,
     mut e: *const BIGNUM,
@@ -976,7 +976,7 @@ pub unsafe extern "C" fn RSA_new_private_key_no_crt(
     }
     return rsa;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_new_private_key_no_e(
     mut n: *const BIGNUM,
     mut d: *const BIGNUM,
@@ -994,7 +994,7 @@ pub unsafe extern "C" fn RSA_new_private_key_no_e(
     }
     return rsa;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_new_public_key_large_e(
     mut n: *const BIGNUM,
     mut e: *const BIGNUM,
@@ -1012,7 +1012,7 @@ pub unsafe extern "C" fn RSA_new_public_key_large_e(
     }
     return rsa;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_new_private_key_large_e(
     mut n: *const BIGNUM,
     mut e: *const BIGNUM,
@@ -1039,11 +1039,11 @@ pub unsafe extern "C" fn RSA_new_private_key_large_e(
     }
     return rsa;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_new() -> *mut RSA {
     return RSA_new_method(0 as *const ENGINE);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_new_method(mut engine: *const ENGINE) -> *mut RSA {
     let mut rsa: *mut RSA = OPENSSL_zalloc(
         ::core::mem::size_of::<RSA>() as libc::c_ulong,
@@ -1075,7 +1075,7 @@ pub unsafe extern "C" fn RSA_new_method(mut engine: *const ENGINE) -> *mut RSA {
     }
     return rsa;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_new_method_no_e(
     mut engine: *const ENGINE,
     mut n: *const BIGNUM,
@@ -1088,7 +1088,7 @@ pub unsafe extern "C" fn RSA_new_method_no_e(
     (*rsa).flags |= 0x40 as libc::c_int;
     return rsa;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_free(mut rsa: *mut RSA) {
     if rsa.is_null() {
         return;
@@ -1117,48 +1117,48 @@ pub unsafe extern "C" fn RSA_free(mut rsa: *mut RSA) {
     CRYPTO_MUTEX_cleanup(&mut (*rsa).lock);
     OPENSSL_free(rsa as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_up_ref(mut rsa: *mut RSA) -> libc::c_int {
     CRYPTO_refcount_inc(&mut (*rsa).references);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_bits(mut rsa: *const RSA) -> libc::c_uint {
     return BN_num_bits((*rsa).n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_get0_n(mut rsa: *const RSA) -> *const BIGNUM {
     return (*rsa).n;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_get0_e(mut rsa: *const RSA) -> *const BIGNUM {
     return (*rsa).e;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_get0_d(mut rsa: *const RSA) -> *const BIGNUM {
     return (*rsa).d;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_get0_p(mut rsa: *const RSA) -> *const BIGNUM {
     return (*rsa).p;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_get0_q(mut rsa: *const RSA) -> *const BIGNUM {
     return (*rsa).q;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_get0_dmp1(mut rsa: *const RSA) -> *const BIGNUM {
     return (*rsa).dmp1;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_get0_dmq1(mut rsa: *const RSA) -> *const BIGNUM {
     return (*rsa).dmq1;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_get0_iqmp(mut rsa: *const RSA) -> *const BIGNUM {
     return (*rsa).iqmp;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_get0_key(
     mut rsa: *const RSA,
     mut out_n: *mut *const BIGNUM,
@@ -1175,7 +1175,7 @@ pub unsafe extern "C" fn RSA_get0_key(
         *out_d = (*rsa).d;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_get0_factors(
     mut rsa: *const RSA,
     mut out_p: *mut *const BIGNUM,
@@ -1188,13 +1188,13 @@ pub unsafe extern "C" fn RSA_get0_factors(
         *out_q = (*rsa).q;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_get0_pss_params(
     mut rsa: *const RSA,
 ) -> *const RSA_PSS_PARAMS {
     return 0 as *const RSA_PSS_PARAMS;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_get0_crt_params(
     mut rsa: *const RSA,
     mut out_dmp1: *mut *const BIGNUM,
@@ -1211,7 +1211,7 @@ pub unsafe extern "C" fn RSA_get0_crt_params(
         *out_iqmp = (*rsa).iqmp;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_set0_key(
     mut rsa: *mut RSA,
     mut n: *mut BIGNUM,
@@ -1238,7 +1238,7 @@ pub unsafe extern "C" fn RSA_set0_key(
     rsa_invalidate_key(rsa);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_set0_factors(
     mut rsa: *mut RSA,
     mut p: *mut BIGNUM,
@@ -1258,7 +1258,7 @@ pub unsafe extern "C" fn RSA_set0_factors(
     rsa_invalidate_key(rsa);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_set0_crt_params(
     mut rsa: *mut RSA,
     mut dmp1: *mut BIGNUM,
@@ -1286,7 +1286,7 @@ pub unsafe extern "C" fn RSA_set0_crt_params(
     rsa_invalidate_key(rsa);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_meth_new(
     mut name: *const libc::c_char,
     mut flags: libc::c_int,
@@ -1302,7 +1302,7 @@ pub unsafe extern "C" fn RSA_meth_new(
     }
     return meth;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_set_method(
     mut rsa: *mut RSA,
     mut meth: *const RSA_METHOD,
@@ -1321,7 +1321,7 @@ pub unsafe extern "C" fn RSA_set_method(
     (*rsa).meth = meth;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_get_method(mut rsa: *const RSA) -> *const RSA_METHOD {
     if rsa.is_null() {
         ERR_put_error(
@@ -1336,13 +1336,13 @@ pub unsafe extern "C" fn RSA_get_method(mut rsa: *const RSA) -> *const RSA_METHO
     }
     return (*rsa).meth;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_meth_free(mut meth: *mut RSA_METHOD) {
     if !meth.is_null() {
         OPENSSL_free(meth as *mut libc::c_void);
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_meth_set_init(
     mut meth: *mut RSA_METHOD,
     mut init: Option::<unsafe extern "C" fn(*mut RSA) -> libc::c_int>,
@@ -1361,7 +1361,7 @@ pub unsafe extern "C" fn RSA_meth_set_init(
     (*meth).init = init;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_meth_set_finish(
     mut meth: *mut RSA_METHOD,
     mut finish: Option::<unsafe extern "C" fn(*mut RSA) -> libc::c_int>,
@@ -1380,7 +1380,7 @@ pub unsafe extern "C" fn RSA_meth_set_finish(
     (*meth).finish = finish;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_meth_set_priv_dec(
     mut meth: *mut RSA_METHOD,
     mut priv_dec: Option::<
@@ -1407,7 +1407,7 @@ pub unsafe extern "C" fn RSA_meth_set_priv_dec(
     (*meth).decrypt = priv_dec;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_meth_set_priv_enc(
     mut meth: *mut RSA_METHOD,
     mut priv_enc: Option::<
@@ -1434,7 +1434,7 @@ pub unsafe extern "C" fn RSA_meth_set_priv_enc(
     (*meth).sign_raw = priv_enc;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_meth_set_pub_dec(
     mut meth: *mut RSA_METHOD,
     mut pub_dec: Option::<
@@ -1461,7 +1461,7 @@ pub unsafe extern "C" fn RSA_meth_set_pub_dec(
     (*meth).verify_raw = pub_dec;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_meth_set_pub_enc(
     mut meth: *mut RSA_METHOD,
     mut pub_enc: Option::<
@@ -1488,7 +1488,7 @@ pub unsafe extern "C" fn RSA_meth_set_pub_enc(
     (*meth).encrypt = pub_enc;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_meth_set0_app_data(
     mut meth: *mut RSA_METHOD,
     mut app_data: *mut libc::c_void,
@@ -1507,7 +1507,7 @@ pub unsafe extern "C" fn RSA_meth_set0_app_data(
     (*meth).app_data = app_data;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_meth_set_sign(
     mut meth: *mut RSA_METHOD,
     mut sign: Option::<
@@ -1558,7 +1558,7 @@ unsafe extern "C" fn rsa_sign_raw_no_self_test(
     }
     return rsa_default_sign_raw(rsa, out_len, out, max_out, in_0, in_len, padding);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_sign_raw(
     mut rsa: *mut RSA,
     mut out_len: *mut size_t,
@@ -1571,7 +1571,7 @@ pub unsafe extern "C" fn RSA_sign_raw(
     boringssl_ensure_rsa_self_test();
     return rsa_sign_raw_no_self_test(rsa, out_len, out, max_out, in_0, in_len, padding);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_size(mut rsa: *const RSA) -> libc::c_uint {
     let mut ret: size_t = if !((*rsa).meth).is_null() && ((*(*rsa).meth).size).is_some()
     {
@@ -1617,12 +1617,12 @@ pub unsafe extern "C" fn RSA_size(mut rsa: *const RSA) -> libc::c_uint {
     };
     return ret as libc::c_uint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_is_opaque(mut rsa: *const RSA) -> libc::c_int {
     return (!((*rsa).meth).is_null() && (*(*rsa).meth).flags & 1 as libc::c_int != 0)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_get_ex_new_index(
     mut argl: libc::c_long,
     mut argp: *mut libc::c_void,
@@ -1643,7 +1643,7 @@ pub unsafe extern "C" fn RSA_get_ex_new_index(
     }
     return index;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_set_ex_data(
     mut rsa: *mut RSA,
     mut idx: libc::c_int,
@@ -1651,7 +1651,7 @@ pub unsafe extern "C" fn RSA_set_ex_data(
 ) -> libc::c_int {
     return CRYPTO_set_ex_data(&mut (*rsa).ex_data, idx, arg);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_get_ex_data(
     mut rsa: *const RSA,
     mut idx: libc::c_int,
@@ -2088,7 +2088,7 @@ unsafe extern "C" fn rsa_check_digest_size(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_add_pkcs1_prefix(
     mut out_msg: *mut *mut uint8_t,
     mut out_msg_len: *mut size_t,
@@ -2227,7 +2227,7 @@ pub unsafe extern "C" fn RSA_add_pkcs1_prefix(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn rsa_sign_no_self_test(
     mut hash_nid: libc::c_int,
     mut digest: *const uint8_t,
@@ -2325,7 +2325,7 @@ pub unsafe extern "C" fn rsa_sign_no_self_test(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_sign(
     mut hash_nid: libc::c_int,
     mut digest: *const uint8_t,
@@ -2337,7 +2337,7 @@ pub unsafe extern "C" fn RSA_sign(
     boringssl_ensure_rsa_self_test();
     return rsa_sign_no_self_test(hash_nid, digest, digest_len, out, out_len, rsa);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_sign_pss_mgf1(
     mut rsa: *mut RSA,
     mut out_len: *mut size_t,
@@ -2378,7 +2378,7 @@ pub unsafe extern "C" fn RSA_sign_pss_mgf1(
     OPENSSL_free(padded as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn rsa_digestsign_no_self_test(
     mut md: *const EVP_MD,
     mut input: *const uint8_t,
@@ -2409,7 +2409,7 @@ pub unsafe extern "C" fn rsa_digestsign_no_self_test(
         rsa,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn rsa_verify_no_self_test(
     mut hash_nid: libc::c_int,
     mut digest: *const uint8_t,
@@ -2502,7 +2502,7 @@ pub unsafe extern "C" fn rsa_verify_no_self_test(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn rsa_digestverify_no_self_test(
     mut md: *const EVP_MD,
     mut input: *const uint8_t,
@@ -2533,7 +2533,7 @@ pub unsafe extern "C" fn rsa_digestverify_no_self_test(
         rsa,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_verify(
     mut hash_nid: libc::c_int,
     mut digest: *const uint8_t,
@@ -2545,7 +2545,7 @@ pub unsafe extern "C" fn RSA_verify(
     boringssl_ensure_rsa_self_test();
     return rsa_verify_no_self_test(hash_nid, digest, digest_len, sig, sig_len, rsa);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_verify_pss_mgf1(
     mut rsa: *mut RSA,
     mut digest: *const uint8_t,
@@ -2592,7 +2592,7 @@ pub unsafe extern "C" fn RSA_verify_pss_mgf1(
     OPENSSL_free(em as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn rsa_private_transform_no_self_test(
     mut rsa: *mut RSA,
     mut out: *mut uint8_t,
@@ -2605,7 +2605,7 @@ pub unsafe extern "C" fn rsa_private_transform_no_self_test(
     }
     return rsa_default_private_transform(rsa, out, in_0, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn rsa_private_transform(
     mut rsa: *mut RSA,
     mut out: *mut uint8_t,
@@ -2615,7 +2615,7 @@ pub unsafe extern "C" fn rsa_private_transform(
     boringssl_ensure_rsa_self_test();
     return rsa_private_transform_no_self_test(rsa, out, in_0, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_flags(mut rsa: *const RSA) -> libc::c_int {
     if rsa.is_null() {
         ERR_put_error(
@@ -2630,7 +2630,7 @@ pub unsafe extern "C" fn RSA_flags(mut rsa: *const RSA) -> libc::c_int {
     }
     return (*rsa).flags;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_set_flags(mut rsa: *mut RSA, mut flags: libc::c_int) {
     if rsa.is_null() {
         ERR_put_error(
@@ -2645,7 +2645,7 @@ pub unsafe extern "C" fn RSA_set_flags(mut rsa: *mut RSA, mut flags: libc::c_int
     }
     (*rsa).flags |= flags;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_test_flags(
     mut rsa: *const RSA,
     mut flags: libc::c_int,
@@ -2663,7 +2663,7 @@ pub unsafe extern "C" fn RSA_test_flags(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_blinding_on(
     mut rsa: *mut RSA,
     mut ctx: *mut BN_CTX,
@@ -2674,7 +2674,7 @@ pub unsafe extern "C" fn RSA_blinding_on(
         0 as libc::c_int
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_blinding_off_temp_for_accp_compatibility(
     mut rsa: *mut RSA,
 ) {
@@ -2682,7 +2682,7 @@ pub unsafe extern "C" fn RSA_blinding_off_temp_for_accp_compatibility(
         (*rsa).flags |= 8 as libc::c_int;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_pkey_ctx_ctrl(
     mut ctx: *mut EVP_PKEY_CTX,
     mut optype: libc::c_int,
@@ -2700,7 +2700,7 @@ pub unsafe extern "C" fn RSA_pkey_ctx_ctrl(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn is_public_component_of_rsa_key_good(
     mut key: *const RSA,
 ) -> libc::c_int {
@@ -2829,7 +2829,7 @@ unsafe extern "C" fn determine_key_type_for_checking(
     }
     return RSA_KEY_TYPE_FOR_CHECKING_INVALID;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_check_key(mut key: *const RSA) -> libc::c_int {
     let mut pm1_bits: libc::c_uint = 0;
     let mut qm1_bits: libc::c_uint = 0;
@@ -3286,7 +3286,7 @@ unsafe extern "C" fn g_small_factors() -> *const BIGNUM {
     );
     return g_small_factors_storage_bss_get() as *const BIGNUM;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_check_fips(mut key: *mut RSA) -> libc::c_int {
     let mut key_type: rsa_key_type_for_checking = determine_key_type_for_checking(key);
     if key_type as libc::c_uint

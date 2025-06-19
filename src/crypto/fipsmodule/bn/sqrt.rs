@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn BN_new() -> *mut BIGNUM;
     fn BN_free(bn: *mut BIGNUM);
@@ -120,7 +119,7 @@ pub struct bn_mont_ctx_st {
     pub n0: [BN_ULONG; 2],
 }
 pub type BN_MONT_CTX = bn_mont_ctx_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_mod_sqrt(
     mut in_0: *mut BIGNUM,
     mut a: *const BIGNUM,
@@ -536,7 +535,7 @@ pub unsafe extern "C" fn BN_mod_sqrt(
     BN_CTX_end(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_sqrt(
     mut out_sqrt: *mut BIGNUM,
     mut in_0: *const BIGNUM,

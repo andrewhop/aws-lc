@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn abort() -> !;
     fn CRYPTO_STATIC_MUTEX_lock_write(lock: *mut CRYPTO_STATIC_MUTEX);
     fn CRYPTO_STATIC_MUTEX_unlock_write(lock: *mut CRYPTO_STATIC_MUTEX);
@@ -80,7 +80,7 @@ static mut g_refcount_lock: CRYPTO_STATIC_MUTEX = {
     };
     init
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_refcount_inc(mut count: *mut CRYPTO_refcount_t) {
     CRYPTO_STATIC_MUTEX_lock_write(&mut g_refcount_lock);
     if *count < 0xffffffff as libc::c_uint {
@@ -89,7 +89,7 @@ pub unsafe extern "C" fn CRYPTO_refcount_inc(mut count: *mut CRYPTO_refcount_t) 
     }
     CRYPTO_STATIC_MUTEX_unlock_write(&mut g_refcount_lock);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_refcount_dec_and_test_zero(
     mut count: *mut CRYPTO_refcount_t,
 ) -> libc::c_int {

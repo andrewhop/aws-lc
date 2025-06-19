@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type env_md_st;
     fn CBS_data(cbs: *const CBS) -> *const uint8_t;
     fn CBS_len(cbs: *const CBS) -> size_t;
@@ -102,7 +101,7 @@ unsafe extern "C" fn OPENSSL_memcmp(
     }
     return memcmp(s1, s2, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut sha1_func: RSA_PSS_SUPPORTED_ALGOR = {
     let mut init = rsa_pss_supported_algor_st {
         nid: 64 as libc::c_int,
@@ -121,7 +120,7 @@ pub static mut sha1_func: RSA_PSS_SUPPORTED_ALGOR = {
     };
     init
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut sha224_func: RSA_PSS_SUPPORTED_ALGOR = {
     let mut init = rsa_pss_supported_algor_st {
         nid: 675 as libc::c_int,
@@ -140,7 +139,7 @@ pub static mut sha224_func: RSA_PSS_SUPPORTED_ALGOR = {
     };
     init
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut sha256_func: RSA_PSS_SUPPORTED_ALGOR = {
     let mut init = rsa_pss_supported_algor_st {
         nid: 672 as libc::c_int,
@@ -159,7 +158,7 @@ pub static mut sha256_func: RSA_PSS_SUPPORTED_ALGOR = {
     };
     init
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut sha384_func: RSA_PSS_SUPPORTED_ALGOR = {
     let mut init = rsa_pss_supported_algor_st {
         nid: 673 as libc::c_int,
@@ -178,7 +177,7 @@ pub static mut sha384_func: RSA_PSS_SUPPORTED_ALGOR = {
     };
     init
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut sha512_func: RSA_PSS_SUPPORTED_ALGOR = {
     let mut init = rsa_pss_supported_algor_st {
         nid: 674 as libc::c_int,
@@ -206,7 +205,7 @@ static mut rsa_pss_hash_functions: [*const RSA_PSS_SUPPORTED_ALGOR; 5] = unsafe 
         &sha512_func as *const RSA_PSS_SUPPORTED_ALGOR,
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut MGF1: RSA_PSS_SUPPORTED_ALGOR = {
     let mut init = rsa_pss_supported_algor_st {
         nid: 911 as libc::c_int,
@@ -541,7 +540,7 @@ unsafe extern "C" fn decode_pss_trailer_field(
     }
     return parse_trailer_field(&mut cs, trailer_field);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSASSA_PSS_parse_params(
     mut params: *mut CBS,
     mut pss_params: *mut *mut RSASSA_PSS_PARAMS,
@@ -621,7 +620,7 @@ unsafe extern "C" fn pss_parse_nid(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_INTEGER_new() -> *mut RSA_INTEGER {
     let mut ret: *mut RSA_INTEGER = OPENSSL_zalloc(
         ::core::mem::size_of::<RSA_INTEGER>() as libc::c_ulong,
@@ -631,7 +630,7 @@ pub unsafe extern "C" fn RSA_INTEGER_new() -> *mut RSA_INTEGER {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_ALGOR_IDENTIFIER_new() -> *mut RSA_ALGOR_IDENTIFIER {
     let mut ret: *mut RSA_ALGOR_IDENTIFIER = OPENSSL_zalloc(
         ::core::mem::size_of::<RSA_ALGOR_IDENTIFIER>() as libc::c_ulong,
@@ -641,7 +640,7 @@ pub unsafe extern "C" fn RSA_ALGOR_IDENTIFIER_new() -> *mut RSA_ALGOR_IDENTIFIER
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_MGA_IDENTIFIER_new() -> *mut RSA_MGA_IDENTIFIER {
     let mut ret: *mut RSA_MGA_IDENTIFIER = OPENSSL_zalloc(
         ::core::mem::size_of::<RSA_MGA_IDENTIFIER>() as libc::c_ulong,
@@ -651,7 +650,7 @@ pub unsafe extern "C" fn RSA_MGA_IDENTIFIER_new() -> *mut RSA_MGA_IDENTIFIER {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSASSA_PSS_PARAMS_new() -> *mut RSASSA_PSS_PARAMS {
     let mut ret: *mut RSASSA_PSS_PARAMS = OPENSSL_zalloc(
         ::core::mem::size_of::<RSASSA_PSS_PARAMS>() as libc::c_ulong,
@@ -661,17 +660,17 @@ pub unsafe extern "C" fn RSASSA_PSS_PARAMS_new() -> *mut RSASSA_PSS_PARAMS {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_INTEGER_free(mut ptr: *mut RSA_INTEGER) {
     OPENSSL_free(ptr as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_ALGOR_IDENTIFIER_free(
     mut algor: *mut RSA_ALGOR_IDENTIFIER,
 ) {
     OPENSSL_free(algor as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSA_MGA_IDENTIFIER_free(mut mga: *mut RSA_MGA_IDENTIFIER) {
     if mga.is_null() {
         return;
@@ -680,7 +679,7 @@ pub unsafe extern "C" fn RSA_MGA_IDENTIFIER_free(mut mga: *mut RSA_MGA_IDENTIFIE
     RSA_ALGOR_IDENTIFIER_free((*mga).one_way_hash);
     OPENSSL_free(mga as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSASSA_PSS_PARAMS_free(mut params: *mut RSASSA_PSS_PARAMS) {
     if params.is_null() {
         return;
@@ -737,7 +736,7 @@ unsafe extern "C" fn pss_saltlen_create(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSASSA_PSS_PARAMS_create(
     mut sigmd: *const EVP_MD,
     mut mgf1md: *const EVP_MD,
@@ -792,7 +791,7 @@ unsafe extern "C" fn hash_algor_to_EVP_MD(
     }
     return (*md != 0 as *mut libc::c_void as *const EVP_MD) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RSASSA_PSS_PARAMS_get(
     mut pss: *const RSASSA_PSS_PARAMS,
     mut md: *mut *const EVP_MD,

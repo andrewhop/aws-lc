@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn abort() -> !;
     fn AES_encrypt(in_0: *const uint8_t, out: *mut uint8_t, key: *const AES_KEY);
     fn AES_decrypt(in_0: *const uint8_t, out: *mut uint8_t, key: *const AES_KEY);
@@ -190,7 +190,7 @@ unsafe extern "C" fn vpaes_encrypt_wrapper(
 ) {
     vpaes_encrypt(in_0, out, key);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AES_ctr128_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -261,7 +261,7 @@ pub unsafe extern "C" fn AES_ctr128_encrypt(
     }
     FIPS_service_indicator_update_state();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AES_ecb_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -341,7 +341,7 @@ pub unsafe extern "C" fn AES_ecb_encrypt(
     }
     FIPS_service_indicator_update_state();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AES_cbc_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -389,7 +389,7 @@ pub unsafe extern "C" fn AES_cbc_encrypt(
     }
     FIPS_service_indicator_update_state();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AES_ofb128_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -417,7 +417,7 @@ pub unsafe extern "C" fn AES_ofb128_encrypt(
     );
     *num = num_u as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AES_cfb1_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -447,7 +447,7 @@ pub unsafe extern "C" fn AES_cfb1_encrypt(
     );
     *num = num_u as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AES_cfb8_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,
@@ -477,7 +477,7 @@ pub unsafe extern "C" fn AES_cfb8_encrypt(
     );
     *num = num_u as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AES_cfb128_encrypt(
     mut in_0: *const uint8_t,
     mut out: *mut uint8_t,

@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn RAND_bytes(buf: *mut uint8_t, len: size_t) -> libc::c_int;
     fn OPENSSL_cleanse(ptr: *mut libc::c_void, len: size_t);
     fn __assert_fail(
@@ -236,19 +236,19 @@ unsafe extern "C" fn ml_dsa_params_init(mut params: *mut ml_dsa_params, mut k: s
             .wrapping_add((*params).poly_vech_packed_bytes);
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_44_params_init(mut params: *mut ml_dsa_params) {
     ml_dsa_params_init(params, 2 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_65_params_init(mut params: *mut ml_dsa_params) {
     ml_dsa_params_init(params, 3 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_87_params_init(mut params: *mut ml_dsa_params) {
     ml_dsa_params_init(params, 5 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_keypair_internal(
     mut params: *mut ml_dsa_params,
     mut pk: *mut uint8_t,
@@ -634,7 +634,7 @@ pub unsafe extern "C" fn ml_dsa_keypair_internal(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_keypair(
     mut params: *mut ml_dsa_params,
     mut pk: *mut uint8_t,
@@ -647,7 +647,7 @@ pub unsafe extern "C" fn ml_dsa_keypair(
     let mut result: libc::c_int = ml_dsa_keypair_internal(params, pk, sk, seed);
     return result;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_sign_internal(
     mut params: *mut ml_dsa_params,
     mut sig: *mut uint8_t,
@@ -865,7 +865,7 @@ pub unsafe extern "C" fn ml_dsa_sign_internal(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_sign(
     mut params: *mut ml_dsa_params,
     mut sig: *mut uint8_t,
@@ -913,7 +913,7 @@ pub unsafe extern "C" fn ml_dsa_sign(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_extmu_sign(
     mut params: *mut ml_dsa_params,
     mut sig: *mut uint8_t,
@@ -944,7 +944,7 @@ pub unsafe extern "C" fn ml_dsa_extmu_sign(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_sign_message(
     mut params: *mut ml_dsa_params,
     mut sm: *mut uint8_t,
@@ -985,7 +985,7 @@ pub unsafe extern "C" fn ml_dsa_sign_message(
     *smlen = (*smlen).wrapping_add(mlen);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_verify_internal(
     mut params: *mut ml_dsa_params,
     mut sig: *const uint8_t,
@@ -1172,7 +1172,7 @@ pub unsafe extern "C" fn ml_dsa_verify_internal(
     );
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_verify(
     mut params: *mut ml_dsa_params,
     mut sig: *const uint8_t,
@@ -1206,7 +1206,7 @@ pub unsafe extern "C" fn ml_dsa_verify(
         0 as libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_verify_message(
     mut params: *mut ml_dsa_params,
     mut m: *mut uint8_t,
@@ -1509,7 +1509,7 @@ static mut ml_dsa_zetas: [int32_t; 256] = [
     -(846154 as libc::c_int),
     1976782 as libc::c_int,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_ntt(mut a: *mut int32_t) {
     let mut len: libc::c_uint = 0;
     let mut start: libc::c_uint = 0;
@@ -1538,7 +1538,7 @@ pub unsafe extern "C" fn ml_dsa_ntt(mut a: *mut int32_t) {
         len >>= 1 as libc::c_int;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_invntt_tomont(mut a: *mut int32_t) {
     let mut start: libc::c_uint = 0;
     let mut len: libc::c_uint = 0;
@@ -1581,7 +1581,7 @@ pub unsafe extern "C" fn ml_dsa_invntt_tomont(mut a: *mut int32_t) {
         j;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_fqmul(mut a: int32_t, mut b: int32_t) -> int64_t {
     let mut s: int64_t = 0;
     let mut t: int32_t = 0;
@@ -1591,25 +1591,25 @@ pub unsafe extern "C" fn ml_dsa_fqmul(mut a: int32_t, mut b: int32_t) -> int64_t
         as int32_t;
     return t as int64_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_reduce32(mut a: int32_t) -> int32_t {
     let mut t: int32_t = 0;
     t = a + ((1 as libc::c_int) << 22 as libc::c_int) >> 23 as libc::c_int;
     t = a - t * 8380417 as libc::c_int;
     return t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_caddq(mut a: int32_t) -> int32_t {
     a += a >> 31 as libc::c_int & 8380417 as libc::c_int;
     return a;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_freeze(mut a: int32_t) -> int32_t {
     a = ml_dsa_reduce32(a);
     a = ml_dsa_caddq(a);
     return a;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_reduce(mut a: *mut ml_dsa_poly) {
     let mut i: libc::c_uint = 0;
     i = 0 as libc::c_int as libc::c_uint;
@@ -1619,7 +1619,7 @@ pub unsafe extern "C" fn ml_dsa_poly_reduce(mut a: *mut ml_dsa_poly) {
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_caddq(mut a: *mut ml_dsa_poly) {
     let mut i: libc::c_uint = 0;
     i = 0 as libc::c_int as libc::c_uint;
@@ -1629,7 +1629,7 @@ pub unsafe extern "C" fn ml_dsa_poly_caddq(mut a: *mut ml_dsa_poly) {
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_add(
     mut c: *mut ml_dsa_poly,
     mut a: *const ml_dsa_poly,
@@ -1643,7 +1643,7 @@ pub unsafe extern "C" fn ml_dsa_poly_add(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_sub(
     mut c: *mut ml_dsa_poly,
     mut a: *const ml_dsa_poly,
@@ -1657,7 +1657,7 @@ pub unsafe extern "C" fn ml_dsa_poly_sub(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_shiftl(mut a: *mut ml_dsa_poly) {
     let mut i: libc::c_uint = 0;
     i = 0 as libc::c_int as libc::c_uint;
@@ -1667,15 +1667,15 @@ pub unsafe extern "C" fn ml_dsa_poly_shiftl(mut a: *mut ml_dsa_poly) {
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_ntt(mut a: *mut ml_dsa_poly) {
     ml_dsa_ntt(((*a).coeffs).as_mut_ptr());
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_invntt_tomont(mut a: *mut ml_dsa_poly) {
     ml_dsa_invntt_tomont(((*a).coeffs).as_mut_ptr());
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_pointwise_montgomery(
     mut c: *mut ml_dsa_poly,
     mut a: *const ml_dsa_poly,
@@ -1692,7 +1692,7 @@ pub unsafe extern "C" fn ml_dsa_poly_pointwise_montgomery(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_power2round(
     mut a1: *mut ml_dsa_poly,
     mut a0: *mut ml_dsa_poly,
@@ -1711,7 +1711,7 @@ pub unsafe extern "C" fn ml_dsa_poly_power2round(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_decompose(
     mut params: *mut ml_dsa_params,
     mut a1: *mut ml_dsa_poly,
@@ -1732,7 +1732,7 @@ pub unsafe extern "C" fn ml_dsa_poly_decompose(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_make_hint(
     mut params: *mut ml_dsa_params,
     mut h: *mut ml_dsa_poly,
@@ -1756,7 +1756,7 @@ pub unsafe extern "C" fn ml_dsa_poly_make_hint(
     }
     return s;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_use_hint(
     mut params: *mut ml_dsa_params,
     mut b: *mut ml_dsa_poly,
@@ -1777,7 +1777,7 @@ pub unsafe extern "C" fn ml_dsa_poly_use_hint(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_chknorm(
     mut a: *const ml_dsa_poly,
     mut B: int32_t,
@@ -1829,7 +1829,7 @@ unsafe extern "C" fn ml_dsa_rej_uniform(
     }
     return ctr;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_uniform(
     mut a: *mut ml_dsa_poly,
     mut seed: *const uint8_t,
@@ -2033,7 +2033,7 @@ unsafe extern "C" fn rej_eta(
     }
     return ctr;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_uniform_eta(
     mut params: *mut ml_dsa_params,
     mut a: *mut ml_dsa_poly,
@@ -2119,7 +2119,7 @@ pub unsafe extern "C" fn ml_dsa_poly_uniform_eta(
         ::core::mem::size_of::<KECCAK1600_CTX>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_uniform_gamma1(
     mut params: *mut ml_dsa_params,
     mut a: *mut ml_dsa_poly,
@@ -2172,7 +2172,7 @@ pub unsafe extern "C" fn ml_dsa_poly_uniform_gamma1(
         ::core::mem::size_of::<KECCAK1600_CTX>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_poly_challenge(
     mut params: *mut ml_dsa_params,
     mut c: *mut ml_dsa_poly,
@@ -2266,7 +2266,7 @@ pub unsafe extern "C" fn ml_dsa_poly_challenge(
         ::core::mem::size_of::<KECCAK1600_CTX>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyeta_pack(
     mut params: *mut ml_dsa_params,
     mut r: *mut uint8_t,
@@ -2450,7 +2450,7 @@ pub unsafe extern "C" fn ml_dsa_polyeta_pack(
         }
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyeta_unpack(
     mut params: *mut ml_dsa_params,
     mut r: *mut ml_dsa_poly,
@@ -2731,7 +2731,7 @@ pub unsafe extern "C" fn ml_dsa_polyeta_unpack(
         }
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyt1_pack(
     mut r: *mut uint8_t,
     mut a: *const ml_dsa_poly,
@@ -2805,7 +2805,7 @@ pub unsafe extern "C" fn ml_dsa_polyt1_pack(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyt1_unpack(
     mut r: *mut ml_dsa_poly,
     mut a: *const uint8_t,
@@ -2885,7 +2885,7 @@ pub unsafe extern "C" fn ml_dsa_polyt1_unpack(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyt0_pack(
     mut r: *mut uint8_t,
     mut a: *const ml_dsa_poly,
@@ -3080,7 +3080,7 @@ pub unsafe extern "C" fn ml_dsa_polyt0_pack(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyt0_unpack(
     mut r: *mut ml_dsa_poly,
     mut a: *const uint8_t,
@@ -3452,7 +3452,7 @@ pub unsafe extern "C" fn ml_dsa_polyt0_unpack(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyz_pack(
     mut params: *mut ml_dsa_params,
     mut r: *mut uint8_t,
@@ -3682,7 +3682,7 @@ pub unsafe extern "C" fn ml_dsa_polyz_pack(
         }
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyz_unpack(
     mut params: *mut ml_dsa_params,
     mut r: *mut ml_dsa_poly,
@@ -4066,7 +4066,7 @@ pub unsafe extern "C" fn ml_dsa_polyz_unpack(
         }
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyw1_pack(
     mut params: *mut ml_dsa_params,
     mut r: *mut uint8_t,
@@ -4168,7 +4168,7 @@ pub unsafe extern "C" fn ml_dsa_polyw1_pack(
         }
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyvec_matrix_expand(
     mut params: *mut ml_dsa_params,
     mut mat: *mut polyvecl,
@@ -4192,7 +4192,7 @@ pub unsafe extern "C" fn ml_dsa_polyvec_matrix_expand(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyvec_matrix_pointwise_montgomery(
     mut params: *mut ml_dsa_params,
     mut t: *mut polyveck,
@@ -4212,7 +4212,7 @@ pub unsafe extern "C" fn ml_dsa_polyvec_matrix_pointwise_montgomery(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyvecl_uniform_eta(
     mut params: *mut ml_dsa_params,
     mut v: *mut polyvecl,
@@ -4234,7 +4234,7 @@ pub unsafe extern "C" fn ml_dsa_polyvecl_uniform_eta(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyvecl_uniform_gamma1(
     mut params: *mut ml_dsa_params,
     mut v: *mut polyvecl,
@@ -4255,7 +4255,7 @@ pub unsafe extern "C" fn ml_dsa_polyvecl_uniform_gamma1(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyvecl_reduce(
     mut params: *mut ml_dsa_params,
     mut v: *mut polyvecl,
@@ -4268,7 +4268,7 @@ pub unsafe extern "C" fn ml_dsa_polyvecl_reduce(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyvecl_add(
     mut params: *mut ml_dsa_params,
     mut w: *mut polyvecl,
@@ -4287,7 +4287,7 @@ pub unsafe extern "C" fn ml_dsa_polyvecl_add(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyvecl_ntt(
     mut params: *mut ml_dsa_params,
     mut v: *mut polyvecl,
@@ -4300,7 +4300,7 @@ pub unsafe extern "C" fn ml_dsa_polyvecl_ntt(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyvecl_invntt_tomont(
     mut params: *mut ml_dsa_params,
     mut v: *mut polyvecl,
@@ -4313,7 +4313,7 @@ pub unsafe extern "C" fn ml_dsa_polyvecl_invntt_tomont(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyvecl_pointwise_poly_montgomery(
     mut params: *mut ml_dsa_params,
     mut r: *mut polyvecl,
@@ -4332,7 +4332,7 @@ pub unsafe extern "C" fn ml_dsa_polyvecl_pointwise_poly_montgomery(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyvecl_pointwise_acc_montgomery(
     mut params: *mut ml_dsa_params,
     mut w: *mut ml_dsa_poly,
@@ -4358,7 +4358,7 @@ pub unsafe extern "C" fn ml_dsa_polyvecl_pointwise_acc_montgomery(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyvecl_chknorm(
     mut params: *mut ml_dsa_params,
     mut v: *const polyvecl,
@@ -4375,7 +4375,7 @@ pub unsafe extern "C" fn ml_dsa_polyvecl_chknorm(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyveck_uniform_eta(
     mut params: *mut ml_dsa_params,
     mut v: *mut polyveck,
@@ -4397,7 +4397,7 @@ pub unsafe extern "C" fn ml_dsa_polyveck_uniform_eta(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyveck_reduce(
     mut params: *mut ml_dsa_params,
     mut v: *mut polyveck,
@@ -4410,7 +4410,7 @@ pub unsafe extern "C" fn ml_dsa_polyveck_reduce(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyveck_caddq(
     mut params: *mut ml_dsa_params,
     mut v: *mut polyveck,
@@ -4423,7 +4423,7 @@ pub unsafe extern "C" fn ml_dsa_polyveck_caddq(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyveck_add(
     mut params: *mut ml_dsa_params,
     mut w: *mut polyveck,
@@ -4442,7 +4442,7 @@ pub unsafe extern "C" fn ml_dsa_polyveck_add(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyveck_sub(
     mut params: *mut ml_dsa_params,
     mut w: *mut polyveck,
@@ -4461,7 +4461,7 @@ pub unsafe extern "C" fn ml_dsa_polyveck_sub(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyveck_shiftl(
     mut params: *mut ml_dsa_params,
     mut v: *mut polyveck,
@@ -4474,7 +4474,7 @@ pub unsafe extern "C" fn ml_dsa_polyveck_shiftl(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyveck_ntt(
     mut params: *mut ml_dsa_params,
     mut v: *mut polyveck,
@@ -4487,7 +4487,7 @@ pub unsafe extern "C" fn ml_dsa_polyveck_ntt(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyveck_invntt_tomont(
     mut params: *mut ml_dsa_params,
     mut v: *mut polyveck,
@@ -4500,7 +4500,7 @@ pub unsafe extern "C" fn ml_dsa_polyveck_invntt_tomont(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyveck_pointwise_poly_montgomery(
     mut params: *mut ml_dsa_params,
     mut r: *mut polyveck,
@@ -4519,7 +4519,7 @@ pub unsafe extern "C" fn ml_dsa_polyveck_pointwise_poly_montgomery(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyveck_chknorm(
     mut params: *mut ml_dsa_params,
     mut v: *const polyveck,
@@ -4536,7 +4536,7 @@ pub unsafe extern "C" fn ml_dsa_polyveck_chknorm(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyveck_power2round(
     mut params: *mut ml_dsa_params,
     mut v1: *mut polyveck,
@@ -4555,7 +4555,7 @@ pub unsafe extern "C" fn ml_dsa_polyveck_power2round(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyveck_decompose(
     mut params: *mut ml_dsa_params,
     mut v1: *mut polyveck,
@@ -4575,7 +4575,7 @@ pub unsafe extern "C" fn ml_dsa_polyveck_decompose(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyveck_make_hint(
     mut params: *mut ml_dsa_params,
     mut h: *mut polyveck,
@@ -4600,7 +4600,7 @@ pub unsafe extern "C" fn ml_dsa_polyveck_make_hint(
     }
     return s;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyveck_use_hint(
     mut params: *mut ml_dsa_params,
     mut w: *mut polyveck,
@@ -4620,7 +4620,7 @@ pub unsafe extern "C" fn ml_dsa_polyveck_use_hint(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_polyveck_pack_w1(
     mut params: *mut ml_dsa_params,
     mut r: *mut uint8_t,
@@ -4638,7 +4638,7 @@ pub unsafe extern "C" fn ml_dsa_polyveck_pack_w1(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_pack_pk_from_sk(
     mut params: *mut ml_dsa_params,
     mut pk: *mut uint8_t,
@@ -4703,7 +4703,7 @@ pub unsafe extern "C" fn ml_dsa_pack_pk_from_sk(
         64 as libc::c_int as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_pack_pk(
     mut params: *mut ml_dsa_params,
     mut pk: *mut uint8_t,
@@ -4728,7 +4728,7 @@ pub unsafe extern "C" fn ml_dsa_pack_pk(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_unpack_pk(
     mut params: *mut ml_dsa_params,
     mut rho: *mut uint8_t,
@@ -4753,7 +4753,7 @@ pub unsafe extern "C" fn ml_dsa_unpack_pk(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_pack_sk(
     mut params: *mut ml_dsa_params,
     mut sk: *mut uint8_t,
@@ -4818,7 +4818,7 @@ pub unsafe extern "C" fn ml_dsa_pack_sk(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_unpack_sk(
     mut params: *mut ml_dsa_params,
     mut rho: *mut uint8_t,
@@ -4883,7 +4883,7 @@ pub unsafe extern "C" fn ml_dsa_unpack_sk(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_pack_sig(
     mut params: *mut ml_dsa_params,
     mut sig: *mut uint8_t,
@@ -4936,7 +4936,7 @@ pub unsafe extern "C" fn ml_dsa_pack_sig(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_unpack_sig(
     mut params: *mut ml_dsa_params,
     mut c: *mut uint8_t,
@@ -5040,7 +5040,7 @@ unsafe extern "C" fn OPENSSL_memcpy(
 }
 #[inline]
 unsafe extern "C" fn boringssl_ensure_ml_dsa_self_test() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_power2round(
     mut a0: *mut int32_t,
     mut a: int32_t,
@@ -5051,7 +5051,7 @@ pub unsafe extern "C" fn ml_dsa_power2round(
     *a0 = a - (a1 << 13 as libc::c_int);
     return a1;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_decompose(
     mut params: *mut ml_dsa_params,
     mut a0: *mut int32_t,
@@ -5117,7 +5117,7 @@ pub unsafe extern "C" fn ml_dsa_decompose(
             >> 31 as libc::c_int & 8380417 as libc::c_int;
     return a1;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_make_hint(
     mut params: *mut ml_dsa_params,
     mut a0: int32_t,
@@ -5130,7 +5130,7 @@ pub unsafe extern "C" fn ml_dsa_make_hint(
     }
     return 0 as libc::c_int as libc::c_uint;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_use_hint(
     mut params: *mut ml_dsa_params,
     mut a: int32_t,
@@ -5202,7 +5202,7 @@ pub unsafe extern "C" fn ml_dsa_use_hint(
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_44_keypair_internal(
     mut public_key: *mut uint8_t,
     mut private_key: *mut uint8_t,
@@ -5211,7 +5211,7 @@ pub unsafe extern "C" fn ml_dsa_44_keypair_internal(
     boringssl_ensure_ml_dsa_self_test();
     return ml_dsa_44_keypair_internal_no_self_test(public_key, private_key, seed);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_44_keypair_internal_no_self_test(
     mut public_key: *mut uint8_t,
     mut private_key: *mut uint8_t,
@@ -5239,7 +5239,7 @@ pub unsafe extern "C" fn ml_dsa_44_keypair_internal_no_self_test(
     return (ml_dsa_keypair_internal(&mut params, public_key, private_key, seed)
         == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_44_keypair(
     mut public_key: *mut uint8_t,
     mut private_key: *mut uint8_t,
@@ -5268,7 +5268,7 @@ pub unsafe extern "C" fn ml_dsa_44_keypair(
     return (ml_dsa_keypair(&mut params, public_key, private_key, seed)
         == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_44_pack_pk_from_sk(
     mut public_key: *mut uint8_t,
     mut private_key: *const uint8_t,
@@ -5295,7 +5295,7 @@ pub unsafe extern "C" fn ml_dsa_44_pack_pk_from_sk(
     return (ml_dsa_pack_pk_from_sk(&mut params, public_key, private_key)
         == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_44_sign(
     mut private_key: *const uint8_t,
     mut sig: *mut uint8_t,
@@ -5336,7 +5336,7 @@ pub unsafe extern "C" fn ml_dsa_44_sign(
         private_key,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_extmu_44_sign(
     mut private_key: *const uint8_t,
     mut sig: *mut uint8_t,
@@ -5367,7 +5367,7 @@ pub unsafe extern "C" fn ml_dsa_extmu_44_sign(
     return (ml_dsa_extmu_sign(&mut params, sig, sig_len, mu, mu_len, private_key)
         == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_44_sign_internal(
     mut private_key: *const uint8_t,
     mut sig: *mut uint8_t,
@@ -5390,7 +5390,7 @@ pub unsafe extern "C" fn ml_dsa_44_sign_internal(
         rnd,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_44_sign_internal_no_self_test(
     mut private_key: *const uint8_t,
     mut sig: *mut uint8_t,
@@ -5433,7 +5433,7 @@ pub unsafe extern "C" fn ml_dsa_44_sign_internal_no_self_test(
         0 as libc::c_int,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_extmu_44_sign_internal(
     mut private_key: *const uint8_t,
     mut sig: *mut uint8_t,
@@ -5477,7 +5477,7 @@ pub unsafe extern "C" fn ml_dsa_extmu_44_sign_internal(
         1 as libc::c_int,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_44_verify(
     mut public_key: *const uint8_t,
     mut sig: *const uint8_t,
@@ -5518,7 +5518,7 @@ pub unsafe extern "C" fn ml_dsa_44_verify(
         public_key,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_extmu_44_verify(
     mut public_key: *const uint8_t,
     mut sig: *const uint8_t,
@@ -5558,7 +5558,7 @@ pub unsafe extern "C" fn ml_dsa_extmu_44_verify(
         1 as libc::c_int,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_44_verify_internal(
     mut public_key: *const uint8_t,
     mut sig: *const uint8_t,
@@ -5579,7 +5579,7 @@ pub unsafe extern "C" fn ml_dsa_44_verify_internal(
         pre_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_44_verify_internal_no_self_test(
     mut public_key: *const uint8_t,
     mut sig: *const uint8_t,
@@ -5620,7 +5620,7 @@ pub unsafe extern "C" fn ml_dsa_44_verify_internal_no_self_test(
         0 as libc::c_int,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_extmu_44_verify_internal(
     mut public_key: *const uint8_t,
     mut sig: *const uint8_t,
@@ -5662,7 +5662,7 @@ pub unsafe extern "C" fn ml_dsa_extmu_44_verify_internal(
         1 as libc::c_int,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_65_keypair(
     mut public_key: *mut uint8_t,
     mut private_key: *mut uint8_t,
@@ -5691,7 +5691,7 @@ pub unsafe extern "C" fn ml_dsa_65_keypair(
     return (ml_dsa_keypair(&mut params, public_key, private_key, seed)
         == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_65_pack_pk_from_sk(
     mut public_key: *mut uint8_t,
     mut private_key: *const uint8_t,
@@ -5718,7 +5718,7 @@ pub unsafe extern "C" fn ml_dsa_65_pack_pk_from_sk(
     return (ml_dsa_pack_pk_from_sk(&mut params, public_key, private_key)
         == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_65_keypair_internal(
     mut public_key: *mut uint8_t,
     mut private_key: *mut uint8_t,
@@ -5747,7 +5747,7 @@ pub unsafe extern "C" fn ml_dsa_65_keypair_internal(
     return (ml_dsa_keypair_internal(&mut params, public_key, private_key, seed)
         == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_65_sign(
     mut private_key: *const uint8_t,
     mut sig: *mut uint8_t,
@@ -5788,7 +5788,7 @@ pub unsafe extern "C" fn ml_dsa_65_sign(
         private_key,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_extmu_65_sign(
     mut private_key: *const uint8_t,
     mut sig: *mut uint8_t,
@@ -5819,7 +5819,7 @@ pub unsafe extern "C" fn ml_dsa_extmu_65_sign(
     return (ml_dsa_extmu_sign(&mut params, sig, sig_len, mu, mu_len, private_key)
         == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_65_sign_internal(
     mut private_key: *const uint8_t,
     mut sig: *mut uint8_t,
@@ -5863,7 +5863,7 @@ pub unsafe extern "C" fn ml_dsa_65_sign_internal(
         0 as libc::c_int,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_extmu_65_sign_internal(
     mut private_key: *const uint8_t,
     mut sig: *mut uint8_t,
@@ -5907,7 +5907,7 @@ pub unsafe extern "C" fn ml_dsa_extmu_65_sign_internal(
         1 as libc::c_int,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_65_verify(
     mut public_key: *const uint8_t,
     mut sig: *const uint8_t,
@@ -5948,7 +5948,7 @@ pub unsafe extern "C" fn ml_dsa_65_verify(
         public_key,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_extmu_65_verify(
     mut public_key: *const uint8_t,
     mut sig: *const uint8_t,
@@ -5988,7 +5988,7 @@ pub unsafe extern "C" fn ml_dsa_extmu_65_verify(
         1 as libc::c_int,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_65_verify_internal(
     mut public_key: *const uint8_t,
     mut sig: *const uint8_t,
@@ -6030,7 +6030,7 @@ pub unsafe extern "C" fn ml_dsa_65_verify_internal(
         0 as libc::c_int,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_extmu_65_verify_internal(
     mut public_key: *const uint8_t,
     mut sig: *const uint8_t,
@@ -6072,7 +6072,7 @@ pub unsafe extern "C" fn ml_dsa_extmu_65_verify_internal(
         1 as libc::c_int,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_87_keypair(
     mut public_key: *mut uint8_t,
     mut private_key: *mut uint8_t,
@@ -6101,7 +6101,7 @@ pub unsafe extern "C" fn ml_dsa_87_keypair(
     return (ml_dsa_keypair(&mut params, public_key, private_key, seed)
         == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_87_pack_pk_from_sk(
     mut public_key: *mut uint8_t,
     mut private_key: *const uint8_t,
@@ -6128,7 +6128,7 @@ pub unsafe extern "C" fn ml_dsa_87_pack_pk_from_sk(
     return (ml_dsa_pack_pk_from_sk(&mut params, public_key, private_key)
         == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_87_keypair_internal(
     mut public_key: *mut uint8_t,
     mut private_key: *mut uint8_t,
@@ -6157,7 +6157,7 @@ pub unsafe extern "C" fn ml_dsa_87_keypair_internal(
     return (ml_dsa_keypair_internal(&mut params, public_key, private_key, seed)
         == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_87_sign(
     mut private_key: *const uint8_t,
     mut sig: *mut uint8_t,
@@ -6198,7 +6198,7 @@ pub unsafe extern "C" fn ml_dsa_87_sign(
         private_key,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_extmu_87_sign(
     mut private_key: *const uint8_t,
     mut sig: *mut uint8_t,
@@ -6229,7 +6229,7 @@ pub unsafe extern "C" fn ml_dsa_extmu_87_sign(
     return (ml_dsa_extmu_sign(&mut params, sig, sig_len, mu, mu_len, private_key)
         == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_87_sign_internal(
     mut private_key: *const uint8_t,
     mut sig: *mut uint8_t,
@@ -6273,7 +6273,7 @@ pub unsafe extern "C" fn ml_dsa_87_sign_internal(
         0 as libc::c_int,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_extmu_87_sign_internal(
     mut private_key: *const uint8_t,
     mut sig: *mut uint8_t,
@@ -6317,7 +6317,7 @@ pub unsafe extern "C" fn ml_dsa_extmu_87_sign_internal(
         1 as libc::c_int,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_87_verify(
     mut public_key: *const uint8_t,
     mut sig: *const uint8_t,
@@ -6358,7 +6358,7 @@ pub unsafe extern "C" fn ml_dsa_87_verify(
         public_key,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_extmu_87_verify(
     mut public_key: *const uint8_t,
     mut sig: *const uint8_t,
@@ -6398,7 +6398,7 @@ pub unsafe extern "C" fn ml_dsa_extmu_87_verify(
         1 as libc::c_int,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_87_verify_internal(
     mut public_key: *const uint8_t,
     mut sig: *const uint8_t,
@@ -6440,7 +6440,7 @@ pub unsafe extern "C" fn ml_dsa_87_verify_internal(
         0 as libc::c_int,
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ml_dsa_extmu_87_verify_internal(
     mut public_key: *const uint8_t,
     mut sig: *const uint8_t,

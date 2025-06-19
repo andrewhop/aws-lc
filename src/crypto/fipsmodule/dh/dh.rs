@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     pub type engine_st;
     pub type env_md_st;
@@ -144,7 +143,7 @@ unsafe extern "C" fn boringssl_ensure_ffdh_self_test() {}
 unsafe extern "C" fn FIPS_service_indicator_lock_state() {}
 #[inline]
 unsafe extern "C" fn FIPS_service_indicator_unlock_state() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_new() -> *mut DH {
     let mut dh: *mut DH = OPENSSL_zalloc(::core::mem::size_of::<DH>() as libc::c_ulong)
         as *mut DH;
@@ -155,7 +154,7 @@ pub unsafe extern "C" fn DH_new() -> *mut DH {
     (*dh).references = 1 as libc::c_int as CRYPTO_refcount_t;
     return dh;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_new_by_nid(mut nid: libc::c_int) -> *mut DH {
     match nid {
         976 => return DH_get_rfc7919_2048(),
@@ -175,7 +174,7 @@ pub unsafe extern "C" fn DH_new_by_nid(mut nid: libc::c_int) -> *mut DH {
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_free(mut dh: *mut DH) {
     if dh.is_null() {
         return;
@@ -192,31 +191,31 @@ pub unsafe extern "C" fn DH_free(mut dh: *mut DH) {
     CRYPTO_MUTEX_cleanup(&mut (*dh).method_mont_p_lock);
     OPENSSL_free(dh as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_bits(mut dh: *const DH) -> libc::c_uint {
     return BN_num_bits((*dh).p);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_get0_pub_key(mut dh: *const DH) -> *const BIGNUM {
     return (*dh).pub_key;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_get0_priv_key(mut dh: *const DH) -> *const BIGNUM {
     return (*dh).priv_key;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_get0_p(mut dh: *const DH) -> *const BIGNUM {
     return (*dh).p;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_get0_q(mut dh: *const DH) -> *const BIGNUM {
     return (*dh).q;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_get0_g(mut dh: *const DH) -> *const BIGNUM {
     return (*dh).g;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_get0_key(
     mut dh: *const DH,
     mut out_pub_key: *mut *const BIGNUM,
@@ -229,9 +228,9 @@ pub unsafe extern "C" fn DH_get0_key(
         *out_priv_key = (*dh).priv_key;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_clear_flags(mut dh: *mut DH, mut flags: libc::c_int) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_set0_key(
     mut dh: *mut DH,
     mut pub_key: *mut BIGNUM,
@@ -247,7 +246,7 @@ pub unsafe extern "C" fn DH_set0_key(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_get0_pqg(
     mut dh: *const DH,
     mut out_p: *mut *const BIGNUM,
@@ -264,7 +263,7 @@ pub unsafe extern "C" fn DH_get0_pqg(
         *out_g = (*dh).g;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_set0_pqg(
     mut dh: *mut DH,
     mut p: *mut BIGNUM,
@@ -290,7 +289,7 @@ pub unsafe extern "C" fn DH_set0_pqg(
     (*dh).method_mont_p = 0 as *mut BN_MONT_CTX;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_set_length(
     mut dh: *mut DH,
     mut priv_length: libc::c_uint,
@@ -298,7 +297,7 @@ pub unsafe extern "C" fn DH_set_length(
     (*dh).priv_length = priv_length;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_generate_key(mut dh: *mut DH) -> libc::c_int {
     let mut current_block: u64;
     boringssl_ensure_ffdh_self_test();
@@ -528,7 +527,7 @@ unsafe extern "C" fn dh_compute_key(
     BN_CTX_end(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn dh_compute_key_padded_no_self_test(
     mut out: *mut libc::c_uchar,
     mut peers_key: *const BIGNUM,
@@ -551,7 +550,7 @@ pub unsafe extern "C" fn dh_compute_key_padded_no_self_test(
     BN_CTX_free(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_compute_key_padded(
     mut out: *mut libc::c_uchar,
     mut peers_key: *const BIGNUM,
@@ -560,7 +559,7 @@ pub unsafe extern "C" fn DH_compute_key_padded(
     boringssl_ensure_ffdh_self_test();
     return dh_compute_key_padded_no_self_test(out, peers_key, dh);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_compute_key(
     mut out: *mut libc::c_uchar,
     mut peers_key: *const BIGNUM,
@@ -581,7 +580,7 @@ pub unsafe extern "C" fn DH_compute_key(
     BN_CTX_free(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_compute_key_hashed(
     mut dh: *mut DH,
     mut out: *mut uint8_t,
@@ -618,15 +617,15 @@ pub unsafe extern "C" fn DH_compute_key_hashed(
     OPENSSL_free(shared_bytes as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_size(mut dh: *const DH) -> libc::c_int {
     return BN_num_bytes((*dh).p) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_num_bits(mut dh: *const DH) -> libc::c_uint {
     return BN_num_bits((*dh).p);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_up_ref(mut dh: *mut DH) -> libc::c_int {
     CRYPTO_refcount_inc(&mut (*dh).references);
     return 1 as libc::c_int;
@@ -654,7 +653,7 @@ unsafe extern "C" fn calculate_rfc7919_DH_from_p(
     DH_free(dh);
     return 0 as *mut DH;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_get_rfc7919_2048() -> *mut DH {
     static mut kFFDHE2048Data: [BN_ULONG; 32] = [
         (0xffffffff as libc::c_uint as BN_ULONG) << 32 as libc::c_int
@@ -728,7 +727,7 @@ pub unsafe extern "C" fn DH_get_rfc7919_2048() -> *mut DH {
             .wrapping_div(::core::mem::size_of::<BN_ULONG>() as libc::c_ulong),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_get_rfc7919_3072() -> *mut DH {
     static mut kFFDHE3072Data: [BN_ULONG; 48] = [
         (0xffffffff as libc::c_uint as BN_ULONG) << 32 as libc::c_int
@@ -834,7 +833,7 @@ pub unsafe extern "C" fn DH_get_rfc7919_3072() -> *mut DH {
             .wrapping_div(::core::mem::size_of::<BN_ULONG>() as libc::c_ulong),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_get_rfc7919_4096() -> *mut DH {
     static mut kFFDHE4096Data: [BN_ULONG; 64] = [
         (0xffffffff as libc::c_uint as BN_ULONG) << 32 as libc::c_int
@@ -972,7 +971,7 @@ pub unsafe extern "C" fn DH_get_rfc7919_4096() -> *mut DH {
             .wrapping_div(::core::mem::size_of::<BN_ULONG>() as libc::c_ulong),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn DH_get_rfc7919_8192() -> *mut DH {
     static mut kFFDHE8192Data: [BN_ULONG; 128] = [
         (0xffffffff as libc::c_uint as BN_ULONG) << 32 as libc::c_int

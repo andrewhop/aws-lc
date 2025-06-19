@@ -9,7 +9,7 @@
 )]
 #![feature(asm, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn AES_encrypt(in_0: *const uint8_t, out: *mut uint8_t, key: *const AES_KEY);
     fn AES_decrypt(in_0: *const uint8_t, out: *mut uint8_t, key: *const AES_KEY);
     fn __assert_fail(
@@ -180,7 +180,7 @@ static mut kDefaultIV: [uint8_t; 8] = [
     0xa6 as libc::c_int as uint8_t,
 ];
 static mut kBound: libc::c_uint = 6 as libc::c_int as libc::c_uint;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AES_wrap_key(
     mut key: *const AES_KEY,
     mut iv: *const uint8_t,
@@ -328,7 +328,7 @@ unsafe extern "C" fn aes_unwrap_key_inner(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AES_unwrap_key(
     mut key: *const AES_KEY,
     mut iv: *const uint8_t,
@@ -360,7 +360,7 @@ static mut kPaddingConstant: [uint8_t; 4] = [
     0x59 as libc::c_int as uint8_t,
     0xa6 as libc::c_int as uint8_t,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AES_wrap_key_padded(
     mut key: *const AES_KEY,
     mut out: *mut uint8_t,
@@ -478,7 +478,7 @@ pub unsafe extern "C" fn AES_wrap_key_padded(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AES_unwrap_key_padded(
     mut key: *const AES_KEY,
     mut out: *mut uint8_t,

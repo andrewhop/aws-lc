@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -680,7 +679,7 @@ pub struct _IO_FILE {
 }
 pub type _IO_lock_t = ();
 pub type FILE = _IO_FILE;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_verify(
     mut x509: *mut X509,
     mut pkey: *mut EVP_PKEY,
@@ -704,7 +703,7 @@ pub unsafe extern "C" fn X509_verify(
         pkey,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_verify(
     mut req: *mut X509_REQ,
     mut pkey: *mut EVP_PKEY,
@@ -717,7 +716,7 @@ pub unsafe extern "C" fn X509_REQ_verify(
         pkey,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_sign(
     mut x: *mut X509,
     mut pkey: *mut EVP_PKEY,
@@ -734,7 +733,7 @@ pub unsafe extern "C" fn X509_sign(
         md,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_sign_ctx(
     mut x: *mut X509,
     mut ctx: *mut EVP_MD_CTX,
@@ -749,7 +748,7 @@ pub unsafe extern "C" fn X509_sign_ctx(
         ctx,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_sign(
     mut x: *mut X509_REQ,
     mut pkey: *mut EVP_PKEY,
@@ -766,7 +765,7 @@ pub unsafe extern "C" fn X509_REQ_sign(
         md,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_sign_ctx(
     mut x: *mut X509_REQ,
     mut ctx: *mut EVP_MD_CTX,
@@ -781,7 +780,7 @@ pub unsafe extern "C" fn X509_REQ_sign_ctx(
         ctx,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_sign(
     mut x: *mut X509_CRL,
     mut pkey: *mut EVP_PKEY,
@@ -798,7 +797,7 @@ pub unsafe extern "C" fn X509_CRL_sign(
         md,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_sign_ctx(
     mut x: *mut X509_CRL,
     mut ctx: *mut EVP_MD_CTX,
@@ -813,14 +812,14 @@ pub unsafe extern "C" fn X509_CRL_sign_ctx(
         ctx,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_http_nbio(
     mut rctx: *mut OCSP_REQ_CTX,
     mut pcrl: *mut *mut X509_CRL,
 ) -> libc::c_int {
     return OCSP_REQ_CTX_nbio_d2i(rctx, pcrl as *mut *mut ASN1_VALUE, &X509_CRL_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NETSCAPE_SPKI_sign(
     mut x: *mut NETSCAPE_SPKI,
     mut pkey: *mut EVP_PKEY,
@@ -836,7 +835,7 @@ pub unsafe extern "C" fn NETSCAPE_SPKI_sign(
         md,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn NETSCAPE_SPKI_verify(
     mut spki: *mut NETSCAPE_SPKI,
     mut pkey: *mut EVP_PKEY,
@@ -849,49 +848,49 @@ pub unsafe extern "C" fn NETSCAPE_SPKI_verify(
         pkey,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_fp(
     mut fp: *mut FILE,
     mut x509: *mut *mut X509,
 ) -> *mut X509 {
     return ASN1_item_d2i_fp(&X509_it, fp, x509 as *mut libc::c_void) as *mut X509;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_fp(
     mut fp: *mut FILE,
     mut x509: *mut X509,
 ) -> libc::c_int {
     return ASN1_item_i2d_fp(&X509_it, fp, x509 as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_bio(
     mut bp: *mut BIO,
     mut x509: *mut *mut X509,
 ) -> *mut X509 {
     return ASN1_item_d2i_bio(&X509_it, bp, x509 as *mut libc::c_void) as *mut X509;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_bio(
     mut bp: *mut BIO,
     mut x509: *mut X509,
 ) -> libc::c_int {
     return ASN1_item_i2d_bio(&X509_it, bp, x509 as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_CRL_fp(
     mut fp: *mut FILE,
     mut crl: *mut *mut X509_CRL,
 ) -> *mut X509_CRL {
     return ASN1_item_d2i_fp(&X509_CRL_it, fp, crl as *mut libc::c_void) as *mut X509_CRL;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_CRL_fp(
     mut fp: *mut FILE,
     mut crl: *mut X509_CRL,
 ) -> libc::c_int {
     return ASN1_item_i2d_fp(&X509_CRL_it, fp, crl as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_CRL_bio(
     mut bp: *mut BIO,
     mut crl: *mut *mut X509_CRL,
@@ -899,28 +898,28 @@ pub unsafe extern "C" fn d2i_X509_CRL_bio(
     return ASN1_item_d2i_bio(&X509_CRL_it, bp, crl as *mut libc::c_void)
         as *mut X509_CRL;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_CRL_bio(
     mut bp: *mut BIO,
     mut crl: *mut X509_CRL,
 ) -> libc::c_int {
     return ASN1_item_i2d_bio(&X509_CRL_it, bp, crl as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_REQ_fp(
     mut fp: *mut FILE,
     mut req: *mut *mut X509_REQ,
 ) -> *mut X509_REQ {
     return ASN1_item_d2i_fp(&X509_REQ_it, fp, req as *mut libc::c_void) as *mut X509_REQ;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_REQ_fp(
     mut fp: *mut FILE,
     mut req: *mut X509_REQ,
 ) -> libc::c_int {
     return ASN1_item_i2d_fp(&X509_REQ_it, fp, req as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_REQ_bio(
     mut bp: *mut BIO,
     mut req: *mut *mut X509_REQ,
@@ -928,14 +927,14 @@ pub unsafe extern "C" fn d2i_X509_REQ_bio(
     return ASN1_item_d2i_bio(&X509_REQ_it, bp, req as *mut libc::c_void)
         as *mut X509_REQ;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_REQ_bio(
     mut bp: *mut BIO,
     mut req: *mut X509_REQ,
 ) -> libc::c_int {
     return ASN1_item_i2d_bio(&X509_REQ_it, bp, req as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_RSAPrivateKey_fp(
     mut fp: *mut FILE,
     mut obj: *mut *mut RSA,
@@ -948,7 +947,7 @@ pub unsafe extern "C" fn d2i_RSAPrivateKey_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_RSAPrivateKey_fp(
     mut fp: *mut FILE,
     mut obj: *mut RSA,
@@ -961,7 +960,7 @@ pub unsafe extern "C" fn i2d_RSAPrivateKey_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_RSAPublicKey_fp(
     mut fp: *mut FILE,
     mut obj: *mut *mut RSA,
@@ -974,7 +973,7 @@ pub unsafe extern "C" fn d2i_RSAPublicKey_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_RSAPublicKey_fp(
     mut fp: *mut FILE,
     mut obj: *mut RSA,
@@ -987,7 +986,7 @@ pub unsafe extern "C" fn i2d_RSAPublicKey_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_RSA_PUBKEY_fp(
     mut fp: *mut FILE,
     mut obj: *mut *mut RSA,
@@ -1000,7 +999,7 @@ pub unsafe extern "C" fn d2i_RSA_PUBKEY_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_RSA_PUBKEY_fp(
     mut fp: *mut FILE,
     mut obj: *mut RSA,
@@ -1013,7 +1012,7 @@ pub unsafe extern "C" fn i2d_RSA_PUBKEY_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_RSAPrivateKey_bio(
     mut bio: *mut BIO,
     mut obj: *mut *mut RSA,
@@ -1034,7 +1033,7 @@ pub unsafe extern "C" fn d2i_RSAPrivateKey_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_RSAPrivateKey_bio(
     mut bio: *mut BIO,
     mut obj: *mut RSA,
@@ -1052,7 +1051,7 @@ pub unsafe extern "C" fn i2d_RSAPrivateKey_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_RSAPublicKey_bio(
     mut bio: *mut BIO,
     mut obj: *mut *mut RSA,
@@ -1073,7 +1072,7 @@ pub unsafe extern "C" fn d2i_RSAPublicKey_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_RSAPublicKey_bio(
     mut bio: *mut BIO,
     mut obj: *mut RSA,
@@ -1091,7 +1090,7 @@ pub unsafe extern "C" fn i2d_RSAPublicKey_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_RSA_PUBKEY_bio(
     mut bio: *mut BIO,
     mut obj: *mut *mut RSA,
@@ -1112,7 +1111,7 @@ pub unsafe extern "C" fn d2i_RSA_PUBKEY_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_RSA_PUBKEY_bio(
     mut bio: *mut BIO,
     mut obj: *mut RSA,
@@ -1130,7 +1129,7 @@ pub unsafe extern "C" fn i2d_RSA_PUBKEY_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_DSAPrivateKey_fp(
     mut fp: *mut FILE,
     mut obj: *mut *mut DSA,
@@ -1143,7 +1142,7 @@ pub unsafe extern "C" fn d2i_DSAPrivateKey_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_DSAPrivateKey_fp(
     mut fp: *mut FILE,
     mut obj: *mut DSA,
@@ -1156,7 +1155,7 @@ pub unsafe extern "C" fn i2d_DSAPrivateKey_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_DSA_PUBKEY_fp(
     mut fp: *mut FILE,
     mut obj: *mut *mut DSA,
@@ -1169,7 +1168,7 @@ pub unsafe extern "C" fn d2i_DSA_PUBKEY_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_DSA_PUBKEY_fp(
     mut fp: *mut FILE,
     mut obj: *mut DSA,
@@ -1182,7 +1181,7 @@ pub unsafe extern "C" fn i2d_DSA_PUBKEY_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_DSAPrivateKey_bio(
     mut bio: *mut BIO,
     mut obj: *mut *mut DSA,
@@ -1203,7 +1202,7 @@ pub unsafe extern "C" fn d2i_DSAPrivateKey_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_DSAPrivateKey_bio(
     mut bio: *mut BIO,
     mut obj: *mut DSA,
@@ -1221,7 +1220,7 @@ pub unsafe extern "C" fn i2d_DSAPrivateKey_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_DSA_PUBKEY_bio(
     mut bio: *mut BIO,
     mut obj: *mut *mut DSA,
@@ -1242,7 +1241,7 @@ pub unsafe extern "C" fn d2i_DSA_PUBKEY_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_DSA_PUBKEY_bio(
     mut bio: *mut BIO,
     mut obj: *mut DSA,
@@ -1260,7 +1259,7 @@ pub unsafe extern "C" fn i2d_DSA_PUBKEY_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_ECPrivateKey_fp(
     mut fp: *mut FILE,
     mut obj: *mut *mut EC_KEY,
@@ -1273,7 +1272,7 @@ pub unsafe extern "C" fn d2i_ECPrivateKey_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_ECPrivateKey_fp(
     mut fp: *mut FILE,
     mut obj: *mut EC_KEY,
@@ -1286,7 +1285,7 @@ pub unsafe extern "C" fn i2d_ECPrivateKey_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_EC_PUBKEY_fp(
     mut fp: *mut FILE,
     mut obj: *mut *mut EC_KEY,
@@ -1299,7 +1298,7 @@ pub unsafe extern "C" fn d2i_EC_PUBKEY_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_EC_PUBKEY_fp(
     mut fp: *mut FILE,
     mut obj: *mut EC_KEY,
@@ -1312,7 +1311,7 @@ pub unsafe extern "C" fn i2d_EC_PUBKEY_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_ECPrivateKey_bio(
     mut bio: *mut BIO,
     mut obj: *mut *mut EC_KEY,
@@ -1333,7 +1332,7 @@ pub unsafe extern "C" fn d2i_ECPrivateKey_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_ECPrivateKey_bio(
     mut bio: *mut BIO,
     mut obj: *mut EC_KEY,
@@ -1351,7 +1350,7 @@ pub unsafe extern "C" fn i2d_ECPrivateKey_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_EC_PUBKEY_bio(
     mut bio: *mut BIO,
     mut obj: *mut *mut EC_KEY,
@@ -1372,7 +1371,7 @@ pub unsafe extern "C" fn d2i_EC_PUBKEY_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_EC_PUBKEY_bio(
     mut bio: *mut BIO,
     mut obj: *mut EC_KEY,
@@ -1390,7 +1389,7 @@ pub unsafe extern "C" fn i2d_EC_PUBKEY_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_pubkey_digest(
     mut data: *const X509,
     mut type_0: *const EVP_MD,
@@ -1411,7 +1410,7 @@ pub unsafe extern "C" fn X509_pubkey_digest(
         0 as *mut ENGINE,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_digest(
     mut data: *const X509,
     mut type_0: *const EVP_MD,
@@ -1426,7 +1425,7 @@ pub unsafe extern "C" fn X509_digest(
         len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_digest(
     mut data: *const X509_CRL,
     mut type_0: *const EVP_MD,
@@ -1441,7 +1440,7 @@ pub unsafe extern "C" fn X509_CRL_digest(
         len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_REQ_digest(
     mut data: *const X509_REQ,
     mut type_0: *const EVP_MD,
@@ -1456,7 +1455,7 @@ pub unsafe extern "C" fn X509_REQ_digest(
         len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_digest(
     mut data: *const X509_NAME,
     mut type_0: *const EVP_MD,
@@ -1471,7 +1470,7 @@ pub unsafe extern "C" fn X509_NAME_digest(
         len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS8_fp(
     mut fp: *mut FILE,
     mut obj: *mut *mut X509_SIG,
@@ -1484,7 +1483,7 @@ pub unsafe extern "C" fn d2i_PKCS8_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS8_fp(
     mut fp: *mut FILE,
     mut obj: *mut X509_SIG,
@@ -1497,7 +1496,7 @@ pub unsafe extern "C" fn i2d_PKCS8_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS8_bio(
     mut bio: *mut BIO,
     mut obj: *mut *mut X509_SIG,
@@ -1518,7 +1517,7 @@ pub unsafe extern "C" fn d2i_PKCS8_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS8_bio(
     mut bio: *mut BIO,
     mut obj: *mut X509_SIG,
@@ -1536,7 +1535,7 @@ pub unsafe extern "C" fn i2d_PKCS8_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS8_PRIV_KEY_INFO_fp(
     mut fp: *mut FILE,
     mut obj: *mut *mut PKCS8_PRIV_KEY_INFO,
@@ -1549,7 +1548,7 @@ pub unsafe extern "C" fn d2i_PKCS8_PRIV_KEY_INFO_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS8_PRIV_KEY_INFO_fp(
     mut fp: *mut FILE,
     mut obj: *mut PKCS8_PRIV_KEY_INFO,
@@ -1562,7 +1561,7 @@ pub unsafe extern "C" fn i2d_PKCS8_PRIV_KEY_INFO_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS8PrivateKeyInfo_fp(
     mut fp: *mut FILE,
     mut key: *mut EVP_PKEY,
@@ -1577,7 +1576,7 @@ pub unsafe extern "C" fn i2d_PKCS8PrivateKeyInfo_fp(
     PKCS8_PRIV_KEY_INFO_free(p8inf);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PrivateKey_fp(
     mut fp: *mut FILE,
     mut obj: *mut *mut EVP_PKEY,
@@ -1590,7 +1589,7 @@ pub unsafe extern "C" fn d2i_PrivateKey_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PrivateKey_fp(
     mut fp: *mut FILE,
     mut obj: *mut EVP_PKEY,
@@ -1603,7 +1602,7 @@ pub unsafe extern "C" fn i2d_PrivateKey_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PUBKEY_fp(
     mut fp: *mut FILE,
     mut obj: *mut *mut EVP_PKEY,
@@ -1616,7 +1615,7 @@ pub unsafe extern "C" fn d2i_PUBKEY_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PUBKEY_fp(
     mut fp: *mut FILE,
     mut obj: *mut EVP_PKEY,
@@ -1629,7 +1628,7 @@ pub unsafe extern "C" fn i2d_PUBKEY_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS8_PRIV_KEY_INFO_bio(
     mut bio: *mut BIO,
     mut obj: *mut *mut PKCS8_PRIV_KEY_INFO,
@@ -1654,7 +1653,7 @@ pub unsafe extern "C" fn d2i_PKCS8_PRIV_KEY_INFO_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS8_PRIV_KEY_INFO_bio(
     mut bio: *mut BIO,
     mut obj: *mut PKCS8_PRIV_KEY_INFO,
@@ -1672,7 +1671,7 @@ pub unsafe extern "C" fn i2d_PKCS8_PRIV_KEY_INFO_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS8PrivateKeyInfo_bio(
     mut bp: *mut BIO,
     mut key: *mut EVP_PKEY,
@@ -1687,7 +1686,7 @@ pub unsafe extern "C" fn i2d_PKCS8PrivateKeyInfo_bio(
     PKCS8_PRIV_KEY_INFO_free(p8inf);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PrivateKey_bio(
     mut bio: *mut BIO,
     mut obj: *mut *mut EVP_PKEY,
@@ -1708,7 +1707,7 @@ pub unsafe extern "C" fn d2i_PrivateKey_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PrivateKey_bio(
     mut bio: *mut BIO,
     mut obj: *mut EVP_PKEY,
@@ -1726,7 +1725,7 @@ pub unsafe extern "C" fn i2d_PrivateKey_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PUBKEY_bio(
     mut bio: *mut BIO,
     mut obj: *mut *mut EVP_PKEY,
@@ -1747,7 +1746,7 @@ pub unsafe extern "C" fn d2i_PUBKEY_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PUBKEY_bio(
     mut bio: *mut BIO,
     mut obj: *mut EVP_PKEY,
@@ -1765,7 +1764,7 @@ pub unsafe extern "C" fn i2d_PUBKEY_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_DHparams_bio(
     mut bio: *mut BIO,
     mut obj: *mut *mut DH,
@@ -1786,7 +1785,7 @@ pub unsafe extern "C" fn d2i_DHparams_bio(
     OPENSSL_free(data as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_DHparams_bio(
     mut bio: *mut BIO,
     mut obj: *const DH,

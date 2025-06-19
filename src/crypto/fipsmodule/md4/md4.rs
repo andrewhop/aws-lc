@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn memcpy(
         _: *mut libc::c_void,
         _: *const libc::c_void,
@@ -254,7 +254,7 @@ unsafe extern "C" fn crypto_md32_final(
     *num = 0 as libc::c_int as libc::c_uint;
     OPENSSL_memset(data as *mut libc::c_void, 0 as libc::c_int, block_size);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn MD4(
     mut data: *const uint8_t,
     mut len: size_t,
@@ -272,7 +272,7 @@ pub unsafe extern "C" fn MD4(
     MD4_Final(out, &mut ctx);
     return out;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn MD4_Init(mut md4: *mut MD4_CTX) -> libc::c_int {
     OPENSSL_memset(
         md4 as *mut libc::c_void,
@@ -285,11 +285,11 @@ pub unsafe extern "C" fn MD4_Init(mut md4: *mut MD4_CTX) -> libc::c_int {
     (*md4).h[3 as libc::c_int as usize] = 0x10325476 as libc::c_ulong as uint32_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn MD4_Transform(mut c: *mut MD4_CTX, mut data: *const uint8_t) {
     md4_block_data_order(((*c).h).as_mut_ptr(), data, 1 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn MD4_Update(
     mut c: *mut MD4_CTX,
     mut data: *const libc::c_void,
@@ -311,7 +311,7 @@ pub unsafe extern "C" fn MD4_Update(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn MD4_Final(
     mut out: *mut uint8_t,
     mut c: *mut MD4_CTX,
@@ -344,7 +344,7 @@ pub unsafe extern "C" fn MD4_Final(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn md4_block_data_order(
     mut state: *mut uint32_t,
     mut data: *const uint8_t,

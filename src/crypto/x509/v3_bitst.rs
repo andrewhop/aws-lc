@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -784,7 +783,7 @@ unsafe extern "C" fn v2i_ASN1_BIT_STRING(
     }
     return bs as *mut libc::c_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_nscert: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {
@@ -820,7 +819,7 @@ pub static mut v3_nscert: X509V3_EXT_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut v3_key_usage: X509V3_EXT_METHOD = unsafe {
     {
         let mut init = v3_ext_method {

@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn qsort(
         __base: *mut libc::c_void,
         __nmemb: size_t,
@@ -180,7 +180,7 @@ unsafe extern "C" fn OPENSSL_memset(
     }
     return memset(dst, c, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_zero(mut cbb: *mut CBB) {
     OPENSSL_memset(
         cbb as *mut libc::c_void,
@@ -202,7 +202,7 @@ unsafe extern "C" fn cbb_init(
     ((*cbb).u.base).set_can_resize(can_resize as libc::c_uint);
     ((*cbb).u.base).set_error(0 as libc::c_int as libc::c_uint);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_init(
     mut cbb: *mut CBB,
     mut initial_capacity: size_t,
@@ -215,7 +215,7 @@ pub unsafe extern "C" fn CBB_init(
     cbb_init(cbb, buf, initial_capacity, 1 as libc::c_int);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_init_fixed(
     mut cbb: *mut CBB,
     mut buf: *mut uint8_t,
@@ -225,7 +225,7 @@ pub unsafe extern "C" fn CBB_init_fixed(
     cbb_init(cbb, buf, len, 0 as libc::c_int);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_cleanup(mut cbb: *mut CBB) {
     if (*cbb).is_child == 0 {} else {
         __assert_fail(
@@ -337,7 +337,7 @@ unsafe extern "C" fn cbb_buffer_add(
     (*base).len = ((*base).len).wrapping_add(len);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_finish(
     mut cbb: *mut CBB,
     mut out_data: *mut *mut uint8_t,
@@ -383,7 +383,7 @@ unsafe extern "C" fn cbb_on_error(mut cbb: *mut CBB) {
     (*fresh0).set_error(1 as libc::c_int as libc::c_uint);
     (*cbb).child = 0 as *mut CBB;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_flush(mut cbb: *mut CBB) -> libc::c_int {
     let mut len: size_t = 0;
     let mut current_block: u64;
@@ -590,7 +590,7 @@ pub unsafe extern "C" fn CBB_flush(mut cbb: *mut CBB) -> libc::c_int {
     cbb_on_error(cbb);
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_data(mut cbb: *const CBB) -> *const uint8_t {
     if ((*cbb).child).is_null() {} else {
         __assert_fail(
@@ -627,7 +627,7 @@ pub unsafe extern "C" fn CBB_data(mut cbb: *const CBB) -> *const uint8_t {
     }
     return (*cbb).u.base.buf;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_len(mut cbb: *const CBB) -> size_t {
     if ((*cbb).child).is_null() {} else {
         __assert_fail(
@@ -791,21 +791,21 @@ unsafe extern "C" fn cbb_add_length_prefixed(
     }
     return cbb_add_child(cbb, out_contents, len_len, 0 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_u8_length_prefixed(
     mut cbb: *mut CBB,
     mut out_contents: *mut CBB,
 ) -> libc::c_int {
     return cbb_add_length_prefixed(cbb, out_contents, 1 as libc::c_int as uint8_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_u16_length_prefixed(
     mut cbb: *mut CBB,
     mut out_contents: *mut CBB,
 ) -> libc::c_int {
     return cbb_add_length_prefixed(cbb, out_contents, 2 as libc::c_int as uint8_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_u24_length_prefixed(
     mut cbb: *mut CBB,
     mut out_contents: *mut CBB,
@@ -841,7 +841,7 @@ unsafe extern "C" fn add_base128_integer(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_asn1(
     mut cbb: *mut CBB,
     mut out_contents: *mut CBB,
@@ -871,7 +871,7 @@ pub unsafe extern "C" fn CBB_add_asn1(
         1 as libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_bytes(
     mut cbb: *mut CBB,
     mut data: *const uint8_t,
@@ -884,7 +884,7 @@ pub unsafe extern "C" fn CBB_add_bytes(
     OPENSSL_memcpy(out as *mut libc::c_void, data as *const libc::c_void, len);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_zeros(
     mut cbb: *mut CBB,
     mut len: size_t,
@@ -896,7 +896,7 @@ pub unsafe extern "C" fn CBB_add_zeros(
     OPENSSL_memset(out as *mut libc::c_void, 0 as libc::c_int, len);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_space(
     mut cbb: *mut CBB,
     mut out_data: *mut *mut uint8_t,
@@ -907,7 +907,7 @@ pub unsafe extern "C" fn CBB_add_space(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_reserve(
     mut cbb: *mut CBB,
     mut out_data: *mut *mut uint8_t,
@@ -918,7 +918,7 @@ pub unsafe extern "C" fn CBB_reserve(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_did_write(
     mut cbb: *mut CBB,
     mut len: size_t,
@@ -953,63 +953,63 @@ unsafe extern "C" fn cbb_add_u(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_u8(
     mut cbb: *mut CBB,
     mut value: uint8_t,
 ) -> libc::c_int {
     return cbb_add_u(cbb, value as uint64_t, 1 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_u16(
     mut cbb: *mut CBB,
     mut value: uint16_t,
 ) -> libc::c_int {
     return cbb_add_u(cbb, value as uint64_t, 2 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_u16le(
     mut cbb: *mut CBB,
     mut value: uint16_t,
 ) -> libc::c_int {
     return CBB_add_u16(cbb, CRYPTO_bswap2(value));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_u24(
     mut cbb: *mut CBB,
     mut value: uint32_t,
 ) -> libc::c_int {
     return cbb_add_u(cbb, value as uint64_t, 3 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_u32(
     mut cbb: *mut CBB,
     mut value: uint32_t,
 ) -> libc::c_int {
     return cbb_add_u(cbb, value as uint64_t, 4 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_u32le(
     mut cbb: *mut CBB,
     mut value: uint32_t,
 ) -> libc::c_int {
     return CBB_add_u32(cbb, CRYPTO_bswap4(value));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_u64(
     mut cbb: *mut CBB,
     mut value: uint64_t,
 ) -> libc::c_int {
     return cbb_add_u(cbb, value, 8 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_u64le(
     mut cbb: *mut CBB,
     mut value: uint64_t,
 ) -> libc::c_int {
     return CBB_add_u64(cbb, CRYPTO_bswap8(value));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_discard_child(mut cbb: *mut CBB) {
     if ((*cbb).child).is_null() {
         return;
@@ -1047,14 +1047,14 @@ pub unsafe extern "C" fn CBB_discard_child(mut cbb: *mut CBB) {
     (*(*cbb).child).u.child.base = 0 as *mut cbb_buffer_st;
     (*cbb).child = 0 as *mut CBB;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_asn1_uint64(
     mut cbb: *mut CBB,
     mut value: uint64_t,
 ) -> libc::c_int {
     return CBB_add_asn1_uint64_with_tag(cbb, value, 0x2 as libc::c_uint);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_asn1_uint64_with_tag(
     mut cbb: *mut CBB,
     mut value: uint64_t,
@@ -1129,14 +1129,14 @@ pub unsafe extern "C" fn CBB_add_asn1_uint64_with_tag(
     cbb_on_error(cbb);
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_asn1_int64(
     mut cbb: *mut CBB,
     mut value: int64_t,
 ) -> libc::c_int {
     return CBB_add_asn1_int64_with_tag(cbb, value, 0x2 as libc::c_uint);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_asn1_int64_with_tag(
     mut cbb: *mut CBB,
     mut value: int64_t,
@@ -1196,7 +1196,7 @@ pub unsafe extern "C" fn CBB_add_asn1_int64_with_tag(
     cbb_on_error(cbb);
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_asn1_octet_string(
     mut cbb: *mut CBB,
     mut data: *const uint8_t,
@@ -1223,7 +1223,7 @@ pub unsafe extern "C" fn CBB_add_asn1_octet_string(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_asn1_bool(
     mut cbb: *mut CBB,
     mut value: libc::c_int,
@@ -1268,7 +1268,7 @@ unsafe extern "C" fn parse_dotted_decimal(
         || dot as libc::c_int == '.' as i32 && CBS_len(cbs) > 0 as libc::c_int as size_t)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_add_asn1_oid_from_text(
     mut cbb: *mut CBB,
     mut text: *const libc::c_char,
@@ -1330,7 +1330,7 @@ unsafe extern "C" fn compare_set_of_element(
     }
     return if a_len < b_len { -(1 as libc::c_int) } else { 1 as libc::c_int };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBB_flush_asn1_set_of(mut cbb: *mut CBB) -> libc::c_int {
     let mut out: *mut uint8_t = 0 as *mut uint8_t;
     let mut offset: size_t = 0;

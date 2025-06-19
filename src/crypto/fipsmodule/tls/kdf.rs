@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type engine_st;
     pub type env_md_st;
     pub type hmac_methods_st;
@@ -361,7 +360,7 @@ unsafe extern "C" fn tls1_P_hash(
     HMAC_CTX_cleanup(&mut ctx_init);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_tls1_prf(
     mut digest: *const EVP_MD,
     mut out: *mut uint8_t,

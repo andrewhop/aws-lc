@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type evp_pkey_st;
     fn ASN1_item_new(it: *const ASN1_ITEM) -> *mut ASN1_VALUE;
@@ -316,7 +315,7 @@ static mut X509_PUBKEY_aux: ASN1_AUX = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut X509_PUBKEY_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -326,22 +325,22 @@ pub static mut X509_PUBKEY_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_X509_PUBKEY(
     mut a: *const X509_PUBKEY,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &X509_PUBKEY_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PUBKEY_free(mut a: *mut X509_PUBKEY) {
     ASN1_item_free(a as *mut ASN1_VALUE, &X509_PUBKEY_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PUBKEY_new() -> *mut X509_PUBKEY {
     return ASN1_item_new(&X509_PUBKEY_it) as *mut X509_PUBKEY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_X509_PUBKEY(
     mut a: *mut *mut X509_PUBKEY,
     mut in_0: *mut *const libc::c_uchar,
@@ -350,7 +349,7 @@ pub unsafe extern "C" fn d2i_X509_PUBKEY(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &X509_PUBKEY_it)
         as *mut X509_PUBKEY;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PUBKEY_set(
     mut x: *mut *mut X509_PUBKEY,
     mut pkey: *mut EVP_PKEY,
@@ -416,7 +415,7 @@ pub unsafe extern "C" fn X509_PUBKEY_set(
     OPENSSL_free(spki as *mut libc::c_void);
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PUBKEY_get0(mut key: *const X509_PUBKEY) -> *mut EVP_PKEY {
     if key.is_null() {
         return 0 as *mut EVP_PKEY;
@@ -434,7 +433,7 @@ pub unsafe extern "C" fn X509_PUBKEY_get0(mut key: *const X509_PUBKEY) -> *mut E
     }
     return (*key).pkey;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PUBKEY_get(mut key: *const X509_PUBKEY) -> *mut EVP_PKEY {
     let mut pkey: *mut EVP_PKEY = X509_PUBKEY_get0(key);
     if !pkey.is_null() {
@@ -442,7 +441,7 @@ pub unsafe extern "C" fn X509_PUBKEY_get(mut key: *const X509_PUBKEY) -> *mut EV
     }
     return pkey;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PUBKEY_set0_param(
     mut pub_0: *mut X509_PUBKEY,
     mut obj: *mut ASN1_OBJECT,
@@ -461,7 +460,7 @@ pub unsafe extern "C" fn X509_PUBKEY_set0_param(
     x509_pubkey_changed(pub_0);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PUBKEY_get0_param(
     mut out_obj: *mut *mut ASN1_OBJECT,
     mut out_key: *mut *const uint8_t,
@@ -481,7 +480,7 @@ pub unsafe extern "C" fn X509_PUBKEY_get0_param(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_PUBKEY_get0_public_key(
     mut pub_0: *const X509_PUBKEY,
 ) -> *const ASN1_BIT_STRING {

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     pub type _IO_wide_data;
     pub type _IO_codecvt;
@@ -185,7 +184,7 @@ pub struct _IO_FILE {
 }
 pub type _IO_lock_t = ();
 pub type FILE = _IO_FILE;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_new_file(
     mut filename: *const libc::c_char,
     mut mode: *const libc::c_char,
@@ -238,7 +237,7 @@ pub unsafe extern "C" fn BIO_new_file(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_new_fp(
     mut stream: *mut FILE,
     mut close_flag: libc::c_int,
@@ -514,11 +513,11 @@ static mut methods_filep: BIO_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_s_file() -> *const BIO_METHOD {
     return &methods_filep;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_get_fp(
     mut bio: *mut BIO,
     mut out_file: *mut *mut FILE,
@@ -530,7 +529,7 @@ pub unsafe extern "C" fn BIO_get_fp(
         out_file as *mut libc::c_char as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_fp(
     mut bio: *mut BIO,
     mut file: *mut FILE,
@@ -543,7 +542,7 @@ pub unsafe extern "C" fn BIO_set_fp(
         file as *mut libc::c_char as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_read_filename(
     mut bio: *mut BIO,
     mut filename: *const libc::c_char,
@@ -555,7 +554,7 @@ pub unsafe extern "C" fn BIO_read_filename(
         filename as *mut libc::c_char as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_write_filename(
     mut bio: *mut BIO,
     mut filename: *const libc::c_char,
@@ -567,7 +566,7 @@ pub unsafe extern "C" fn BIO_write_filename(
         filename as *mut libc::c_char as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_append_filename(
     mut bio: *mut BIO,
     mut filename: *const libc::c_char,
@@ -579,7 +578,7 @@ pub unsafe extern "C" fn BIO_append_filename(
         filename as *mut libc::c_char as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_rw_filename(
     mut bio: *mut BIO,
     mut filename: *const libc::c_char,
@@ -591,7 +590,7 @@ pub unsafe extern "C" fn BIO_rw_filename(
         filename as *mut libc::c_char as *mut libc::c_void,
     ) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_tell(mut bio: *mut BIO) -> libc::c_long {
     return BIO_ctrl(
         bio,
@@ -600,7 +599,7 @@ pub unsafe extern "C" fn BIO_tell(mut bio: *mut BIO) -> libc::c_long {
         0 as *mut libc::c_void,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_seek(
     mut bio: *mut BIO,
     mut offset: libc::c_long,

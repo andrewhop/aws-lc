@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -367,28 +366,28 @@ unsafe extern "C" fn CRYPTO_load_u32_le(mut in_0: *const libc::c_void) -> uint32
     );
     return v;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_issuer_name_cmp(
     mut a: *const X509,
     mut b: *const X509,
 ) -> libc::c_int {
     return X509_NAME_cmp((*(*a).cert_info).issuer, (*(*b).cert_info).issuer);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_subject_name_cmp(
     mut a: *const X509,
     mut b: *const X509,
 ) -> libc::c_int {
     return X509_NAME_cmp((*(*a).cert_info).subject, (*(*b).cert_info).subject);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_cmp(
     mut a: *const X509_CRL,
     mut b: *const X509_CRL,
 ) -> libc::c_int {
     return X509_NAME_cmp((*(*a).crl).issuer, (*(*b).crl).issuer);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_CRL_match(
     mut a: *const X509_CRL,
     mut b: *const X509_CRL,
@@ -399,41 +398,41 @@ pub unsafe extern "C" fn X509_CRL_match(
         32 as libc::c_int as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_issuer_name(mut a: *const X509) -> *mut X509_NAME {
     return (*(*a).cert_info).issuer;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_issuer_name_hash(mut x: *mut X509) -> uint32_t {
     return X509_NAME_hash((*(*x).cert_info).issuer);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_issuer_name_hash_old(mut x: *mut X509) -> uint32_t {
     return X509_NAME_hash_old((*(*x).cert_info).issuer);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_subject_name(mut a: *const X509) -> *mut X509_NAME {
     return (*(*a).cert_info).subject;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_serialNumber(mut a: *mut X509) -> *mut ASN1_INTEGER {
     return (*(*a).cert_info).serialNumber;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get0_serialNumber(
     mut x509: *const X509,
 ) -> *const ASN1_INTEGER {
     return (*(*x509).cert_info).serialNumber;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_subject_name_hash(mut x: *mut X509) -> uint32_t {
     return X509_NAME_hash((*(*x).cert_info).subject);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_subject_name_hash_old(mut x: *mut X509) -> uint32_t {
     return X509_NAME_hash_old((*(*x).cert_info).subject);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_cmp(
     mut a: *const X509,
     mut b: *const X509,
@@ -446,7 +445,7 @@ pub unsafe extern "C" fn X509_cmp(
         32 as libc::c_int as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_cmp(
     mut a: *const X509_NAME,
     mut b: *const X509_NAME,
@@ -474,7 +473,7 @@ pub unsafe extern "C" fn X509_NAME_cmp(
         (*a).canon_enclen as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_hash(mut x: *mut X509_NAME) -> uint32_t {
     if i2d_X509_NAME(x, 0 as *mut *mut uint8_t) < 0 as libc::c_int {
         return 0 as libc::c_int as uint32_t;
@@ -483,7 +482,7 @@ pub unsafe extern "C" fn X509_NAME_hash(mut x: *mut X509_NAME) -> uint32_t {
     SHA1((*x).canon_enc, (*x).canon_enclen as size_t, md.as_mut_ptr());
     return CRYPTO_load_u32_le(md.as_mut_ptr() as *const libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_NAME_hash_old(mut x: *mut X509_NAME) -> uint32_t {
     if i2d_X509_NAME(x, 0 as *mut *mut uint8_t) < 0 as libc::c_int {
         return 0 as libc::c_int as uint32_t;
@@ -492,7 +491,7 @@ pub unsafe extern "C" fn X509_NAME_hash_old(mut x: *mut X509_NAME) -> uint32_t {
     MD5((*(*x).bytes).data as *const uint8_t, (*(*x).bytes).length, md.as_mut_ptr());
     return CRYPTO_load_u32_le(md.as_mut_ptr() as *const libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_find_by_issuer_and_serial(
     mut sk: *const stack_st_X509,
     mut name: *mut X509_NAME,
@@ -516,7 +515,7 @@ pub unsafe extern "C" fn X509_find_by_issuer_and_serial(
     }
     return 0 as *mut X509;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_find_by_subject(
     mut sk: *const stack_st_X509,
     mut name: *mut X509_NAME,
@@ -532,21 +531,21 @@ pub unsafe extern "C" fn X509_find_by_subject(
     }
     return 0 as *mut X509;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get0_pubkey(mut x: *const X509) -> *mut EVP_PKEY {
     if x.is_null() {
         return 0 as *mut EVP_PKEY;
     }
     return X509_PUBKEY_get0((*(*x).cert_info).key);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get_pubkey(mut x: *const X509) -> *mut EVP_PKEY {
     if x.is_null() {
         return 0 as *mut EVP_PKEY;
     }
     return X509_PUBKEY_get((*(*x).cert_info).key);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_get0_pubkey_bitstr(
     mut x: *const X509,
 ) -> *mut ASN1_BIT_STRING {
@@ -555,7 +554,7 @@ pub unsafe extern "C" fn X509_get0_pubkey_bitstr(
     }
     return (*(*(*x).cert_info).key).public_key;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_check_private_key(
     mut x: *const X509,
     mut k: *const EVP_PKEY,
@@ -606,7 +605,7 @@ pub unsafe extern "C" fn X509_check_private_key(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509_chain_up_ref(
     mut chain: *mut stack_st_X509,
 ) -> *mut stack_st_X509 {

@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn OPENSSL_cleanse(ptr: *mut libc::c_void, len: size_t);
     fn memcpy(
         _: *mut libc::c_void,
@@ -79,7 +79,7 @@ unsafe extern "C" fn FIPS_service_indicator_update_state() {}
 unsafe extern "C" fn FIPS_service_indicator_lock_state() {}
 #[inline]
 unsafe extern "C" fn FIPS_service_indicator_unlock_state() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA3_224(
     mut data: *const uint8_t,
     mut len: size_t,
@@ -109,7 +109,7 @@ pub unsafe extern "C" fn SHA3_224(
     FIPS_service_indicator_update_state();
     return out;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA3_256(
     mut data: *const uint8_t,
     mut len: size_t,
@@ -139,7 +139,7 @@ pub unsafe extern "C" fn SHA3_256(
     FIPS_service_indicator_update_state();
     return out;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA3_384(
     mut data: *const uint8_t,
     mut len: size_t,
@@ -169,7 +169,7 @@ pub unsafe extern "C" fn SHA3_384(
     FIPS_service_indicator_update_state();
     return out;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA3_512(
     mut data: *const uint8_t,
     mut len: size_t,
@@ -199,7 +199,7 @@ pub unsafe extern "C" fn SHA3_512(
     FIPS_service_indicator_update_state();
     return out;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHAKE128(
     mut data: *const uint8_t,
     in_len: size_t,
@@ -233,7 +233,7 @@ pub unsafe extern "C" fn SHAKE128(
     FIPS_service_indicator_update_state();
     return out;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHAKE256(
     mut data: *const uint8_t,
     in_len: size_t,
@@ -390,7 +390,7 @@ unsafe extern "C" fn FIPS202_Finalize(
     (*ctx).buf_load = 0 as libc::c_int as size_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA3_Init(
     mut ctx: *mut KECCAK1600_CTX,
     mut bit_len: size_t,
@@ -413,7 +413,7 @@ pub unsafe extern "C" fn SHA3_Init(
         bit_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA3_Update(
     mut ctx: *mut KECCAK1600_CTX,
     mut data: *const libc::c_void,
@@ -430,7 +430,7 @@ pub unsafe extern "C" fn SHA3_Update(
     }
     return FIPS202_Update(ctx, data, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA3_Final(
     mut md: *mut uint8_t,
     mut ctx: *mut KECCAK1600_CTX,
@@ -455,7 +455,7 @@ pub unsafe extern "C" fn SHA3_Final(
     FIPS_service_indicator_update_state();
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHAKE_Init(
     mut ctx: *mut KECCAK1600_CTX,
     mut block_size: size_t,
@@ -479,7 +479,7 @@ pub unsafe extern "C" fn SHAKE_Init(
         0 as libc::c_int as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHAKE_Absorb(
     mut ctx: *mut KECCAK1600_CTX,
     mut data: *const libc::c_void,
@@ -496,7 +496,7 @@ pub unsafe extern "C" fn SHAKE_Absorb(
     }
     return FIPS202_Update(ctx, data, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHAKE_Final(
     mut md: *mut uint8_t,
     mut ctx: *mut KECCAK1600_CTX,
@@ -523,7 +523,7 @@ pub unsafe extern "C" fn SHAKE_Final(
     FIPS_service_indicator_update_state();
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHAKE_Squeeze(
     mut md: *mut uint8_t,
     mut ctx: *mut KECCAK1600_CTX,
@@ -602,7 +602,7 @@ pub unsafe extern "C" fn SHAKE_Squeeze(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHAKE128_Init_x4(
     mut ctx: *mut KECCAK1600_CTX_x4,
 ) -> libc::c_int {
@@ -628,7 +628,7 @@ pub unsafe extern "C" fn SHAKE128_Init_x4(
         ) != 0) as libc::c_int;
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHAKE128_Absorb_once_x4(
     mut ctx: *mut KECCAK1600_CTX_x4,
     mut data0: *const libc::c_void,
@@ -659,7 +659,7 @@ pub unsafe extern "C" fn SHAKE128_Absorb_once_x4(
         ) != 0) as libc::c_int;
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHAKE128_Squeezeblocks_x4(
     mut md0: *mut uint8_t,
     mut md1: *mut uint8_t,
@@ -698,7 +698,7 @@ pub unsafe extern "C" fn SHAKE128_Squeezeblocks_x4(
         ) != 0) as libc::c_int;
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHAKE256_x4(
     mut data0: *const uint8_t,
     mut data1: *const uint8_t,

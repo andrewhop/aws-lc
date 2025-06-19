@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn abort() -> !;
     fn CRYPTO_STATIC_MUTEX_lock_read(lock: *mut CRYPTO_STATIC_MUTEX);
     fn CRYPTO_STATIC_MUTEX_lock_write(lock: *mut CRYPTO_STATIC_MUTEX);
@@ -80,7 +80,7 @@ static mut g_lock: CRYPTO_STATIC_MUTEX = {
     };
     init
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RAND_enable_fork_unsafe_buffering(mut fd: libc::c_int) {
     if fd != -(1 as libc::c_int) {
         abort();
@@ -89,7 +89,7 @@ pub unsafe extern "C" fn RAND_enable_fork_unsafe_buffering(mut fd: libc::c_int) 
     g_buffering_enabled = 1 as libc::c_int;
     CRYPTO_STATIC_MUTEX_unlock_write(&mut g_lock);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn rand_fork_unsafe_buffering_enabled() -> libc::c_int {
     CRYPTO_STATIC_MUTEX_lock_read(&mut g_lock);
     let ret: libc::c_int = g_buffering_enabled;

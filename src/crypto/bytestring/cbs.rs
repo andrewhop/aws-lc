@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn OPENSSL_gmtime_adj(
         tm: *mut tm,
         offset_day: libc::c_int,
@@ -166,7 +166,7 @@ unsafe extern "C" fn OPENSSL_memcpy(
     }
     return memcpy(dst, src, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_init(
     mut cbs: *mut CBS,
     mut data: *const uint8_t,
@@ -188,20 +188,20 @@ unsafe extern "C" fn cbs_get(
     (*cbs).len = ((*cbs).len).wrapping_sub(n);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_skip(mut cbs: *mut CBS, mut len: size_t) -> libc::c_int {
     let mut dummy: *const uint8_t = 0 as *const uint8_t;
     return cbs_get(cbs, &mut dummy, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_data(mut cbs: *const CBS) -> *const uint8_t {
     return (*cbs).data;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_len(mut cbs: *const CBS) -> size_t {
     return (*cbs).len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_stow(
     mut cbs: *const CBS,
     mut out_ptr: *mut *mut uint8_t,
@@ -221,7 +221,7 @@ pub unsafe extern "C" fn CBS_stow(
     *out_len = (*cbs).len;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_strdup(
     mut cbs: *const CBS,
     mut out_ptr: *mut *mut libc::c_char,
@@ -232,7 +232,7 @@ pub unsafe extern "C" fn CBS_strdup(
     *out_ptr = OPENSSL_strndup((*cbs).data as *const libc::c_char, (*cbs).len);
     return (*out_ptr != 0 as *mut libc::c_void as *mut libc::c_char) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_contains_zero_byte(mut cbs: *const CBS) -> libc::c_int {
     return (OPENSSL_memchr(
         (*cbs).data as *const libc::c_void,
@@ -240,7 +240,7 @@ pub unsafe extern "C" fn CBS_contains_zero_byte(mut cbs: *const CBS) -> libc::c_
         (*cbs).len,
     ) != 0 as *mut libc::c_void) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_mem_equal(
     mut cbs: *const CBS,
     mut data: *const uint8_t,
@@ -275,7 +275,7 @@ unsafe extern "C" fn cbs_get_u(
     *out = result;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_u8(
     mut cbs: *mut CBS,
     mut out: *mut uint8_t,
@@ -287,7 +287,7 @@ pub unsafe extern "C" fn CBS_get_u8(
     *out = *v;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_u16(
     mut cbs: *mut CBS,
     mut out: *mut uint16_t,
@@ -299,7 +299,7 @@ pub unsafe extern "C" fn CBS_get_u16(
     *out = v as uint16_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_u16le(
     mut cbs: *mut CBS,
     mut out: *mut uint16_t,
@@ -310,7 +310,7 @@ pub unsafe extern "C" fn CBS_get_u16le(
     *out = CRYPTO_bswap2(*out);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_u24(
     mut cbs: *mut CBS,
     mut out: *mut uint32_t,
@@ -322,7 +322,7 @@ pub unsafe extern "C" fn CBS_get_u24(
     *out = v as uint32_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_u32(
     mut cbs: *mut CBS,
     mut out: *mut uint32_t,
@@ -334,7 +334,7 @@ pub unsafe extern "C" fn CBS_get_u32(
     *out = v as uint32_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_u32le(
     mut cbs: *mut CBS,
     mut out: *mut uint32_t,
@@ -345,14 +345,14 @@ pub unsafe extern "C" fn CBS_get_u32le(
     *out = CRYPTO_bswap4(*out);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_u64(
     mut cbs: *mut CBS,
     mut out: *mut uint64_t,
 ) -> libc::c_int {
     return cbs_get_u(cbs, out, 8 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_u64le(
     mut cbs: *mut CBS,
     mut out: *mut uint64_t,
@@ -363,7 +363,7 @@ pub unsafe extern "C" fn CBS_get_u64le(
     *out = CRYPTO_bswap8(*out);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_last_u8(
     mut cbs: *mut CBS,
     mut out: *mut uint8_t,
@@ -377,7 +377,7 @@ pub unsafe extern "C" fn CBS_get_last_u8(
     (*cbs).len;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_bytes(
     mut cbs: *mut CBS,
     mut out: *mut CBS,
@@ -390,7 +390,7 @@ pub unsafe extern "C" fn CBS_get_bytes(
     CBS_init(out, v, len);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_copy_bytes(
     mut cbs: *mut CBS,
     mut out: *mut uint8_t,
@@ -442,28 +442,28 @@ unsafe extern "C" fn cbs_get_length_prefixed(
     };
     return CBS_get_bytes(cbs, out, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_u8_length_prefixed(
     mut cbs: *mut CBS,
     mut out: *mut CBS,
 ) -> libc::c_int {
     return cbs_get_length_prefixed(cbs, out, 1 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_u16_length_prefixed(
     mut cbs: *mut CBS,
     mut out: *mut CBS,
 ) -> libc::c_int {
     return cbs_get_length_prefixed(cbs, out, 2 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_u24_length_prefixed(
     mut cbs: *mut CBS,
     mut out: *mut CBS,
 ) -> libc::c_int {
     return cbs_get_length_prefixed(cbs, out, 3 as libc::c_int as size_t);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_until_first(
     mut cbs: *mut CBS,
     mut out: *mut CBS,
@@ -483,7 +483,7 @@ pub unsafe extern "C" fn CBS_get_until_first(
         split.offset_from(CBS_data(cbs)) as libc::c_long as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_u64_decimal(
     mut cbs: *mut CBS,
     mut out: *mut uint64_t,
@@ -572,7 +572,7 @@ unsafe extern "C" fn parse_asn1_tag(
     *out = tag;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn cbs_get_any_asn1_element(
     mut cbs: *mut CBS,
     mut out: *mut CBS,
@@ -730,7 +730,7 @@ pub unsafe extern "C" fn cbs_get_any_asn1_element(
     }
     return CBS_get_bytes(cbs, out, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_any_asn1(
     mut cbs: *mut CBS,
     mut out: *mut CBS,
@@ -769,7 +769,7 @@ pub unsafe extern "C" fn CBS_get_any_asn1(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_any_asn1_element(
     mut cbs: *mut CBS,
     mut out: *mut CBS,
@@ -787,7 +787,7 @@ pub unsafe extern "C" fn CBS_get_any_asn1_element(
         0 as libc::c_int,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_any_ber_asn1_element(
     mut cbs: *mut CBS,
     mut out: *mut CBS,
@@ -857,7 +857,7 @@ unsafe extern "C" fn cbs_get_asn1(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_asn1(
     mut cbs: *mut CBS,
     mut out: *mut CBS,
@@ -865,7 +865,7 @@ pub unsafe extern "C" fn CBS_get_asn1(
 ) -> libc::c_int {
     return cbs_get_asn1(cbs, out, tag_value, 1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_asn1_element(
     mut cbs: *mut CBS,
     mut out: *mut CBS,
@@ -873,7 +873,7 @@ pub unsafe extern "C" fn CBS_get_asn1_element(
 ) -> libc::c_int {
     return cbs_get_asn1(cbs, out, tag_value, 0 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_peek_asn1_tag(
     mut cbs: *const CBS,
     mut tag_value: CBS_ASN1_TAG,
@@ -883,7 +883,7 @@ pub unsafe extern "C" fn CBS_peek_asn1_tag(
     return (parse_asn1_tag(&mut copy, &mut actual_tag, 0 as libc::c_int) != 0
         && tag_value == actual_tag) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_asn1_uint64(
     mut cbs: *mut CBS,
     mut out: *mut uint64_t,
@@ -912,7 +912,7 @@ pub unsafe extern "C" fn CBS_get_asn1_uint64(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_asn1_int64(
     mut cbs: *mut CBS,
     mut out: *mut int64_t,
@@ -955,7 +955,7 @@ pub unsafe extern "C" fn CBS_get_asn1_int64(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_asn1_bool(
     mut cbs: *mut CBS,
     mut out: *mut libc::c_int,
@@ -978,7 +978,7 @@ pub unsafe extern "C" fn CBS_get_asn1_bool(
     *out = (value != 0) as libc::c_int;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_optional_asn1(
     mut cbs: *mut CBS,
     mut out: *mut CBS,
@@ -997,7 +997,7 @@ pub unsafe extern "C" fn CBS_get_optional_asn1(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_optional_asn1_octet_string(
     mut cbs: *mut CBS,
     mut out: *mut CBS,
@@ -1058,7 +1058,7 @@ pub unsafe extern "C" fn CBS_get_optional_asn1_octet_string(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_optional_asn1_uint64(
     mut cbs: *mut CBS,
     mut out: *mut uint64_t,
@@ -1084,7 +1084,7 @@ pub unsafe extern "C" fn CBS_get_optional_asn1_uint64(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_optional_asn1_bool(
     mut cbs: *mut CBS,
     mut out: *mut libc::c_int,
@@ -1124,7 +1124,7 @@ pub unsafe extern "C" fn CBS_get_optional_asn1_bool(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_is_valid_asn1_bitstring(
     mut cbs: *const CBS,
 ) -> libc::c_int {
@@ -1148,7 +1148,7 @@ pub unsafe extern "C" fn CBS_is_valid_asn1_bitstring(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_asn1_bitstring_has_bit(
     mut cbs: *const CBS,
     mut bit: libc::c_uint,
@@ -1164,7 +1164,7 @@ pub unsafe extern "C" fn CBS_asn1_bitstring_has_bit(
         && *(CBS_data(cbs)).offset(byte_num as isize) as libc::c_int
             & (1 as libc::c_int) << bit_num != 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_is_valid_asn1_integer(
     mut cbs: *const CBS,
     mut out_is_negative: *mut libc::c_int,
@@ -1191,7 +1191,7 @@ pub unsafe extern "C" fn CBS_is_valid_asn1_integer(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_is_unsigned_asn1_integer(
     mut cbs: *const CBS,
 ) -> libc::c_int {
@@ -1213,7 +1213,7 @@ unsafe extern "C" fn add_decimal(mut out: *mut CBB, mut v: uint64_t) -> libc::c_
         strlen(buf.as_mut_ptr()),
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_is_valid_asn1_oid(mut cbs: *const CBS) -> libc::c_int {
     if CBS_len(cbs) == 0 as libc::c_int as size_t {
         return 0 as libc::c_int;
@@ -1232,7 +1232,7 @@ pub unsafe extern "C" fn CBS_is_valid_asn1_oid(mut cbs: *const CBS) -> libc::c_i
     return (prev as libc::c_int & 0x80 as libc::c_int == 0 as libc::c_int)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_asn1_oid_to_text(mut cbs: *const CBS) -> *mut libc::c_char {
     let mut copy: CBS = cbs_st {
         data: 0 as *const uint8_t,
@@ -1457,7 +1457,7 @@ unsafe extern "C" fn CBS_parse_rfc5280_time_internal(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_parse_generalized_time(
     mut cbs: *const CBS,
     mut out_tm: *mut tm,
@@ -1470,7 +1470,7 @@ pub unsafe extern "C" fn CBS_parse_generalized_time(
         out_tm,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_parse_utc_time(
     mut cbs: *const CBS,
     mut out_tm: *mut tm,
@@ -1483,7 +1483,7 @@ pub unsafe extern "C" fn CBS_parse_utc_time(
         out_tm,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CBS_get_optional_asn1_int64(
     mut cbs: *mut CBS,
     mut out: *mut int64_t,

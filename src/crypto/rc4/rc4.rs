@@ -20,7 +20,7 @@ pub struct rc4_key_st {
     pub data: [uint32_t; 256],
 }
 pub type RC4_KEY = rc4_key_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RC4(
     mut key: *mut RC4_KEY,
     mut len: size_t,
@@ -51,7 +51,7 @@ pub unsafe extern "C" fn RC4(
     (*key).x = x;
     (*key).y = y;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn RC4_set_key(
     mut rc4key: *mut RC4_KEY,
     mut len: libc::c_uint,

@@ -9,7 +9,7 @@
 )]
 #![feature(asm, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     fn ec_compute_wNAF(
         out: *mut int8_t,
         scalar: *const EC_SCALAR,
@@ -233,7 +233,7 @@ unsafe extern "C" fn cmovznz(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_nistp_point_double(
     mut ctx: *const ec_nistp_meth,
     mut x_out: *mut ec_nistp_felem_limb,
@@ -316,7 +316,7 @@ pub unsafe extern "C" fn ec_nistp_point_double(
     ((*ctx).felem_sub)
         .expect("non-null function pointer")(y_out, y_out, gamma.as_mut_ptr());
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_nistp_point_add(
     mut ctx: *const ec_nistp_meth,
     mut x3: *mut ec_nistp_felem_limb,
@@ -649,7 +649,7 @@ unsafe extern "C" fn select_point_from_table(
         point_num_limbs,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_nistp_scalar_mul(
     mut ctx: *const ec_nistp_meth,
     mut x_out: *mut ec_nistp_felem_limb,
@@ -819,7 +819,7 @@ pub unsafe extern "C" fn ec_nistp_scalar_mul(
     cmovznz(y_out, (*ctx).felem_num_limbs, t, y_tmp, y_res);
     cmovznz(z_out, (*ctx).felem_num_limbs, t, z_tmp, z_res);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_nistp_scalar_mul_base(
     mut ctx: *const ec_nistp_meth,
     mut x_out: *mut ec_nistp_felem_limb,
@@ -1011,7 +1011,7 @@ pub unsafe extern "C" fn ec_nistp_scalar_mul_base(
     cmovznz(y_out, (*ctx).felem_num_limbs, t, y_tmp, y_res);
     cmovznz(z_out, (*ctx).felem_num_limbs, t, z_tmp, z_res);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_nistp_scalar_mul_public(
     mut ctx: *const ec_nistp_meth,
     mut x_out: *mut ec_nistp_felem_limb,
@@ -2261,7 +2261,7 @@ pub unsafe extern "C" fn ec_nistp_scalar_mul_public(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_nistp_point_to_coordinates(
     mut x_out: *mut ec_nistp_felem_limb,
     mut y_out: *mut ec_nistp_felem_limb,
@@ -2289,7 +2289,7 @@ pub unsafe extern "C" fn ec_nistp_point_to_coordinates(
         num_bytes_per_coord,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_nistp_coordinates_to_point(
     mut xyz_out: *mut ec_nistp_felem_limb,
     mut x_in: *const ec_nistp_felem_limb,

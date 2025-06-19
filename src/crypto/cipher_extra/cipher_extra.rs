@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type evp_cipher_st;
     fn EVP_rc4() -> *const EVP_CIPHER;
     fn EVP_des_cbc() -> *const EVP_CIPHER;
@@ -402,7 +401,7 @@ static mut kCipherAliases: [C2RustUnnamed_0; 7] = [
         init
     },
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_get_cipherbynid(mut nid: libc::c_int) -> *const EVP_CIPHER {
     let mut i: size_t = 0 as libc::c_int as size_t;
     while i
@@ -433,7 +432,7 @@ unsafe extern "C" fn get_cipherbyname(
     }
     return 0 as *const EVP_CIPHER;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_get_cipherbyname(
     mut name: *const libc::c_char,
 ) -> *const EVP_CIPHER {

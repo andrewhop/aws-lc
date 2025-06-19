@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn BN_num_bytes(bn: *const BIGNUM) -> libc::c_uint;
     fn BN_is_negative(bn: *const BIGNUM) -> libc::c_int;
     fn BN_bin2bn(in_0: *const uint8_t, len: size_t, ret: *mut BIGNUM) -> *mut BIGNUM;
@@ -318,11 +318,11 @@ unsafe extern "C" fn constant_time_msb_w(mut a: crypto_word_t) -> crypto_word_t 
 unsafe extern "C" fn constant_time_is_zero_w(mut a: crypto_word_t) -> crypto_word_t {
     return constant_time_msb_w(!a & a.wrapping_sub(1 as libc::c_int as crypto_word_t));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_felem_one(mut group: *const EC_GROUP) -> *const EC_FELEM {
     return &(*group).generator.raw.Z;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_bignum_to_felem(
     mut group: *const EC_GROUP,
     mut out: *mut EC_FELEM,
@@ -375,7 +375,7 @@ pub unsafe extern "C" fn ec_bignum_to_felem(
     }
     return ec_felem_from_bytes(group, out, bytes.as_mut_ptr(), len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_felem_to_bignum(
     mut group: *const EC_GROUP,
     mut out: *mut BIGNUM,
@@ -387,7 +387,7 @@ pub unsafe extern "C" fn ec_felem_to_bignum(
     return (BN_bin2bn(bytes.as_mut_ptr(), len, out)
         != 0 as *mut libc::c_void as *mut BIGNUM) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_felem_to_bytes(
     mut group: *const EC_GROUP,
     mut out: *mut uint8_t,
@@ -397,7 +397,7 @@ pub unsafe extern "C" fn ec_felem_to_bytes(
     ((*(*group).meth).felem_to_bytes)
         .expect("non-null function pointer")(group, out, out_len, in_0);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_felem_from_bytes(
     mut group: *const EC_GROUP,
     mut out: *mut EC_FELEM,
@@ -407,7 +407,7 @@ pub unsafe extern "C" fn ec_felem_from_bytes(
     return ((*(*group).meth).felem_from_bytes)
         .expect("non-null function pointer")(group, out, in_0, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_felem_neg(
     mut group: *const EC_GROUP,
     mut out: *mut EC_FELEM,
@@ -457,7 +457,7 @@ pub unsafe extern "C" fn ec_felem_neg(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_felem_add(
     mut group: *const EC_GROUP,
     mut out: *mut EC_FELEM,
@@ -474,7 +474,7 @@ pub unsafe extern "C" fn ec_felem_add(
         (*group).field.N.width as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_felem_sub(
     mut group: *const EC_GROUP,
     mut out: *mut EC_FELEM,
@@ -491,7 +491,7 @@ pub unsafe extern "C" fn ec_felem_sub(
         (*group).field.N.width as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_felem_non_zero_mask(
     mut group: *const EC_GROUP,
     mut a: *const EC_FELEM,
@@ -505,7 +505,7 @@ pub unsafe extern "C" fn ec_felem_non_zero_mask(
     }
     return !constant_time_is_zero_w(mask);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_felem_select(
     mut group: *const EC_GROUP,
     mut out: *mut EC_FELEM,
@@ -521,7 +521,7 @@ pub unsafe extern "C" fn ec_felem_select(
         (*group).field.N.width as size_t,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_felem_equal(
     mut group: *const EC_GROUP,
     mut a: *const EC_FELEM,

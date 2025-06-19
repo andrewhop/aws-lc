@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st;
     pub type stack_st_void;
     pub type stack_st_CRYPTO_EX_DATA_FUNCS;
@@ -176,7 +175,7 @@ unsafe extern "C" fn sk_CRYPTO_EX_DATA_FUNCS_num(
 ) -> size_t {
     return OPENSSL_sk_num(sk as *const OPENSSL_STACK);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_get_ex_new_index(
     mut ex_data_class: *mut CRYPTO_EX_DATA_CLASS,
     mut out_index: *mut libc::c_int,
@@ -224,7 +223,7 @@ pub unsafe extern "C" fn CRYPTO_get_ex_new_index(
     OPENSSL_free(funcs as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_set_ex_data(
     mut ad: *mut CRYPTO_EX_DATA,
     mut index: libc::c_int,
@@ -245,12 +244,11 @@ pub unsafe extern "C" fn CRYPTO_set_ex_data(
             return 0 as libc::c_int;
         }
         i = i.wrapping_add(1);
-        i;
     }
     sk_void_set((*ad).sk, index as size_t, val);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_get_ex_data(
     mut ad: *const CRYPTO_EX_DATA,
     mut idx: libc::c_int,
@@ -279,11 +277,11 @@ unsafe extern "C" fn get_func_pointers(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_new_ex_data(mut ad: *mut CRYPTO_EX_DATA) {
     (*ad).sk = 0 as *mut stack_st_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_free_ex_data(
     mut ex_data_class: *mut CRYPTO_EX_DATA_CLASS,
     mut obj: *mut libc::c_void,
@@ -361,11 +359,10 @@ pub unsafe extern "C" fn CRYPTO_free_ex_data(
             );
         }
         i += 1;
-        i;
     }
     sk_CRYPTO_EX_DATA_FUNCS_free(func_pointers);
     sk_void_free((*ad).sk);
     (*ad).sk = 0 as *mut stack_st_void;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_cleanup_all_ex_data() {}

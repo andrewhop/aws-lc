@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_null_st;
     pub type ASN1_VALUE_st;
     pub type stack_st_X509_NAME_ENTRY;
@@ -453,7 +452,7 @@ static mut OCSP_SIGNATURE_seq_tt: [ASN1_TEMPLATE; 3] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut OCSP_SIGNATURE_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -507,7 +506,7 @@ static mut OCSP_CERTID_seq_tt: [ASN1_TEMPLATE; 4] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut OCSP_CERTID_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -545,7 +544,7 @@ static mut OCSP_ONEREQ_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut OCSP_ONEREQ_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -606,7 +605,7 @@ static mut OCSP_REQINFO_seq_tt: [ASN1_TEMPLATE; 4] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut OCSP_REQINFO_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -642,7 +641,7 @@ static mut OCSP_REQUEST_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut OCSP_REQUEST_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -676,7 +675,7 @@ static mut OCSP_RESPBYTES_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut OCSP_RESPBYTES_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -712,7 +711,7 @@ static mut OCSP_RESPONSE_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut OCSP_RESPONSE_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -750,7 +749,7 @@ static mut OCSP_RESPID_ch_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut OCSP_RESPID_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -786,7 +785,7 @@ static mut OCSP_REVOKEDINFO_seq_tt: [ASN1_TEMPLATE; 2] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut OCSP_REVOKEDINFO_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -836,7 +835,7 @@ static mut OCSP_CERTSTATUS_ch_tt: [ASN1_TEMPLATE; 3] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut OCSP_CERTSTATUS_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -905,7 +904,7 @@ static mut OCSP_SINGLERESP_seq_tt: [ASN1_TEMPLATE; 5] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut OCSP_SINGLERESP_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -974,7 +973,7 @@ static mut OCSP_RESPDATA_seq_tt: [ASN1_TEMPLATE; 5] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut OCSP_RESPDATA_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -1031,7 +1030,7 @@ static mut OCSP_BASICRESP_seq_tt: [ASN1_TEMPLATE; 4] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut OCSP_BASICRESP_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -1041,18 +1040,18 @@ pub static mut OCSP_BASICRESP_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_OCSP_SIGNATURE(
     mut a: *mut OCSP_SIGNATURE,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &OCSP_SIGNATURE_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_SIGNATURE_free(mut a: *mut OCSP_SIGNATURE) {
     ASN1_item_free(a as *mut ASN1_VALUE, &OCSP_SIGNATURE_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_OCSP_SIGNATURE(
     mut a: *mut *mut OCSP_SIGNATURE,
     mut in_0: *mut *const libc::c_uchar,
@@ -1061,22 +1060,22 @@ pub unsafe extern "C" fn d2i_OCSP_SIGNATURE(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &OCSP_SIGNATURE_it)
         as *mut OCSP_SIGNATURE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_SIGNATURE_new() -> *mut OCSP_SIGNATURE {
     return ASN1_item_new(&OCSP_SIGNATURE_it) as *mut OCSP_SIGNATURE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_OCSP_CERTID(
     mut a: *mut OCSP_CERTID,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &OCSP_CERTID_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_CERTID_free(mut a: *mut OCSP_CERTID) {
     ASN1_item_free(a as *mut ASN1_VALUE, &OCSP_CERTID_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_OCSP_CERTID(
     mut a: *mut *mut OCSP_CERTID,
     mut in_0: *mut *const libc::c_uchar,
@@ -1085,26 +1084,26 @@ pub unsafe extern "C" fn d2i_OCSP_CERTID(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &OCSP_CERTID_it)
         as *mut OCSP_CERTID;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_CERTID_new() -> *mut OCSP_CERTID {
     return ASN1_item_new(&OCSP_CERTID_it) as *mut OCSP_CERTID;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_OCSP_ONEREQ(
     mut a: *mut OCSP_ONEREQ,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &OCSP_ONEREQ_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_ONEREQ_free(mut a: *mut OCSP_ONEREQ) {
     ASN1_item_free(a as *mut ASN1_VALUE, &OCSP_ONEREQ_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_ONEREQ_new() -> *mut OCSP_ONEREQ {
     return ASN1_item_new(&OCSP_ONEREQ_it) as *mut OCSP_ONEREQ;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_OCSP_ONEREQ(
     mut a: *mut *mut OCSP_ONEREQ,
     mut in_0: *mut *const libc::c_uchar,
@@ -1113,18 +1112,18 @@ pub unsafe extern "C" fn d2i_OCSP_ONEREQ(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &OCSP_ONEREQ_it)
         as *mut OCSP_ONEREQ;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_OCSP_REQINFO(
     mut a: *mut OCSP_REQINFO,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &OCSP_REQINFO_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REQINFO_free(mut a: *mut OCSP_REQINFO) {
     ASN1_item_free(a as *mut ASN1_VALUE, &OCSP_REQINFO_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_OCSP_REQINFO(
     mut a: *mut *mut OCSP_REQINFO,
     mut in_0: *mut *const libc::c_uchar,
@@ -1133,26 +1132,26 @@ pub unsafe extern "C" fn d2i_OCSP_REQINFO(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &OCSP_REQINFO_it)
         as *mut OCSP_REQINFO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REQINFO_new() -> *mut OCSP_REQINFO {
     return ASN1_item_new(&OCSP_REQINFO_it) as *mut OCSP_REQINFO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_OCSP_REQUEST(
     mut a: *mut OCSP_REQUEST,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &OCSP_REQUEST_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REQUEST_free(mut a: *mut OCSP_REQUEST) {
     ASN1_item_free(a as *mut ASN1_VALUE, &OCSP_REQUEST_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REQUEST_new() -> *mut OCSP_REQUEST {
     return ASN1_item_new(&OCSP_REQUEST_it) as *mut OCSP_REQUEST;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_OCSP_REQUEST(
     mut a: *mut *mut OCSP_REQUEST,
     mut in_0: *mut *const libc::c_uchar,
@@ -1161,18 +1160,18 @@ pub unsafe extern "C" fn d2i_OCSP_REQUEST(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &OCSP_REQUEST_it)
         as *mut OCSP_REQUEST;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_OCSP_RESPONSE(
     mut a: *mut OCSP_RESPONSE,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &OCSP_RESPONSE_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_RESPONSE_free(mut a: *mut OCSP_RESPONSE) {
     ASN1_item_free(a as *mut ASN1_VALUE, &OCSP_RESPONSE_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_OCSP_RESPONSE(
     mut a: *mut *mut OCSP_RESPONSE,
     mut in_0: *mut *const libc::c_uchar,
@@ -1181,26 +1180,26 @@ pub unsafe extern "C" fn d2i_OCSP_RESPONSE(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &OCSP_RESPONSE_it)
         as *mut OCSP_RESPONSE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_RESPONSE_new() -> *mut OCSP_RESPONSE {
     return ASN1_item_new(&OCSP_RESPONSE_it) as *mut OCSP_RESPONSE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_RESPBYTES_free(mut a: *mut OCSP_RESPBYTES) {
     ASN1_item_free(a as *mut ASN1_VALUE, &OCSP_RESPBYTES_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_OCSP_RESPBYTES(
     mut a: *mut OCSP_RESPBYTES,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &OCSP_RESPBYTES_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_RESPBYTES_new() -> *mut OCSP_RESPBYTES {
     return ASN1_item_new(&OCSP_RESPBYTES_it) as *mut OCSP_RESPBYTES;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_OCSP_RESPBYTES(
     mut a: *mut *mut OCSP_RESPBYTES,
     mut in_0: *mut *const libc::c_uchar,
@@ -1209,22 +1208,22 @@ pub unsafe extern "C" fn d2i_OCSP_RESPBYTES(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &OCSP_RESPBYTES_it)
         as *mut OCSP_RESPBYTES;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_RESPDATA_free(mut a: *mut OCSP_RESPDATA) {
     ASN1_item_free(a as *mut ASN1_VALUE, &OCSP_RESPDATA_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_OCSP_RESPDATA(
     mut a: *mut OCSP_RESPDATA,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &OCSP_RESPDATA_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_RESPDATA_new() -> *mut OCSP_RESPDATA {
     return ASN1_item_new(&OCSP_RESPDATA_it) as *mut OCSP_RESPDATA;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_OCSP_RESPDATA(
     mut a: *mut *mut OCSP_RESPDATA,
     mut in_0: *mut *const libc::c_uchar,
@@ -1233,18 +1232,18 @@ pub unsafe extern "C" fn d2i_OCSP_RESPDATA(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &OCSP_RESPDATA_it)
         as *mut OCSP_RESPDATA;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_OCSP_REVOKEDINFO(
     mut a: *mut OCSP_REVOKEDINFO,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &OCSP_REVOKEDINFO_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REVOKEDINFO_free(mut a: *mut OCSP_REVOKEDINFO) {
     ASN1_item_free(a as *mut ASN1_VALUE, &OCSP_REVOKEDINFO_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_OCSP_REVOKEDINFO(
     mut a: *mut *mut OCSP_REVOKEDINFO,
     mut in_0: *mut *const libc::c_uchar,
@@ -1253,22 +1252,22 @@ pub unsafe extern "C" fn d2i_OCSP_REVOKEDINFO(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &OCSP_REVOKEDINFO_it)
         as *mut OCSP_REVOKEDINFO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_REVOKEDINFO_new() -> *mut OCSP_REVOKEDINFO {
     return ASN1_item_new(&OCSP_REVOKEDINFO_it) as *mut OCSP_REVOKEDINFO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_OCSP_BASICRESP(
     mut a: *mut OCSP_BASICRESP,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &OCSP_BASICRESP_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_BASICRESP_free(mut a: *mut OCSP_BASICRESP) {
     ASN1_item_free(a as *mut ASN1_VALUE, &OCSP_BASICRESP_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_OCSP_BASICRESP(
     mut a: *mut *mut OCSP_BASICRESP,
     mut in_0: *mut *const libc::c_uchar,
@@ -1277,26 +1276,26 @@ pub unsafe extern "C" fn d2i_OCSP_BASICRESP(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &OCSP_BASICRESP_it)
         as *mut OCSP_BASICRESP;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_BASICRESP_new() -> *mut OCSP_BASICRESP {
     return ASN1_item_new(&OCSP_BASICRESP_it) as *mut OCSP_BASICRESP;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_CERTID_dup(mut x: *mut OCSP_CERTID) -> *mut OCSP_CERTID {
     return ASN1_item_dup(&OCSP_CERTID_it, x as *mut libc::c_void) as *mut OCSP_CERTID;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_OCSP_SINGLERESP(
     mut a: *mut OCSP_SINGLERESP,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &OCSP_SINGLERESP_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_SINGLERESP_free(mut a: *mut OCSP_SINGLERESP) {
     ASN1_item_free(a as *mut ASN1_VALUE, &OCSP_SINGLERESP_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_OCSP_SINGLERESP(
     mut a: *mut *mut OCSP_SINGLERESP,
     mut in_0: *mut *const libc::c_uchar,
@@ -1305,11 +1304,11 @@ pub unsafe extern "C" fn d2i_OCSP_SINGLERESP(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &OCSP_SINGLERESP_it)
         as *mut OCSP_SINGLERESP;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_SINGLERESP_new() -> *mut OCSP_SINGLERESP {
     return ASN1_item_new(&OCSP_SINGLERESP_it) as *mut OCSP_SINGLERESP;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_OCSP_RESPONSE_bio(
     mut bp: *mut BIO,
     mut presp: *mut *mut OCSP_RESPONSE,
@@ -1317,14 +1316,14 @@ pub unsafe extern "C" fn d2i_OCSP_RESPONSE_bio(
     return ASN1_item_d2i_bio(&OCSP_RESPONSE_it, bp, presp as *mut libc::c_void)
         as *mut OCSP_RESPONSE;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_OCSP_RESPONSE_bio(
     mut bp: *mut BIO,
     mut presp: *mut OCSP_RESPONSE,
 ) -> libc::c_int {
     return ASN1_item_i2d_bio(&OCSP_RESPONSE_it, bp, presp as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_OCSP_REQUEST_bio(
     mut bp: *mut BIO,
     mut preq: *mut *mut OCSP_REQUEST,
@@ -1332,7 +1331,7 @@ pub unsafe extern "C" fn d2i_OCSP_REQUEST_bio(
     return ASN1_item_d2i_bio(&OCSP_REQUEST_it, bp, preq as *mut libc::c_void)
         as *mut OCSP_REQUEST;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_OCSP_REQUEST_bio(
     mut bp: *mut BIO,
     mut preq: *mut OCSP_REQUEST,

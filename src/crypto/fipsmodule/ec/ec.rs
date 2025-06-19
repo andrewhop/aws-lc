@@ -9,7 +9,7 @@
 )]
 #![feature(asm, extern_types, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn BN_new() -> *mut BIGNUM;
     fn BN_free(bn: *mut BIGNUM);
@@ -912,7 +912,7 @@ static mut EC_group_p224_storage: EC_GROUP = ec_group_st {
 unsafe extern "C" fn EC_group_p224_init() {
     EC_group_p224_do_init(EC_group_p224_storage_bss_get());
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_group_p224() -> *const EC_GROUP {
     CRYPTO_once(
         EC_group_p224_once_bss_get(),
@@ -921,7 +921,7 @@ pub unsafe extern "C" fn EC_group_p224() -> *const EC_GROUP {
     return EC_group_p224_storage_bss_get() as *const EC_GROUP;
 }
 static mut EC_group_p256_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_group_p256() -> *const EC_GROUP {
     CRYPTO_once(
         EC_group_p256_once_bss_get(),
@@ -1180,7 +1180,7 @@ unsafe extern "C" fn EC_group_p384_once_bss_get() -> *mut CRYPTO_once_t {
     return &mut EC_group_p384_once;
 }
 static mut EC_group_p384_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_group_p384() -> *const EC_GROUP {
     CRYPTO_once(
         EC_group_p384_once_bss_get(),
@@ -1317,7 +1317,7 @@ static mut EC_group_p521_storage: EC_GROUP = ec_group_st {
     conv_form: 0 as point_conversion_form_t,
     mutable_ec_group: 0,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_group_p521() -> *const EC_GROUP {
     CRYPTO_once(
         EC_group_p521_once_bss_get(),
@@ -1384,7 +1384,7 @@ static mut EC_group_secp256k1_storage: EC_GROUP = ec_group_st {
 unsafe extern "C" fn EC_group_secp256k1_storage_bss_get() -> *mut EC_GROUP {
     return &mut EC_group_secp256k1_storage;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_group_secp256k1() -> *const EC_GROUP {
     CRYPTO_once(
         EC_group_secp256k1_once_bss_get(),
@@ -1459,7 +1459,7 @@ unsafe extern "C" fn EC_group_secp256k1_once_bss_get() -> *mut CRYPTO_once_t {
     return &mut EC_group_secp256k1_once;
 }
 static mut EC_group_secp256k1_once: CRYPTO_once_t = 0 as libc::c_int;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_new_curve_GFp(
     mut p: *const BIGNUM,
     mut a: *const BIGNUM,
@@ -1512,7 +1512,7 @@ pub unsafe extern "C" fn EC_GROUP_new_curve_GFp(
     BN_CTX_free(new_ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_set_generator(
     mut group: *mut EC_GROUP,
     mut generator: *const EC_POINT,
@@ -1591,7 +1591,7 @@ pub unsafe extern "C" fn EC_GROUP_set_generator(
     BN_free(tmp);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_new_by_curve_name(
     mut nid: libc::c_int,
 ) -> *mut EC_GROUP {
@@ -1614,7 +1614,7 @@ pub unsafe extern "C" fn EC_GROUP_new_by_curve_name(
         }
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_new_by_curve_name_mutable(
     mut nid: libc::c_int,
 ) -> *mut EC_GROUP {
@@ -1668,7 +1668,7 @@ pub unsafe extern "C" fn EC_GROUP_new_by_curve_name_mutable(
     (*ret).mutable_ec_group = 1 as libc::c_int;
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_free(mut group: *mut EC_GROUP) {
     if group.is_null() {
         return;
@@ -1682,7 +1682,7 @@ pub unsafe extern "C" fn EC_GROUP_free(mut group: *mut EC_GROUP) {
     bn_mont_ctx_cleanup(&mut (*group).field);
     OPENSSL_free(group as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_dup(mut a: *const EC_GROUP) -> *mut EC_GROUP {
     if a.is_null() {
         return 0 as *mut EC_GROUP;
@@ -1710,7 +1710,7 @@ pub unsafe extern "C" fn EC_GROUP_dup(mut a: *const EC_GROUP) -> *mut EC_GROUP {
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_cmp(
     mut a: *const EC_GROUP,
     mut b: *const EC_GROUP,
@@ -1737,7 +1737,7 @@ pub unsafe extern "C" fn EC_GROUP_cmp(
                     &(*b).generator.raw,
                 ) == 0)) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_get0_generator(
     mut group: *const EC_GROUP,
 ) -> *const EC_POINT {
@@ -1747,7 +1747,7 @@ pub unsafe extern "C" fn EC_GROUP_get0_generator(
         0 as *const EC_POINT
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_get0_order(
     mut group: *const EC_GROUP,
 ) -> *const BIGNUM {
@@ -1781,7 +1781,7 @@ pub unsafe extern "C" fn EC_GROUP_get0_order(
     };
     return &(*group).order.N;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_get_order(
     mut group: *const EC_GROUP,
     mut order: *mut BIGNUM,
@@ -1792,11 +1792,11 @@ pub unsafe extern "C" fn EC_GROUP_get_order(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_order_bits(mut group: *const EC_GROUP) -> libc::c_int {
     return BN_num_bits(&(*group).order.N) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_get_cofactor(
     mut group: *const EC_GROUP,
     mut cofactor: *mut BIGNUM,
@@ -1804,7 +1804,7 @@ pub unsafe extern "C" fn EC_GROUP_get_cofactor(
 ) -> libc::c_int {
     return BN_set_word(cofactor, 1 as libc::c_int as BN_ULONG);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_get_curve_GFp(
     mut group: *const EC_GROUP,
     mut out_p: *mut BIGNUM,
@@ -1814,19 +1814,19 @@ pub unsafe extern "C" fn EC_GROUP_get_curve_GFp(
 ) -> libc::c_int {
     return ec_GFp_simple_group_get_curve(group, out_p, out_a, out_b);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_get_curve_name(
     mut group: *const EC_GROUP,
 ) -> libc::c_int {
     return (*group).curve_name;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_get_degree(
     mut group: *const EC_GROUP,
 ) -> libc::c_uint {
     return BN_num_bits(&(*group).field.N);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_curve_nid2nist(mut nid: libc::c_int) -> *const libc::c_char {
     match nid {
         713 => return b"P-224\0" as *const u8 as *const libc::c_char,
@@ -1837,7 +1837,7 @@ pub unsafe extern "C" fn EC_curve_nid2nist(mut nid: libc::c_int) -> *const libc:
     }
     return 0 as *const libc::c_char;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_curve_nist2nid(
     mut name: *const libc::c_char,
 ) -> libc::c_int {
@@ -1855,7 +1855,7 @@ pub unsafe extern "C" fn EC_curve_nist2nid(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_new(mut group: *const EC_GROUP) -> *mut EC_POINT {
     if group.is_null() {
         ERR_put_error(
@@ -1890,15 +1890,15 @@ unsafe extern "C" fn ec_point_free(
     }
     OPENSSL_free(point as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_free(mut point: *mut EC_POINT) {
     ec_point_free(point, 1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_clear_free(mut point: *mut EC_POINT) {
     EC_POINT_free(point);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_copy(
     mut dest: *mut EC_POINT,
     mut src: *const EC_POINT,
@@ -1920,7 +1920,7 @@ pub unsafe extern "C" fn EC_POINT_copy(
     ec_GFp_simple_point_copy(&mut (*dest).raw, &(*src).raw);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_dup(
     mut a: *const EC_POINT,
     mut group: *const EC_GROUP,
@@ -1935,7 +1935,7 @@ pub unsafe extern "C" fn EC_POINT_dup(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_set_to_infinity(
     mut group: *const EC_GROUP,
     mut point: *mut EC_POINT,
@@ -1954,7 +1954,7 @@ pub unsafe extern "C" fn EC_POINT_set_to_infinity(
     ec_GFp_simple_point_set_to_infinity(group, &mut (*point).raw);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_is_at_infinity(
     mut group: *const EC_GROUP,
     mut point: *const EC_POINT,
@@ -1972,7 +1972,7 @@ pub unsafe extern "C" fn EC_POINT_is_at_infinity(
     }
     return ec_GFp_simple_is_at_infinity(group, &(*point).raw);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_is_on_curve(
     mut group: *const EC_GROUP,
     mut point: *const EC_POINT,
@@ -1991,7 +1991,7 @@ pub unsafe extern "C" fn EC_POINT_is_on_curve(
     }
     return ec_GFp_simple_is_on_curve(group, &(*point).raw);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_cmp(
     mut group: *const EC_GROUP,
     mut a: *const EC_POINT,
@@ -2017,7 +2017,7 @@ pub unsafe extern "C" fn EC_POINT_cmp(
         1 as libc::c_int
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_get_affine_coordinates_GFp(
     mut group: *const EC_GROUP,
     mut point: *const EC_POINT,
@@ -2064,7 +2064,7 @@ pub unsafe extern "C" fn EC_POINT_get_affine_coordinates_GFp(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_get_affine_coordinates(
     mut group: *const EC_GROUP,
     mut point: *const EC_POINT,
@@ -2074,7 +2074,7 @@ pub unsafe extern "C" fn EC_POINT_get_affine_coordinates(
 ) -> libc::c_int {
     return EC_POINT_get_affine_coordinates_GFp(group, point, x, y, ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_affine_to_jacobian(
     mut group: *const EC_GROUP,
     mut out: *mut EC_JACOBIAN,
@@ -2084,7 +2084,7 @@ pub unsafe extern "C" fn ec_affine_to_jacobian(
     (*out).Y = (*p).Y;
     (*out).Z = *ec_felem_one(group);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_jacobian_to_affine(
     mut group: *const EC_GROUP,
     mut out: *mut EC_AFFINE,
@@ -2093,7 +2093,7 @@ pub unsafe extern "C" fn ec_jacobian_to_affine(
     return ((*(*group).meth).point_get_affine_coordinates)
         .expect("non-null function pointer")(group, p, &mut (*out).X, &mut (*out).Y);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_jacobian_to_affine_batch(
     mut group: *const EC_GROUP,
     mut out: *mut EC_AFFINE,
@@ -2114,7 +2114,7 @@ pub unsafe extern "C" fn ec_jacobian_to_affine_batch(
     return ((*(*group).meth).jacobian_to_affine_batch)
         .expect("non-null function pointer")(group, out, in_0, num);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_point_set_affine_coordinates(
     mut group: *const EC_GROUP,
     mut out: *mut EC_AFFINE,
@@ -2158,7 +2158,7 @@ pub unsafe extern "C" fn ec_point_set_affine_coordinates(
     (*out).Y = *y;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_set_affine_coordinates_GFp(
     mut group: *const EC_GROUP,
     mut point: *mut EC_POINT,
@@ -2209,7 +2209,7 @@ pub unsafe extern "C" fn EC_POINT_set_affine_coordinates_GFp(
     ec_affine_to_jacobian(group, &mut (*point).raw, &mut affine);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_set_affine_coordinates(
     mut group: *const EC_GROUP,
     mut point: *mut EC_POINT,
@@ -2219,7 +2219,7 @@ pub unsafe extern "C" fn EC_POINT_set_affine_coordinates(
 ) -> libc::c_int {
     return EC_POINT_set_affine_coordinates_GFp(group, point, x, y, ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_add(
     mut group: *const EC_GROUP,
     mut r: *mut EC_POINT,
@@ -2245,7 +2245,7 @@ pub unsafe extern "C" fn EC_POINT_add(
         .expect("non-null function pointer")(group, &mut (*r).raw, &(*a).raw, &(*b).raw);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_dbl(
     mut group: *const EC_GROUP,
     mut r: *mut EC_POINT,
@@ -2269,7 +2269,7 @@ pub unsafe extern "C" fn EC_POINT_dbl(
         .expect("non-null function pointer")(group, &mut (*r).raw, &(*a).raw);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_invert(
     mut group: *const EC_GROUP,
     mut a: *mut EC_POINT,
@@ -2307,7 +2307,7 @@ unsafe extern "C" fn arbitrary_bignum_to_scalar(
     BN_CTX_end(ctx);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_point_mul_no_self_test(
     mut group: *const EC_GROUP,
     mut r: *mut EC_POINT,
@@ -2428,7 +2428,7 @@ pub unsafe extern "C" fn ec_point_mul_no_self_test(
     BN_CTX_free(new_ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_POINT_mul(
     mut group: *const EC_GROUP,
     mut r: *mut EC_POINT,
@@ -2440,7 +2440,7 @@ pub unsafe extern "C" fn EC_POINT_mul(
     boringssl_ensure_ecc_self_test();
     return ec_point_mul_no_self_test(group, r, g_scalar, p, p_scalar, ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_point_mul_scalar_public(
     mut group: *const EC_GROUP,
     mut r: *mut EC_JACOBIAN,
@@ -2469,7 +2469,7 @@ pub unsafe extern "C" fn ec_point_mul_scalar_public(
         .expect("non-null function pointer")(group, r, g_scalar, p, p_scalar);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_point_mul_scalar_public_batch(
     mut group: *const EC_GROUP,
     mut r: *mut EC_JACOBIAN,
@@ -2492,7 +2492,7 @@ pub unsafe extern "C" fn ec_point_mul_scalar_public_batch(
     return ((*(*group).meth).mul_public_batch)
         .expect("non-null function pointer")(group, r, g_scalar, points, scalars, num);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_point_mul_scalar(
     mut group: *const EC_GROUP,
     mut r: *mut EC_JACOBIAN,
@@ -2524,7 +2524,7 @@ pub unsafe extern "C" fn ec_point_mul_scalar(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_point_mul_scalar_base(
     mut group: *const EC_GROUP,
     mut r: *mut EC_JACOBIAN,
@@ -2555,7 +2555,7 @@ pub unsafe extern "C" fn ec_point_mul_scalar_base(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_point_mul_scalar_batch(
     mut group: *const EC_GROUP,
     mut r: *mut EC_JACOBIAN,
@@ -2594,7 +2594,7 @@ pub unsafe extern "C" fn ec_point_mul_scalar_batch(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_init_precomp(
     mut group: *const EC_GROUP,
     mut out: *mut EC_PRECOMP,
@@ -2614,7 +2614,7 @@ pub unsafe extern "C" fn ec_init_precomp(
     return ((*(*group).meth).init_precomp)
         .expect("non-null function pointer")(group, out, p);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_point_mul_scalar_precomp(
     mut group: *const EC_GROUP,
     mut r: *mut EC_JACOBIAN,
@@ -2653,7 +2653,7 @@ pub unsafe extern "C" fn ec_point_mul_scalar_precomp(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_point_select(
     mut group: *const EC_GROUP,
     mut out: *mut EC_JACOBIAN,
@@ -2665,7 +2665,7 @@ pub unsafe extern "C" fn ec_point_select(
     ec_felem_select(group, &mut (*out).Y, mask, &(*a).Y, &(*b).Y);
     ec_felem_select(group, &mut (*out).Z, mask, &(*a).Z, &(*b).Z);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_affine_select(
     mut group: *const EC_GROUP,
     mut out: *mut EC_AFFINE,
@@ -2676,7 +2676,7 @@ pub unsafe extern "C" fn ec_affine_select(
     ec_felem_select(group, &mut (*out).X, mask, &(*a).X, &(*b).X);
     ec_felem_select(group, &mut (*out).Y, mask, &(*a).Y, &(*b).Y);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_precomp_select(
     mut group: *const EC_GROUP,
     mut out: *mut EC_PRECOMP,
@@ -2700,7 +2700,7 @@ pub unsafe extern "C" fn ec_precomp_select(
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_cmp_x_coordinate(
     mut group: *const EC_GROUP,
     mut p: *const EC_JACOBIAN,
@@ -2709,7 +2709,7 @@ pub unsafe extern "C" fn ec_cmp_x_coordinate(
     return ((*(*group).meth).cmp_x_coordinate)
         .expect("non-null function pointer")(group, p, r);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_get_x_coordinate_as_scalar(
     mut group: *const EC_GROUP,
     mut out: *mut EC_SCALAR,
@@ -2755,7 +2755,7 @@ pub unsafe extern "C" fn ec_get_x_coordinate_as_scalar(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_get_x_coordinate_as_bytes(
     mut group: *const EC_GROUP,
     mut out: *mut uint8_t,
@@ -2817,7 +2817,7 @@ pub unsafe extern "C" fn ec_get_x_coordinate_as_bytes(
     *out_len = len;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ec_set_to_safe_point(
     mut group: *const EC_GROUP,
     mut out: *mut EC_JACOBIAN,
@@ -2828,30 +2828,30 @@ pub unsafe extern "C" fn ec_set_to_safe_point(
         ec_GFp_simple_point_set_to_infinity(group, out);
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_set_asn1_flag(
     mut group: *mut EC_GROUP,
     mut flag: libc::c_int,
 ) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_get_asn1_flag(
     mut group: *const EC_GROUP,
 ) -> libc::c_int {
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_method_of(
     mut group: *const EC_GROUP,
 ) -> *const EC_METHOD {
     return 0x12340000 as libc::c_int as *const EC_METHOD;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_METHOD_get_field_type(
     mut meth: *const EC_METHOD,
 ) -> libc::c_int {
     return 406 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_set_point_conversion_form(
     mut group: *mut EC_GROUP,
     mut form: point_conversion_form_t,
@@ -2860,13 +2860,13 @@ pub unsafe extern "C" fn EC_GROUP_set_point_conversion_form(
         (*group).conv_form = form;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_get_point_conversion_form(
     mut group: *const EC_GROUP,
 ) -> point_conversion_form_t {
     return (*group).conv_form;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_set_seed(
     mut group: *mut EC_GROUP,
     mut seed: *const libc::c_uchar,
@@ -2874,13 +2874,13 @@ pub unsafe extern "C" fn EC_GROUP_set_seed(
 ) -> size_t {
     return 0 as libc::c_int as size_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_get0_seed(
     mut group: *const EC_GROUP,
 ) -> *mut libc::c_uchar {
     return 0 as *mut libc::c_uchar;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EC_GROUP_get_seed_len(mut group: *const EC_GROUP) -> size_t {
     return 0 as libc::c_int as size_t;
 }

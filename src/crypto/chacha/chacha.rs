@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(label_break_value)]
-extern "C" {
+unsafe extern "C" {
     fn __assert_fail(
         __assertion: *const libc::c_char,
         __file: *const libc::c_char,
@@ -81,7 +81,7 @@ static mut sigma_words: [uint32_t; 4] = [
     0x79622d32 as libc::c_int as uint32_t,
     0x6b206574 as libc::c_int as uint32_t,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_hchacha20(
     mut out: *mut uint8_t,
     mut key: *const uint8_t,
@@ -666,7 +666,7 @@ unsafe extern "C" fn chacha_core(mut output: *mut uint8_t, mut input: *const uin
         i;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_chacha_20(
     mut out: *mut uint8_t,
     mut in_0: *const uint8_t,

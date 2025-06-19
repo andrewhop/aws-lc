@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn ASN1_STRING_dup(str: *const ASN1_STRING) -> *mut ASN1_STRING;
     fn ASN1_STRING_cmp(a: *const ASN1_STRING, b: *const ASN1_STRING) -> libc::c_int;
     fn ASN1_STRING_set(
@@ -28,20 +28,20 @@ pub struct asn1_string_st {
 }
 pub type ASN1_OCTET_STRING = asn1_string_st;
 pub type ASN1_STRING = asn1_string_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_OCTET_STRING_dup(
     mut x: *const ASN1_OCTET_STRING,
 ) -> *mut ASN1_OCTET_STRING {
     return ASN1_STRING_dup(x);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_OCTET_STRING_cmp(
     mut a: *const ASN1_OCTET_STRING,
     mut b: *const ASN1_OCTET_STRING,
 ) -> libc::c_int {
     return ASN1_STRING_cmp(a, b);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_OCTET_STRING_set(
     mut x: *mut ASN1_OCTET_STRING,
     mut d: *const libc::c_uchar,

@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn memcpy(
         _: *mut libc::c_void,
         _: *const libc::c_void,
@@ -74,12 +74,12 @@ unsafe extern "C" fn OPENSSL_memset(
     }
     return memset(dst, c, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BUF_MEM_new() -> *mut BUF_MEM {
     return OPENSSL_zalloc(::core::mem::size_of::<BUF_MEM>() as libc::c_ulong)
         as *mut BUF_MEM;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BUF_MEM_free(mut buf: *mut BUF_MEM) {
     if buf.is_null() {
         return;
@@ -87,7 +87,7 @@ pub unsafe extern "C" fn BUF_MEM_free(mut buf: *mut BUF_MEM) {
     OPENSSL_free((*buf).data as *mut libc::c_void);
     OPENSSL_free(buf as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BUF_MEM_reserve(
     mut buf: *mut BUF_MEM,
     mut cap: size_t,
@@ -131,7 +131,7 @@ pub unsafe extern "C" fn BUF_MEM_reserve(
     (*buf).max = alloc_size;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BUF_MEM_grow(mut buf: *mut BUF_MEM, mut len: size_t) -> size_t {
     if BUF_MEM_reserve(buf, len) == 0 {
         return 0 as libc::c_int as size_t;
@@ -147,14 +147,14 @@ pub unsafe extern "C" fn BUF_MEM_grow(mut buf: *mut BUF_MEM, mut len: size_t) ->
     (*buf).length = len;
     return len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BUF_MEM_grow_clean(
     mut buf: *mut BUF_MEM,
     mut len: size_t,
 ) -> size_t {
     return BUF_MEM_grow(buf, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BUF_MEM_append(
     mut buf: *mut BUF_MEM,
     mut in_0: *const libc::c_void,
@@ -186,25 +186,25 @@ pub unsafe extern "C" fn BUF_MEM_append(
     (*buf).length = new_len;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BUF_strdup(mut str: *const libc::c_char) -> *mut libc::c_char {
     return OPENSSL_strdup(str);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BUF_strnlen(
     mut str: *const libc::c_char,
     mut max_len: size_t,
 ) -> size_t {
     return OPENSSL_strnlen(str, max_len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BUF_strndup(
     mut str: *const libc::c_char,
     mut size: size_t,
 ) -> *mut libc::c_char {
     return OPENSSL_strndup(str, size);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BUF_strlcpy(
     mut dst: *mut libc::c_char,
     mut src: *const libc::c_char,
@@ -212,7 +212,7 @@ pub unsafe extern "C" fn BUF_strlcpy(
 ) -> size_t {
     return OPENSSL_strlcpy(dst, src, dst_size);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BUF_strlcat(
     mut dst: *mut libc::c_char,
     mut src: *const libc::c_char,
@@ -220,7 +220,7 @@ pub unsafe extern "C" fn BUF_strlcat(
 ) -> size_t {
     return OPENSSL_strlcat(dst, src, dst_size);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BUF_memdup(
     mut data: *const libc::c_void,
     mut size: size_t,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_object_st;
     pub type ASN1_VALUE_st;
     pub type X509_name_st;
@@ -149,7 +148,7 @@ pub struct ocsp_cert_id_st {
     pub serialNumber: *mut ASN1_INTEGER,
 }
 pub type OCSP_CERTID = ocsp_cert_id_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_cert_to_id(
     mut dgst: *const EVP_MD,
     mut subject: *const X509,
@@ -182,7 +181,7 @@ pub unsafe extern "C" fn OCSP_cert_to_id(
     ikey = X509_get0_pubkey_bitstr(issuer);
     return OCSP_cert_id_new(dgst, iname, ikey, serial);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_cert_id_new(
     mut dgst: *const EVP_MD,
     mut issuerName: *const X509_NAME,
@@ -281,7 +280,7 @@ pub unsafe extern "C" fn OCSP_cert_id_new(
     OCSP_CERTID_free(cid);
     return 0 as *mut OCSP_CERTID;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_id_issuer_cmp(
     mut a: *const OCSP_CERTID,
     mut b: *const OCSP_CERTID,
@@ -322,7 +321,7 @@ pub unsafe extern "C" fn OCSP_id_issuer_cmp(
     ret = ASN1_OCTET_STRING_cmp((*a).issuerKeyHash, (*b).issuerKeyHash);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_id_cmp(
     mut a: *const OCSP_CERTID,
     mut b: *const OCSP_CERTID,
@@ -345,7 +344,7 @@ pub unsafe extern "C" fn OCSP_id_cmp(
     ret = ASN1_INTEGER_cmp((*a).serialNumber, (*b).serialNumber);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_parse_url(
     mut url: *const libc::c_char,
     mut phost: *mut *mut libc::c_char,

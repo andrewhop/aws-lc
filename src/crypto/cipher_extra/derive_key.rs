@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type engine_st;
     pub type evp_md_pctx_ops;
     pub type evp_pkey_ctx_st;
@@ -61,7 +60,7 @@ pub type EVP_PKEY_CTX = evp_pkey_ctx_st;
 pub type EVP_MD_CTX = env_md_ctx_st;
 pub type EVP_MD = env_md_st;
 pub type EVP_CIPHER = evp_cipher_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_BytesToKey(
     mut type_0: *const EVP_CIPHER,
     mut md: *const EVP_MD,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     fn BIO_new(method: *const BIO_METHOD) -> *mut BIO;
     fn BIO_ctrl(
@@ -124,7 +123,7 @@ pub struct crypto_ex_data_st {
     pub sk: *mut stack_st_void,
 }
 pub type BIO_METHOD = bio_method_st;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_new_fd(
     mut fd: libc::c_int,
     mut close_flag: libc::c_int,
@@ -326,11 +325,11 @@ static mut methods_fdp: BIO_METHOD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_s_fd() -> *const BIO_METHOD {
     return &methods_fdp;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_set_fd(
     mut bio: *mut BIO,
     mut fd: libc::c_int,
@@ -339,7 +338,7 @@ pub unsafe extern "C" fn BIO_set_fd(
     return BIO_int_ctrl(bio, 104 as libc::c_int, close_flag as libc::c_long, fd)
         as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_get_fd(
     mut bio: *mut BIO,
     mut out_fd: *mut libc::c_int,

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_object_st;
     pub type ASN1_VALUE_st;
     pub type evp_cipher_st;
@@ -676,7 +675,7 @@ unsafe extern "C" fn OPENSSL_memset(
     }
     return memset(dst, c, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pkcs12_iterations_acceptable(
     mut iterations: uint64_t,
 ) -> libc::c_int {
@@ -760,7 +759,7 @@ static mut PKCS8_PRIV_KEY_INFO_seq_tt: [ASN1_TEMPLATE; 4] = unsafe {
         },
     ]
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static mut PKCS8_PRIV_KEY_INFO_it: ASN1_ITEM = ASN1_ITEM_st {
     itype: 0,
     utype: 0,
@@ -770,22 +769,22 @@ pub static mut PKCS8_PRIV_KEY_INFO_it: ASN1_ITEM = ASN1_ITEM_st {
     size: 0,
     sname: 0 as *const libc::c_char,
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS8_PRIV_KEY_INFO_free(mut a: *mut PKCS8_PRIV_KEY_INFO) {
     ASN1_item_free(a as *mut ASN1_VALUE, &PKCS8_PRIV_KEY_INFO_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS8_PRIV_KEY_INFO(
     mut a: *const PKCS8_PRIV_KEY_INFO,
     mut out: *mut *mut libc::c_uchar,
 ) -> libc::c_int {
     return ASN1_item_i2d(a as *mut ASN1_VALUE, out, &PKCS8_PRIV_KEY_INFO_it);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS8_PRIV_KEY_INFO_new() -> *mut PKCS8_PRIV_KEY_INFO {
     return ASN1_item_new(&PKCS8_PRIV_KEY_INFO_it) as *mut PKCS8_PRIV_KEY_INFO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS8_PRIV_KEY_INFO(
     mut a: *mut *mut PKCS8_PRIV_KEY_INFO,
     mut in_0: *mut *const libc::c_uchar,
@@ -794,7 +793,7 @@ pub unsafe extern "C" fn d2i_PKCS8_PRIV_KEY_INFO(
     return ASN1_item_d2i(a as *mut *mut ASN1_VALUE, in_0, len, &PKCS8_PRIV_KEY_INFO_it)
         as *mut PKCS8_PRIV_KEY_INFO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKCS82PKEY(
     mut p8: *const PKCS8_PRIV_KEY_INFO,
 ) -> *mut EVP_PKEY {
@@ -825,7 +824,7 @@ pub unsafe extern "C" fn EVP_PKCS82PKEY(
     OPENSSL_free(der as *mut libc::c_void);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_PKEY2PKCS8(
     mut pkey: *const EVP_PKEY,
 ) -> *mut PKCS8_PRIV_KEY_INFO {
@@ -885,7 +884,7 @@ pub unsafe extern "C" fn EVP_PKEY2PKCS8(
     OPENSSL_free(der as *mut libc::c_void);
     return 0 as *mut PKCS8_PRIV_KEY_INFO;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS8_decrypt(
     mut pkcs8: *mut X509_SIG,
     mut pass: *const libc::c_char,
@@ -920,7 +919,7 @@ pub unsafe extern "C" fn PKCS8_decrypt(
     EVP_PKEY_free(pkey);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS8_encrypt(
     mut pbe_nid: libc::c_int,
     mut cipher: *const EVP_CIPHER,
@@ -1759,7 +1758,7 @@ unsafe extern "C" fn pkcs12_check_mac(
     );
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS12_get_key_and_certs(
     mut out_key: *mut *mut EVP_PKEY,
     mut out_certs: *mut stack_st_X509,
@@ -2086,9 +2085,9 @@ pub unsafe extern "C" fn PKCS12_get_key_and_certs(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS12_PBE_add() {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS12(
     mut out_p12: *mut *mut PKCS12,
     mut ber_bytes: *mut *const uint8_t,
@@ -2113,7 +2112,7 @@ pub unsafe extern "C" fn d2i_PKCS12(
     }
     return p12;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS12_bio(
     mut bio: *mut BIO,
     mut out_p12: *mut *mut PKCS12,
@@ -2182,7 +2181,7 @@ pub unsafe extern "C" fn d2i_PKCS12_bio(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn d2i_PKCS12_fp(
     mut fp: *mut FILE,
     mut out_p12: *mut *mut PKCS12,
@@ -2197,7 +2196,7 @@ pub unsafe extern "C" fn d2i_PKCS12_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS12(
     mut p12: *const PKCS12,
     mut out: *mut *mut uint8_t,
@@ -2232,14 +2231,14 @@ pub unsafe extern "C" fn i2d_PKCS12(
     }
     return (*p12).ber_len as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS12_bio(
     mut bio: *mut BIO,
     mut p12: *const PKCS12,
 ) -> libc::c_int {
     return BIO_write_all(bio, (*p12).ber_bytes as *const libc::c_void, (*p12).ber_len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn i2d_PKCS12_fp(
     mut fp: *mut FILE,
     mut p12: *const PKCS12,
@@ -2252,7 +2251,7 @@ pub unsafe extern "C" fn i2d_PKCS12_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS12_parse(
     mut p12: *const PKCS12,
     mut password: *const libc::c_char,
@@ -2310,7 +2309,7 @@ pub unsafe extern "C" fn PKCS12_parse(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS12_verify_mac(
     mut p12: *const PKCS12,
     mut password: *const libc::c_char,
@@ -3087,7 +3086,7 @@ unsafe extern "C" fn pkcs12_gen_and_write_mac(
     );
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS12_create(
     mut password: *const libc::c_char,
     mut name: *const libc::c_char,
@@ -3662,12 +3661,12 @@ pub unsafe extern "C" fn PKCS12_create(
     CBB_cleanup(&mut cbb);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS12_new() -> *mut PKCS12 {
     return OPENSSL_zalloc(::core::mem::size_of::<PKCS12>() as libc::c_ulong)
         as *mut PKCS12;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS12_free(mut p12: *mut PKCS12) {
     if p12.is_null() {
         return;
@@ -3675,7 +3674,7 @@ pub unsafe extern "C" fn PKCS12_free(mut p12: *mut PKCS12) {
     OPENSSL_free((*p12).ber_bytes as *mut libc::c_void);
     OPENSSL_free(p12 as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn PKCS12_set_mac(
     mut p12: *mut PKCS12,
     mut password: *const libc::c_char,

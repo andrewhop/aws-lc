@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type lhash_st_CRYPTO_BUFFER;
     pub type lhash_st;
     fn CBS_init(cbs: *mut CBS, data: *const uint8_t, len: size_t);
@@ -330,7 +329,7 @@ unsafe extern "C" fn CRYPTO_BUFFER_cmp(
         (*a).len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_BUFFER_POOL_new() -> *mut CRYPTO_BUFFER_POOL {
     let mut pool: *mut CRYPTO_BUFFER_POOL = OPENSSL_zalloc(
         ::core::mem::size_of::<CRYPTO_BUFFER_POOL>() as libc::c_ulong,
@@ -362,7 +361,7 @@ pub unsafe extern "C" fn CRYPTO_BUFFER_POOL_new() -> *mut CRYPTO_BUFFER_POOL {
     );
     return pool;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_BUFFER_POOL_free(mut pool: *mut CRYPTO_BUFFER_POOL) {
     if pool.is_null() {
         return;
@@ -491,7 +490,7 @@ unsafe extern "C" fn crypto_buffer_new(
     }
     return buf;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_BUFFER_new(
     mut data: *const uint8_t,
     mut len: size_t,
@@ -499,7 +498,7 @@ pub unsafe extern "C" fn CRYPTO_BUFFER_new(
 ) -> *mut CRYPTO_BUFFER {
     return crypto_buffer_new(data, len, 0 as libc::c_int, pool);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_BUFFER_alloc(
     mut out_data: *mut *mut uint8_t,
     mut len: size_t,
@@ -520,14 +519,14 @@ pub unsafe extern "C" fn CRYPTO_BUFFER_alloc(
     *out_data = (*buf).data;
     return buf;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_BUFFER_new_from_CBS(
     mut cbs: *const CBS,
     mut pool: *mut CRYPTO_BUFFER_POOL,
 ) -> *mut CRYPTO_BUFFER {
     return CRYPTO_BUFFER_new(CBS_data(cbs), CBS_len(cbs), pool);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_BUFFER_new_from_static_data_unsafe(
     mut data: *const uint8_t,
     mut len: size_t,
@@ -535,7 +534,7 @@ pub unsafe extern "C" fn CRYPTO_BUFFER_new_from_static_data_unsafe(
 ) -> *mut CRYPTO_BUFFER {
     return crypto_buffer_new(data, len, 1 as libc::c_int, pool);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_BUFFER_free(mut buf: *mut CRYPTO_BUFFER) {
     if buf.is_null() {
         return;
@@ -587,24 +586,24 @@ pub unsafe extern "C" fn CRYPTO_BUFFER_free(mut buf: *mut CRYPTO_BUFFER) {
     CRYPTO_MUTEX_unlock_write(&mut (*(*buf).pool).lock);
     crypto_buffer_free_object(buf);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_BUFFER_up_ref(
     mut buf: *mut CRYPTO_BUFFER,
 ) -> libc::c_int {
     CRYPTO_refcount_inc(&mut (*buf).references);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_BUFFER_data(
     mut buf: *const CRYPTO_BUFFER,
 ) -> *const uint8_t {
     return (*buf).data;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_BUFFER_len(mut buf: *const CRYPTO_BUFFER) -> size_t {
     return (*buf).len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_BUFFER_init_CBS(
     mut buf: *const CRYPTO_BUFFER,
     mut out: *mut CBS,

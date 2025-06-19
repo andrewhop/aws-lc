@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn aes_ctr_set_key(
         aes_key: *mut AES_KEY,
         gcm_key: *mut GCM128_KEY,
@@ -902,15 +902,15 @@ static mut aead_aes_256_gcm_siv: EVP_AEAD = unsafe {
         init
     }
 };
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_128_gcm_siv() -> *const EVP_AEAD {
     return &aead_aes_128_gcm_siv;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_aead_aes_256_gcm_siv() -> *const EVP_AEAD {
     return &aead_aes_256_gcm_siv;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn x86_64_assembly_implementation_FOR_TESTING() -> libc::c_int {
     return 0 as libc::c_int;
 }

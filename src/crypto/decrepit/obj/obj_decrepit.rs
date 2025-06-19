@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type env_md_st;
     pub type evp_cipher_st;
     fn __assert_fail(
@@ -124,7 +123,7 @@ unsafe extern "C" fn md_callback(
     ((*wrapped).callback)
         .expect("non-null function pointer")(&mut obj_name, (*wrapped).arg);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OBJ_NAME_do_all_sorted(
     mut type_0: libc::c_int,
     mut callback: Option::<

@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type engine_st;
     pub type env_md_st;
     pub type evp_aead_st;
@@ -748,7 +747,7 @@ unsafe extern "C" fn x25519_auth_decap(
     *out_shared_secret_len = 32 as libc::c_int as size_t;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_hpke_x25519_hkdf_sha256() -> *const EVP_HPKE_KEM {
     static mut kKEM: EVP_HPKE_KEM = unsafe {
         {
@@ -828,27 +827,27 @@ pub unsafe extern "C" fn EVP_hpke_x25519_hkdf_sha256() -> *const EVP_HPKE_KEM {
     };
     return &kKEM;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KEM_id(mut kem: *const EVP_HPKE_KEM) -> uint16_t {
     return (*kem).id;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KEM_public_key_len(
     mut kem: *const EVP_HPKE_KEM,
 ) -> size_t {
     return (*kem).public_key_len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KEM_private_key_len(
     mut kem: *const EVP_HPKE_KEM,
 ) -> size_t {
     return (*kem).private_key_len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KEM_enc_len(mut kem: *const EVP_HPKE_KEM) -> size_t {
     return (*kem).enc_len;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KEY_zero(mut key: *mut EVP_HPKE_KEY) {
     OPENSSL_memset(
         key as *mut libc::c_void,
@@ -856,9 +855,9 @@ pub unsafe extern "C" fn EVP_HPKE_KEY_zero(mut key: *mut EVP_HPKE_KEY) {
         ::core::mem::size_of::<EVP_HPKE_KEY>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KEY_cleanup(mut key: *mut EVP_HPKE_KEY) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KEY_new() -> *mut EVP_HPKE_KEY {
     let mut key: *mut EVP_HPKE_KEY = OPENSSL_malloc(
         ::core::mem::size_of::<EVP_HPKE_KEY>() as libc::c_ulong,
@@ -869,14 +868,14 @@ pub unsafe extern "C" fn EVP_HPKE_KEY_new() -> *mut EVP_HPKE_KEY {
     EVP_HPKE_KEY_zero(key);
     return key;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KEY_free(mut key: *mut EVP_HPKE_KEY) {
     if !key.is_null() {
         EVP_HPKE_KEY_cleanup(key);
         OPENSSL_free(key as *mut libc::c_void);
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KEY_copy(
     mut dst: *mut EVP_HPKE_KEY,
     mut src: *const EVP_HPKE_KEY,
@@ -888,7 +887,7 @@ pub unsafe extern "C" fn EVP_HPKE_KEY_copy(
     );
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KEY_move(
     mut out: *mut EVP_HPKE_KEY,
     mut in_0: *mut EVP_HPKE_KEY,
@@ -901,7 +900,7 @@ pub unsafe extern "C" fn EVP_HPKE_KEY_move(
     );
     EVP_HPKE_KEY_zero(in_0);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KEY_init(
     mut key: *mut EVP_HPKE_KEY,
     mut kem: *const EVP_HPKE_KEM,
@@ -918,7 +917,7 @@ pub unsafe extern "C" fn EVP_HPKE_KEY_init(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KEY_generate(
     mut key: *mut EVP_HPKE_KEY,
     mut kem: *const EVP_HPKE_KEM,
@@ -931,13 +930,13 @@ pub unsafe extern "C" fn EVP_HPKE_KEY_generate(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KEY_kem(
     mut key: *const EVP_HPKE_KEY,
 ) -> *const EVP_HPKE_KEM {
     return (*key).kem;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KEY_public_key(
     mut key: *const EVP_HPKE_KEY,
     mut out: *mut uint8_t,
@@ -963,7 +962,7 @@ pub unsafe extern "C" fn EVP_HPKE_KEY_public_key(
     *out_len = (*(*key).kem).public_key_len;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KEY_private_key(
     mut key: *const EVP_HPKE_KEY,
     mut out: *mut uint8_t,
@@ -989,7 +988,7 @@ pub unsafe extern "C" fn EVP_HPKE_KEY_private_key(
     *out_len = (*(*key).kem).private_key_len;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_hpke_hkdf_sha256() -> *const EVP_HPKE_KDF {
     static mut kKDF: EVP_HPKE_KDF = {
         let mut init = evp_hpke_kdf_st {
@@ -1000,17 +999,17 @@ pub unsafe extern "C" fn EVP_hpke_hkdf_sha256() -> *const EVP_HPKE_KDF {
     };
     return &kKDF;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KDF_id(mut kdf: *const EVP_HPKE_KDF) -> uint16_t {
     return (*kdf).id;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_KDF_hkdf_md(
     mut kdf: *const EVP_HPKE_KDF,
 ) -> *const EVP_MD {
     return ((*kdf).hkdf_md_func).expect("non-null function pointer")();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_hpke_aes_128_gcm() -> *const EVP_HPKE_AEAD {
     static mut kAEAD: EVP_HPKE_AEAD = {
         let mut init = evp_hpke_aead_st {
@@ -1023,7 +1022,7 @@ pub unsafe extern "C" fn EVP_hpke_aes_128_gcm() -> *const EVP_HPKE_AEAD {
     };
     return &kAEAD;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_hpke_aes_256_gcm() -> *const EVP_HPKE_AEAD {
     static mut kAEAD: EVP_HPKE_AEAD = {
         let mut init = evp_hpke_aead_st {
@@ -1036,7 +1035,7 @@ pub unsafe extern "C" fn EVP_hpke_aes_256_gcm() -> *const EVP_HPKE_AEAD {
     };
     return &kAEAD;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_hpke_chacha20_poly1305() -> *const EVP_HPKE_AEAD {
     static mut kAEAD: EVP_HPKE_AEAD = {
         let mut init = evp_hpke_aead_st {
@@ -1049,11 +1048,11 @@ pub unsafe extern "C" fn EVP_hpke_chacha20_poly1305() -> *const EVP_HPKE_AEAD {
     };
     return &kAEAD;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_AEAD_id(mut aead: *const EVP_HPKE_AEAD) -> uint16_t {
     return (*aead).id;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_AEAD_aead(
     mut aead: *const EVP_HPKE_AEAD,
 ) -> *const EVP_AEAD {
@@ -1233,7 +1232,7 @@ unsafe extern "C" fn hpke_key_schedule(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_zero(mut ctx: *mut EVP_HPKE_CTX) {
     OPENSSL_memset(
         ctx as *mut libc::c_void,
@@ -1242,11 +1241,11 @@ pub unsafe extern "C" fn EVP_HPKE_CTX_zero(mut ctx: *mut EVP_HPKE_CTX) {
     );
     EVP_AEAD_CTX_zero(&mut (*ctx).aead_ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_cleanup(mut ctx: *mut EVP_HPKE_CTX) {
     EVP_AEAD_CTX_cleanup(&mut (*ctx).aead_ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_new() -> *mut EVP_HPKE_CTX {
     let mut ctx: *mut EVP_HPKE_CTX = OPENSSL_zalloc(
         ::core::mem::size_of::<EVP_HPKE_CTX>() as libc::c_ulong,
@@ -1256,14 +1255,14 @@ pub unsafe extern "C" fn EVP_HPKE_CTX_new() -> *mut EVP_HPKE_CTX {
     }
     return ctx;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_free(mut ctx: *mut EVP_HPKE_CTX) {
     if !ctx.is_null() {
         EVP_HPKE_CTX_cleanup(ctx);
         OPENSSL_free(ctx as *mut libc::c_void);
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_setup_sender(
     mut ctx: *mut EVP_HPKE_CTX,
     mut out_enc: *mut uint8_t,
@@ -1295,7 +1294,7 @@ pub unsafe extern "C" fn EVP_HPKE_CTX_setup_sender(
         (*kem).seed_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_setup_sender_with_seed_for_testing(
     mut ctx: *mut EVP_HPKE_CTX,
     mut out_enc: *mut uint8_t,
@@ -1347,7 +1346,7 @@ pub unsafe extern "C" fn EVP_HPKE_CTX_setup_sender_with_seed_for_testing(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_setup_recipient(
     mut ctx: *mut EVP_HPKE_CTX,
     mut key: *const EVP_HPKE_KEY,
@@ -1383,7 +1382,7 @@ pub unsafe extern "C" fn EVP_HPKE_CTX_setup_recipient(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_setup_auth_sender(
     mut ctx: *mut EVP_HPKE_CTX,
     mut out_enc: *mut uint8_t,
@@ -1415,7 +1414,7 @@ pub unsafe extern "C" fn EVP_HPKE_CTX_setup_auth_sender(
         (*(*key).kem).seed_len,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_setup_auth_sender_with_seed_for_testing(
     mut ctx: *mut EVP_HPKE_CTX,
     mut out_enc: *mut uint8_t,
@@ -1478,7 +1477,7 @@ pub unsafe extern "C" fn EVP_HPKE_CTX_setup_auth_sender_with_seed_for_testing(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_setup_auth_recipient(
     mut ctx: *mut EVP_HPKE_CTX,
     mut key: *const EVP_HPKE_KEY,
@@ -1590,7 +1589,7 @@ unsafe extern "C" fn hpke_nonce(
         i_0;
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_open(
     mut ctx: *mut EVP_HPKE_CTX,
     mut out: *mut uint8_t,
@@ -1645,7 +1644,7 @@ pub unsafe extern "C" fn EVP_HPKE_CTX_open(
     (*ctx).seq;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_seal(
     mut ctx: *mut EVP_HPKE_CTX,
     mut out: *mut uint8_t,
@@ -1700,7 +1699,7 @@ pub unsafe extern "C" fn EVP_HPKE_CTX_seal(
     (*ctx).seq;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_export(
     mut ctx: *const EVP_HPKE_CTX,
     mut out: *mut uint8_t,
@@ -1731,7 +1730,7 @@ pub unsafe extern "C" fn EVP_HPKE_CTX_export(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_max_overhead(
     mut ctx: *const EVP_HPKE_CTX,
 ) -> size_t {
@@ -1765,19 +1764,19 @@ pub unsafe extern "C" fn EVP_HPKE_CTX_max_overhead(
     };
     return EVP_AEAD_max_overhead(EVP_AEAD_CTX_aead(&(*ctx).aead_ctx));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_kem(
     mut ctx: *const EVP_HPKE_CTX,
 ) -> *const EVP_HPKE_KEM {
     return (*ctx).kem;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_aead(
     mut ctx: *const EVP_HPKE_CTX,
 ) -> *const EVP_HPKE_AEAD {
     return (*ctx).aead;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_HPKE_CTX_kdf(
     mut ctx: *const EVP_HPKE_CTX,
 ) -> *const EVP_HPKE_KDF {

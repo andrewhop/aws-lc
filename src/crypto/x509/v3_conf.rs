@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_GENERAL_NAME;
     pub type stack_st_X509_NAME_ENTRY;
@@ -689,7 +688,7 @@ unsafe extern "C" fn OPENSSL_memset(
     }
     return memset(dst, c, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_nconf(
     mut conf: *const CONF,
     mut ctx: *const X509V3_CTX,
@@ -747,7 +746,7 @@ pub unsafe extern "C" fn X509V3_EXT_nconf(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_nconf_nid(
     mut conf: *const CONF,
     mut ctx: *const X509V3_CTX,
@@ -961,7 +960,7 @@ unsafe extern "C" fn do_ext_i2d(
     ASN1_OCTET_STRING_free(ext_oct);
     return ext;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_i2d(
     mut ext_nid: libc::c_int,
     mut crit: libc::c_int,
@@ -1133,7 +1132,7 @@ unsafe extern "C" fn generic_asn1(
     *ext_len = len as size_t;
     return ext_der;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_add_nconf_sk(
     mut conf: *const CONF,
     mut ctx: *const X509V3_CTX,
@@ -1166,7 +1165,7 @@ pub unsafe extern "C" fn X509V3_EXT_add_nconf_sk(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_add_nconf(
     mut conf: *const CONF,
     mut ctx: *const X509V3_CTX,
@@ -1180,7 +1179,7 @@ pub unsafe extern "C" fn X509V3_EXT_add_nconf(
     }
     return X509V3_EXT_add_nconf_sk(conf, ctx, section, sk);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_CRL_add_nconf(
     mut conf: *const CONF,
     mut ctx: *const X509V3_CTX,
@@ -1194,7 +1193,7 @@ pub unsafe extern "C" fn X509V3_EXT_CRL_add_nconf(
     }
     return X509V3_EXT_add_nconf_sk(conf, ctx, section, sk);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_EXT_REQ_add_nconf(
     mut conf: *const CONF,
     mut ctx: *const X509V3_CTX,
@@ -1219,7 +1218,7 @@ pub unsafe extern "C" fn X509V3_EXT_REQ_add_nconf(
     );
     return i;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_get_section(
     mut ctx: *const X509V3_CTX,
     mut section: *const libc::c_char,
@@ -1237,14 +1236,14 @@ pub unsafe extern "C" fn X509V3_get_section(
     }
     return NCONF_get_section((*ctx).db, section);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_set_nconf(
     mut ctx: *mut X509V3_CTX,
     mut conf: *const CONF,
 ) {
     (*ctx).db = conf;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn X509V3_set_ctx(
     mut ctx: *mut X509V3_CTX,
     mut issuer: *const X509,

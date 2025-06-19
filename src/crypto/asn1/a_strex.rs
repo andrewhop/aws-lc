@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type ASN1_VALUE_st;
     pub type stack_st_void;
     pub type _IO_wide_data;
@@ -698,7 +697,7 @@ unsafe extern "C" fn string_type_to_encoding(mut type_0: libc::c_int) -> libc::c
     }
     return -(1 as libc::c_int);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_print_ex(
     mut out: *mut BIO,
     mut str: *const ASN1_STRING,
@@ -797,7 +796,7 @@ pub unsafe extern "C" fn ASN1_STRING_print_ex(
     }
     return outlen;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_print_ex_fp(
     mut fp: *mut FILE,
     mut str: *const ASN1_STRING,
@@ -814,7 +813,7 @@ pub unsafe extern "C" fn ASN1_STRING_print_ex_fp(
     BIO_free(bio);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_to_UTF8(
     mut out: *mut *mut libc::c_uchar,
     mut in_0: *const ASN1_STRING,
@@ -857,7 +856,7 @@ pub unsafe extern "C" fn ASN1_STRING_to_UTF8(
     *out = stmp.data;
     return stmp.length;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_STRING_print(
     mut bp: *mut BIO,
     mut v: *const ASN1_STRING,
@@ -903,7 +902,7 @@ pub unsafe extern "C" fn ASN1_STRING_print(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_TIME_print(
     mut bp: *mut BIO,
     mut tm: *const ASN1_TIME,
@@ -931,7 +930,7 @@ static mut mon: [*const libc::c_char; 12] = [
     b"Nov\0" as *const u8 as *const libc::c_char,
     b"Dec\0" as *const u8 as *const libc::c_char,
 ];
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_GENERALIZEDTIME_print(
     mut bp: *mut BIO,
     mut tm: *const ASN1_GENERALIZEDTIME,
@@ -969,7 +968,7 @@ pub unsafe extern "C" fn ASN1_GENERALIZEDTIME_print(
         utc.tm_year + 1900 as libc::c_int,
     ) > 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ASN1_UTCTIME_print(
     mut bp: *mut BIO,
     mut tm: *const ASN1_UTCTIME,

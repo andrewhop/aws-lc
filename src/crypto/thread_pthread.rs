@@ -7,7 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-extern "C" {
+unsafe extern "C" {
     fn malloc(_: libc::c_ulong) -> *mut libc::c_void;
     fn free(_: *mut libc::c_void);
     fn abort() -> !;
@@ -163,7 +163,7 @@ unsafe extern "C" fn OPENSSL_memset(
     }
     return memset(dst, c, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_MUTEX_init(mut lock: *mut CRYPTO_MUTEX) {
     if pthread_rwlock_init(
         lock as *mut pthread_rwlock_t,
@@ -173,31 +173,31 @@ pub unsafe extern "C" fn CRYPTO_MUTEX_init(mut lock: *mut CRYPTO_MUTEX) {
         abort();
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_MUTEX_lock_read(mut lock: *mut CRYPTO_MUTEX) {
     if pthread_rwlock_rdlock(lock as *mut pthread_rwlock_t) != 0 as libc::c_int {
         abort();
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_MUTEX_lock_write(mut lock: *mut CRYPTO_MUTEX) {
     if pthread_rwlock_wrlock(lock as *mut pthread_rwlock_t) != 0 as libc::c_int {
         abort();
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_MUTEX_unlock_read(mut lock: *mut CRYPTO_MUTEX) {
     if pthread_rwlock_unlock(lock as *mut pthread_rwlock_t) != 0 as libc::c_int {
         abort();
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_MUTEX_unlock_write(mut lock: *mut CRYPTO_MUTEX) {
     if pthread_rwlock_unlock(lock as *mut pthread_rwlock_t) != 0 as libc::c_int {
         abort();
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_MUTEX_cleanup(mut lock: *mut CRYPTO_MUTEX) {
     pthread_rwlock_destroy(lock as *mut pthread_rwlock_t);
 }
@@ -208,7 +208,7 @@ unsafe extern "C" fn rwlock_EINVAL_fallback_retry(
     let mut result: libc::c_int = 22 as libc::c_int;
     return result;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_STATIC_MUTEX_lock_read(
     mut lock: *mut CRYPTO_STATIC_MUTEX,
 ) {
@@ -229,7 +229,7 @@ pub unsafe extern "C" fn CRYPTO_STATIC_MUTEX_lock_read(
         abort();
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_STATIC_MUTEX_lock_write(
     mut lock: *mut CRYPTO_STATIC_MUTEX,
 ) {
@@ -250,7 +250,7 @@ pub unsafe extern "C" fn CRYPTO_STATIC_MUTEX_lock_write(
         abort();
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_STATIC_MUTEX_unlock_read(
     mut lock: *mut CRYPTO_STATIC_MUTEX,
 ) {
@@ -258,7 +258,7 @@ pub unsafe extern "C" fn CRYPTO_STATIC_MUTEX_unlock_read(
         abort();
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_STATIC_MUTEX_unlock_write(
     mut lock: *mut CRYPTO_STATIC_MUTEX,
 ) {
@@ -266,7 +266,7 @@ pub unsafe extern "C" fn CRYPTO_STATIC_MUTEX_unlock_write(
         abort();
     }
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_once(
     mut once: *mut CRYPTO_once_t,
     mut init: Option::<unsafe extern "C" fn() -> ()>,
@@ -335,7 +335,7 @@ unsafe extern "C" fn thread_local_init() {
         Some(thread_local_destructor as unsafe extern "C" fn(*mut libc::c_void) -> ()),
     ) == 0 as libc::c_int) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_get_thread_local(
     mut index: thread_local_data_t,
 ) -> *mut libc::c_void {
@@ -353,7 +353,7 @@ pub unsafe extern "C" fn CRYPTO_get_thread_local(
     }
     return *pointers.offset(index as isize);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_set_thread_local(
     mut index: thread_local_data_t,
     mut value: *mut libc::c_void,
@@ -402,7 +402,7 @@ pub unsafe extern "C" fn CRYPTO_set_thread_local(
     *fresh0 = value;
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AWSLC_thread_local_clear() -> libc::c_int {
     if g_thread_local_key_created == 0 {
         return 1 as libc::c_int;
@@ -416,7 +416,7 @@ pub unsafe extern "C" fn AWSLC_thread_local_clear() -> libc::c_int {
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn AWSLC_thread_local_shutdown() -> libc::c_int {
     if g_thread_local_key_created == 0 {
         return 1 as libc::c_int;

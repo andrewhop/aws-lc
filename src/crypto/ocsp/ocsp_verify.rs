@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types)]
-extern "C" {
+unsafe extern "C" {
     pub type asn1_null_st;
     pub type asn1_object_st;
     pub type ASN1_VALUE_st;
@@ -836,7 +835,7 @@ unsafe extern "C" fn ocsp_check_issuer(
     }
     return ocsp_match_issuerid(signer, caid, sresp);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_basic_verify(
     mut bs: *mut OCSP_BASICRESP,
     mut certs: *mut stack_st_X509,
@@ -938,7 +937,7 @@ unsafe extern "C" fn ocsp_req_find_signer(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn OCSP_request_verify(
     mut req: *mut OCSP_REQUEST,
     mut certs: *mut stack_st_X509,

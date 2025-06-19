@@ -9,7 +9,7 @@
 )]
 #![feature(asm, extern_types, label_break_value)]
 use core::arch::asm;
-extern "C" {
+unsafe extern "C" {
     pub type bignum_ctx;
     fn BN_copy(dest: *mut BIGNUM, src: *const BIGNUM) -> *mut BIGNUM;
     fn BN_value_one() -> *const BIGNUM;
@@ -1328,16 +1328,16 @@ unsafe extern "C" fn num_trial_division_primes(mut n: *const BIGNUM) -> size_t {
         .wrapping_div(::core::mem::size_of::<uint16_t>() as libc::c_ulong)
         .wrapping_div(2 as libc::c_int as libc::c_ulong);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_GENCB_new() -> *mut BN_GENCB {
     return OPENSSL_zalloc(::core::mem::size_of::<BN_GENCB>() as libc::c_ulong)
         as *mut BN_GENCB;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_GENCB_free(mut callback: *mut BN_GENCB) {
     OPENSSL_free(callback as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_GENCB_set(
     mut callback: *mut BN_GENCB,
     mut f: Option::<
@@ -1349,7 +1349,7 @@ pub unsafe extern "C" fn BN_GENCB_set(
     (*callback).callback.new_style = f;
     (*callback).arg = arg;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_GENCB_set_old(
     mut callback: *mut BN_GENCB,
     mut f: Option::<
@@ -1361,7 +1361,7 @@ pub unsafe extern "C" fn BN_GENCB_set_old(
     (*callback).callback.old_style = f;
     (*callback).arg = arg;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_GENCB_call(
     mut callback: *mut BN_GENCB,
     mut event: libc::c_int,
@@ -1383,13 +1383,13 @@ pub unsafe extern "C" fn BN_GENCB_call(
         return 0 as libc::c_int
     };
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_GENCB_get_arg(
     mut callback: *const BN_GENCB,
 ) -> *mut libc::c_void {
     return (*callback).arg;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_generate_prime_ex(
     mut ret: *mut BIGNUM,
     mut bits: libc::c_int,
@@ -1545,7 +1545,7 @@ unsafe extern "C" fn bn_trial_division(
     }
     return 0 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_odd_number_is_obviously_composite(
     mut bn: *const BIGNUM,
 ) -> libc::c_int {
@@ -1553,7 +1553,7 @@ pub unsafe extern "C" fn bn_odd_number_is_obviously_composite(
     return (bn_trial_division(&mut prime, bn) != 0
         && BN_is_word(bn, prime as BN_ULONG) == 0) as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_miller_rabin_init(
     mut miller_rabin: *mut BN_MILLER_RABIN,
     mut mont: *const BN_MONT_CTX,
@@ -1590,7 +1590,7 @@ pub unsafe extern "C" fn bn_miller_rabin_init(
     }
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn bn_miller_rabin_iteration(
     mut miller_rabin: *const BN_MILLER_RABIN,
     mut out_is_possibly_prime: *mut libc::c_int,
@@ -1660,7 +1660,7 @@ pub unsafe extern "C" fn bn_miller_rabin_iteration(
     BN_CTX_end(ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_primality_test(
     mut out_is_probably_prime: *mut libc::c_int,
     mut w: *const BIGNUM,
@@ -1822,7 +1822,7 @@ pub unsafe extern "C" fn BN_primality_test(
     BN_CTX_free(new_ctx);
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_is_prime_ex(
     mut candidate: *const BIGNUM,
     mut checks: libc::c_int,
@@ -1831,7 +1831,7 @@ pub unsafe extern "C" fn BN_is_prime_ex(
 ) -> libc::c_int {
     return BN_is_prime_fasttest_ex(candidate, checks, ctx, 0 as libc::c_int, cb);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_is_prime_fasttest_ex(
     mut a: *const BIGNUM,
     mut checks: libc::c_int,
@@ -1847,7 +1847,7 @@ pub unsafe extern "C" fn BN_is_prime_fasttest_ex(
     }
     return is_probably_prime;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BN_enhanced_miller_rabin_primality_test(
     mut out_result: *mut bn_primality_result_t,
     mut w: *const BIGNUM,

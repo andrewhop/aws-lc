@@ -8,7 +8,7 @@
     unused_mut
 )]
 #![feature(c_variadic, extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type stack_st_void;
     fn BIO_write(
         bio: *mut BIO,
@@ -130,7 +130,7 @@ pub struct crypto_ex_data_st {
 pub type BIO_METHOD = bio_method_st;
 pub type __gnuc_va_list = __builtin_va_list;
 pub type va_list = __gnuc_va_list;
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_printf(
     mut bio: *mut BIO,
     mut format: *const libc::c_char,

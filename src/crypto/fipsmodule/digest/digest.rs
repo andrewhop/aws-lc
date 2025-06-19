@@ -7,8 +7,7 @@
     unused_assignments,
     unused_mut
 )]
-#![feature(extern_types, label_break_value)]
-extern "C" {
+unsafe extern "C" {
     pub type dh_st;
     pub type dsa_st;
     pub type ec_key_st;
@@ -486,33 +485,33 @@ unsafe extern "C" fn OPENSSL_memset(
     }
     return memset(dst, c, n);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_unstable_sha3_enable(mut enable: bool) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_unstable_sha3_is_enabled() -> bool {
     return 1 as libc::c_int != 0;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_type(mut md: *const EVP_MD) -> libc::c_int {
     return (*md).type_0;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_nid(mut md: *const EVP_MD) -> libc::c_int {
     return EVP_MD_type(md);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_flags(mut md: *const EVP_MD) -> uint32_t {
     return (*md).flags;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_size(mut md: *const EVP_MD) -> size_t {
     return (*md).md_size as size_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_block_size(mut md: *const EVP_MD) -> size_t {
     return (*md).block_size as size_t;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_init(mut ctx: *mut EVP_MD_CTX) {
     OPENSSL_memset(
         ctx as *mut libc::c_void,
@@ -520,7 +519,7 @@ pub unsafe extern "C" fn EVP_MD_CTX_init(mut ctx: *mut EVP_MD_CTX) {
         ::core::mem::size_of::<EVP_MD_CTX>() as libc::c_ulong,
     );
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_new() -> *mut EVP_MD_CTX {
     let mut ctx: *mut EVP_MD_CTX = OPENSSL_zalloc(
         ::core::mem::size_of::<EVP_MD_CTX>() as libc::c_ulong,
@@ -528,11 +527,11 @@ pub unsafe extern "C" fn EVP_MD_CTX_new() -> *mut EVP_MD_CTX {
     !ctx.is_null();
     return ctx;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_create() -> *mut EVP_MD_CTX {
     return EVP_MD_CTX_new();
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_cleanup(mut ctx: *mut EVP_MD_CTX) -> libc::c_int {
     if ctx.is_null() {
         return 1 as libc::c_int;
@@ -576,7 +575,7 @@ pub unsafe extern "C" fn EVP_MD_CTX_cleanup(mut ctx: *mut EVP_MD_CTX) -> libc::c
     EVP_MD_CTX_init(ctx);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_cleanse(mut ctx: *mut EVP_MD_CTX) {
     if ctx.is_null() || ((*ctx).md_data).is_null() || ((*ctx).digest).is_null() {
         return;
@@ -584,7 +583,7 @@ pub unsafe extern "C" fn EVP_MD_CTX_cleanse(mut ctx: *mut EVP_MD_CTX) {
     OPENSSL_cleanse((*ctx).md_data, (*(*ctx).digest).ctx_size as size_t);
     EVP_MD_CTX_cleanup(ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_free(mut ctx: *mut EVP_MD_CTX) {
     if ctx.is_null() {
         return;
@@ -592,11 +591,11 @@ pub unsafe extern "C" fn EVP_MD_CTX_free(mut ctx: *mut EVP_MD_CTX) {
     EVP_MD_CTX_cleanup(ctx);
     OPENSSL_free(ctx as *mut libc::c_void);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_destroy(mut ctx: *mut EVP_MD_CTX) {
     EVP_MD_CTX_free(ctx);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DigestFinalXOF(
     mut ctx: *mut EVP_MD_CTX,
     mut out: *mut uint8_t,
@@ -623,7 +622,7 @@ pub unsafe extern "C" fn EVP_DigestFinalXOF(
     EVP_MD_CTX_cleanse(ctx);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DigestSqueeze(
     mut ctx: *mut EVP_MD_CTX,
     mut out: *mut uint8_t,
@@ -648,16 +647,16 @@ pub unsafe extern "C" fn EVP_DigestSqueeze(
     ((*(*ctx).digest).squeezeXOF).expect("non-null function pointer")(ctx, out, len);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_meth_get_flags(mut md: *const EVP_MD) -> uint32_t {
     return EVP_MD_flags(md);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_set_flags(
     mut ctx: *mut EVP_MD_CTX,
     mut flags: libc::c_int,
 ) {}
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_copy_ex(
     mut out: *mut EVP_MD_CTX,
     mut in_0: *const EVP_MD_CTX,
@@ -804,7 +803,7 @@ pub unsafe extern "C" fn EVP_MD_CTX_copy_ex(
     };
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_move(
     mut out: *mut EVP_MD_CTX,
     mut in_0: *mut EVP_MD_CTX,
@@ -817,7 +816,7 @@ pub unsafe extern "C" fn EVP_MD_CTX_move(
     );
     EVP_MD_CTX_init(in_0);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_copy(
     mut out: *mut EVP_MD_CTX,
     mut in_0: *const EVP_MD_CTX,
@@ -825,13 +824,13 @@ pub unsafe extern "C" fn EVP_MD_CTX_copy(
     EVP_MD_CTX_init(out);
     return EVP_MD_CTX_copy_ex(out, in_0);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_reset(mut ctx: *mut EVP_MD_CTX) -> libc::c_int {
     EVP_MD_CTX_cleanup(ctx);
     EVP_MD_CTX_init(ctx);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DigestInit_ex(
     mut ctx: *mut EVP_MD_CTX,
     mut type_0: *const EVP_MD,
@@ -938,7 +937,7 @@ pub unsafe extern "C" fn EVP_DigestInit_ex(
     ((*(*ctx).digest).init).expect("non-null function pointer")(ctx);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DigestInit(
     mut ctx: *mut EVP_MD_CTX,
     mut type_0: *const EVP_MD,
@@ -946,7 +945,7 @@ pub unsafe extern "C" fn EVP_DigestInit(
     EVP_MD_CTX_init(ctx);
     return EVP_DigestInit_ex(ctx, type_0, 0 as *mut ENGINE);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DigestUpdate(
     mut ctx: *mut EVP_MD_CTX,
     mut data: *const libc::c_void,
@@ -957,7 +956,7 @@ pub unsafe extern "C" fn EVP_DigestUpdate(
     }
     return ((*ctx).update).expect("non-null function pointer")(ctx, data, len);
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DigestFinal_ex(
     mut ctx: *mut EVP_MD_CTX,
     mut md_out: *mut uint8_t,
@@ -1014,7 +1013,7 @@ pub unsafe extern "C" fn EVP_DigestFinal_ex(
     OPENSSL_cleanse((*ctx).md_data, (*(*ctx).digest).ctx_size as size_t);
     return 1 as libc::c_int;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_DigestFinal(
     mut ctx: *mut EVP_MD_CTX,
     mut md: *mut uint8_t,
@@ -1024,7 +1023,7 @@ pub unsafe extern "C" fn EVP_DigestFinal(
     EVP_MD_CTX_cleanup(ctx);
     return ok;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_Digest(
     mut data: *const libc::c_void,
     mut count: size_t,
@@ -1066,26 +1065,26 @@ pub unsafe extern "C" fn EVP_Digest(
     }
     return ret;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_md(mut ctx: *const EVP_MD_CTX) -> *const EVP_MD {
     if ctx.is_null() {
         return 0 as *const EVP_MD;
     }
     return (*ctx).digest;
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_size(mut ctx: *const EVP_MD_CTX) -> size_t {
     return EVP_MD_size(EVP_MD_CTX_md(ctx));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_block_size(mut ctx: *const EVP_MD_CTX) -> size_t {
     return EVP_MD_block_size(EVP_MD_CTX_md(ctx));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_MD_CTX_type(mut ctx: *const EVP_MD_CTX) -> libc::c_int {
     return EVP_MD_type(EVP_MD_CTX_md(ctx));
 }
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn EVP_add_digest(mut digest: *const EVP_MD) -> libc::c_int {
     return 1 as libc::c_int;
 }
