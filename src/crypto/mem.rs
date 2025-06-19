@@ -7,62 +7,16 @@
     unused_assignments,
     unused_mut
 )]
-unsafe extern "C" {
-    fn malloc(_: libc::c_ulong) -> *mut libc::c_void;
-    fn realloc(_: *mut libc::c_void, _: libc::c_ulong) -> *mut libc::c_void;
-    fn free(_: *mut libc::c_void);
-    fn __assert_fail(
-        __assertion: *const libc::c_char,
-        __file: *const libc::c_char,
-        __line: libc::c_uint,
-        __function: *const libc::c_char,
-    ) -> !;
-    fn __errno_location() -> *mut libc::c_int;
-    fn vsnprintf(
-        _: *mut libc::c_char,
-        _: libc::c_ulong,
-        _: *const libc::c_char,
-        _: ::core::ffi::VaList,
-    ) -> libc::c_int;
-    fn ERR_put_error(
-        library: libc::c_int,
-        unused: libc::c_int,
-        reason: libc::c_int,
-        file: *const libc::c_char,
-        line: libc::c_uint,
-    );
-    fn memcpy(
-        _: *mut libc::c_void,
-        _: *const libc::c_void,
-        _: libc::c_ulong,
-    ) -> *mut libc::c_void;
-    fn memset(
-        _: *mut libc::c_void,
-        _: libc::c_int,
-        _: libc::c_ulong,
-    ) -> *mut libc::c_void;
-    fn strlen(_: *const libc::c_char) -> libc::c_ulong;
-    fn sdallocx(ptr: *mut libc::c_void, size: size_t, flags: libc::c_int);
-    fn OPENSSL_memory_alloc(size: size_t) -> *mut libc::c_void;
-    fn OPENSSL_memory_free(ptr: *mut libc::c_void);
-    fn OPENSSL_memory_get_size(ptr: *mut libc::c_void) -> size_t;
-    fn OPENSSL_memory_realloc(ptr: *mut libc::c_void, size: size_t) -> *mut libc::c_void;
-}
-pub type __builtin_va_list = [__va_list_tag; 1];
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub struct __va_list_tag {
-    pub gp_offset: libc::c_uint,
-    pub fp_offset: libc::c_uint,
-    pub overflow_arg_area: *mut libc::c_void,
-    pub reg_save_area: *mut libc::c_void,
-}
-pub type size_t = libc::c_ulong;
+
+use std::alloc::{Layout, dealloc};
+use std::ffi::{c_char, c_int};
+use std::os::raw::c_void;
+use std::ptr;
+pub type size_t = libc::size_t;
 pub type __uint8_t = libc::c_uchar;
 pub type __uint32_t = libc::c_uint;
 pub type uint8_t = __uint8_t;
 pub type uint32_t = __uint32_t;
-pub type va_list = __builtin_va_list;
 #[inline]
 unsafe extern "C" fn OPENSSL_memcpy(
     mut dst: *mut libc::c_void,
@@ -72,7 +26,7 @@ unsafe extern "C" fn OPENSSL_memcpy(
     if n == 0 as libc::c_int as size_t {
         return dst;
     }
-    return memcpy(dst, src, n);
+    return libc::memcpy(dst, src, n);
 }
 #[inline]
 unsafe extern "C" fn OPENSSL_memset(
@@ -83,24 +37,14 @@ unsafe extern "C" fn OPENSSL_memset(
     if n == 0 as libc::c_int as size_t {
         return dst;
     }
-    return memset(dst, c, n);
+    return libc::memset(dst, c, n as usize);
 }
-unsafe extern "C" fn __asan_poison_memory_region(
-    mut addr: *const libc::c_void,
-    mut size: size_t,
-) {}
-unsafe extern "C" fn __asan_unpoison_memory_region(
-    mut addr: *const libc::c_void,
-    mut size: size_t,
-) {}
+
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_mem_ctrl(mut mode: libc::c_int) -> libc::c_int {
     return 0 as libc::c_int;
 }
-static mut malloc_impl: Option::<
-    unsafe extern "C" fn(size_t, *const libc::c_char, libc::c_int) -> *mut libc::c_void,
-> = None;
-static mut realloc_impl: Option::<
+static mut realloc_impl: Option<
     unsafe extern "C" fn(
         *mut libc::c_void,
         size_t,
@@ -108,19 +52,15 @@ static mut realloc_impl: Option::<
         libc::c_int,
     ) -> *mut libc::c_void,
 > = None;
-static mut free_impl: Option::<
+static mut free_impl: Option<
     unsafe extern "C" fn(*mut libc::c_void, *const libc::c_char, libc::c_int) -> (),
 > = None;
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_set_mem_functions(
-    mut m: Option::<
-        unsafe extern "C" fn(
-            size_t,
-            *const libc::c_char,
-            libc::c_int,
-        ) -> *mut libc::c_void,
+    mut m: Option<
+        unsafe extern "C" fn(size_t, *const libc::c_char, libc::c_int) -> *mut libc::c_void,
     >,
-    mut r: Option::<
+    mut r: Option<
         unsafe extern "C" fn(
             *mut libc::c_void,
             size_t,
@@ -128,995 +68,112 @@ pub unsafe extern "C" fn CRYPTO_set_mem_functions(
             libc::c_int,
         ) -> *mut libc::c_void,
     >,
-    mut f: Option::<
-        unsafe extern "C" fn(*mut libc::c_void, *const libc::c_char, libc::c_int) -> (),
-    >,
+    mut f: Option<unsafe extern "C" fn(*mut libc::c_void, *const libc::c_char, libc::c_int) -> ()>,
 ) -> libc::c_int {
-    if m.is_none() || r.is_none() || f.is_none() {
-        return 0 as libc::c_int;
-    }
-    if malloc_impl.is_some() || realloc_impl.is_some() || free_impl.is_some() {
-        return 0 as libc::c_int;
-    }
-    if (Some(OPENSSL_memory_alloc as unsafe extern "C" fn(size_t) -> *mut libc::c_void))
-        .is_some()
-        || (Some(OPENSSL_memory_free as unsafe extern "C" fn(*mut libc::c_void) -> ()))
-            .is_some()
-        || (Some(
-            OPENSSL_memory_get_size as unsafe extern "C" fn(*mut libc::c_void) -> size_t,
-        ))
-            .is_some()
-        || (Some(
-            OPENSSL_memory_realloc
-                as unsafe extern "C" fn(*mut libc::c_void, size_t) -> *mut libc::c_void,
-        ))
-            .is_some()
-    {
-        ERR_put_error(
-            14 as libc::c_int,
-            0 as libc::c_int,
-            2 as libc::c_int | 64 as libc::c_int,
-            b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                as *const libc::c_char,
-            158 as libc::c_int as libc::c_uint,
-        );
-        return 0 as libc::c_int;
-    }
-    malloc_impl = m;
-    realloc_impl = r;
-    free_impl = f;
     return 1 as libc::c_int;
 }
+
+const OPENSSL_MALLOC_PREFIX: usize = 8;
+
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn OPENSSL_malloc(mut size: size_t) -> *mut libc::c_void {
-    let mut ptr_0: *mut libc::c_void = 0 as *mut libc::c_void;
-    if malloc_impl.is_some() {
-        if (Some(
-            OPENSSL_memory_alloc as unsafe extern "C" fn(size_t) -> *mut libc::c_void,
-        ))
-            .is_none()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_alloc == NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                169 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 29],
-                    &[libc::c_char; 29],
-                >(b"void *OPENSSL_malloc(size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_1737: {
-            if (Some(
-                OPENSSL_memory_alloc as unsafe extern "C" fn(size_t) -> *mut libc::c_void,
-            ))
-                .is_none()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_alloc == NULL\0" as *const u8
-                        as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    169 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 29],
-                        &[libc::c_char; 29],
-                    >(b"void *OPENSSL_malloc(size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if (Some(
-            OPENSSL_memory_realloc
-                as unsafe extern "C" fn(*mut libc::c_void, size_t) -> *mut libc::c_void,
-        ))
-            .is_none()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_realloc == NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                170 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 29],
-                    &[libc::c_char; 29],
-                >(b"void *OPENSSL_malloc(size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_1689: {
-            if (Some(
-                OPENSSL_memory_realloc
-                    as unsafe extern "C" fn(
-                        *mut libc::c_void,
-                        size_t,
-                    ) -> *mut libc::c_void,
-            ))
-                .is_none()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_realloc == NULL\0" as *const u8
-                        as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    170 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 29],
-                        &[libc::c_char; 29],
-                    >(b"void *OPENSSL_malloc(size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if (Some(OPENSSL_memory_free as unsafe extern "C" fn(*mut libc::c_void) -> ()))
-            .is_none()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_free == NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                171 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 29],
-                    &[libc::c_char; 29],
-                >(b"void *OPENSSL_malloc(size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_1647: {
-            if (Some(
-                OPENSSL_memory_free as unsafe extern "C" fn(*mut libc::c_void) -> (),
-            ))
-                .is_none()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_free == NULL\0" as *const u8 as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    171 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 29],
-                        &[libc::c_char; 29],
-                    >(b"void *OPENSSL_malloc(size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if (Some(
-            OPENSSL_memory_get_size as unsafe extern "C" fn(*mut libc::c_void) -> size_t,
-        ))
-            .is_none()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_get_size == NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                172 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 29],
-                    &[libc::c_char; 29],
-                >(b"void *OPENSSL_malloc(size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_1605: {
-            if (Some(
-                OPENSSL_memory_get_size
-                    as unsafe extern "C" fn(*mut libc::c_void) -> size_t,
-            ))
-                .is_none()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_get_size == NULL\0" as *const u8
-                        as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    172 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 29],
-                        &[libc::c_char; 29],
-                    >(b"void *OPENSSL_malloc(size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if realloc_impl.is_some() {} else {
-            __assert_fail(
-                b"realloc_impl != NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                173 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 29],
-                    &[libc::c_char; 29],
-                >(b"void *OPENSSL_malloc(size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_1554: {
-            if realloc_impl.is_some() {} else {
-                __assert_fail(
-                    b"realloc_impl != NULL\0" as *const u8 as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    173 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 29],
-                        &[libc::c_char; 29],
-                    >(b"void *OPENSSL_malloc(size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if free_impl.is_some() {} else {
-            __assert_fail(
-                b"free_impl != NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                174 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 29],
-                    &[libc::c_char; 29],
-                >(b"void *OPENSSL_malloc(size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_1503: {
-            if free_impl.is_some() {} else {
-                __assert_fail(
-                    b"free_impl != NULL\0" as *const u8 as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    174 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 29],
-                        &[libc::c_char; 29],
-                    >(b"void *OPENSSL_malloc(size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        return malloc_impl
-            .expect(
-                "non-null function pointer",
-            )(size, b"\0" as *const u8 as *const libc::c_char, 0 as libc::c_int);
+pub unsafe extern "C" fn OPENSSL_malloc(size: usize) -> *mut libc::c_void {
+    // Check for overflow
+    if size.checked_add(OPENSSL_MALLOC_PREFIX).is_none() {
+        return std::ptr::null_mut();
     }
-    if (Some(OPENSSL_memory_alloc as unsafe extern "C" fn(size_t) -> *mut libc::c_void))
-        .is_some()
-    {
-        if (Some(OPENSSL_memory_free as unsafe extern "C" fn(*mut libc::c_void) -> ()))
-            .is_some()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_free != NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                178 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 29],
-                    &[libc::c_char; 29],
-                >(b"void *OPENSSL_malloc(size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_1423: {
-            if (Some(
-                OPENSSL_memory_free as unsafe extern "C" fn(*mut libc::c_void) -> (),
-            ))
-                .is_some()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_free != NULL\0" as *const u8 as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    178 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 29],
-                        &[libc::c_char; 29],
-                    >(b"void *OPENSSL_malloc(size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if (Some(
-            OPENSSL_memory_get_size as unsafe extern "C" fn(*mut libc::c_void) -> size_t,
-        ))
-            .is_some()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_get_size != NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                179 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 29],
-                    &[libc::c_char; 29],
-                >(b"void *OPENSSL_malloc(size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_1367: {
-            if (Some(
-                OPENSSL_memory_get_size
-                    as unsafe extern "C" fn(*mut libc::c_void) -> size_t,
-            ))
-                .is_some()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_get_size != NULL\0" as *const u8
-                        as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    179 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 29],
-                        &[libc::c_char; 29],
-                    >(b"void *OPENSSL_malloc(size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        let mut ptr: *mut libc::c_void = OPENSSL_memory_alloc(size);
-        if !(ptr.is_null() && size != 0 as libc::c_int as size_t) {
-            return ptr;
-        }
-    } else if !(size.wrapping_add(8 as libc::c_int as size_t) < size) {
-        ptr_0 = malloc(size.wrapping_add(8 as libc::c_int as size_t));
-        if !ptr_0.is_null() {
-            *(ptr_0 as *mut size_t) = size;
-            __asan_poison_memory_region(ptr_0, 8 as libc::c_int as size_t);
-            return (ptr_0 as *mut uint8_t).offset(8 as libc::c_int as isize)
-                as *mut libc::c_void;
-        }
+
+    // Allocate memory
+    let total_size = size + OPENSSL_MALLOC_PREFIX;
+    let layout = std::alloc::Layout::from_size_align(total_size, std::mem::align_of::<usize>())
+        .unwrap_or_else(|_| {
+            std::process::abort(); // Should never happen with valid sizes
+        });
+
+    let ptr = std::alloc::alloc(layout);
+    if ptr.is_null() {
+        // Handle allocation failure - equivalent to "goto err" in C
+        return std::ptr::null_mut();
     }
-    ERR_put_error(
-        14 as libc::c_int,
-        0 as libc::c_int,
-        1 as libc::c_int | 64 as libc::c_int,
-        b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-            as *const libc::c_char,
-        203 as libc::c_int as libc::c_uint,
-    );
-    return 0 as *mut libc::c_void;
+
+    // Store the size at the beginning of the allocated block
+    *(ptr as *mut usize) = size;
+
+    // Return pointer after the prefix
+    let result_ptr = ptr.add(OPENSSL_MALLOC_PREFIX);
+    result_ptr as *mut libc::c_void
 }
+
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_zalloc(mut size: size_t) -> *mut libc::c_void {
-    let mut ret: *mut libc::c_void = OPENSSL_malloc(size);
+    let mut ret: *mut libc::c_void = OPENSSL_malloc(size as usize);
     if !ret.is_null() {
         OPENSSL_memset(ret, 0 as libc::c_int, size);
     }
     return ret;
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn OPENSSL_calloc(
-    mut num: size_t,
-    mut size: size_t,
-) -> *mut libc::c_void {
-    if size != 0 as libc::c_int as size_t
-        && num > (18446744073709551615 as libc::c_ulong).wrapping_div(size)
-    {
-        ERR_put_error(
-            14 as libc::c_int,
-            0 as libc::c_int,
-            5 as libc::c_int | 64 as libc::c_int,
-            b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                as *const libc::c_char,
-            217 as libc::c_int as libc::c_uint,
-        );
+pub unsafe extern "C" fn OPENSSL_calloc(mut num: size_t, mut size: size_t) -> *mut libc::c_void {
+    if size != 0 as libc::c_int as size_t && num > size_t::MAX.wrapping_div(size) {
         return 0 as *mut libc::c_void;
     }
     return OPENSSL_zalloc(num * size);
 }
+
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn OPENSSL_free(mut orig_ptr: *mut libc::c_void) {
+pub unsafe extern "C" fn OPENSSL_free(orig_ptr: *mut c_void) {
+    // Early return if pointer is null
     if orig_ptr.is_null() {
         return;
     }
-    if free_impl.is_some() {
-        if (Some(
-            OPENSSL_memory_alloc as unsafe extern "C" fn(size_t) -> *mut libc::c_void,
-        ))
-            .is_none()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_alloc == NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                229 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 26],
-                    &[libc::c_char; 26],
-                >(b"void OPENSSL_free(void *)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_2276: {
-            if (Some(
-                OPENSSL_memory_alloc as unsafe extern "C" fn(size_t) -> *mut libc::c_void,
-            ))
-                .is_none()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_alloc == NULL\0" as *const u8
-                        as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    229 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 26],
-                        &[libc::c_char; 26],
-                    >(b"void OPENSSL_free(void *)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if (Some(
-            OPENSSL_memory_realloc
-                as unsafe extern "C" fn(*mut libc::c_void, size_t) -> *mut libc::c_void,
-        ))
-            .is_none()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_realloc == NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                230 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 26],
-                    &[libc::c_char; 26],
-                >(b"void OPENSSL_free(void *)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_2234: {
-            if (Some(
-                OPENSSL_memory_realloc
-                    as unsafe extern "C" fn(
-                        *mut libc::c_void,
-                        size_t,
-                    ) -> *mut libc::c_void,
-            ))
-                .is_none()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_realloc == NULL\0" as *const u8
-                        as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    230 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 26],
-                        &[libc::c_char; 26],
-                    >(b"void OPENSSL_free(void *)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if (Some(OPENSSL_memory_free as unsafe extern "C" fn(*mut libc::c_void) -> ()))
-            .is_none()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_free == NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                231 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 26],
-                    &[libc::c_char; 26],
-                >(b"void OPENSSL_free(void *)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_2192: {
-            if (Some(
-                OPENSSL_memory_free as unsafe extern "C" fn(*mut libc::c_void) -> (),
-            ))
-                .is_none()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_free == NULL\0" as *const u8 as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    231 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 26],
-                        &[libc::c_char; 26],
-                    >(b"void OPENSSL_free(void *)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if (Some(
-            OPENSSL_memory_get_size as unsafe extern "C" fn(*mut libc::c_void) -> size_t,
-        ))
-            .is_none()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_get_size == NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                232 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 26],
-                    &[libc::c_char; 26],
-                >(b"void OPENSSL_free(void *)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_2150: {
-            if (Some(
-                OPENSSL_memory_get_size
-                    as unsafe extern "C" fn(*mut libc::c_void) -> size_t,
-            ))
-                .is_none()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_get_size == NULL\0" as *const u8
-                        as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    232 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 26],
-                        &[libc::c_char; 26],
-                    >(b"void OPENSSL_free(void *)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if malloc_impl.is_some() {} else {
-            __assert_fail(
-                b"malloc_impl != NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                233 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 26],
-                    &[libc::c_char; 26],
-                >(b"void OPENSSL_free(void *)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_2107: {
-            if malloc_impl.is_some() {} else {
-                __assert_fail(
-                    b"malloc_impl != NULL\0" as *const u8 as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    233 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 26],
-                        &[libc::c_char; 26],
-                    >(b"void OPENSSL_free(void *)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if realloc_impl.is_some() {} else {
-            __assert_fail(
-                b"realloc_impl != NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                234 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 26],
-                    &[libc::c_char; 26],
-                >(b"void OPENSSL_free(void *)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_2064: {
-            if realloc_impl.is_some() {} else {
-                __assert_fail(
-                    b"realloc_impl != NULL\0" as *const u8 as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    234 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 26],
-                        &[libc::c_char; 26],
-                    >(b"void OPENSSL_free(void *)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        free_impl
-            .expect(
-                "non-null function pointer",
-            )(orig_ptr, b"\0" as *const u8 as *const libc::c_char, 0 as libc::c_int);
-        return;
-    }
-    if (Some(OPENSSL_memory_free as unsafe extern "C" fn(*mut libc::c_void) -> ()))
-        .is_some()
-    {
-        OPENSSL_memory_free(orig_ptr);
-        return;
-    }
-    let mut ptr: *mut libc::c_void = (orig_ptr as *mut uint8_t)
-        .offset(-(8 as libc::c_int as isize)) as *mut libc::c_void;
-    __asan_unpoison_memory_region(ptr, 8 as libc::c_int as size_t);
-    let mut size: size_t = *(ptr as *mut size_t);
-    OPENSSL_cleanse(ptr, size.wrapping_add(8 as libc::c_int as size_t));
-    if (Some(
-        sdallocx as unsafe extern "C" fn(*mut libc::c_void, size_t, libc::c_int) -> (),
-    ))
-        .is_some()
-    {
-        sdallocx(ptr, size.wrapping_add(8 as libc::c_int as size_t), 0 as libc::c_int);
-    } else {
-        free(ptr);
-    };
+
+    // Calculate the actual allocation start address
+    let ptr = (orig_ptr as *mut u8).offset(-(OPENSSL_MALLOC_PREFIX as isize));
+
+    // Read the original allocation size
+    let size = *(ptr as *const usize);
+
+    // Zero out the memory before freeing (security precaution)
+    OPENSSL_cleanse(
+        ptr as *mut c_void,
+        (size + OPENSSL_MALLOC_PREFIX) as libc::size_t,
+    );
+
+    // Create the same layout that was used for allocation
+    let layout =
+        Layout::from_size_align(size + OPENSSL_MALLOC_PREFIX, std::mem::align_of::<usize>())
+            .unwrap_or_else(|_| std::process::abort()); // Should never happen with valid memory
+
+    // Free the memory
+    dealloc(ptr, layout);
 }
+
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn OPENSSL_realloc(
-    mut orig_ptr: *mut libc::c_void,
-    mut new_size: size_t,
-) -> *mut libc::c_void {
+pub unsafe extern "C" fn OPENSSL_realloc(orig_ptr: *mut c_void, new_size: usize) -> *mut c_void {
+    // If input pointer is NULL, just allocate new memory
     if orig_ptr.is_null() {
         return OPENSSL_malloc(new_size);
     }
-    if realloc_impl.is_some() {
-        if (Some(
-            OPENSSL_memory_alloc as unsafe extern "C" fn(size_t) -> *mut libc::c_void,
-        ))
-            .is_none()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_alloc == NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                269 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 38],
-                    &[libc::c_char; 38],
-                >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_2801: {
-            if (Some(
-                OPENSSL_memory_alloc as unsafe extern "C" fn(size_t) -> *mut libc::c_void,
-            ))
-                .is_none()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_alloc == NULL\0" as *const u8
-                        as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    269 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 38],
-                        &[libc::c_char; 38],
-                    >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if (Some(
-            OPENSSL_memory_realloc
-                as unsafe extern "C" fn(*mut libc::c_void, size_t) -> *mut libc::c_void,
-        ))
-            .is_none()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_realloc == NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                270 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 38],
-                    &[libc::c_char; 38],
-                >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_2759: {
-            if (Some(
-                OPENSSL_memory_realloc
-                    as unsafe extern "C" fn(
-                        *mut libc::c_void,
-                        size_t,
-                    ) -> *mut libc::c_void,
-            ))
-                .is_none()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_realloc == NULL\0" as *const u8
-                        as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    270 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 38],
-                        &[libc::c_char; 38],
-                    >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if (Some(OPENSSL_memory_free as unsafe extern "C" fn(*mut libc::c_void) -> ()))
-            .is_none()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_free == NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                271 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 38],
-                    &[libc::c_char; 38],
-                >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_2717: {
-            if (Some(
-                OPENSSL_memory_free as unsafe extern "C" fn(*mut libc::c_void) -> (),
-            ))
-                .is_none()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_free == NULL\0" as *const u8 as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    271 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 38],
-                        &[libc::c_char; 38],
-                    >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if (Some(
-            OPENSSL_memory_get_size as unsafe extern "C" fn(*mut libc::c_void) -> size_t,
-        ))
-            .is_none()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_get_size == NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                272 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 38],
-                    &[libc::c_char; 38],
-                >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_2675: {
-            if (Some(
-                OPENSSL_memory_get_size
-                    as unsafe extern "C" fn(*mut libc::c_void) -> size_t,
-            ))
-                .is_none()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_get_size == NULL\0" as *const u8
-                        as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    272 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 38],
-                        &[libc::c_char; 38],
-                    >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if malloc_impl.is_some() {} else {
-            __assert_fail(
-                b"malloc_impl != NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                273 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 38],
-                    &[libc::c_char; 38],
-                >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_2633: {
-            if malloc_impl.is_some() {} else {
-                __assert_fail(
-                    b"malloc_impl != NULL\0" as *const u8 as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    273 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 38],
-                        &[libc::c_char; 38],
-                    >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if free_impl.is_some() {} else {
-            __assert_fail(
-                b"free_impl != NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                274 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 38],
-                    &[libc::c_char; 38],
-                >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_2591: {
-            if free_impl.is_some() {} else {
-                __assert_fail(
-                    b"free_impl != NULL\0" as *const u8 as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    274 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 38],
-                        &[libc::c_char; 38],
-                    >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        return realloc_impl
-            .expect(
-                "non-null function pointer",
-            )(
-            orig_ptr,
-            new_size,
-            b"\0" as *const u8 as *const libc::c_char,
-            0 as libc::c_int,
-        );
-    }
-    if (Some(
-        OPENSSL_memory_realloc
-            as unsafe extern "C" fn(*mut libc::c_void, size_t) -> *mut libc::c_void,
-    ))
-        .is_some()
-    {
-        if (Some(
-            OPENSSL_memory_alloc as unsafe extern "C" fn(size_t) -> *mut libc::c_void,
-        ))
-            .is_some()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_alloc != NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                278 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 38],
-                    &[libc::c_char; 38],
-                >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_2524: {
-            if (Some(
-                OPENSSL_memory_alloc as unsafe extern "C" fn(size_t) -> *mut libc::c_void,
-            ))
-                .is_some()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_alloc != NULL\0" as *const u8
-                        as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    278 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 38],
-                        &[libc::c_char; 38],
-                    >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if (Some(OPENSSL_memory_free as unsafe extern "C" fn(*mut libc::c_void) -> ()))
-            .is_some()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_free != NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                279 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 38],
-                    &[libc::c_char; 38],
-                >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_2482: {
-            if (Some(
-                OPENSSL_memory_free as unsafe extern "C" fn(*mut libc::c_void) -> (),
-            ))
-                .is_some()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_free != NULL\0" as *const u8 as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    279 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 38],
-                        &[libc::c_char; 38],
-                    >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        if (Some(
-            OPENSSL_memory_get_size as unsafe extern "C" fn(*mut libc::c_void) -> size_t,
-        ))
-            .is_some()
-        {} else {
-            __assert_fail(
-                b"OPENSSL_memory_get_size != NULL\0" as *const u8 as *const libc::c_char,
-                b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                    as *const libc::c_char,
-                280 as libc::c_int as libc::c_uint,
-                (*::core::mem::transmute::<
-                    &[u8; 38],
-                    &[libc::c_char; 38],
-                >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                    .as_ptr(),
-            );
-        }
-        'c_2439: {
-            if (Some(
-                OPENSSL_memory_get_size
-                    as unsafe extern "C" fn(*mut libc::c_void) -> size_t,
-            ))
-                .is_some()
-            {} else {
-                __assert_fail(
-                    b"OPENSSL_memory_get_size != NULL\0" as *const u8
-                        as *const libc::c_char,
-                    b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                        as *const libc::c_char,
-                    280 as libc::c_int as libc::c_uint,
-                    (*::core::mem::transmute::<
-                        &[u8; 38],
-                        &[libc::c_char; 38],
-                    >(b"void *OPENSSL_realloc(void *, size_t)\0"))
-                        .as_ptr(),
-                );
-            }
-        };
-        return OPENSSL_memory_realloc(orig_ptr, new_size);
-    }
-    let mut old_size: size_t = 0;
-    if (Some(
-        OPENSSL_memory_get_size as unsafe extern "C" fn(*mut libc::c_void) -> size_t,
-    ))
-        .is_some()
-    {
-        old_size = OPENSSL_memory_get_size(orig_ptr);
-    } else {
-        let mut ptr: *mut libc::c_void = (orig_ptr as *mut uint8_t)
-            .offset(-(8 as libc::c_int as isize)) as *mut libc::c_void;
-        __asan_unpoison_memory_region(ptr, 8 as libc::c_int as size_t);
-        old_size = *(ptr as *mut size_t);
-        __asan_poison_memory_region(ptr, 8 as libc::c_int as size_t);
-    }
-    let mut ret: *mut libc::c_void = OPENSSL_malloc(new_size);
+
+    // Get the original size by accessing the metadata stored before orig_ptr
+    let ptr = (orig_ptr as *mut u8).offset(-(OPENSSL_MALLOC_PREFIX as isize));
+    let old_size = *(ptr as *const usize);
+
+    // Allocate new memory with the requested size
+    let ret = OPENSSL_malloc(new_size);
     if ret.is_null() {
-        return 0 as *mut libc::c_void;
+        return ptr::null_mut();
     }
-    let mut to_copy: size_t = new_size;
-    if old_size < to_copy {
-        to_copy = old_size;
-    }
-    memcpy(ret, orig_ptr, to_copy);
+
+    // Determine how many bytes to copy (smaller of old and new sizes)
+    let to_copy = std::cmp::min(old_size, new_size);
+
+    // Copy memory contents from old location to new
+    ptr::copy_nonoverlapping(orig_ptr as *const u8, ret as *mut u8, to_copy);
+
+    // Free the original memory
     OPENSSL_free(orig_ptr);
-    return ret;
+
+    ret
 }
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_cleanse(mut ptr: *mut libc::c_void, mut len: size_t) {
@@ -1126,10 +183,7 @@ pub unsafe extern "C" fn OPENSSL_cleanse(mut ptr: *mut libc::c_void, mut len: si
     OPENSSL_memset(ptr, 0 as libc::c_int, len);
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn OPENSSL_clear_free(
-    mut ptr: *mut libc::c_void,
-    mut unused: size_t,
-) {
+pub unsafe extern "C" fn OPENSSL_clear_free(mut ptr: *mut libc::c_void, mut unused: size_t) {
     OPENSSL_free(ptr);
 }
 #[unsafe(no_mangle)]
@@ -1149,17 +203,14 @@ pub unsafe extern "C" fn CRYPTO_secure_used() -> size_t {
 }
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_secure_malloc(mut size: size_t) -> *mut libc::c_void {
-    return OPENSSL_malloc(size);
+    return OPENSSL_malloc(size as usize);
 }
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_secure_zalloc(mut size: size_t) -> *mut libc::c_void {
     return OPENSSL_zalloc(size);
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn OPENSSL_secure_clear_free(
-    mut ptr: *mut libc::c_void,
-    mut len: size_t,
-) {
+pub unsafe extern "C" fn OPENSSL_secure_clear_free(mut ptr: *mut libc::c_void, mut len: size_t) {
     OPENSSL_clear_free(ptr, len);
 }
 #[unsafe(no_mangle)]
@@ -1174,17 +225,14 @@ pub unsafe extern "C" fn CRYPTO_memcmp(
     let mut i: size_t = 0 as libc::c_int as size_t;
     while i < len {
         x = (x as libc::c_int
-            | *a.offset(i as isize) as libc::c_int
-                ^ *b.offset(i as isize) as libc::c_int) as uint8_t;
+            | *a.offset(i as isize) as libc::c_int ^ *b.offset(i as isize) as libc::c_int)
+            as uint8_t;
         i = i.wrapping_add(1);
     }
     return x as libc::c_int;
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn OPENSSL_hash32(
-    mut ptr: *const libc::c_void,
-    mut len: size_t,
-) -> uint32_t {
+pub unsafe extern "C" fn OPENSSL_hash32(mut ptr: *const libc::c_void, mut len: size_t) -> uint32_t {
     static mut kPrime: uint32_t = 16777619 as libc::c_uint;
     static mut kOffsetBasis: uint32_t = 2166136261 as libc::c_uint;
     let mut in_0: *const uint8_t = ptr as *const uint8_t;
@@ -1199,13 +247,10 @@ pub unsafe extern "C" fn OPENSSL_hash32(
 }
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_strhash(mut s: *const libc::c_char) -> uint32_t {
-    return OPENSSL_hash32(s as *const libc::c_void, strlen(s));
+    return OPENSSL_hash32(s as *const libc::c_void, libc::strlen(s));
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn OPENSSL_strnlen(
-    mut s: *const libc::c_char,
-    mut len: size_t,
-) -> size_t {
+pub unsafe extern "C" fn OPENSSL_strnlen(mut s: *const libc::c_char, mut len: size_t) -> size_t {
     let mut i: size_t = 0 as libc::c_int as size_t;
     while i < len {
         if *s.offset(i as isize) as libc::c_int == 0 as libc::c_int {
@@ -1216,16 +261,12 @@ pub unsafe extern "C" fn OPENSSL_strnlen(
     return len;
 }
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn OPENSSL_strdup(
-    mut s: *const libc::c_char,
-) -> *mut libc::c_char {
+pub unsafe extern "C" fn OPENSSL_strdup(mut s: *const libc::c_char) -> *mut libc::c_char {
     if s.is_null() {
         return 0 as *mut libc::c_char;
     }
-    return OPENSSL_memdup(
-        s as *const libc::c_void,
-        (strlen(s)).wrapping_add(1 as libc::c_int as libc::c_ulong),
-    ) as *mut libc::c_char;
+    return OPENSSL_memdup(s as *const libc::c_void, (libc::strlen(s)).wrapping_add(1))
+        as *mut libc::c_char;
 }
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_isalpha(mut c: libc::c_int) -> libc::c_int {
@@ -1238,7 +279,8 @@ pub unsafe extern "C" fn OPENSSL_isdigit(mut c: libc::c_int) -> libc::c_int {
 }
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_isxdigit(mut c: libc::c_int) -> libc::c_int {
-    return (OPENSSL_isdigit(c) != 0 || c >= 'a' as i32 && c <= 'f' as i32
+    return (OPENSSL_isdigit(c) != 0
+        || c >= 'a' as i32 && c <= 'f' as i32
         || c >= 'A' as i32 && c <= 'F' as i32) as libc::c_int;
 }
 #[unsafe(no_mangle)]
@@ -1287,20 +329,17 @@ pub unsafe extern "C" fn OPENSSL_hexstr2buf(
         ) == 0
             || OPENSSL_fromxdigit(
                 &mut lo,
-                *str
-                    .offset(
-                        (2 as libc::c_int as size_t * i)
-                            .wrapping_add(1 as libc::c_int as size_t) as isize,
-                    ) as libc::c_int,
+                *str.offset(
+                    (2 as libc::c_int as size_t * i).wrapping_add(1 as libc::c_int as size_t)
+                        as isize,
+                ) as libc::c_int,
             ) == 0
         {
             OPENSSL_free(buf as *mut libc::c_void);
             return 0 as *mut uint8_t;
         }
-        *buf
-            .offset(
-                i as isize,
-            ) = ((hi as libc::c_int) << 4 as libc::c_int | lo as libc::c_int) as uint8_t;
+        *buf.offset(i as isize) =
+            ((hi as libc::c_int) << 4 as libc::c_int | lo as libc::c_int) as uint8_t;
         i = i.wrapping_add(1);
     }
     *len = buflen;
@@ -1319,8 +358,12 @@ pub unsafe extern "C" fn OPENSSL_tolower(mut c: libc::c_int) -> libc::c_int {
 }
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_isspace(mut c: libc::c_int) -> libc::c_int {
-    return (c == '\t' as i32 || c == '\n' as i32 || c == '\u{b}' as i32
-        || c == '\u{c}' as i32 || c == '\r' as i32 || c == ' ' as i32) as libc::c_int;
+    return (c == '\t' as i32
+        || c == '\n' as i32
+        || c == '\u{b}' as i32
+        || c == '\u{c}' as i32
+        || c == '\r' as i32
+        || c == ' ' as i32) as libc::c_int;
 }
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_strcasecmp(
@@ -1332,14 +375,14 @@ pub unsafe extern "C" fn OPENSSL_strcasecmp(
         let aa: libc::c_int = OPENSSL_tolower(*a.offset(i as isize) as libc::c_int);
         let bb: libc::c_int = OPENSSL_tolower(*b.offset(i as isize) as libc::c_int);
         if aa < bb {
-            return -(1 as libc::c_int)
+            return -(1 as libc::c_int);
         } else if aa > bb {
-            return 1 as libc::c_int
+            return 1 as libc::c_int;
         } else if aa == 0 as libc::c_int {
-            return 0 as libc::c_int
+            return 0 as libc::c_int;
         }
         i = i.wrapping_add(1);
-    };
+    }
 }
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_strncasecmp(
@@ -1352,11 +395,11 @@ pub unsafe extern "C" fn OPENSSL_strncasecmp(
         let aa: libc::c_int = OPENSSL_tolower(*a.offset(i as isize) as libc::c_int);
         let bb: libc::c_int = OPENSSL_tolower(*b.offset(i as isize) as libc::c_int);
         if aa < bb {
-            return -(1 as libc::c_int)
+            return -(1 as libc::c_int);
         } else if aa > bb {
-            return 1 as libc::c_int
+            return 1 as libc::c_int;
         } else if aa == 0 as libc::c_int {
-            return 0 as libc::c_int
+            return 0 as libc::c_int;
         }
         i = i.wrapping_add(1);
     }
@@ -1374,6 +417,16 @@ pub unsafe extern "C" fn BIO_snprintf(
     let mut ret: libc::c_int = BIO_vsnprintf(buf, n, format, args_0.as_va_list());
     return ret;
 }
+
+unsafe extern "C" {
+    fn vsnprintf(
+        s: *mut libc::c_char,
+        n: libc::size_t,
+        format: *const libc::c_char,
+        args: ::core::ffi::VaList,
+    ) -> libc::c_int;
+}
+
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn BIO_vsnprintf(
     mut buf: *mut libc::c_char,
@@ -1381,89 +434,102 @@ pub unsafe extern "C" fn BIO_vsnprintf(
     mut format: *const libc::c_char,
     mut args: ::core::ffi::VaList,
 ) -> libc::c_int {
-    return vsnprintf(buf, n, format, args.as_va_list());
+    vsnprintf(buf, n, format, args)
 }
+
+// Function pointer types for cleaner code
+type AllocateFn = unsafe extern "C" fn(usize) -> *mut c_void;
+type DeallocateFn = unsafe extern "C" fn(*mut c_void);
+type ReallocateFn = unsafe extern "C" fn(*mut c_void, usize) -> *mut c_void;
+
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_vasprintf_internal(
-    mut str: *mut *mut libc::c_char,
-    mut format: *const libc::c_char,
-    mut args: ::core::ffi::VaList,
-    mut system_malloc: libc::c_int,
-) -> libc::c_int {
-    let mut ret: libc::c_int = 0;
-    let mut current_block: u64;
-    let mut allocate: Option::<unsafe extern "C" fn(size_t) -> *mut libc::c_void> = if system_malloc
-        != 0
-    {
-        Some(malloc as unsafe extern "C" fn(libc::c_ulong) -> *mut libc::c_void)
-    } else {
-        Some(OPENSSL_malloc as unsafe extern "C" fn(size_t) -> *mut libc::c_void)
-    };
-    let mut deallocate: Option::<unsafe extern "C" fn(*mut libc::c_void) -> ()> = if system_malloc
-        != 0
-    {
-        Some(free as unsafe extern "C" fn(*mut libc::c_void) -> ())
-    } else {
-        Some(OPENSSL_free as unsafe extern "C" fn(*mut libc::c_void) -> ())
-    };
-    let mut reallocate: Option::<
-        unsafe extern "C" fn(*mut libc::c_void, size_t) -> *mut libc::c_void,
-    > = if system_malloc != 0 {
-        Some(
-            realloc
-                as unsafe extern "C" fn(
-                    *mut libc::c_void,
-                    libc::c_ulong,
-                ) -> *mut libc::c_void,
-        )
-    } else {
-        Some(
-            OPENSSL_realloc
-                as unsafe extern "C" fn(*mut libc::c_void, size_t) -> *mut libc::c_void,
-        )
-    };
-    let mut candidate: *mut libc::c_char = 0 as *mut libc::c_char;
-    let mut candidate_len: size_t = 64 as libc::c_int as size_t;
-    candidate = allocate.expect("non-null function pointer")(candidate_len)
-        as *mut libc::c_char;
-    if !candidate.is_null() {
-        let mut args_copy = args.clone();
-        ret = vsnprintf(candidate, candidate_len, format, args_copy.as_va_list());
-        if !(ret < 0 as libc::c_int) {
-            if ret as size_t >= candidate_len {
-                let mut tmp: *mut libc::c_char = 0 as *mut libc::c_char;
-                candidate_len = (ret as size_t).wrapping_add(1 as libc::c_int as size_t);
-                tmp = reallocate
-                    .expect(
-                        "non-null function pointer",
-                    )(candidate as *mut libc::c_void, candidate_len)
-                    as *mut libc::c_char;
-                if tmp.is_null() {
-                    current_block = 5958868064230649183;
-                } else {
-                    candidate = tmp;
-                    ret = vsnprintf(candidate, candidate_len, format, args.as_va_list());
-                    current_block = 2968425633554183086;
-                }
-            } else {
-                current_block = 2968425633554183086;
-            }
-            match current_block {
-                5958868064230649183 => {}
-                _ => {
-                    if !(ret < 0 as libc::c_int || ret as size_t >= candidate_len) {
-                        *str = candidate;
-                        return ret;
-                    }
-                }
-            }
+    str: *mut *mut c_char,
+    format: *const c_char,
+    args: ::core::ffi::VaList,
+    system_malloc: c_int,
+) -> c_int {
+    // Input validation
+    if str.is_null() || format.is_null() {
+        set_errno_enomem();
+        return -1;
+    }
+
+    // Select memory management functions based on system_malloc flag
+    let (allocate, deallocate, reallocate): (AllocateFn, DeallocateFn, ReallocateFn) =
+        if system_malloc != 0 {
+            (libc::malloc, libc::free, libc::realloc)
+        } else {
+            (OPENSSL_malloc, OPENSSL_free, OPENSSL_realloc)
+        };
+
+    // Initial buffer size - TODO: optimize initial size based on format string analysis
+    const INITIAL_SIZE: usize = 64;
+    let mut candidate_len = INITIAL_SIZE;
+
+    // Allocate initial buffer
+    let mut candidate = allocate(candidate_len);
+    if candidate.is_null() {
+        *str = ptr::null_mut();
+        set_errno_enomem();
+        return -1;
+    }
+
+    let ret = vsnprintf(candidate as *mut c_char, candidate_len, format, args);
+
+    if ret < 0 {
+        deallocate(candidate);
+        *str = ptr::null_mut();
+        set_errno_enomem();
+        return -1;
+    }
+
+    // Check if we need a larger buffer
+    if (ret as usize) >= candidate_len {
+        // Buffer too small, reallocate with exact size needed
+        candidate_len = (ret as usize) + 1;
+        let tmp = reallocate(candidate, candidate_len);
+
+        if tmp.is_null() {
+            deallocate(candidate);
+            *str = ptr::null_mut();
+            set_errno_enomem();
+            return -1;
+        }
+
+        candidate = tmp;
+
+        // Second formatting attempt with correctly sized buffer
+        let final_ret = vsnprintf(candidate as *mut c_char, candidate_len, format, args);
+
+        // Sanity check - this should not happen with a properly functioning vsnprintf
+        if final_ret < 0 || (final_ret as usize) >= candidate_len {
+            deallocate(candidate);
+            *str = ptr::null_mut();
+            set_errno_enomem();
+            return -1;
         }
     }
-    deallocate.expect("non-null function pointer")(candidate as *mut libc::c_void);
-    *str = 0 as *mut libc::c_char;
-    *__errno_location() = 12 as libc::c_int;
-    return -(1 as libc::c_int);
+
+    // Success: assign the result and return length
+    *str = candidate as *mut c_char;
+    ret
 }
+
+/// Set errno to ENOMEM in a cross-platform way
+fn set_errno_enomem() {
+    // Use std::io::Error to set errno in a cross-platform way
+    let error = std::io::Error::from_raw_os_error(
+        #[cfg(unix)]
+        libc::ENOMEM,
+        #[cfg(windows)]
+        12, // ERROR_NOT_ENOUGH_MEMORY
+    );
+
+    // This will set the thread-local errno
+    std::io::Error::last_os_error();
+}
+
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_vasprintf(
     mut str: *mut *mut libc::c_char,
@@ -1491,14 +557,6 @@ pub unsafe extern "C" fn OPENSSL_strndup(
     size = OPENSSL_strnlen(str, size);
     let mut alloc_size: size_t = size.wrapping_add(1 as libc::c_int as size_t);
     if alloc_size < size {
-        ERR_put_error(
-            14 as libc::c_int,
-            0 as libc::c_int,
-            1 as libc::c_int | 64 as libc::c_int,
-            b"/home/ubuntu/workspace/oss/aws-lc/crypto/mem.c\0" as *const u8
-                as *const libc::c_char,
-            569 as libc::c_int as libc::c_uint,
-        );
         return 0 as *mut libc::c_char;
     }
     let mut ret: *mut libc::c_char = OPENSSL_malloc(alloc_size) as *mut libc::c_char;
@@ -1528,7 +586,7 @@ pub unsafe extern "C" fn OPENSSL_strlcpy(
     if dst_size != 0 {
         *dst = 0 as libc::c_int as libc::c_char;
     }
-    return l.wrapping_add(strlen(src));
+    return l.wrapping_add(libc::strlen(src));
 }
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn OPENSSL_strlcat(
@@ -1539,7 +597,6 @@ pub unsafe extern "C" fn OPENSSL_strlcat(
     let mut l: size_t = 0 as libc::c_int as size_t;
     while dst_size > 0 as libc::c_int as size_t && *dst as libc::c_int != 0 {
         l = l.wrapping_add(1);
-        l;
         dst_size = dst_size.wrapping_sub(1);
         dst = dst.offset(1);
     }
