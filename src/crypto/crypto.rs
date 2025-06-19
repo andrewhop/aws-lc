@@ -1,4 +1,5 @@
-#![allow(
+use std::sync::OnceLock;
+#[allow(
     dead_code,
     mutable_transmutes,
     non_camel_case_types,
@@ -24,12 +25,16 @@ pub type uint64_t = __uint64_t;
 pub type pthread_once_t = libc::c_int;
 pub type OPENSSL_INIT_SETTINGS = ossl_init_settings_st;
 pub type CRYPTO_once_t = pthread_once_t;
-static mut once: CRYPTO_once_t = 0 as libc::c_int;
+static LIBRARY_INIT: OnceLock<()> = OnceLock::new();
 unsafe extern "C" fn do_library_init() {}
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_library_init() {
-    CRYPTO_once(&mut once, Some(do_library_init as unsafe extern "C" fn() -> ()));
-}
+    LIBRARY_INIT.get_or_init(|| {
+        do_library_init();
+        // Return unit value since we're just handling initialization
+        ()
+    });}
+
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn CRYPTO_is_confidential_build() -> libc::c_int {
     return 0 as libc::c_int;
