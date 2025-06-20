@@ -13,7 +13,7 @@ fn main() {
     let out_dir = env::var("OUT_DIR").unwrap();
     let out_path = PathBuf::from(&out_dir);
 
-    // Compile start/end
+    // Step 1: Compile start/end
     let start_lib = out_path.join("start.a");
     compile_marker_to_archive("markers/start.rs", &start_lib, &target);
     println!("cargo:warning=Created {}", start_lib.display());
@@ -24,35 +24,30 @@ fn main() {
     let temp_dir = target_dir.join("obj_temp");
     fs::create_dir_all(&temp_dir).unwrap();
 
-    // Path to the fips_core static library
     let lib_path = target_dir.join("libfips_core.a");
     if !lib_path.exists() {
         panic!("fips_core library not found at: {}", lib_path.display());
     }
 
+    // Step 2: extract the fips_core, start, and end static archives
     println!("cargo:warning=Extracting object files from libfips_core.a...");
     extract_ar_contents(&lib_path, &temp_dir);
     extract_ar_contents(&start_lib, &temp_dir);
     extract_ar_contents(&end_lib, &temp_dir);
 
-    // Step 3: Find the object file with unique functions
-    println!("cargo:warning=Searching for object file with AWS_LC_FIPS_get_digest...");
+    // Step 3: Find the object file with our functions
     let fips_core = find_object_with_symbol(&temp_dir, "AWS_LC_FIPS_get_digest")
         .expect("Could not find object file with AWS_LC_FIPS_get_digest");
     println!(
         "cargo:warning=Found AWS_LC_FIPS_get_digest in {}",
         fips_core.display()
     );
-
-    println!("Searching for object file with AWS_LC_fips_text_start...");
     let start_object = find_object_with_symbol(&temp_dir, "AWS_LC_fips_text_start")
         .expect("Could not find object file with AWS_LC_fips_text_start");
     println!(
         "cargo:warning=Found AWS_LC_fips_text_start in {}",
         start_object.display()
     );
-
-    println!("Searching for object file with AWS_LC_fips_text_end...");
     let end_object = find_object_with_symbol(&temp_dir, "AWS_LC_fips_text_end")
         .expect("Could not find object file with AWS_LC_fips_text_end");
     println!(
@@ -60,13 +55,12 @@ fn main() {
         end_object.display()
     );
 
-    // Step 5: Combine object files
+    // Step 4: Combine object files into one FIPS oreo cookie: start - fips_core - end
     let combined_obj = target_dir.join("combined_fips_objects.o");
     println!(
         "cargo:warning=Combining object files into {}",
         combined_obj.display()
     );
-
     let status = Command::new("ld")
         .arg("-r")
         .arg(start_object)
@@ -81,23 +75,12 @@ fn main() {
         panic!("cargo:warning=Failed to combine object files");
     }
 
-    // Step 6: Link with the combined object file
-    // println!("cargo:rustc-link-search=native={}", target_dir.display());
-    // println!("cargo:rustc-link-lib=static=combined_fips_objects");
-    // println!(
-    //     "cargo:rustc-link-arg=-Wl,-force_load,{}",
-    //     combined_obj.display()
-    // );
-    // println!(
-    //     "cargo:rustc-cdylib-link-arg=-Wl,-force_load,{}",
-    //     combined_obj.display()
-    // );
-    // println!("cargo:rustc-link-arg=-Wl,-all_load");
-    // println!("cargo:rustc-link-search=native={}", target_dir.display());
-    // println!("cargo:rustc-link-lib=static=combined_fips_objects");
+    // Step 5: Link the combined object file back into a static archive so cargo will link it later
     cc::Build::new()
         .object(combined_obj)
         .compile("fips_objects");
+
+    // Step 6: Tell cargo to link the fips_objects static archive
     println!("cargo:rustc-link-lib=static=fips_objects");
 
     // Clean up

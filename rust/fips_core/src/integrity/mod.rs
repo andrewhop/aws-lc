@@ -4,7 +4,7 @@
 // by checking that critical functions are within the expected memory region and
 // calculating a hash of the memory region.
 
-use crate::hash::sha2::{SHA256_DIGEST_LEN as DIGEST_LEN, sha256_digest as digest};
+use crate::hash::sha2::{self, SHA256_DIGEST_LEN as DIGEST_LEN, sha256_digest as digest};
 
 pub static AWS_LC_RUST_CORE_TEXT_HASH: [u8; 32] = [
     0xae, 0x2c, 0xea, 0x2a, 0xbd, 0xa6, 0xf3, 0xec, 0x97, 0x7f, 0x9b, 0xf6, 0x94, 0x9a, 0xfc, 0x83,
@@ -18,24 +18,50 @@ unsafe extern "C" {
 }
 
 #[allow(unused)]
-pub fn verify_fips_integrity() -> bool {
+pub fn verify_fips_integrity() -> usize {
     // Get boundary addresses
-    let start_addr = &AWS_LC_fips_text_start as *const _ as usize;
-    let end_addr = &AWS_LC_fips_text_end as *const _ as usize;
+    let start_addr = AWS_LC_fips_text_start as usize;
+    let end_addr = AWS_LC_fips_text_end as usize;
 
     // First verify that critical functions are within the FIPS boundary
-    if !is_in_fips_boundary(digest as usize, start_addr, end_addr) {
-        return false;
+    let mut functions = vec![
+        ("constant_time_eq", constant_time_eq as usize),
+        ("verify_fips_integrity", verify_fips_integrity as usize),
+        (
+            "verify_fips_functions_inside",
+            verify_fips_functions_inside as usize,
+        ),
+        ("get_fips_digest", get_fips_digest as usize),
+        ("is_in_fips_boundary", is_in_fips_boundary as usize),
+        ("sha2::sha256_digest", sha2::sha256_digest as usize),
+        ("sha2::Context::reset", sha2::Context::reset as usize),
+        (
+            "sha2::Context::new_sha256",
+            sha2::Context::new_sha256 as usize,
+        ),
+        (
+            "sha2::Context::new_sha224",
+            sha2::Context::new_sha224 as usize,
+        ),
+        ("sha2::Context::update", sha2::Context::update as usize),
+        (
+            "sha2::Context::sha256_finalize",
+            sha2::Context::sha256_finalize as usize,
+        ),
+        (
+            "sha2::Context::sha224_finalize",
+            sha2::Context::sha224_finalize as usize,
+        ),
+    ];
+    for (name, addr) in &functions {
+        if !is_in_fips_boundary(*addr, start_addr, end_addr) {
+            panic!(
+                "{} at {} is not within the FIPS boundary: {}-{}",
+                name, addr, start_addr, end_addr
+            );
+        }
     }
-
-    if !is_in_fips_boundary(is_in_fips_boundary as usize, start_addr, end_addr) {
-        return false;
-    }
-
-    let computed_hmac = get_fips_digest();
-
-    let expected = [0, 0, 0, 0];
-    constant_time_eq(&computed_hmac, &expected)
+    functions.len()
 }
 
 #[allow(unused)]

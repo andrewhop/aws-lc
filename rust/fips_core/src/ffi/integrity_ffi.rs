@@ -1,6 +1,6 @@
 use core::ffi::c_int;
 
-use crate::{hash::sha2, integrity::get_fips_digest};
+use crate::{hash::sha2, integrity::get_fips_digest, integrity::verify_fips_integrity};
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn AWS_LC_FIPS_get_digest(out: *mut u8, out_len: usize) -> c_int {
@@ -15,4 +15,9 @@ pub unsafe extern "C" fn AWS_LC_FIPS_get_digest(out: *mut u8, out_len: usize) ->
     let digest = get_fips_digest();
     output.copy_from_slice(&digest);
     return 1;
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn AWS_LC_FIPS_check_integrity() -> usize {
+    verify_fips_integrity()
 }
