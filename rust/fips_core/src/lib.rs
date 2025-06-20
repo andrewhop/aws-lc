@@ -1,7 +1,7 @@
 // #![cfg_attr(not(test), no_std)]
 
-pub mod ffi;
 pub mod digest;
+pub mod ffi;
 pub mod integrity;
 
 // #[cfg(not(test))]
