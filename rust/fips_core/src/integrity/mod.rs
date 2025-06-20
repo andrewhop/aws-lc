@@ -4,7 +4,10 @@
 // by checking that critical functions are within the expected memory region and
 // calculating a hash of the memory region.
 
-use crate::digest::sha2::{self, SHA256_DIGEST_LEN as DIGEST_LEN, sha256_digest as digest};
+use crate::digest::{
+    Digest, sha1,
+    sha2::{self, SHA256_DIGEST_LEN as DIGEST_LEN, sha256_digest as digest},
+};
 
 pub static AWS_LC_RUST_CORE_TEXT_HASH: [u8; 32] = [
     0xae, 0x2c, 0xea, 0x2a, 0xbd, 0xa6, 0xf3, 0xec, 0x97, 0x7f, 0x9b, 0xf6, 0x94, 0x9a, 0xfc, 0x83,
@@ -30,14 +33,13 @@ mod mock_externals {
     }
 }
 
-#[allow(unused)]
 pub fn verify_fips_integrity() -> usize {
     // Get boundary addresses
     let start_addr = AWS_LC_fips_text_start as usize;
     let end_addr = AWS_LC_fips_text_end as usize;
 
     // First verify that critical functions are within the FIPS boundary
-    let mut functions = vec![
+    let functions = vec![
         ("constant_time_eq", constant_time_eq as usize),
         ("verify_fips_integrity", verify_fips_integrity as usize),
         (
@@ -46,6 +48,11 @@ pub fn verify_fips_integrity() -> usize {
         ),
         ("get_fips_digest", get_fips_digest as usize),
         ("is_in_fips_boundary", is_in_fips_boundary as usize),
+        ("sha1::sha1_digest", sha1::sha1_digest as usize),
+        ("sha1::State::reset", sha1::State::reset as usize),
+        ("sha1::State::new", sha1::State::new as usize),
+        ("sha1::State::update", sha1::State::update as usize),
+        ("sha1::State::finalize", sha1::State::finalize as usize),
         ("sha2::sha256_digest", sha2::sha256_digest as usize),
         ("sha2::Context::reset", sha2::State::reset as usize),
         (

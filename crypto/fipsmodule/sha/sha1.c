@@ -65,16 +65,6 @@
 #include "internal.h"
 
 
-int SHA1_Init(SHA_CTX *sha) {
-  OPENSSL_memset(sha, 0, sizeof(SHA_CTX));
-  sha->h[0] = 0x67452301UL;
-  sha->h[1] = 0xefcdab89UL;
-  sha->h[2] = 0x98badcfeUL;
-  sha->h[3] = 0x10325476UL;
-  sha->h[4] = 0xc3d2e1f0UL;
-  return 1;
-}
-
 int SHA1_Init_from_state(SHA_CTX *sha, const uint8_t h[SHA1_CHAINING_LENGTH],
                          uint64_t n) {
   if (n % ((uint64_t)SHA_CBLOCK * 8) != 0) {
@@ -96,22 +86,6 @@ int SHA1_Init_from_state(SHA_CTX *sha, const uint8_t h[SHA1_CHAINING_LENGTH],
   return 1;
 }
 
-uint8_t *SHA1(const uint8_t *data, size_t len, uint8_t out[SHA_DIGEST_LENGTH]) {
-  // We have to verify that all the SHA services actually succeed before
-  // updating the indicator state, so we lock the state here.
-  FIPS_service_indicator_lock_state();
-  SHA_CTX ctx;
-  const int ok = SHA1_Init(&ctx) &&
-                 SHA1_Update(&ctx, data, len) &&
-                 SHA1_Final(out, &ctx);
-  FIPS_service_indicator_unlock_state();
-  if(ok) {
-    FIPS_service_indicator_update_state();
-  }
-  OPENSSL_cleanse(&ctx, sizeof(ctx));
-  return out;
-}
-
 #if !defined(SHA1_ASM) && !defined(SHA1_ALTIVEC)
 static void sha1_block_data_order(uint32_t state[5], const uint8_t *data,
                                   size_t num);
@@ -119,25 +93,6 @@ static void sha1_block_data_order(uint32_t state[5], const uint8_t *data,
 
 void SHA1_Transform(SHA_CTX *c, const uint8_t data[SHA_CBLOCK]) {
   sha1_block_data_order(c->h, data, 1);
-}
-
-int SHA1_Update(SHA_CTX *c, const void *data, size_t len) {
-  crypto_md32_update(&sha1_block_data_order, c->h, c->data, SHA_CBLOCK, &c->num,
-                     &c->Nh, &c->Nl, data, len);
-  return 1;
-}
-
-int SHA1_Final(uint8_t out[SHA_DIGEST_LENGTH], SHA_CTX *c) {
-  crypto_md32_final(&sha1_block_data_order, c->h, c->data, SHA_CBLOCK, &c->num,
-                    c->Nh, c->Nl, /*is_big_endian=*/1);
-
-  CRYPTO_store_u32_be(out, c->h[0]);
-  CRYPTO_store_u32_be(out + 4, c->h[1]);
-  CRYPTO_store_u32_be(out + 8, c->h[2]);
-  CRYPTO_store_u32_be(out + 12, c->h[3]);
-  CRYPTO_store_u32_be(out + 16, c->h[4]);
-  FIPS_service_indicator_update_state();
-  return 1;
 }
 
 int SHA1_get_state(SHA_CTX *ctx, uint8_t out_h[SHA1_CHAINING_LENGTH],

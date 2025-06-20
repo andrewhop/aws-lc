@@ -17,5 +17,5 @@ TEST(CastleTest, Integrity) {
   // Call the Rust function
   ASSERT_TRUE(AWS_LC_FIPS_get_digest(digest_buffer.data(), digest_buffer.size()));
   print_hex(digest_buffer);
-  ASSERT_EQ((size_t)12, AWS_LC_FIPS_check_integrity());
+  ASSERT_EQ((size_t)17, AWS_LC_FIPS_check_integrity());
 }
