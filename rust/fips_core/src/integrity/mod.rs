@@ -4,7 +4,7 @@
 // by checking that critical functions are within the expected memory region and
 // calculating a hash of the memory region.
 
-use crate::hash::sha2::{self, SHA256_DIGEST_LEN as DIGEST_LEN, sha256_digest as digest};
+use crate::digest::sha2::{self, SHA256_DIGEST_LEN as DIGEST_LEN, sha256_digest as digest};
 
 pub static AWS_LC_RUST_CORE_TEXT_HASH: [u8; 32] = [
     0xae, 0x2c, 0xea, 0x2a, 0xbd, 0xa6, 0xf3, 0xec, 0x97, 0x7f, 0x9b, 0xf6, 0x94, 0x9a, 0xfc, 0x83,
@@ -14,7 +14,20 @@ pub static AWS_LC_RUST_CORE_TEXT_HASH: [u8; 32] = [
 unsafe extern "C" {
     fn AWS_LC_fips_text_start(a: u8, b: u8) -> bool;
     fn AWS_LC_fips_text_end(a: u8, b: u8) -> u8;
-    // Declare other functions as needed
+}
+
+#[cfg(test)]
+mod mock_externals {
+    // Mock implementations for tests
+    #[unsafe(no_mangle)]
+    pub extern "C" fn AWS_LC_fips_text_start(a: u8, b: u8) -> bool {
+        true
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn AWS_LC_fips_text_end(a: u8, b: u8) -> u8 {
+        a & b
+    }
 }
 
 #[allow(unused)]
@@ -34,23 +47,23 @@ pub fn verify_fips_integrity() -> usize {
         ("get_fips_digest", get_fips_digest as usize),
         ("is_in_fips_boundary", is_in_fips_boundary as usize),
         ("sha2::sha256_digest", sha2::sha256_digest as usize),
-        ("sha2::Context::reset", sha2::Context::reset as usize),
+        ("sha2::Context::reset", sha2::State::reset as usize),
         (
             "sha2::Context::new_sha256",
-            sha2::Context::new_sha256 as usize,
+            sha2::State::new_sha256 as usize,
         ),
         (
             "sha2::Context::new_sha224",
-            sha2::Context::new_sha224 as usize,
+            sha2::State::new_sha224 as usize,
         ),
-        ("sha2::Context::update", sha2::Context::update as usize),
+        ("sha2::Context::update", sha2::State::update as usize),
         (
             "sha2::Context::sha256_finalize",
-            sha2::Context::sha256_finalize as usize,
+            sha2::State::sha256_finalize as usize,
         ),
         (
             "sha2::Context::sha224_finalize",
-            sha2::Context::sha224_finalize as usize,
+            sha2::State::sha224_finalize as usize,
         ),
     ];
     for (name, addr) in &functions {
@@ -121,7 +134,7 @@ fn constant_time_eq(a: &[u8], b: &[u8]) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::hash::sha2;
+    use crate::digest::sha2;
 
     #[test]
     fn test_boundaries() {
@@ -145,23 +158,23 @@ mod tests {
             ("get_fips_digest", get_fips_digest as usize),
             ("is_in_fips_boundary", is_in_fips_boundary as usize),
             ("sha2::sha256_digest", sha2::sha256_digest as usize),
-            ("sha2::Context::reset", sha2::Context::reset as usize),
+            ("sha2::Context::reset", sha2::State::reset as usize),
             (
                 "sha2::Context::new_sha256",
-                sha2::Context::new_sha256 as usize,
+                sha2::State::new_sha256 as usize,
             ),
             (
                 "sha2::Context::new_sha224",
-                sha2::Context::new_sha224 as usize,
+                sha2::State::new_sha224 as usize,
             ),
-            ("sha2::Context::update", sha2::Context::update as usize),
+            ("sha2::Context::update", sha2::State::update as usize),
             (
                 "sha2::Context::sha256_finalize",
-                sha2::Context::sha256_finalize as usize,
+                sha2::State::sha256_finalize as usize,
             ),
             (
                 "sha2::Context::sha224_finalize",
-                sha2::Context::sha224_finalize as usize,
+                sha2::State::sha224_finalize as usize,
             ),
         ];
 
