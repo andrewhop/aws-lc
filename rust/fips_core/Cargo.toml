@@ -1,0 +1,12 @@
+[package]
+name = "fips_core"
+version = "0.1.0"
+edition = "2024"
+description = "Core FIPS-validated cryptographic primitives"
+
+
+[lib]
+crate-type = ["staticlib"]
+
+# Never put profile settings here
+# https://doc.rust-lang.org/cargo/reference/profiles.html

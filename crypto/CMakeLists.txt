@@ -140,11 +140,11 @@ if(CARGO_EXECUTABLE)
   
   # Set the path to the Rust static library
   if(APPLE)
-    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust/target/${CARGO_BUILD_TYPE}/libaws_lc_rust.dylib")
+    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust/target/${CARGO_BUILD_TYPE}/libfips_module.a")
   elseif(WIN32)
-    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust/target/${CARGO_BUILD_TYPE}/aws_lc_rust.dll")
+    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust/target/${CARGO_BUILD_TYPE}/libfips_module.a")
   else()
-    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust/target/${CARGO_BUILD_TYPE}/libaws_lc_rust.so")
+    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust/target/${CARGO_BUILD_TYPE}/libfips_module.a")
   endif()
   
   # Find all Rust source files and Cargo.toml files

@@ -1,0 +1,17 @@
+[package]
+name = "fips_module"
+version = "0.1.0"
+edition = "2024"
+description = "Translation layer connecting Rust implementation to C interfaces"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+fips_core = { path = "../fips_core" }
+
+[build-dependencies]
+cc = "1.0"
+
+# Never put profile settings here
+# https://doc.rust-lang.org/cargo/reference/profiles.html

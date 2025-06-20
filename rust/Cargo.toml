@@ -1,0 +1,13 @@
+[workspace]
+resolver = "2"
+members = [ "fips_core", "fips_module"]
+
+[profile.dev]
+lto = true
+codegen-units = 1
+embed-bitcode = true
+
+[profile.release]
+lto = true
+codegen-units = 1
+embed-bitcode = true
