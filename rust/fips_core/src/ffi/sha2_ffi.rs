@@ -1,13 +1,13 @@
-use crate::hash::sha2;
+use crate::digest::sha2;
 
 /// SHA256_CTX is a type alias for the sha2::Context struct
 #[allow(non_camel_case_types)]
-pub type SHA256_CTX = sha2::Context;
+pub type SHA256_CTX = sha2::State;
 
 /// SHA224_CTX is a type alias for the sha2::Context struct
 /// Both SHA-224 and SHA-256 use the same context structure with different initialization
 #[allow(non_camel_case_types)]
-pub type SHA224_CTX = sha2::Context;
+pub type SHA224_CTX = sha2::State;
 
 /// SHA256_Init initialises |sha| and returns 1.
 ///
