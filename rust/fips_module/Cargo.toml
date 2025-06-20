@@ -8,10 +8,11 @@ description = "Translation layer connecting Rust implementation to C interfaces"
 crate-type = ["staticlib"]
 
 [dependencies]
-fips_core = { path = "../fips_core" }
 
 [build-dependencies]
 cc = "1.0"
+fips_core = { path = "../fips_core" }
+
 
 # Never put profile settings here
 # https://doc.rust-lang.org/cargo/reference/profiles.html

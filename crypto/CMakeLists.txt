@@ -158,7 +158,7 @@ if(CARGO_EXECUTABLE)
   # Custom command to build the Rust library
   add_custom_command(
     OUTPUT ${RUST_CASTLE_LIB}
-    COMMAND ${CARGO_EXECUTABLE} build ${CARGO_BUILD_FLAGS}
+    COMMAND ${CARGO_EXECUTABLE} build -vv ${CARGO_BUILD_FLAGS}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/rust
     DEPENDS ${RUST_CASTLE_SOURCES}
     COMMENT "Building Rust Castle library"

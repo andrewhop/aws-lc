@@ -21,9 +21,6 @@ fn main() {
     compile_marker_to_archive("markers/end.rs", &end_lib, &target);
     println!("cargo:warning=Created {}", end_lib.display());
 
-    // Step 1: Ensure fips_core is built first (this is a dependency)
-    // build_dependency("fips_core");
-
     let temp_dir = target_dir.join("obj_temp");
     fs::create_dir_all(&temp_dir).unwrap();
 
@@ -41,9 +38,9 @@ fn main() {
     // Step 3: Find the object file with unique functions
     println!("cargo:warning=Searching for object file with AWS_LC_FIPS_get_digest...");
     let fips_core = find_object_with_symbol(&temp_dir, "AWS_LC_FIPS_get_digest")
-        .expect("Could not find object file with sha256_AWS_LC_FIPS_get_digestinit");
+        .expect("Could not find object file with AWS_LC_FIPS_get_digest");
     println!(
-        "cargo:warning=Found sha256_AWS_LC_FIPS_get_digestinit in {}",
+        "cargo:warning=Found AWS_LC_FIPS_get_digest in {}",
         fips_core.display()
     );
 
@@ -87,10 +84,21 @@ fn main() {
     // Step 6: Link with the combined object file
     // println!("cargo:rustc-link-search=native={}", target_dir.display());
     // println!("cargo:rustc-link-lib=static=combined_fips_objects");
-    println!(
-        "cargo:rustc-link-arg=-Wl,-force_load,{}",
-        combined_obj.display()
-    );
+    // println!(
+    //     "cargo:rustc-link-arg=-Wl,-force_load,{}",
+    //     combined_obj.display()
+    // );
+    // println!(
+    //     "cargo:rustc-cdylib-link-arg=-Wl,-force_load,{}",
+    //     combined_obj.display()
+    // );
+    // println!("cargo:rustc-link-arg=-Wl,-all_load");
+    // println!("cargo:rustc-link-search=native={}", target_dir.display());
+    // println!("cargo:rustc-link-lib=static=combined_fips_objects");
+    cc::Build::new()
+        .object(combined_obj)
+        .compile("fips_objects");
+    println!("cargo:rustc-link-lib=static=fips_objects");
 
     // Clean up
     fs::remove_dir_all(temp_dir).unwrap();
@@ -158,24 +166,6 @@ fn compile_marker_to_archive(source_file: &str, output_archive: &std::path::Path
     }
 }
 
-// Function to build a dependency
-fn build_dependency(package: &str) {
-    println!("Building dependency: {}", package);
-
-    let status = Command::new("cargo")
-        .args(["build", "--package", package])
-        .arg(format!(
-            "--{}",
-            env::var("PROFILE").unwrap_or_else(|_| "debug".to_string())
-        ))
-        .status()
-        .expect("Failed to build dependency");
-
-    if !status.success() {
-        panic!("Failed to build {}", package);
-    }
-}
-
 // Function to extract contents of an ar archive
 fn extract_ar_contents(archive_path: &Path, output_dir: &Path) {
     let status = Command::new("ar")
@@ -202,6 +192,7 @@ fn find_object_with_symbol(dir: &Path, symbol: &str) -> Option<PathBuf> {
         if path.extension().map_or(false, |ext| ext == "o") {
             // Run nm on the object file
             let output = Command::new("nm")
+                .arg("--defined-only")
                 .arg(&path)
                 .output()
                 .expect("Failed to execute nm command");
