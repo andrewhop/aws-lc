@@ -54,24 +54,12 @@ pub fn verify_fips_integrity() -> usize {
         ("sha1::State::update", sha1::State::update as usize),
         ("sha1::State::finalize", sha1::State::finalize as usize),
         ("sha2::sha256_digest", sha2::sha256_digest as usize),
-        ("sha2::Context::reset", sha2::State::reset as usize),
-        (
-            "sha2::Context::new_sha256",
-            sha2::State::new_sha256 as usize,
-        ),
-        (
-            "sha2::Context::new_sha224",
-            sha2::State::new_sha224 as usize,
-        ),
-        ("sha2::Context::update", sha2::State::update as usize),
-        (
-            "sha2::Context::sha256_finalize",
-            sha2::State::sha256_finalize as usize,
-        ),
-        (
-            "sha2::Context::sha224_finalize",
-            sha2::State::sha224_finalize as usize,
-        ),
+        ("sha2::SHA224::new", sha2::SHA224::default as usize),
+        ("sha2::SHA224::update", sha2::SHA224::update as usize),
+        ("sha2::SHA224::finalize", sha2::SHA224::finalize as usize),
+        ("sha2::SHA256::new", sha2::SHA256::default as usize),
+        ("sha2::SHA256::update", sha2::SHA256::update as usize),
+        ("sha2::SHA256::finalize", sha2::SHA256::finalize as usize),
     ];
     for (name, addr) in &functions {
         if !is_in_fips_boundary(*addr, start_addr, end_addr) {
@@ -154,8 +142,6 @@ mod tests {
 
         // Create a vector of (name, address) tuples
         let mut functions = vec![
-            ("fips_module_start", start),
-            ("fips_module_end", end),
             ("constant_time_eq", constant_time_eq as usize),
             ("verify_fips_integrity", verify_fips_integrity as usize),
             (
@@ -164,25 +150,18 @@ mod tests {
             ),
             ("get_fips_digest", get_fips_digest as usize),
             ("is_in_fips_boundary", is_in_fips_boundary as usize),
+            ("sha1::sha1_digest", sha1::sha1_digest as usize),
+            ("sha1::State::reset", sha1::State::reset as usize),
+            ("sha1::State::new", sha1::State::new as usize),
+            ("sha1::State::update", sha1::State::update as usize),
+            ("sha1::State::finalize", sha1::State::finalize as usize),
             ("sha2::sha256_digest", sha2::sha256_digest as usize),
-            ("sha2::Context::reset", sha2::State::reset as usize),
-            (
-                "sha2::Context::new_sha256",
-                sha2::State::new_sha256 as usize,
-            ),
-            (
-                "sha2::Context::new_sha224",
-                sha2::State::new_sha224 as usize,
-            ),
-            ("sha2::Context::update", sha2::State::update as usize),
-            (
-                "sha2::Context::sha256_finalize",
-                sha2::State::sha256_finalize as usize,
-            ),
-            (
-                "sha2::Context::sha224_finalize",
-                sha2::State::sha224_finalize as usize,
-            ),
+            ("sha2::SHA224::new", sha2::SHA224::default as usize),
+            ("sha2::SHA224::update", sha2::SHA224::update as usize),
+            ("sha2::SHA224::finalize", sha2::SHA224::finalize as usize),
+            ("sha2::SHA256::new", sha2::SHA256::default as usize),
+            ("sha2::SHA256::update", sha2::SHA256::update as usize),
+            ("sha2::SHA256::finalize", sha2::SHA256::finalize as usize),
         ];
 
         // Sort by address

@@ -125,7 +125,7 @@ if(NOT OPENSSL_NO_ASM)
   endif()
 endif()
 
-# Build the Rust Castle component
+# Build the Rust Fortress component
 find_program(CARGO_EXECUTABLE cargo)
 if(CARGO_EXECUTABLE)
   message(STATUS "Found Cargo: ${CARGO_EXECUTABLE}")
@@ -161,7 +161,7 @@ if(CARGO_EXECUTABLE)
     COMMAND ${CARGO_EXECUTABLE} build -vv ${CARGO_BUILD_FLAGS}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/rust
     DEPENDS ${RUST_CASTLE_SOURCES}
-    COMMENT "Building Rust Castle library"
+    COMMENT "Building Rust Fortress"
     VERBATIM
   )
   

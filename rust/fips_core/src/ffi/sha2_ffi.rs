@@ -1,13 +1,10 @@
-use crate::digest::sha2;
+use crate::digest::{Digest, sha2};
 
 /// SHA256_CTX is a type alias for the sha2::Context struct
 #[allow(non_camel_case_types)]
-pub type SHA256_CTX = sha2::State;
-
-/// SHA224_CTX is a type alias for the sha2::Context struct
-/// Both SHA-224 and SHA-256 use the same context structure with different initialization
+pub type SHA256_CTX = sha2::SHA256;
 #[allow(non_camel_case_types)]
-pub type SHA224_CTX = sha2::State;
+pub type SHA224_CTX = sha2::SHA224;
 
 /// SHA256_Init initialises |sha| and returns 1.
 ///
@@ -23,7 +20,7 @@ pub unsafe extern "C" fn SHA256_Init(sha: *mut SHA256_CTX) -> i32 {
     let sha = unsafe { &mut *sha };
 
     // Initialize as SHA-256
-    *sha = SHA256_CTX::new_sha256();
+    sha.init();
 
     // Return 1 on success as per the C API
     1
@@ -78,7 +75,7 @@ pub unsafe extern "C" fn SHA256_Final(out: *mut u8, sha: *mut SHA256_CTX) -> i32
 
     // Finalize the hash and write to the output buffer using the SHA-256 specific method
     let context = unsafe { &mut *sha };
-    context.sha256_finalize(output);
+    context.finalize(output);
 
     // Return 1 on success as per the C API
     1
@@ -91,14 +88,14 @@ pub unsafe extern "C" fn SHA256_Final(out: *mut u8, sha: *mut SHA256_CTX) -> i32
 /// This function is unsafe because it dereferences raw pointers:
 /// - `sha` must be a valid pointer to a `SHA256_CTX` struct (which is used for SHA224 in the C API)
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn SHA224_Init(sha: *mut SHA256_CTX) -> i32 {
+pub unsafe extern "C" fn SHA224_Init(sha: *mut SHA224_CTX) -> i32 {
     if sha.is_null() {
         return 0;
     }
 
     // Initialize the context with SHA-224 parameters
     let sha_ctx = unsafe { &mut *sha };
-    sha_ctx.sha224_init();
+    sha_ctx.init();
 
     // Return 1 on success as per the C API
     1
@@ -114,7 +111,7 @@ pub unsafe extern "C" fn SHA224_Init(sha: *mut SHA256_CTX) -> i32 {
 /// - The memory referenced by `data` must not be modified during the call
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn SHA224_Update(
-    sha: *mut SHA256_CTX,
+    sha: *mut SHA224_CTX,
     data: *const core::ffi::c_void,
     len: usize,
 ) -> i32 {
@@ -143,7 +140,7 @@ pub unsafe extern "C" fn SHA224_Update(
 /// - `out` must be a valid pointer to an array of at least `SHA224_DIGEST_LENGTH` bytes
 /// - The memory referenced by `out` must be properly aligned
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn SHA224_Final(out: *mut u8, sha: *mut SHA256_CTX) -> i32 {
+pub unsafe extern "C" fn SHA224_Final(out: *mut u8, sha: *mut SHA224_CTX) -> i32 {
     if sha.is_null() || out.is_null() {
         return 0;
     }
@@ -153,7 +150,7 @@ pub unsafe extern "C" fn SHA224_Final(out: *mut u8, sha: *mut SHA256_CTX) -> i32
 
     // Finalize the hash and write to the output buffer using the SHA-224 specific method
     let context = unsafe { &mut *sha };
-    context.sha224_finalize(output);
+    context.finalize(output);
 
     // Return 1 on success as per the C API
     1
@@ -251,7 +248,7 @@ mod tests {
             0xf2, 0x00, 0x15, 0xad,
         ];
 
-        let mut ctx = SHA256_CTX::new_sha256();
+        let mut ctx = SHA256_CTX::default();
         let mut output = [0u8; sha2::SHA256_DIGEST_LEN];
 
         unsafe {
@@ -282,7 +279,7 @@ mod tests {
             0x19, 0xdb, 0x06, 0xc1,
         ];
 
-        let mut ctx = SHA256_CTX::new_sha256();
+        let mut ctx = SHA256_CTX::default();
         let mut output = [0u8; sha2::SHA256_DIGEST_LEN];
 
         unsafe {
@@ -315,7 +312,7 @@ mod tests {
             // Test null pointers
             assert_eq!(SHA256_Init(std::ptr::null_mut()), 0);
 
-            let mut ctx = SHA256_CTX::new_sha256();
+            let mut ctx = SHA256_CTX::default();
             let ctx_ptr = &mut ctx as *mut SHA256_CTX;
 
             assert_eq!(SHA256_Update(ctx_ptr, std::ptr::null(), 10), 0);
@@ -361,12 +358,12 @@ mod tests {
             0x55, 0xb3, 0x2a, 0xad, 0xbc, 0xe4, 0xbd, 0xa0, 0xb3, 0xf7, 0xe3, 0x6c, 0x9d, 0xa7,
         ];
 
-        let mut ctx = SHA256_CTX::new_sha224();
+        let mut ctx = SHA224_CTX::default();
         let mut output = [0u8; sha2::SHA224_DIGEST_LEN];
 
         unsafe {
             // Test the full sequence: Init -> Update -> Final
-            let ctx_ptr = &mut ctx as *mut SHA256_CTX;
+            let ctx_ptr = &mut ctx as *mut SHA224_CTX;
             assert_eq!(SHA224_Init(ctx_ptr), 1);
             assert_eq!(
                 SHA224_Update(
@@ -394,12 +391,12 @@ mod tests {
             0x01, 0x50, 0xb0, 0xc6, 0x45, 0x5c, 0xb4, 0xf5, 0x8b, 0x19, 0x52, 0x52, 0x25, 0x25,
         ];
 
-        let mut ctx = SHA256_CTX::new_sha224();
+        let mut ctx = SHA224_CTX::default();
         let mut output = [0u8; sha2::SHA224_DIGEST_LEN];
 
         unsafe {
             // Initialize the context
-            let ctx_ptr = &mut ctx as *mut SHA256_CTX;
+            let ctx_ptr = &mut ctx as *mut SHA224_CTX;
             assert_eq!(SHA224_Init(ctx_ptr), 1);
 
             // Update in chunks of 10 bytes
@@ -427,8 +424,8 @@ mod tests {
             // Test null pointers
             assert_eq!(SHA224_Init(std::ptr::null_mut()), 0);
 
-            let mut ctx = SHA256_CTX::new_sha224();
-            let ctx_ptr = &mut ctx as *mut SHA256_CTX;
+            let mut ctx = SHA224_CTX::default();
+            let ctx_ptr = &mut ctx as *mut SHA224_CTX;
 
             assert_eq!(SHA224_Update(ctx_ptr, std::ptr::null(), 10), 0);
             assert_eq!(

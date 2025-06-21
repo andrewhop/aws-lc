@@ -50,7 +50,9 @@ const PADDING_BYTE: u8 = 0x80;
 const PADDING_ZERO: u8 = 0x00;
 
 /// SHA-1 hash function state
+#[derive(Clone, Copy, Debug)]
 #[repr(C)]
+#[allow(non_snake_case)]
 pub struct State {
     /// Current hash state (h0-h4 in the pseudocode)
     h: [u32; 5],
