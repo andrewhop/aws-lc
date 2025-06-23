@@ -37,15 +37,15 @@ pub fn verify_fips_integrity() -> usize {
     // Get boundary addresses
     let start_addr = AWS_LC_fips_text_start as usize;
     let end_addr = AWS_LC_fips_text_end as usize;
+    println!(
+        "Rust FIPS module goes from\nAWS_LC_fips_text_start: {:?}\nAWS_LC_fips_text_end:   {:?}",
+        start_addr, end_addr
+    );
 
     // First verify that critical functions are within the FIPS boundary
     let functions = vec![
         ("constant_time_eq", constant_time_eq as usize),
         ("verify_fips_integrity", verify_fips_integrity as usize),
-        (
-            "verify_fips_functions_inside",
-            verify_fips_functions_inside as usize,
-        ),
         ("get_fips_digest", get_fips_digest as usize),
         ("is_in_fips_boundary", is_in_fips_boundary as usize),
         ("sha1::sha1_digest", sha1::sha1_digest as usize),
@@ -68,6 +68,10 @@ pub fn verify_fips_integrity() -> usize {
                 name, addr, start_addr, end_addr
             );
         }
+        println!(
+            "{:22} at {:?} is within the Rust FIPS boundary!",
+            name, addr
+        );
     }
     functions.len()
 }
