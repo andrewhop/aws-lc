@@ -125,50 +125,51 @@ if(NOT OPENSSL_NO_ASM)
   endif()
 endif()
 
-# Build the Rust Fortress component
-find_program(CARGO_EXECUTABLE cargo)
-if(CARGO_EXECUTABLE)
+# Build the native-Rust FIPS module (rust/fips_module) and link it into libcrypto.
+# libcrypto's SHA implementations are provided by this crate, so a Rust/Cargo
+# toolchain is required whenever AWSLC_RUST_FIPS is enabled (the default).
+if(AWSLC_RUST_FIPS)
+  find_program(CARGO_EXECUTABLE cargo)
+  if(NOT CARGO_EXECUTABLE)
+    message(FATAL_ERROR
+      "AWSLC_RUST_FIPS is ON but cargo was not found. Install a Rust/Cargo "
+      "toolchain (https://rustup.rs), or configure with -DAWSLC_RUST_FIPS=OFF.")
+  endif()
   message(STATUS "Found Cargo: ${CARGO_EXECUTABLE}")
-  
-  # Determine build type for Rust
+
+  # Map the CMake build type onto a cargo profile. Cargo has two profiles
+  # (dev -> target/debug, release -> target/release); everything that is not a
+  # plain debug build maps to the optimized release profile.
   if(CMAKE_BUILD_TYPE_LOWER STREQUAL "debug")
-    set(CARGO_BUILD_TYPE "debug")
+    set(CARGO_PROFILE_DIR "debug")
   else()
-    set(CARGO_BUILD_TYPE "release")
+    set(CARGO_PROFILE_DIR "release")
     set(CARGO_BUILD_FLAGS "--release")
   endif()
-  
-  # Set the path to the Rust static library
-  if(APPLE)
-    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust/target/${CARGO_BUILD_TYPE}/libfips_module.a")
-  elseif(WIN32)
-    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust/target/${CARGO_BUILD_TYPE}/libfips_module.a")
-  else()
-    set(RUST_CASTLE_LIB "${CMAKE_SOURCE_DIR}/rust/target/${CARGO_BUILD_TYPE}/libfips_module.a")
-  endif()
-  
-  # Find all Rust source files and Cargo.toml files
-  file(GLOB_RECURSE RUST_CASTLE_SOURCES
+
+  # cargo emits its artifacts under a single target directory; both crates in the
+  # workspace share it. The final static archive we link is libfips_module.a.
+  set(RUST_FIPS_TARGET_DIR "${CMAKE_SOURCE_DIR}/rust/target")
+  set(RUST_FIPS_LIB "${RUST_FIPS_TARGET_DIR}/${CARGO_PROFILE_DIR}/libfips_module.a")
+
+  # Track the crate sources so CMake rebuilds the archive when they change.
+  # CONFIGURE_DEPENDS re-globs at build time so new/removed files are picked up.
+  file(GLOB_RECURSE RUST_FIPS_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_SOURCE_DIR}/rust/*.rs"
     "${CMAKE_SOURCE_DIR}/rust/*/Cargo.toml"
     "${CMAKE_SOURCE_DIR}/rust/Cargo.toml"
-    "${CMAKE_SOURCE_DIR}/rust/Cargo.lock"
   )
-  
-  # Custom command to build the Rust library
+
   add_custom_command(
-    OUTPUT ${RUST_CASTLE_LIB}
-    COMMAND ${CARGO_EXECUTABLE} build -vv ${CARGO_BUILD_FLAGS}
+    OUTPUT ${RUST_FIPS_LIB}
+    COMMAND ${CARGO_EXECUTABLE} build ${CARGO_BUILD_FLAGS}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/rust
-    DEPENDS ${RUST_CASTLE_SOURCES}
-    COMMENT "Building Rust Fortress"
+    DEPENDS ${RUST_FIPS_SOURCES}
+    COMMENT "Building native-Rust FIPS module (fips_module)"
     VERBATIM
   )
-  
-  # Create a custom target for the Rust library
-  add_custom_target(rust_castle_build ALL DEPENDS ${RUST_CASTLE_LIB})
-else()
-  message(FATAL_ERROR "Cargo not found. Please install Rust and Cargo to build the Rust Castle component.")
+
+  add_custom_target(rust_fips_build ALL DEPENDS ${RUST_FIPS_LIB})
 endif()
 
 if(PERL_EXECUTABLE)
@@ -639,10 +640,27 @@ function(build_libcrypto name module_source)
     add_library(${name} $<TARGET_OBJECTS:crypto_objects> ${CRYPTO_FIPS_OBJECTS} ${module_source})
   endif()
 
-  # Add dependency on rust_castle_build and link the Rust library
-  if(CARGO_EXECUTABLE)
-    add_dependencies(${name} rust_castle_build)
-    target_link_libraries(${name} PRIVATE ${RUST_CASTLE_LIB})
+  # Wire in the native-Rust FIPS module. For a shared libcrypto, linking the
+  # archive pulls the needed objects into the .so. For a static libcrypto,
+  # target_link_libraries would only propagate a usage requirement to consumers,
+  # leaving libcrypto.a without the Rust SHA/integrity code; instead we merge the
+  # Rust objects into the archive so it is self-contained.
+  if(AWSLC_RUST_FIPS)
+    add_dependencies(${name} rust_fips_build)
+    get_target_property(_libcrypto_type ${name} TYPE)
+    if(_libcrypto_type STREQUAL "STATIC_LIBRARY")
+      add_custom_command(TARGET ${name} POST_BUILD
+        COMMAND ${CMAKE_COMMAND}
+          -DLIBCRYPTO_ARCHIVE=$<TARGET_FILE:${name}>
+          -DRUST_FIPS_LIB=${RUST_FIPS_LIB}
+          -DAR=${CMAKE_AR}
+          -DRANLIB=${CMAKE_RANLIB}
+          -P ${CMAKE_CURRENT_SOURCE_DIR}/merge_rust_fips.cmake
+        COMMENT "Merging native-Rust FIPS objects into $<TARGET_FILE_NAME:${name}>"
+        VERBATIM)
+    else()
+      target_link_libraries(${name} PRIVATE ${RUST_FIPS_LIB})
+    endif()
   endif()
 
   if(FIPS_DELOCATE OR FIPS_SHARED)
@@ -804,7 +822,7 @@ if(BUILD_TESTING)
     bio/bio_test.cc
     bio/bio_socket_test.cc
     blake2/blake2_test.cc
-    castle_test.cc
+    fips_rust_test.cc
     buf/buf_test.cc
     bytestring/bytestring_test.cc
     chacha/chacha_test.cc

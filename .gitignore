@@ -46,6 +46,6 @@ symbols.txt
 /scratch
 
 # Rust build artifacts
-/target/
 **/target/
-Cargo.lock
+# Note: rust/Cargo.lock is intentionally committed for reproducible, auditable
+# FIPS builds, so it is not ignored here.

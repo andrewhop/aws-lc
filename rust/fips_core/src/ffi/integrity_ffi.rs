@@ -17,7 +17,8 @@ pub unsafe extern "C" fn AWS_LC_FIPS_get_digest(out: *mut u8, out_len: usize) ->
     return 1;
 }
 
+/// Returns 1 if the FIPS boundary self-check passes, 0 otherwise.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn AWS_LC_FIPS_check_integrity() -> usize {
-    verify_fips_integrity()
+pub unsafe extern "C" fn AWS_LC_FIPS_check_integrity() -> c_int {
+    if verify_fips_integrity() { 1 } else { 0 }
 }

@@ -1,57 +1,44 @@
 //! SHA-2 hash function implementations (SHA-224 and SHA-256).
 //!
-//! This is a no_std, no_alloc implementation with no external dependencies,
-//! suitable for use in constrained environments including FIPS-validated modules.
+//! This implementation is written in no_std, no-alloc style with no external
+//! dependencies, suitable for constrained environments including FIPS-validated
+//! modules. See the crate root (lib.rs) for why the `#![no_std]` attribute is
+//! not yet enabled on stable Rust.
 //!
 //! # Examples
+//!
+//! Incremental hashing with the [`Digest`] trait:
 //!
 //! ```
 //! use fips_core::digest::Digest;
 //! use fips_core::digest::sha2::{SHA224, SHA256, SHA224_DIGEST_LEN, SHA256_DIGEST_LEN};
 //!
-//! // SHA-256 using the Digest trait
-//! let data = b"hello world";
-//! let mut sha256 = SHA256::new();
-//! sha256.update(data);
+//! // SHA-256
+//! let mut sha256 = SHA256::default();
+//! sha256.update(b"hello ");
+//! sha256.update(b"world");
 //! let mut hash = [0u8; SHA256_DIGEST_LEN];
 //! sha256.finalize(&mut hash);
 //!
-//! // SHA-224 using the Digest trait
-//! let data = b"hello world";
-//! let mut sha224 = SHA224::new();
-//! sha224.update(data);
+//! // SHA-224
+//! let mut sha224 = SHA224::default();
+//! sha224.update(b"hello world");
 //! let mut hash = [0u8; SHA224_DIGEST_LEN];
 //! sha224.finalize(&mut hash);
 //! ```
 //!
-//! # Examples
+//! One-shot hashing with the module functions:
 //!
 //! ```
-//! use fips_core::hash::sha2;
+//! use fips_core::digest::sha2::{self, SHA224_DIGEST_LEN, SHA256_DIGEST_LEN};
 //!
-//! // SHA-256 one-shot hashing
 //! let data = b"hello world";
-//! let mut hash = [0u8; sha2::SHA256_DIGEST_LEN];
+//!
+//! let mut hash = [0u8; SHA256_DIGEST_LEN];
 //! sha2::sha256_digest(data, &mut hash);
 //!
-//! // SHA-256 incremental hashing
-//! let mut context = sha2::Context::new_sha256();
-//! context.update(b"hello ");
-//! context.update(b"world");
-//! let mut hash = [0u8; sha2::SHA256_DIGEST_LEN];
-//! context.sha256_finalize(&mut hash);
-//!
-//! // SHA-224 one-shot hashing
-//! let data = b"hello world";
-//! let mut hash = [0u8; sha2::SHA224_DIGEST_LEN];
+//! let mut hash = [0u8; SHA224_DIGEST_LEN];
 //! sha2::sha224_digest(data, &mut hash);
-//!
-//! // SHA-224 incremental hashing
-//! let mut context = sha2::Context::new_sha224();
-//! context.update(b"hello ");
-//! context.update(b"world");
-//! let mut hash = [0u8; sha2::SHA224_DIGEST_LEN];
-//! context.sha224_finalize(&mut hash);
 //! ```
 
 #[cfg(test)]

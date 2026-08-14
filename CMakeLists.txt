@@ -30,6 +30,7 @@ option(BUILD_TOOL "Build bssl tool for AWS-LC" ON)
 option(DISABLE_PERL "Disable Perl for AWS-LC" OFF)
 option(DISABLE_GO "Disable Go for AWS-LC" OFF)
 option(ENABLE_FIPS_ENTROPY_CPU_JITTER "Enable FIPS entropy source: CPU Jitter" OFF)
+option(AWSLC_RUST_FIPS "Build and link the native-Rust FIPS module (fips_module) into libcrypto. Requires a Rust/Cargo toolchain." ON)
 option(ENABLE_DATA_INDEPENDENT_TIMING "Enable automatic setting/resetting Data-Independent Timing
 (DIT) flag in cryptographic functions. Currently only applicable to Arm64 (except on Windows)" OFF)
 include(cmake/go.cmake)

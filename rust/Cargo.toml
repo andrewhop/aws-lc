@@ -2,12 +2,12 @@
 resolver = "2"
 members = [ "fips_core", "fips_module"]
 
+# Single codegen unit + LTO keep the FIPS object layout deterministic and
+# contiguous, which the integrity boundary in fips_module/build.rs depends on.
 [profile.dev]
 lto = true
 codegen-units = 1
-embed-bitcode = true
 
 [profile.release]
 lto = true
 codegen-units = 1
-embed-bitcode = true

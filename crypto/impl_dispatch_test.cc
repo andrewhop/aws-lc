@@ -221,7 +221,9 @@ TEST_F(ImplDispatchTest, AES_single_block) {
       });
 }
 
-// The SHA256 implementation has been replaced with the Rust Castle
+// SHA256 is now implemented in the native-Rust FIPS module (fips_core), which
+// does not use the C hardware-dispatch flags this test asserts on, so the
+// dispatch test below no longer applies.
 // TEST_F(ImplDispatchTest, SHA256) {
 //   AssertFunctionsHit(
 //       {

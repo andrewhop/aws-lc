@@ -107,8 +107,9 @@ int SHA256_Init_from_state(SHA256_CTX *sha,
   return sha256_init_from_state_impl(sha, SHA256_DIGEST_LENGTH, h, n);
 }
 
-// SHA256 is now implemented in Rust in rust_castle/drawbridge/src/lib.rs
-// using the keep::hash::sha256::digest function
+// SHA256 is now implemented in Rust. The C ABI entry points (SHA256_Init,
+// SHA256_Update, SHA256_Final, SHA256) are defined in the fips_core crate under
+// rust/fips_core/src/ffi/sha2_ffi.rs.
 
 #if !defined(SHA256_ASM)
 static void sha256_block_data_order(uint32_t state[8], const uint8_t *in,

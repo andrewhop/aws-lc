@@ -1,7 +1,9 @@
 //! SHA-1 hash function implementation.
 //!
-//! This is a no_std, no_alloc implementation with no external dependencies,
-//! suitable for use in constrained environments including FIPS-validated modules.
+//! This implementation is written in no_std, no-alloc style with no external
+//! dependencies, suitable for constrained environments including FIPS-validated
+//! modules. See the crate root (lib.rs) for why the `#![no_std]` attribute is
+//! not yet enabled on stable Rust.
 //!
 //! # Examples
 //!
